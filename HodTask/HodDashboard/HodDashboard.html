@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard</title>
+    <link rel="stylesheet" href="HodDashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="topnav">
+        <div class="brand">SIMS-HOD Panel</div>
+        <div class="nav-actions">
+            <a class="btn ghost small" href="/addBranchesAndSubjects.html">Branches & Subjects</a>
+            <a class="btn ghost small" href="/viewFacultyRequests.html">Faculty Requests</a>
+            <a class="btn ghost small" href="/enterStudentDetails.html">Student Details</a>
+            <a class="btn ghost small" href="/addAndChangeExams.html">Exams</a>
+            <a class="btn ghost small" href="/generateStudentReports.html">Reports</a>
+            <a class="btn ghost small" href="/viewMarksUpdateRequests.html">Marks Updates</a>
+        </div>
+        <div class="nav-right">
+            <div class="profile-section">
+                <div class="profile-avatar" id="profileAvatar">S</div>
+                <div class="nav-info">
+                    <span id="hodNameNav" class="nav-name">HOD: Loading...</span>
+                    <span id="hodBranchNav" class="nav-branch">Branch: -</span>
+                </div>
+            </div>
+            <button id="logoutBtn" class="logout-btn"> Logout</button>
+        </div>
+    </nav>
+
+    <div class="page">
+        <div class="container">
+            <header class="page-header">
+                <div class="header-top">
+                    <h1><span class="gradient-text">Department Operations</span></h1>
+                    <!-- <div class="header-actions">
+                        <a class="btn primary small" href="/generateStudentReports.html">Open Reports</a>
+                        <a class="btn primary small" href="/viewFacultyRequests.html">Faculty Requests</a>
+                    </div> -->
+                </div>
+                <p class="subtitle">Manage programs, faculty requests, and assessments</p>
+               
+            </header>
+
+            <section class="summary-row">
+                <div class="summary card">
+                    <div class="summary-item">
+                        <span class="label"></span>
+                        <span id="hodYears">Loading...</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="options-grid">
+                <a href="/addBranchesAndSubjects.html" class="tile">
+                    <h3>Branches & Subjects</h3>
+                    <p>Configure department branches and subject mappings.</p>
+                </a>
+                <a href="/viewFacultyRequests.html" class="tile">
+                    <h3>Faculty Requests</h3>
+                    <p>Review and approve pending faculty access requests.</p>
+                </a>
+           
+                <a href="/enterStudentDetails.html" class="tile">
+                    <h3>Student Details</h3>
+                    <p>Add or update student records and cohorts.</p>
+                </a>
+                <a href="/addAndChangeExams.html" class="tile">
+                    <h3>Exams</h3>
+                    <p>Create exams, set schedules, and manage changes.</p>
+                </a>
+                <a href="/generateStudentReports.html" class="tile">
+                    <h3>Reports</h3>
+                    <p>Generate academic performance reports.</p>
+                </a>
+                <a href="/viewMarksUpdateRequests.html" class="tile">
+                    <h3>Marks Updates</h3>
+                    <p>Track and act on mark modification requests.</p>
+                </a>
+            </section>
+        </div>
+    </div>
+
+    <script src="HodDashboard.js"></script>
+</body>
+</html>
+ <!-- here the options needs to be replaced with the : if the hod is of csm then based on year the branches 
+    should be avaliable like for 2nd year CSM-a, csm - b and for 3rd year csm only -->

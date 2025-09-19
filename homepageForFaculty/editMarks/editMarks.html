@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Marks</title>
+    <link rel="Stylesheet" href="/navbar.css"/>
+    <link rel="Stylesheet" href="editMarks.css"/>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="\Dashboard\home.html">Home</a></li>
+            <li><a href="\enterMarks\enterMarks.html">Enter Marks</a></li>
+            <li><a href="\ViewMarks\viewMarks.html">View Marks</a></li>
+            <li><a href="\viewOverallMarks\viewOverallMarks.html">View Overall Marks</a></li>
+            <li><a href="\editMarks\editMarks.html">Edit Marks</a></li>
+        </ul>
+    </nav>
+    <label for="exam">Exam: </label>
+    <select id="exam" name="exam">
+        <option value="">Select Exam</option>
+           <!-- retriving exams dynamically from examOfSpecificYearAndBranch -->
+    </select>
+    <button id="getStudentMarks">Click to Edit Students marks</button>
+    <table id="studentsInformationTable">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Hall Ticket No</th>
+                <th>Name</th>
+                <th>Old Marks</th>
+                <th>New Marks</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <button id="requestHod">Request HOD to Update Marks</button>
+
+    
+    <script src="editMarks.js"></script>
+</body>
+</html>

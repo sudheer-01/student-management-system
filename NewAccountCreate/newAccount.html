@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMS Create Account</title>
+    <link href="newAccountStyle.css" rel="Stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkfN5p+Z0eK8Z1jR6V6pG1zZCqQ6rC4d9u7e2mJ9T1r0NuwZP0G4G8Ykw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loginBox" class="loginBox" role="region" aria-label="Create Account">
+        <h1>Create your SIMS account</h1>
+        <p class="subhead">Select your role to continue</p>
+      <nav id="buttons" class="role-tabs" aria-label="Role selection">
+        <button id="hod" class="tab-btn" type="button" onclick="switchTab('allDetailsOfHod', this)"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>HOD</span></button>
+        <button id="teacher" class="tab-btn" type="button" onclick="switchTab('allDetailsOfTeacher', this)"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i><span>Teacher</span></button>
+      </nav>
+      <!-- HOD details -->
+        <h2>Creating HOD account</h2>
+        <form id="hodForm" class="allDetails allDetailsOfHod">
+            <label for="yearOfHod">Year:</label>
+            <select name="yearOfHod" id="yearOfHod" required onchange="toggleBranchVisibility()">
+                <option value="1">1</option>
+                <option value="2,3,4">2,3,4</option>
+            </select>
+            <div id="branchSection" style="display: none;">
+                <label for="branchOfHod">Branch:</label>
+                <select name="branchOfHod" id="branchOfHod">
+                    <option value="Civil">Civil</option>
+                    <option value="Mech">Mech</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EEE">EEE</option>
+                    <option value="CSE">CSE</option>
+                    <option value="CSM">CSM</option>
+                    <option value="CSO">CSO</option>
+                    <option value="CSW">CSW</option>
+                    <option value="CSD">CSD</option>
+                </select>
+            </div>
+
+            <label for="hodId">HOD ID:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-id-card input-icon" aria-hidden="true"></i>
+                <input type="text" id="hodId" name="hodId" placeholder="Enter HOD ID" autocomplete="username" required/>
+            </div>
+
+            <label for="hodName">Name:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+                <input type="text" id="hodName" name="hodName" placeholder="Enter your name" required/>
+            </div>
+
+            <label for="emailOfHod">Email:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-envelope input-icon" aria-hidden="true"></i>
+                <input type="email" id="emailOfHod" name="emailOfHod" placeholder="Enter your Email" autocomplete="email" required/>
+            </div>
+
+            <label for="passwordOfHod">Password:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                <input type="password" id="passwordOfHod" name="passwordOfHod" placeholder="Enter Password" autocomplete="new-password" required/>
+                <button type="button" class="toggle-password" aria-label="Show password" data-target="passwordOfHod"><i class="fa-regular fa-eye"></i></button>
+            </div>
+
+            <label for="reEnterPassword">Confirm Password:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                <input type="password" id="reEnterPassword" name="reEnterPassword" placeholder="Re-Enter Password" autocomplete="new-password" required/>
+                <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPassword"><i class="fa-regular fa-eye"></i></button>
+            </div>
+            <button type="submit" value="Create Account" id="hodSubmitButton">Create Account</button>
+           
+            <div id="errorMessage"></div> <!-- For displaying the backend respose -->            
+        </form>
+        <!-- Teacher details -->
+         <h2>Creating Teacher Account</h2>
+        <form id="teacherForm" class="allDetails allDetailsOfTeacher">
+            <label for="teacherName">Name:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+                <input type="text" id="teacherName" placeholder="Enter your name" name="teacherName" required/> 
+            </div>
+            <label for="facultyId">Faculty Id:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-id-card input-icon" aria-hidden="true"></i>
+                <input type="text" id="facultyId" name="facultyId" placeholder="Enter your Id" autocomplete="username" required/>
+            </div>
+            <label for="emailOfTeacher">Email:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-envelope input-icon" aria-hidden="true"></i>
+                <input type="email"  id="emailOfTeacher" placeholder="Enter your Email" name="emailOfTeacher" autocomplete="email" required/>
+            </div>
+            <label for="passwordOfTeacher">Password:</label>
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                <input type="password" id="passwordOfTeacher" placeholder="Enter your Password" name="passwordOfTeacher" autocomplete="new-password" required/>
+                <button type="button" class="toggle-password" aria-label="Show password" data-target="passwordOfTeacher"><i class="fa-regular fa-eye"></i></button>
+            </div>
+            <label for="reEnterPasswordTeacher">Confirm Password</label>
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+                <input type="password" id="reEnterPasswordTeacher" name="reEnterPasswordTeacher" placeholder="Re-Enter Password" autocomplete="new-password" required/>
+                <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPasswordTeacher"><i class="fa-regular fa-eye"></i></button>
+            </div>
+            <button type="submit" value="Create Account" id="teacherSubmitButton">Create Account</button>
+        </form>
+    </div>
+    <script src="newAccountScript.js"></script>
+</body>
+</html>

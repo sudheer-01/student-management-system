@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Faculty Requests</title>
+    <link rel="stylesheet" href="viewMarksUpdateRequests.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Faculty Requests</h2>
+        
+        <label for="yearDropdown">Select Year:</label>
+        <select id="yearDropdown">
+            <option value="">Select Year</option>
+        </select>
+
+        <label for="branchDropdown">Select Branch:</label>
+        <select id="branchDropdown">
+            <option value="">Select Branch</option>
+        </select>
+
+        <button id="loadRequests">Load Requests</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Faculty ID</th>
+                    <th>Subject</th>
+                    <th>Exam</th>
+                    <th>Requested At</th>
+                    <th>Status</th>
+                    <th>Action</th> 
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody id="requestTable"></tbody>
+        </table>
+    </div>
+
+    <script src="viewMarksUpdateRequests.js"></script>
+</body>
+</html>

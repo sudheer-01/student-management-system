@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Student Reports</title>
+    <link rel="stylesheet" href="generateStudentReports.css">
+</head>
+<body>
+    <div class="report-container">
+        <h2>HOD - Generate Student Reports</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="year">Select Year:</label>
+                <select id="year">
+                    <option value="">--Select Year--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="branch">Select Branch:</label>
+                <select id="branch" disabled>
+                    <option value="">--Select Branch--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="subject">Select Subject:</label>
+                <select id="subject" disabled>
+                    <option value="">--Select Subject--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="exam">Select Exam:</label>
+                <select id="exam" disabled>
+                    <option value="">--Select Exam--</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <button id="fetchReports" disabled>Fetch Student Reports</button>
+        </div>
+        <div class="form-row" style="margin-top: 10px;">
+            <div class="form-group" style="flex:2;">
+                <label for="filterMarks">Filter students who got less than:</label>
+                <input type="number" id="filterMarks" placeholder="Enter marks">
+            </div>
+            <div class="form-group" style="flex:1;align-self:flex-end;">
+                <button id="applyFilter">Apply Filter</button>
+            </div>
+        </div>
+        <table id="studentTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>HTNO</th>
+                    <th>Name</th>
+                    <th>Marks</th>
+                </tr>
+            </thead>
+            <tbody id="studentBody"></tbody>
+        </table>
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="printReport">Print Report</button>
+        </div>
+    </div>
+    <script src="generateStudentReports.js"></script>
+</body>
+</html>

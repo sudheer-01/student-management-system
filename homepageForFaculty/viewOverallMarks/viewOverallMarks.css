@@ -1,0 +1,87 @@
+body {
+    margin: 0px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    text-align: center;  /* Center align all content */
+}
+
+/* Centering the form elements */
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center elements horizontally */
+    justify-content: center; /* Center elements vertically */
+    margin: 20px 0;
+}
+
+/* Increase size of dropdown and buttons */
+select, button {
+    padding: 10px 15px; /* Increased padding */
+    font-size: 16px; /* Increased font size */
+    margin: 10px; /* Adjusted spacing */
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Centering the save button */
+#saveMarks {
+    display: block;
+    margin: 20px auto; /* Centers horizontally */
+    padding: 12px 20px; /* Increased padding */
+    font-size: 16px;
+}
+
+/* Table Styling */
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #62c2a1;
+    color: black;
+}
+
+.exam-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.exam-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    margin-top: 5px;
+    max-width: 600px; /* Optional: To limit the width */
+}
+
+.exam-list label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}

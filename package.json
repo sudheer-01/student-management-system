@@ -1,0 +1,13 @@
+
+{
+  "name": "student-management-system",
+  "version": "1.0.0",
+  "main": "verifyLogin.js",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.10.0"
+  },
+  "scripts": {
+    "start": "node verifyLogin.js"
+  }
+}

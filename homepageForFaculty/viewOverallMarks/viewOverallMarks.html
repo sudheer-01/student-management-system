@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Overall Marks</title>
+    <link rel="stylesheet" href="/navbar.css"/>
+    <link rel="stylesheet" href="viewOverallMarks.css"/>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="\Dashboard\home.html">Home</a></li>
+            <li><a href="\enterMarks\enterMarks.html">Enter Marks</a></li>
+            <li><a href="\ViewMarks\viewMarks.html">View Marks</a></li>
+            <li><a href="\viewOverallMarks\viewOverallMarks.html">View Overall Marks</a></li>
+            <li><a href="\editMarks\editMarks.html">Edit Marks</a></li>
+        </ul>
+    </nav>
+
+    <button id="getStudentMarks">Click to Get Students' Overall Marks</button>
+
+    <!-- Section for Adding New Column -->
+    <div id="addColumnSection" style="display: none;" class="exam-container">
+        <h3>Add a New Column</h3>
+        
+        <label>Select Exams to Sum:</label>
+        <div id="examCheckboxes" class="exam-list"></div> <!-- Checkboxes will be dynamically added here -->
+    
+        <label>Enter Column Name:</label>
+        <input type="text" id="newColumnName" placeholder="Enter column name"/>
+    
+        <label>Insert Column At Position:</label>
+        <input type="number" id="columnPosition" min="1" value="1"/>
+    
+        <button id="addColumn">Add Column</button>
+    </div>
+    
+
+    <table id="studentsInformationTable" border="1">
+        <thead>
+            <tr>
+                <th>S.NO</th>
+                <th>HallTicket Number</th>
+                <th>Student Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div style="text-align: center; margin-top: 20px;">
+        <button id="printReport">Print Report</button>
+    </div>
+    
+    <script src="viewOverallMarks.js"></script>
+</body>
+</html>

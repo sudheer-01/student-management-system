@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Subject Management</title>
+    <link rel="stylesheet" href="addBranchesAndSubjects.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Subjects & Branches</h2>
+        <p>Please select the academic year to manage branches and subjects accordingly.</p>
+        <!-- Year Selection -->
+        <label for="year"><strong>Select Year:</strong></label>
+        <select id="year">
+            <option value="">Choose Year</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+        </select>
+
+        <!-- Branch Management -->
+        <h3>Branches</h3>
+        <div id="branchContainer"></div>
+        <button id="addBranch" class="add-btn">+ Add Branch</button>
+
+        <!-- Subject Management -->
+        <h3>Subjects</h3>
+        <div id="subjectContainer"></div>
+        <button id="addSubject" class="add-btn">+ Add Subject</button>
+
+        <button id="saveData" class="save-btn">Save to Database</button>
+    </div>
+
+    <script src="addBranchesAndSubjects.js"></script>
+</body>
+</html>

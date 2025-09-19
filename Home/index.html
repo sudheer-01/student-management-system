@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMS • Student Information Management System</title>
+    <link href="style.css" rel="Stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="A centralized web-based platform for entering, managing, and tracking student records with role-based access for HOD, Faculty, Students, and Admin.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkfN5p+Z0eK8Z1jR6V6pG1zZCqQ6rC4d9u7e2mJ9T1r0NuwZP0G4G8Ykw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <meta name="theme-color" content="#f6f8fb">
+</head>
+<body>
+    <div id="loader" class="loader" aria-label="Loading"></div>
+    <header class="site-header">
+        <div class="container">
+            <div class="brand">
+                <div class="logo"><img src="graduated.jpg" alt="SIMS Logo" /></div>
+                <div class="brand-text">
+                    <span class="brand-name">SIMS</span>
+                    <span class="brand-tag">Student Information Management System</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <a class="nav-link" href="#home">Home</a>
+                <a class="nav-link" href="#features">Features</a>
+                <a class="nav-link" href="#about">About</a>
+                <a class="nav-link" href="#contact">Contact</a>
+                <a class="nav-link" href="login.html">Login</a>
+                <a class="nav-btn" href="/NewAccountCreate/newAccount.html">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="home">
+            <div class="container hero-grid">
+                <div class="hero-copy glass">
+                    <h1>Centralized, secure and real‑time academic management</h1>
+                    <p>Automate marks entry, updates and analytics across assessments. Role‑based access for HODs, faculty, students and admins with accurate, consistent, and instantly available data.</p>
+                    <div class="cta">
+                        <a class="btn primary" href="../loginpage/login.html">Login</a>
+                        <a class="btn ghost" href="../NewAccountCreate/newAccount.html">Create Account</a>
+                    </div>
+                    <ul class="trust-points">
+                        <li>Role-based access control</li>
+                        <li>Automated calculations & validations</li>
+                        <li>Real-time student progress</li>
+                        <li>Export & performance analytics</li>
+                    </ul>
+                </div>
+                <div class="hero-card" role="img" aria-label="Analytics preview">
+                    <div class="card">
+                        <div class="card-header">Class Overview</div>
+                        <div class="card-body">
+                            <div class="kpi kpi--avg">
+                                <span class="kpi-label">Avg Score</span>
+                                <div class="kpi-value ticker" aria-live="polite">
+                                    <div class="ticker-track">
+                                        <span>82.3%</span>
+                                        <span>82.6%</span>
+                                        <span>82.9%</span>
+                                        <span>83.1%</span>
+                                        <span>82.3%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kpi kpi--ontrack">
+                                <span class="kpi-label">On Track</span>
+                                <div class="kpi-value ticker" aria-live="polite">
+                                    <div class="ticker-track">
+                                        <span>72%</span>
+                                        <span>74%</span>
+                                        <span>75%</span>
+                                        <span>73%</span>
+                                        <span>72%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="kpi kpi--updates">
+                                <span class="kpi-label">Updates Today</span>
+                                <div class="kpi-value ticker" aria-live="polite">
+                                    <div class="ticker-track">
+                                        <span>16</span>
+                                        <span>18</span>
+                                        <span>21</span>
+                                        <span>19</span>
+                                        <span>16</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-chart">
+                            <canvas id="overviewChart" height="180"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-illustration" aria-hidden="true">
+                    <div class="blob one"></div>
+                    <div class="blob two"></div>
+                    <div class="blob three"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <div class="container features-grid">
+                <div class="feature fleatures">
+                    <h3>For HOD</h3>
+                    <p>Manage branches, subjects, schedules and approve faculty requests with full visibility.</p>
+                </div>
+                <div class="feature fleatures">
+                    <h3>For Faculty</h3>
+                    <p>Enter and update marks across unit tests, mids and finals with automated totals.</p>
+                </div>
+                <div class="feature fleatures">
+                    <h3>For Students</h3>
+                    <p>Track progress in real time without waiting for manual updates or spreadsheets.</p>
+                </div>
+                <div class="feature fleatures">
+                    <h3>For Admin</h3>
+                    <p>Secure, auditable operations with role-based permissions and data consistency.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="quote" id="about">
+            <div class="container">
+                <blockquote>
+                    “Empowering education through technology.”
+                </blockquote>
+                <p class="sub">Built with a focus on accuracy, transparency, and accessibility for every stakeholder.</p>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container testimonial-grid">
+                <div class="testimonial-card">
+                    <p>“SIMS made our assessment process seamless. Real‑time updates are a game‑changer.”</p>
+                    <span class="author">— HOD, CSE</span>
+                </div>
+                <div class="testimonial-card">
+                    <p>“Entering and reviewing marks is much faster now, and errors have dropped significantly.”</p>
+                    <span class="author">— Faculty, ECE</span>
+                </div>
+                <div class="testimonial-card">
+                    <p>“I can track my progress anytime without asking for reports.”</p>
+                    <span class="author">— Student, III Year</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-links" style="grid-column: 1 / -1;">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><i class="fa-solid fa-envelope"></i> support@sims.example</li>
+                        <li><i class="fa-solid fa-phone"></i> +91 98765 43210</li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-row">
+                       
+                        <a href="https://wa.me/919876543210" aria-label="WhatsApp"><img src="whatsapp.jpg" alt="WhatsApp" /></a>
+                        <a href="#" aria-label="LinkedIn"><img src="linkedin.jpg" alt="LinkedIn" /></a>
+                        <a href="#" aria-label="Instagram"><img src="instagram.jpg" alt="Instagram" /></a>
+                    </div>
+                </div>
+                <div class="footer-legal">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© <span id="year"></span> SIMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Loader
+    const loader = document.getElementById('loader');
+    window.addEventListener('load', () => {
+        loader.classList.add('hide');
+        setTimeout(() => loader.remove(), 400);
+    });
+
+    // Chart.js simple line chart
+    const ctx = document.getElementById('overviewChart');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Unit‑1', 'Unit‑2', 'Mid‑1', 'Unit‑3', 'Unit‑4', 'Mid‑2', 'Final'],
+                datasets: [{
+                    label: 'Avg %',
+                    data: [78, 80, 82, 81, 84, 85, 86],
+                    borderColor: '#1f6feb',
+                    backgroundColor: 'rgba(31,111,235,0.15)',
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(11,18,32,0.06)' }, suggestedMin: 60, suggestedMax: 100 }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+    </script>
+</body>
+</html>

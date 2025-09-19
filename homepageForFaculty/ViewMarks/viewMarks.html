@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="Stylesheet" href="/navbar.css"/>
+    <link rel="Stylesheet" href="viewMarks.css"/>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="\Dashboard\home.html">Home</a></li>
+            <li><a href="\enterMarks\enterMarks.html">Enter Marks</a></li>
+            <li><a href="\ViewMarks\viewMarks.html">View Marks</a></li>
+            <li><a href="\viewOverallMarks\viewOverallMarks.html">View Overall Marks</a></li>
+            <li><a href="\editMarks\editMarks.html">Edit Marks</a></li>
+        </ul>
+    </nav>
+    <label for="exam">Exam: </label>
+    <select id="exam" name="exam">
+        <option value="">Select Exam</option>
+         <!-- retriving exams dynamically from examOfSpecificYearAndBranch -->
+    </select>
+    <button id="getStudentMarks">Click to get Students marks</button>
+    <table id="studentsInformationTable" border="1">
+        <thead>
+            <tr>
+                <th>S.NO</th>
+                <th>HallTicket Number</th>
+                <th>Student Name</th>
+                <th id="examHeading">Marks</th>  <!-- Dynamic updates -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- <tr>
+                <td>1</td>
+                <td>6601</td>
+                <td>Sudheer</td>
+                <td>05</td>
+            </tr> -->
+        </tbody>
+    </table>
+    <script src="viewMarks.js"></script>
+</body>
+</html>

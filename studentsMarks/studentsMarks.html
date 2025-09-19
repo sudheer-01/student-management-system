@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks</title>
+    <link href="studentsMarks.css" rel="Stylesheet"/>
+</head>
+<body>
+    <div class="page">
+        <div class="container">
+            <header class="page-header">
+                <h1>Student Marks</h1>
+                <p class="subtitle">View your performance across exams</p>
+            </header>
+
+            <div class="actions">
+                <div class="actions-left">
+                    <button id="fetchMarksBtn" class="btn primary">Get Your Marks</button>
+                </div>
+                <div class="actions-right">
+                    <div id="loadingSpinner" class="spinner hidden" aria-hidden="true"></div>
+                    <button id="exportCsvBtn" class="btn secondary" aria-label="Export table to CSV">Export CSV</button>
+                    <button id="printBtn" class="btn ghost" aria-label="Print marks">Print</button>
+                    <button id="logoutBtn" class="btn danger" aria-label="Log out">Log out</button>
+                </div>
+            </div>
+            <div id="statusMessage" class="status hidden" role="status"></div>
+
+            <section id="studentInfo" class="student-info card"></section>
+
+            <div class="table-wrapper hidden">
+                <table id="marksTable" style="display: none;">
+                    <thead>
+                        <tr id="examHeaders"> <!-- Dynamic Exam Headers -->
+                            <th>Subject</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marksBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="studentMarks.js"></script>
+</body>
+</html>

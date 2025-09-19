@@ -1,0 +1,169 @@
+/* Body styling */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: #90a7be;
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+/* Main login box styling */
+#loginBox {
+    border: 1px solid rgba(11,18,32,0.10);
+    padding: 28px 22px;
+    width: 92%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    max-height: 84vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    text-align: center;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(11, 18, 32, 0.12);
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Heading styling */
+h1 { margin: 0 0 4px; font-size: 28px; color: #0b1220; }
+.subhead { margin: 0 0 12px; color: #5a6a85; font-size: 14px; }
+
+/* Slide-up animation for heading */
+@keyframes slideUp {
+    0% {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Select your role section */
+.role-tabs { display: grid; grid-template-columns: repeat(2, max-content); justify-content: center; gap: 16px; margin-bottom: 18px; width: 100%; }
+.tab-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 22px; min-width: 150px; height: 48px; border-radius: 12px; border: 1px solid rgba(11,18,32,0.10); background: #ffffff; color: #0b1220; cursor: pointer; transition: all .2s ease; font-weight: 800; font-size: 16px; letter-spacing: .2px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.tab-btn i { color: #1f6feb; }
+.tab-btn:hover { background: #f2f7ff; border-color: rgba(31,111,235,0.35); transform: translateY(-1px); }
+.tab-btn:active { transform: translateY(0); }
+.tab-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(31,111,235,0.25), 0 6px 18px rgba(0,0,0,0.06); }
+.tab-btn.active { background: linear-gradient(135deg, #1f6feb, #3fb7ff); color: #ffffff; border-color: transparent; box-shadow: 0 16px 36px rgba(31,111,235,0.22); }
+.tab-btn.active i { color: #ffffff; }
+
+/* Button styling */
+button {
+    font-size: 1.4rem;
+    margin: 15px;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: 45%;
+    background-color: #12a3c7; /* Light Red background for buttons */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0a647a; /* Darker Red on hover */
+}
+
+/* Form details styling */
+.allDetails { margin-top: 16px; font-size: 1rem; width: 100%; text-align: left; }
+
+/* Label styling */
+.allDetails label { display: block; margin: 10px 0 6px; font-size: 0.95rem; color: #5a6a85; font-weight: 600; }
+
+/* Input fields and select styling */
+.allDetails select,
+.allDetails input[type="email"],
+.allDetails input[type="password"],
+.allDetails input[type="text"] { font-size: 1rem; width: 100%; margin-bottom: 14px; padding: 12px; box-sizing: border-box; border: 1px solid rgba(11,18,32,0.15); border-radius: 10px; transition: border .2s ease, box-shadow .2s ease; background: #fbfdff; color: #0b1220; }
+.allDetails select:focus,
+.allDetails input[type="email"]:focus,
+.allDetails input[type="password"]:focus,
+.allDetails input[type="text"]:focus { border-color: rgba(31,111,235,0.55); box-shadow: 0 0 0 3px rgba(31,111,235,0.20); outline: none; }
+
+.allDetails select:focus,
+.allDetails input[type="email"]:focus,
+.allDetails input[type="password"]:focus,
+.allDetails input[type="text"]:focus {
+    border: 2px solid #A8E6CF; /* Same focus border as background */
+}
+
+/* Submit button styling */
+.allDetails input[type="submit"] { background: linear-gradient(135deg, #1f6feb, #3fb7ff); color: #ffffff; border: 1px solid rgba(31,111,235,0.25); padding: 12px 16px; font-size: 1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; box-shadow: 0 10px 24px rgba(31,111,235,0.18); width: 100%; }
+.allDetails input[type="submit"]:hover { transform: translateY(-1px); box-shadow: 0 16px 36px rgba(31,111,235,0.22); }
+.allDetails input[type="submit"]:active { transform: translateY(0); }
+
+/* Hiding sections */
+.allDetailsOfTeacher,
+.allDetailsOfHod,
+h2 {
+    display: none;
+}
+
+/* Glowing horizon effect */
+@keyframes glowingHorizon {
+    0% {
+        background: linear-gradient(to bottom, #e1594d, #66cda7);
+    }
+    50% {
+        background: linear-gradient(to bottom, #c0372b, #19a16f);
+    }
+    100% {
+        background: linear-gradient(to bottom, #dc2717, #10c683);
+    }
+}
+
+/* Apply glowing horizon effect */
+/* remove glow animation */
+
+/* Media query for responsiveness */
+@media (max-width: 768px) {
+    button {
+        font-size: 1.3rem;
+        padding: 12px 20px;
+    }
+
+    .allDetails select,
+    .allDetails input[type="email"],
+    .allDetails input[type="password"],
+    .allDetails input[type="text"] {
+        font-size: 1rem;
+    }
+
+    #loginBox {
+        width: 95%;
+        max-height: 90vh;
+    }
+}
+#errorMessage {
+    display: none;  /* Initially hidden */
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Input groups with icons and toggles */
+.input-group { position: relative; display: flex; align-items: center; }
+.input-group .input-icon { position: absolute; left: 12px; color: #1f6feb; font-size: 14px; }
+.input-group input { padding-left: 36px !important; }
+.toggle-password { position: absolute; right: 8px; border: none; background: transparent; cursor: pointer; color: #5a6a85; padding: 6px; border-radius: 8px; }
+.toggle-password:hover { color: #0b1220; background: rgba(11,18,32,0.05); }
