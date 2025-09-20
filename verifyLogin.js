@@ -252,10 +252,15 @@ app.post("/saveData", (req, res) => {
     let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
 
     con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
+        // if (err) {
+        //     console.error(err);
+        //     return res.status(500).send("The student already exists with the same htno.");
+        // }
         if (err) {
-            console.error(err);
-            return res.status(500).send("The student already exists with the same htno.");
+        console.error("MySQL Error:", err);
+        return res.status(500).send(err.sqlMessage || "Error saving data."); 
         }
+
         res.send("Data saved successfully!");
     });
 });
