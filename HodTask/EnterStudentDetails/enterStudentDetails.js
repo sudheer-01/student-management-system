@@ -110,7 +110,7 @@ function fetchStudentData() {
         return;
     }
 
-    fetch(`http://localhost:9812/getData?branch=${branch}&year=${year}`)
+    fetch(`/getData?branch=${branch}&year=${year}`)
         .then(response => response.json())
         .then(data => {
             tbody.innerHTML = "";

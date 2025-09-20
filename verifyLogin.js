@@ -251,7 +251,7 @@ app.post("/saveData", (req, res) => {
 
     let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
 
-    con.query("INSERT INTO studentMarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
+    con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).send("The student already exists with the same htno.");
@@ -269,7 +269,7 @@ app.get("/getData", (req, res) => {
     }
 
     con.query(
-        "SELECT DISTINCT htno, name FROM studentMarks WHERE branch = ? AND year = ?",
+        "SELECT DISTINCT htno, name FROM studentmarks WHERE branch = ? AND year = ?",
         [branch, year],
         (err, results) => {
             if (err) {
@@ -289,7 +289,7 @@ app.get("/getStudents", (req, res) => {
     let branch = approvedBranch; //g
     let year = approvedYear; //g
 
-    con.query("SELECT DISTINCT htno, name FROM studentMarks WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
+    con.query("SELECT DISTINCT htno, name FROM studentmarks WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
         if (err) {
             console.error("Error fetching student data:", err);
             res.status(500).json({ success: false, message: "Database error" });
