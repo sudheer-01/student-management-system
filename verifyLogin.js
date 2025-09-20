@@ -1204,7 +1204,7 @@ app.post("/studentDashboard", (req, res) => {
     const getColumnsQuery = `
     SELECT COLUMN_NAME 
     FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = 'studentMarks' 
+    WHERE TABLE_NAME = 'studentmarks' 
     AND COLUMN_NAME NOT IN ('year', 'branch', 'htno', 'name', 'subject')
 `;
 
@@ -1220,7 +1220,7 @@ app.post("/studentDashboard", (req, res) => {
 
         const getStudentQuery = `
             SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
-            FROM studentMarks 
+            FROM studentmarks 
             WHERE year = ? AND htno = ?
         `;
 
