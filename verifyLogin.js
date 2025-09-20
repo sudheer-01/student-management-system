@@ -1169,9 +1169,8 @@ var stuHtno = "";
 app.post("/studentCheckin", (req, res) => {
     stuYear = req.body.year;
     stuHtno = req.body.htno;
-
     con.query(
-        "SELECT * FROM studentMarks WHERE year=? AND htno=?",
+        "SELECT * FROM studentmarks WHERE year=? AND htno=?",
         [stuYear, stuHtno],
         (err, result) => {
             if (err) {
