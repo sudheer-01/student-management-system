@@ -252,14 +252,14 @@ app.post("/saveData", (req, res) => {
     let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
 
     con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
-        // if (err) {
-        //     console.error(err);
-        //     return res.status(500).send("The student already exists with the same htno.");
-        // }
         if (err) {
-        console.error("MySQL Error:", err);
-        return res.status(500).send(err.sqlMessage || "Error saving data."); 
+            console.error(err);
+            return res.status(500).send("The student already exists with the same htno.");
         }
+        // if (err) {
+        // console.error("MySQL Error:", err);
+        // return res.status(500).send(err.sqlMessage || "Error saving data."); 
+        // }
 
         res.send("Data saved successfully!");
     });
@@ -331,7 +331,7 @@ app.post("/saveMarks", (req, res) => {
     const queries = marksData.map(({ htno, marks }) => {
         return new Promise((resolve, reject) => {
             // Check if student exists
-            const checkQuery = `SELECT * FROM studentMarks WHERE htno = ?`;
+            const checkQuery = `SELECT * FROM studentmarks WHERE htno = ?`;
             con.query(checkQuery, [htno], (err, result) => {
                 if (err) {
                     console.error("Database error:", err);
@@ -344,7 +344,7 @@ app.post("/saveMarks", (req, res) => {
 
                     if (existingSubject) {
                         // Update existing subject marks
-                        const updateQuery = `UPDATE studentMarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
+                        const updateQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
                         con.query(updateQuery, [marks, htno, subjectName], (err, updateResult) => {
                             if (err) {
                                 console.error("Error updating marks:", err);
@@ -355,7 +355,7 @@ app.post("/saveMarks", (req, res) => {
                         });
                     } else {
                         // Check for TBD subjects and update them
-                        const updateSubjectQuery = `UPDATE studentMarks SET subject = ? WHERE htno = ? AND subject LIKE 'TBD_%' LIMIT 1`;
+                        const updateSubjectQuery = `UPDATE studentmarks SET subject = ? WHERE htno = ? AND subject LIKE 'TBD_%' LIMIT 1`;
                         con.query(updateSubjectQuery, [subjectName, htno], (err, updateSubjectResult) => {
                             if (err) {
                                 console.error("Error updating subject name:", err);
@@ -364,7 +364,7 @@ app.post("/saveMarks", (req, res) => {
 
                             if (updateSubjectResult.affectedRows > 0) {
                                 // If a TBD subject was updated, update the marks
-                                const updateMarksQuery = `UPDATE studentMarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
+                                const updateMarksQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
                                 con.query(updateMarksQuery, [marks, htno, subjectName], (err, updateMarksResult) => {
                                     if (err) {
                                         console.error("Error updating marks:", err);
@@ -377,7 +377,7 @@ app.post("/saveMarks", (req, res) => {
                                 // Insert new subject if no TBD entry exists
                                 const { year, branch, name } = result[0];
 
-                                const insertQuery = `INSERT INTO studentMarks (year, branch, htno, name, subject, ${exam}) VALUES (?, ?, ?, ?, ?, ?)`;
+                                const insertQuery = `INSERT INTO studentmarks (year, branch, htno, name, subject, ${exam}) VALUES (?, ?, ?, ?, ?, ?)`;
                                 con.query(insertQuery, [year, branch, htno, name, subjectName, marks], (err, insertResult) => {
                                     if (err) {
                                         console.error("Error inserting new subject:", err);
@@ -423,7 +423,7 @@ app.get("/getStudentMarks", (req, res) => {
     //     return res.status(400).json({ success: false, message: "Invalid exam type" });
     // }
 
-    let sqlQuery = `SELECT htno, name, ${examColumn} FROM studentMarks WHERE branch = ? AND year = ? AND subject = ?`;
+    let sqlQuery = `SELECT htno, name, ${examColumn} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
 
     con.query(sqlQuery, [branch, year, subject], (err, results) => {
         if (err) {
@@ -441,7 +441,7 @@ app.get("/getOverallMarks", (req, res) => {
     let subject =  approvedSubject;  // g
 
     // Query to get exam columns dynamically
-    con.query("SHOW COLUMNS FROM studentMarks", (err, columns) => {
+    con.query("SHOW COLUMNS FROM studentmarks", (err, columns) => {
         if (err) {
             console.error("Error fetching column names:", err);
             return res.status(500).json({ success: false, message: "Database error" });
@@ -453,7 +453,7 @@ app.get("/getOverallMarks", (req, res) => {
             .filter(col => !["year", "branch", "htno", "name", "subject"].includes(col));
 
         // Construct SQL Query to fetch data dynamically
-        let sqlQuery = `SELECT htno, name, ${examColumns.join(", ")} FROM studentMarks WHERE branch = ? AND year = ? AND subject = ?`;
+        let sqlQuery = `SELECT htno, name, ${examColumns.join(", ")} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
 
         con.query(sqlQuery, [branch, year, subject], (err, results) => {
             if (err) {
@@ -488,7 +488,7 @@ app.get("/getStudentMarksForEditing", (req, res) => {
     // console.log("Year:", year);
     // console.log("Subject:", subject);
 
-    let query = `SELECT htno, name, ?? FROM studentMarks WHERE branch = ? AND year = ? AND subject = ?`;
+    let query = `SELECT htno, name, ?? FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
     
     con.query(query, [exam, branch, year, subject], (err, results) => {
         if (err) {
@@ -910,7 +910,7 @@ app.get("/getFacultyDetails", (req, res) => {
 app.get("/getExamColumns/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
 
-    const query = "SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?";
+    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(query, [year, branch], (err, result) => {
         if (err) {
@@ -950,7 +950,7 @@ app.post("/addExamToDatabase", (req, res) => {
     const examName = examNameWithSpaces.replace(/\s+/g, "_");
     //console.log(examName);
 
-    const getQuery = "SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?";
+    const getQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(getQuery, [year, branch], (err, result) => {
         if (err) {
@@ -985,11 +985,11 @@ app.post("/addExamToDatabase", (req, res) => {
 
         if (result.length > 0) {
             // Update existing record
-            const updateQuery = "UPDATE examsOfSpecificYearAndBranch SET exams = ? WHERE year = ? AND branch = ?";
+            const updateQuery = "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?";
             con.query(updateQuery, [JSON.stringify(examsJSON), year, branch], handleExamInsertion);
         } else {
             // Insert new record
-            const insertQuery = "INSERT INTO examsOfSpecificYearAndBranch (year, branch, exams) VALUES (?, ?, ?)";
+            const insertQuery = "INSERT INTO examsofspecificyearandbranch (year, branch, exams) VALUES (?, ?, ?)";
             con.query(insertQuery, [year, branch, JSON.stringify(examsJSON)], handleExamInsertion);
         }
 
@@ -1002,7 +1002,7 @@ app.post("/addExamToDatabase", (req, res) => {
             // Check if column exists in studentMarks table
             const checkColumnQuery = `
                 SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = 'studentMarks' AND COLUMN_NAME = ?`;
+                WHERE TABLE_NAME = 'studentmarks' AND COLUMN_NAME = ?`;
 
             con.query(checkColumnQuery, [examName], (columnErr, columnResult) => {
                 if (columnErr) {
@@ -1012,7 +1012,7 @@ app.post("/addExamToDatabase", (req, res) => {
 
                 if (columnResult.length === 0) {
                     // Column does not exist, so add it
-                    const alterQuery = `ALTER TABLE studentMarks ADD COLUMN \`${examName}\` TINYINT DEFAULT NULL`;
+                    const alterQuery = `ALTER TABLE studentmarks ADD COLUMN \`${examName}\` TINYINT DEFAULT NULL`;
 
                     con.query(alterQuery, (alterErr) => {
                         if (alterErr) {
@@ -1042,7 +1042,7 @@ app.post("/removeExamColumn", (req, res) => {
         return res.status(400).send("Year, branch, and exam name are required");
     }
 
-    const getQuery = "SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?";
+    const getQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(getQuery, [year, branch], (err, result) => {
         if (err) {
@@ -1091,7 +1091,7 @@ app.post("/removeExamColumn", (req, res) => {
         });
 
         // Update the exams JSON in the database
-        const updateQuery = "UPDATE examsOfSpecificYearAndBranch SET exams = ? WHERE year = ? AND branch = ?";
+        const updateQuery = "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?";
 
         con.query(updateQuery, [JSON.stringify(newExamsJSON), year, branch], (updateErr) => {
             if (updateErr) {
@@ -1100,7 +1100,7 @@ app.post("/removeExamColumn", (req, res) => {
             }
 
             // Instead of deleting the exam column in studentMarks, set values to NULL
-            const updateStudentMarksQuery = `UPDATE studentMarks SET \`${examName}\` = NULL WHERE year = ? AND branch = ?`;
+            const updateStudentMarksQuery = `UPDATE studentmarks SET \`${examName}\` = NULL WHERE year = ? AND branch = ?`;
 
             con.query(updateStudentMarksQuery, [year, branch], (updateMarksErr) => {
                 if (updateMarksErr) {
@@ -1135,7 +1135,7 @@ app.get("/getExams", (req, res) => {
     const year = approvedYear;
     const branch = approvedBranch;
 
-    const query = "SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?";
+    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(query, [year, branch], (err, result) => {
         if (err) {
@@ -1333,7 +1333,7 @@ app.get("/getStudentReports/:year/:branch/:subject/:exam", (req, res) => {
     const { year, branch, subject, exam } = req.params;
 
     // Corrected query: dynamically selecting the column
-    const query = `SELECT htno, name, ${exam} AS marks FROM studentMarks WHERE year = ? AND branch = ? AND subject = ?`;
+    const query = `SELECT htno, name, ${exam} AS marks FROM studentmarks WHERE year = ? AND branch = ? AND subject = ?`;
 
     con.query(query, [year, branch, subject], (err, result) => {
         if (err) return res.status(500).send(err);
@@ -1344,7 +1344,7 @@ app.get("/getStudentReports/:year/:branch/:subject/:exam", (req, res) => {
 app.get("/getExamsForHod/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
 
-    const query = "SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?";
+    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(query, [year, branch], (err, result) => {
         if (err) {
@@ -1413,7 +1413,7 @@ app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
             // Update marks for each student
             let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
                 return new Promise((resolve, reject) => {
-                    const updateQuery = `UPDATE studentMarks SET ${column} = ? WHERE year = ? AND branch = ? AND htno = ? AND subject = ?`;
+                    const updateQuery = `UPDATE studentmarks SET ${column} = ? WHERE year = ? AND branch = ? AND htno = ? AND subject = ?`;
                     con.query(updateQuery, [new_marks, year, branch, htno, subject], (err) => {
                         if (err) reject(err);
                         else resolve();
