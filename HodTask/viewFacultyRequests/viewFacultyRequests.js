@@ -1,7 +1,7 @@
 // Load available years dynamically
 async function loadYears() {
     try {
-        const response = await fetch("http://localhost:9812/getYears");
+        const response = await fetch("/getYears");
         const years = await response.json();
 
         const yearDropdown = document.getElementById("yearDropdown");
@@ -29,7 +29,7 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
     }
 
     try {
-        const response = await fetch(`http://localhost:9812/getBranches/${year}`);
+        const response = await fetch(`/getBranches/${year}`);
         const branches = await response.json();
 
         const branchDropdown = document.getElementById("branchDropdown");
@@ -59,7 +59,7 @@ document.getElementById("loadRequests").addEventListener("click", async function
     }
 
     try {
-        const response = await fetch(`http://localhost:9812/hodRequests/${year}/${branch}`);
+        const response = await fetch(`/hodRequests/${year}/${branch}`);
         const requests = await response.json();
 
         const tableBody = document.getElementById("requestTable");
@@ -134,7 +134,7 @@ async function updateStatus(facultyId, year, branch, subject, status) {
     console.log("Sending request with:", facultyId, year, branch, subject, status); // Debugging log
 
     try {
-        const response = await fetch(`http://localhost:9812/updateRequestStatus`, {
+        const response = await fetch(`/updateRequestStatus`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ facultyId, status, year, branch, subject })
