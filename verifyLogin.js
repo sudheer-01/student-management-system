@@ -155,7 +155,7 @@ app.post("/createHodAccount", (req, res) => {
 
     // Check if HOD ID or Email already exists
     con.query(
-        "SELECT * FROM HOD_Details WHERE hod_id = ? OR email = ?",
+        "SELECT * FROM hod_details WHERE hod_id = ? OR email = ?",
         [hodId, emailOfHod],
         (err, results) => {
             if (err) {
@@ -169,7 +169,7 @@ app.post("/createHodAccount", (req, res) => {
 
             // Insert new HOD record
             con.query(
-                "INSERT INTO HOD_Details (year, branch, hod_id, name, email, password) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO hod_details (year, branch, hod_id, name, email, password) VALUES (?, ?, ?, ?, ?, ?)",
                 [yearOfHod, branchOfHod, hodId, hodName, emailOfHod, passwordOfHod],
                 (err, result) => {
                     if (err) {
