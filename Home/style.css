@@ -272,9 +272,40 @@ body::before { content: none; }
     * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
 
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .nav {
+        gap: 4px;
+    }
+    .nav-link {
+        padding: 8px;
+    }
+}
+
 @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    .hero-card { grid-column: 1; }
+    .site-header .container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .nav {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .hero-grid { 
+        grid-template-columns: 1fr; 
+        text-align: center;
+    }
+    .hero-card { 
+        grid-column: 1; 
+        /* The card will now appear below the text by default */
+    }
+    .cta {
+        justify-content: center;
+    }
+    .trust-points {
+        text-align: left;
+    }
     .card { max-width: 100%; }
     .glass { padding: 14px; }
     .testimonial-grid { grid-template-columns: 1fr; }
@@ -284,11 +315,10 @@ body::before { content: none; }
 
 @media (max-width: 560px) {
     .hero-copy h1 { font-size: 32px; }
-    .features-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-
-@media (max-width: 380px) {
     .features-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-grid > div { text-align: center; }
+    .social-row { justify-content: center; }
 }
 
 /* Disable hover elevate for hero analytics card */
