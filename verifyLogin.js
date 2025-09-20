@@ -108,7 +108,6 @@ var facultyId = "";
 app.post("/TeacherLogin", (req, res) => {
         facultyId = req.body.facultyId;
         const passwordOfTeacher = req.body.passwordOfTeacher;
-
         con.query(
             "SELECT * FROM faculty WHERE facultyId=? AND password=?",
             [facultyId, passwordOfTeacher],

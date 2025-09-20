@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch all branches and subjects initially
     async function fetchAllData() {
         try {
-            const branchResponse = await fetch("http://localhost:9812/branches");
+            const branchResponse = await fetch("/branches");
             allBranches = await branchResponse.json();
 
-            const subjectResponse = await fetch("http://localhost:9812/subjects");
+            const subjectResponse = await fetch("/subjects");
             allSubjects = await subjectResponse.json();
         } catch (error) {
             console.error("Error fetching initial data:", error);
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function fetchRequests() {
         try {
-            const response = await fetch("http://localhost:9812/getRequests");
+            const response = await fetch("/getRequests");
             const requests = await response.json();
             displayRequests(requests);
         } catch (error) {
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch branches for a specific year
     async function fetchBranches(year) {
         try {
-            const response = await fetch(`http://localhost:9812/branches/${year}`);
+            const response = await fetch(`/branches/${year}`);
             return await response.json();
         } catch (error) {
             console.error("Error fetching branches:", error);
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch subjects for a specific year and branch
     async function fetchSubjects(year, branch) {
         try {
-            const response = await fetch(`http://localhost:9812/subjects/${year}/${branch}`);
+            const response = await fetch(`/subjects/${year}/${branch}`);
             return await response.json();
         } catch (error) {
             console.error("Error fetching subjects:", error);
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             };
         
             try {
-                const response = await fetch("http://localhost:9812/sendRequest", {
+                const response = await fetch("/sendRequest", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
