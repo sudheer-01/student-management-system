@@ -7,7 +7,8 @@ nav {
     width: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
+.btn.danger { background: #ef4444; color: #fff; border: 1px solid #ef4444; }
+.btn.danger:hover { background: #dc2626; border-color: #dc2626; }
 /* Added for better flex control */
 nav ul {
     display: flex;
@@ -57,6 +58,8 @@ nav li.logout-btn:hover {
     background-color: #904e4e; /* Darker Red on hover */
     border-color: #6b1d1d;
 }
+
+
 
 /* Responsive styles for smaller devices */
 @media (max-width: 768px) {
