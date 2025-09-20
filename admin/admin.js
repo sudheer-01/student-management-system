@@ -69,8 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => { if (spinner) spinner.classList.add("hidden"); });
     };
 
-   
-
     // Status Filter Event
     statusFilter.addEventListener("change", () => fetchHodRequests(statusFilter.value));
     // live search filter
