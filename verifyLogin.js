@@ -14,8 +14,8 @@ app.use(express.static(path.join(baseDir,"NewAccountCreate")));
 // app.use(express.static(path.join(baseDir,"homepageForFaculty")));
 // Serve homepageForFaculty at /homepageForFaculty URL prefix
 app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFaculty')));
-app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
-app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
+// app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
+// app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
 //HodTask
 app.use(express.static(path.join(baseDir,"HodTask")));
 app.use(express.static(path.join(baseDir,"HodTask","HodDashboard")));
@@ -825,7 +825,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
         //console.log("Query Result:", result);
         if (result.length > 0) {
             console.log("Redirecting to home page...");
-            return res.json({ success: true, redirectUrl: "/Dashboard/home.html" });  // Redirect to GET route
+            return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" });  // Redirect to GET route
         } else {
             console.log("No matching record found");
             return res.status(404).json({ success: false, message: "No approved request found" });
