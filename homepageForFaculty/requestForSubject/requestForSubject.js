@@ -67,13 +67,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     console.log("Sending Request:", requestData);
                 
                     try {
-                        const response = await fetch("/dashboardOfFaculty", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestData)
-                        });
+                     const response = await fetch(`/dashboardOfFaculty?facultyId=${facultyId}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`);
+
                 
                         const data = await response.json();
                         console.log("Response:", data);

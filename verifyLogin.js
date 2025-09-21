@@ -796,13 +796,11 @@ app.post("/updateRequestStatus", (req, res) => {
     });
 });
 
-var approvedYear = 0;
-var approvedBranch = "";
-var approvedSubject = "";
-// to open home page home.html from the requests page of faculty
-app.post("/dashboardOfFaculty", (req, res) => {
 
-    var { subject, branch, year, facultyId } = req.body;
+// to open home page home.html from the requests page of faculty
+app.get("/dashboardOfFaculty", (req, res) => {
+
+    var { subject, branch, year, facultyId } = req.query;
 
     console.log("Received Request:", {subject, branch, year, facultyId });
 
@@ -810,9 +808,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
         console.log("Missing parameters");
         return res.status(400).json({ success: false, message: "Missing required parameters" });
     }
-    approvedYear = year;
-    approvedBranch = branch;
-    approvedSubject = subject;
+  
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
 
