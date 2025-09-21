@@ -2,24 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const subjectContainer = document.getElementById("subjectContainer");
     const addSubjectButton = document.getElementById("addSubject");
 
-    let allBranches = [];
-    let allSubjects = [];
-
-
-
-    // Fetch all branches and subjects initially
-    async function fetchAllData() {
-        try {
-            const branchResponse = await fetch("/branches");
-            allBranches = await branchResponse.json();
-
-            const subjectResponse = await fetch("/subjects");
-            allSubjects = await subjectResponse.json();
-        } catch (error) {
-            console.error("Error fetching initial data:", error);
-        }
-    }
-
+    // Fetch and display all requests
     async function fetchRequests() {
         try {
             const response = await fetch("/getRequests");
@@ -29,9 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error fetching requests:", error);
         }
     }
+
+    // Display requests
     function displayRequests(requests) {
-        const requestList = document.createElement("div");
-        requestList.classList.add("request-list");
+        subjectContainer.innerHTML = ""; // Clear previous
 
         requests.forEach(request => {
             const div = document.createElement("div");
@@ -44,87 +28,30 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <p><strong>Status:</strong> ${request.status}</p>
             `;
 
+            // Add Continue button for approved requests
             if (request.status === "Approved") {
-                const continueButton = document.createElement("button");
-                continueButton.textContent = "Continue";
-                continueButton.classList.add("continue-btn");
+                const continueBtn = document.createElement("button");
+                continueBtn.textContent = "Continue";
+                continueBtn.classList.add("continue-btn");
 
-                continueButton.addEventListener("click", async () => {
-                    const requestData = {
-                        subject: request.subject,
-                        branch: request.branch,
-                        year: request.year
-                    };
-                
-                    console.log("Sending Request:", requestData);
-                
-                    try {
-                        const response = await fetch("/dashboardOfFaculty", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestData)
-                        });
-                
-                        const data = await response.json();
-                        console.log("Response:", data);
-                
-                        if (data.success) {
-                            window.location.href = data.redirectUrl; // Redirects to "/home"
-                        } else {
-                            alert(data.message || "Navigation failed");
-                        }
-                    } catch (error) {
-                        console.error("Fetch error:", error);
-                        alert("Server error. Try again later.");
-                    }
+                continueBtn.addEventListener("click", () => {
+                    // Redirect to home page or dashboard
+                    window.location.href = "/dashboardOfFaculty"; 
                 });
-                
-                
-                
 
-
-                div.appendChild(continueButton);
+                div.appendChild(continueBtn);
             }
 
-            requestList.appendChild(div);
+            subjectContainer.appendChild(div);
         });
-
-        subjectContainer.appendChild(requestList);
     }
 
-
-
-
-    // Fetch branches for a specific year
-    async function fetchBranches(year) {
-        try {
-            const response = await fetch(`/branches/${year}`);
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching branches:", error);
-            return [];
-        }
-    }
-
-    // Fetch subjects for a specific year and branch
-    async function fetchSubjects(year, branch) {
-        try {
-            const response = await fetch(`/subjects/${year}/${branch}`);
-            return await response.json();
-        } catch (error) {
-            console.error("Error fetching subjects:", error);
-            return [];
-        }
-    }
-
+    // Create new request field
     function createSubjectField() {
         const div = document.createElement("div");
         div.classList.add("subject-row");
 
         const yearSelect = document.createElement("select");
-        yearSelect.classList.add("year");
         yearSelect.innerHTML = `
             <option value="">Choose Year</option>
             <option value="1">1st Year</option>
@@ -133,114 +60,53 @@ document.addEventListener("DOMContentLoaded", async () => {
             <option value="4">4th Year</option>
         `;
 
-        const branchSelect = document.createElement("select");
-        branchSelect.classList.add("branch");
-        branchSelect.innerHTML = `<option value="">Choose Branch</option>`;
-        allBranches.forEach(branch => {
-            branchSelect.innerHTML += `<option value="${branch.branch_name}">${branch.branch_name}</option>`;
-        });
+        const branchInput = document.createElement("input");
+        branchInput.type = "text";
+        branchInput.placeholder = "Branch";
 
-        const subjectSelect = document.createElement("select");
-        subjectSelect.classList.add("subject");
-        subjectSelect.innerHTML = `<option value="">Choose Subject</option>`;
-        allSubjects.forEach(subject => {
-            subjectSelect.innerHTML += `<option value="${subject.subject_name}">${subject.subject_name}</option>`;
-        });
+        const subjectInput = document.createElement("input");
+        subjectInput.type = "text";
+        subjectInput.placeholder = "Subject";
 
-        const removeButton = document.createElement("button");
-        removeButton.textContent = "Remove";
-        removeButton.classList.add("remove-btn");
-        removeButton.addEventListener("click", () => div.remove());
+        const sendBtn = document.createElement("button");
+        sendBtn.textContent = "Send Request";
 
-        const requestButton = document.createElement("button");
-        requestButton.textContent = "Send Request To Hod";
-        requestButton.classList.add("request-btn");
-        requestButton.addEventListener("click", function () {
-            this.textContent = "Pending...";
-            this.style.background = "gray";
-            this.disabled = true;
-        });
+        sendBtn.addEventListener("click", async () => {
+            const year = yearSelect.value;
+            const branch = branchInput.value;
+            const subject = subjectInput.value;
 
-        yearSelect.addEventListener("change", async () => {
-            const selectedYear = yearSelect.value;
-            const branches = selectedYear ? await fetchBranches(selectedYear) : allBranches;
-
-            branchSelect.innerHTML = `<option value="">Choose Branch</option>`;
-            branches.forEach(branch => {
-                branchSelect.innerHTML += `<option value="${branch.branch_name}">${branch.branch_name}</option>`;
-            });
-
-            subjectSelect.innerHTML = `<option value="">Choose Subject</option>`;
-            allSubjects.forEach(subject => {
-                subjectSelect.innerHTML += `<option value="${subject.subject_name}">${subject.subject_name}</option>`;
-            });
-        });
-
-        branchSelect.addEventListener("change", async () => {
-            const selectedYear = yearSelect.value;
-            const selectedBranch = branchSelect.value;
-            const subjects = selectedYear && selectedBranch ? await fetchSubjects(selectedYear, selectedBranch) : allSubjects;
-
-            subjectSelect.innerHTML = `<option value="">Choose Subject</option>`;
-            subjects.forEach(subject => {
-                subjectSelect.innerHTML += `<option value="${subject.subject_name}">${subject.subject_name}</option>`;
-            });
-        });
-
-        div.append(yearSelect, branchSelect, subjectSelect, removeButton, requestButton);
-        subjectContainer.appendChild(div);
-
-
-        requestButton.addEventListener("click", async function () {
-            const selectedYear = yearSelect.value;
-            const selectedBranch = branchSelect.value;
-            const selectedSubject = subjectSelect.value;
-        
-            if (!selectedYear || !selectedBranch || !selectedSubject) {
-                alert("Please select Year, Branch, and Subject before sending request.");
+            if (!year || !branch || !subject) {
+                alert("Please fill all fields");
                 return;
             }
-        
-            const requestData = {
-                year: selectedYear,
-                branch: selectedBranch,
-                subject: selectedSubject
-            };
-        
+
             try {
                 const response = await fetch("/sendRequest", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestData)
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ year, branch, subject })
                 });
-        
+
                 const result = await response.json();
-                if (response.ok) {
+                if (result.success) {
                     alert("Request sent successfully!");
-                    this.textContent = "Pending...";
-                    this.style.background = "gray";
-                    this.disabled = true;
+                    fetchRequests(); // Refresh the list
                 } else {
-                    alert("Error sending request.");
+                    alert(result.message || "Error sending request");
                 }
-            } catch (error) {
-                console.error("Error:", error);
+            } catch (err) {
+                console.error(err);
                 alert("Server error. Try again later.");
             }
         });
 
-
-
-
+        div.append(yearSelect, branchInput, subjectInput, sendBtn);
+        subjectContainer.appendChild(div);
     }
 
     addSubjectButton.addEventListener("click", createSubjectField);
-    
-    await fetchAllData();  // Load all data when the page loads
-    await fetchRequests();  
+
+    // Initial fetch of requests
+    fetchRequests();
 });
-
-
-

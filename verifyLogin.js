@@ -144,12 +144,13 @@ app.post("/TeacherLogin", (req, res) => {
         "SELECT * FROM faculty WHERE facultyId=? AND password=?",
         [facultyId, passwordOfTeacher],
         (err, result) => {
-            if (err) return res.status(500).send("Server error. Try again later.");
-
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Server error. Try again later.");
+            }
             if (result.length > 0) {
-                // Store facultyId in session
+                // Save facultyId in session
                 req.session.facultyId = facultyId;
-
                 return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
             } else {
                 return res.send(
@@ -159,6 +160,7 @@ app.post("/TeacherLogin", (req, res) => {
         }
     );
 });
+
 
 
 
@@ -687,24 +689,24 @@ app.get("/subjects/:year/:branch", (req, res) => {
 
 // Store faculty requests in the database
 app.post("/sendRequest", (req, res) => {
-    let faculty_id = req.session.facultyId;
+    const facultyId = req.session.facultyId; // get logged-in facultyId
     const { year, branch, subject } = req.body;
 
-    const query = `
-        INSERT INTO faculty_requests (faculty_Id, facultyName, year, branch, subject, status)
-        SELECT f.facultyId, f.name, ?, ?, ?, 'Pending'
-        FROM faculty f
-        WHERE f.facultyId = ?;
-    `;
+    if (!facultyId || !year || !branch || !subject) {
+        return res.status(400).json({ success: false, message: "Missing data" });
+    }
 
-    con.query(query, [year, branch, subject, faculty_id], (err, result) => {
+    const sqlQuery = "INSERT INTO faculty_requests (faculty_Id, year, branch, subject, status) VALUES (?, ?, ?, ?, 'Pending')";
+    
+    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
         if (err) {
             console.error("Database error:", err);
-            return res.status(500).send(err);
+            return res.status(500).json({ success: false, message: "Database error" });
         }
-        res.json({ message: "Request sent successfully" });
+        return res.json({ success: true, message: "Request sent successfully" });
     });
 });
+
 
 //HodTask:::viewFacultyRequests
 // Retrieve pending faculty requests for HOD based on branch
@@ -738,17 +740,23 @@ app.post("/sendRequest", (req, res) => {
 //homepageForFaculty:::requestForSubject
 //to display status of request for faculty
 app.get("/getRequests", (req, res) => {
-    let facId = req.session.facultyId;
-    const query = "SELECT facultyName, subject, branch, year, status FROM faculty_requests where faculty_Id = ? ";
+    const facultyId = req.session.facultyId;
+
+    if (!facultyId) {
+        return res.status(401).json({ success: false, message: "Not logged in" });
+    }
+
+    const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ?";
     
-    con.query(query,[facId], (err, result) => {
+    con.query(sqlQuery, [facultyId], (err, result) => {
         if (err) {
             console.error("Database error:", err);
-            return res.status(500).send(err);
+            return res.status(500).json({ success: false, message: "Database error" });
         }
         res.json(result);
     });
 });
+
 
 //HodTask:::viewFacultyRequests
 app.get("/getYears", (req, res) => {
