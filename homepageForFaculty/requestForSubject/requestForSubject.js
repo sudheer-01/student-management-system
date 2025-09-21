@@ -49,38 +49,84 @@ document.addEventListener("DOMContentLoaded", async () => {
                 continueButton.textContent = "Continue";
                 continueButton.classList.add("continue-btn");
 
+                // continueButton.addEventListener("click", async () => {
+                //     const requestData = {
+                //         subject: request.subject,
+                //         branch: request.branch,
+                //         year: request.year
+                //     };
+                
+                //     console.log("Sending Request:", requestData);
+                
+                //     try {
+                //         const response = await fetch("/dashboardOfFaculty", {
+                //             method: "POST",
+                //             headers: {
+                //                 "Content-Type": "application/json"
+                //             },
+                //             body: JSON.stringify(requestData)
+                //         });
+                
+                //         const data = await response.json();
+                //         console.log("Response:", data);
+                
+                //         if (data.success) {
+                //             window.location.href = data.redirectUrl; // Redirects to "/home"
+                //         } else {
+                //             alert(data.message || "Navigation failed");
+                //         }
+                //     } catch (error) {
+                //         console.error("Fetch error:", error);
+                //         alert("Server error. Try again later.");
+                //     }
+                // });
                 continueButton.addEventListener("click", async () => {
-                    const requestData = {
-                        subject: request.subject,
-                        branch: request.branch,
-                        year: request.year
-                    };
-                
-                    console.log("Sending Request:", requestData);
-                
+                const requestData = {
+                    subject: request.subject,
+                    branch: request.branch,
+                    year: request.year
+                };
+
+                console.log("Sending Request:", requestData);
+
+                try {
+                    const response = await fetch("/dashboardOfFaculty", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    // Step 1: Read raw response as text first
+                    const raw = await response.text();
+                    console.log("Raw server response:", raw);
+
+                    // Step 2: Try parsing JSON
+                    let data;
                     try {
-                        const response = await fetch("/dashboardOfFaculty", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestData)
-                        });
-                
-                        const data = await response.json();
-                        console.log("Response:", data);
-                
-                        if (data.success) {
-                            window.location.href = data.redirectUrl; // Redirects to "/home"
-                        } else {
-                            alert(data.message || "Navigation failed");
-                        }
-                    } catch (error) {
-                        console.error("Fetch error:", error);
-                        alert("Server error. Try again later.");
+                        data = JSON.parse(raw);
+                    } catch (err) {
+                        console.error("Failed to parse JSON from server:", err);
+                        alert("Server returned unexpected response. Check console.");
+                        return;
                     }
-                });
-                
+
+                    console.log("Parsed response:", data);
+
+                    if (data.success) {
+                        console.log("Redirecting to:", data.redirectUrl);
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert(data.message || "Navigation failed");
+                    }
+
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    alert("Network or server error. Check console.");
+                }
+            });
+
                 
                 
 
