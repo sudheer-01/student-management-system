@@ -841,17 +841,17 @@ app.get("/home", (req, res) => {
 });
 
 //to display faculty details in the home.html
-app.get("/getFacultyDetails", (req, res) => {
-    const idOfFaculty = null
-    //console.log(facultyId, approvedBranch,approvedYear,approvedSubject);
+app.post("/getFacultyDetails", (req, res) => {
+    const {year, branch, subject, facultyId} = req.body;
+    console.log(year, branch, subject, facultyId);
 
-    if (!idOfFaculty || !approvedYear || !approvedBranch || !approvedSubject) {
+    if (!facultyId || !year || !branch || !subject) {
         return res.status(401).json({ success: false, message: "Unauthorized access" });
     }
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
 
-    con.query(sqlQuery, [idOfFaculty, approvedYear, approvedBranch, approvedSubject], (err, result) => {
+    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ success: false, message: "Database error" });

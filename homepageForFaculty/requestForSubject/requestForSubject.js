@@ -215,6 +215,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 subject: selectedSubject,
                 facultyId: facultyId
             };
+
+            localStorage.setItem("selectedYear", selectedYear);
+            localStorage.setItem("selectedBranch", selectedBranch);
+            localStorage.setItem("selectedSubject", selectedSubject);
         
             try {
                 const response = await fetch("/sendRequest", {

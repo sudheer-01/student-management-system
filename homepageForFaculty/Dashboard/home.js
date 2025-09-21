@@ -1,6 +1,25 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await fetch("/getFacultyDetails");
+        // Retrieve from localStorage
+        const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        const selectedSubject = localStorage.getItem("selectedSubject");
+        const facultyId = localStorage.getItem("facultyId");
+
+        // Prepare request data
+        const requestData = {
+            year: selectedYear,
+            branch: selectedBranch,
+            subject: selectedSubject,
+            facultyId: facultyId
+        };
+        const response = await fetch("/getFacultyDetails", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestData)
+        });
         const data = await response.json();
         if (data.success) {
             document.getElementById("teacherName").textContent = `Welcome back ${data.facultyName}!`;
