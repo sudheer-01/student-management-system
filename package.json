@@ -5,7 +5,8 @@
   "main": "verifyLogin.js",
   "dependencies": {
     "express": "^5.1.0",
-    "mysql2": "^3.10.0"
+    "mysql2": "^3.10.0",
+    "express-session": "^1.18.2"
   },
   "scripts": {
     "start": "node verifyLogin.js"
