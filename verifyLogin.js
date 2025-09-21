@@ -840,7 +840,10 @@ app.post("/dashboardOfFaculty", (req, res) => {
         //console.log("Query Result:", result);
         if (result.length > 0) {
             // console.log("Redirecting to home page...");
-            return res.json({ success: true, redirectUrl: "/home" });  // Redirect to GET route
+            // return res.json({ success: true, redirectUrl: "/home" });  // Redirect to GET route
+            const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
+            console.log("Serving file:", filePath);
+            res.sendFile(filePath);
         } else {
             console.log("No matching record found");
             return res.status(404).json({ success: false, message: "No approved request found" });

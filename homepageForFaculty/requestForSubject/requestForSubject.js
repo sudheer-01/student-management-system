@@ -99,28 +99,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
 
                     // Step 1: Read raw response as text first
-                    const raw = await response.text();
-                    console.log("Raw server response:", raw);
+                    const dataurl = await response.text();
+                    console.log("Raw server response:", dataurl);
 
-                    // Step 2: Try parsing JSON
-                    let data;
-                    try {
-                        data = JSON.parse(raw);
-                    } catch (err) {
-                        console.error("Failed to parse JSON from server:", err);
-                        alert("Server returned unexpected response. Check console.");
-                        return;
-                    }
-
-                    console.log("Parsed response:", data);
-
-                    if (data.success) {
-                        console.log("Redirecting to:", data.redirectUrl);
-                        window.location.href = data.redirectUrl;
-                    } else {
-                        alert(data.message || "Navigation failed");
-                    }
-
+                        console.log("Redirecting to:", dataurl);
+                        window.location.href = dataurl;
+                  
                 } catch (error) {
                     console.error("Fetch error:", error);
                     alert("Network or server error. Check console.");
