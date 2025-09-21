@@ -49,70 +49,41 @@ document.addEventListener("DOMContentLoaded", async () => {
                 continueButton.textContent = "Continue";
                 continueButton.classList.add("continue-btn");
 
-                // continueButton.addEventListener("click", async () => {
-                //     const requestData = {
-                //         subject: request.subject,
-                //         branch: request.branch,
-                //         year: request.year
-                //     };
+                continueButton.addEventListener("click", async () => {
+                    const requestData = {
+                        subject: request.subject,
+                        branch: request.branch,
+                        year: request.year
+                    };
                 
-                //     console.log("Sending Request:", requestData);
+                    console.log("Sending Request:", requestData);
                 
-                //     try {
-                //         const response = await fetch("/dashboardOfFaculty", {
-                //             method: "POST",
-                //             headers: {
-                //                 "Content-Type": "application/json"
-                //             },
-                //             body: JSON.stringify(requestData)
-                //         });
+                    try {
+                        const response = await fetch("/dashboardOfFaculty", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(requestData)
+                        });
                 
-                //         const data = await response.json();
-                //         console.log("Response:", data);
+                        const data = await response.json();
+                        console.log("Response:", data);
                 
-                //         if (data.success) {
-                //             window.location.href = data.redirectUrl; // Redirects to "/home"
-                //         } else {
-                //             alert(data.message || "Navigation failed");
-                //         }
-                //     } catch (error) {
-                //         console.error("Fetch error:", error);
-                //         alert("Server error. Try again later.");
-                //     }
-                // });
-               continueButton.addEventListener("click", async () => {
-    const requestData = {
-        subject: request.subject,
-        branch: request.branch,
-        year: request.year
-    };
+                        if (data.success) {
+                            window.location.href = data.redirectUrl; // Redirects to "/home"
+                        } else {
+                            alert(data.message || "Navigation failed");
+                        }
+                    } catch (error) {
+                        console.error("Fetch error:", error);
+                        alert("Server error. Try again later.");
+                    }
+                });
+                
+                
+                
 
-    console.log("Sending Request:", requestData);
-
-    try {
-        const response = await fetch("/dashboardOfFaculty", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(requestData)
-        });
-
-        if (response.ok) {
-            const html = await response.text();
-            document.open();
-            document.write(html);
-            document.close();
-        } else {
-            const errorText = await response.text();
-            console.error("Server returned:", errorText);
-            alert("Error: " + errorText);
-        }
-    } catch (error) {
-        console.error("Fetch error:", error);
-        alert("Network or server error. Check console.");
-    }
-});
 
                 div.appendChild(continueButton);
             }

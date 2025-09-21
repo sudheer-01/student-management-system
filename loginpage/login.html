@@ -43,7 +43,7 @@
       </form>
 
         <!-- Teacher details -->
-        <!-- <form id="teacherForm" class="allDetails allDetailsOfTeacher" action="/TeacherLogin" method="post" aria-labelledby="teacher" >
+        <form id="teacherForm" class="allDetails allDetailsOfTeacher" action="/TeacherLogin" method="post" aria-labelledby="teacher" >
             <label for="facultyId">Faculty Id:</label>
             <div class="input-group">
               <i class="fa-solid fa-id-card input-icon" aria-hidden="true"></i>
@@ -60,64 +60,7 @@
               <a href="#" class="link">Forgot password?</a>
             </div>
             <input type="submit" value="Login"/>
-        </form> -->
-        <!-- Teacher details -->
-        <form id="teacherForm" class="allDetails allDetailsOfTeacher" aria-labelledby="teacher">
-            <label for="facultyId">Faculty Id:</label>
-            <div class="input-group">
-                <i class="fa-solid fa-id-card input-icon" aria-hidden="true"></i>
-                <input type="text" id="facultyId" name="facultyId" placeholder="Enter your Id" autocomplete="username" required />
-            </div>
-
-            <label for="passwordOfTeacher">Password:</label>
-            <div class="input-group">
-                <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
-                <input type="password" id="passwordOfTeacher" name="passwordOfTeacher" placeholder="Enter Your Password" autocomplete="current-password" required />
-                <button type="button" class="toggle-password" aria-label="Show password" data-target="passwordOfTeacher">
-                    <i class="fa-regular fa-eye"></i>
-                </button>
-            </div>
-
-            <div class="form-row">
-                <label class="checkbox"><input type="checkbox" id="teacherRemember" /> <span>Remember me</span></label>
-                <a href="#" class="link">Forgot password?</a>
-            </div>
-
-            <input type="submit" value="Login"/>
         </form>
-
-        <script>
-        const teacherForm = document.getElementById("teacherForm");
-
-        teacherForm.addEventListener("submit", async (e) => {
-            e.preventDefault(); // stop normal form submit
-
-            const facultyId = document.getElementById("facultyId").value;
-            const passwordOfTeacher = document.getElementById("passwordOfTeacher").value;
-
-            try {
-                const response = await fetch("/TeacherLogin", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ facultyId, passwordOfTeacher })
-                });
-
-                if (response.ok) {
-                    // If server sends HTML file directly
-                    const html = await response.text();
-                    document.open();
-                    document.write(html);
-                    document.close();
-                } else {
-                    const msg = await response.text();
-                    alert(msg || "Invalid Faculty ID or Password");
-                }
-            } catch (err) {
-                console.error("Fetch error:", err);
-                alert("Network or server error. Check console.");
-            }
-        });
-        </script>
 
 
         <!-- student details  -->
