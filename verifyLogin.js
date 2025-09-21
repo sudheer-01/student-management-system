@@ -11,7 +11,9 @@ app.use(express.static(path.join(baseDir,"Home")));
 app.use(express.static(path.join(baseDir,"loginpage")));
 app.use(express.static(path.join(baseDir,"NewAccountCreate")));
 //homepageForFaculty
-app.use(express.static(path.join(baseDir,"homepageForFaculty")));
+// app.use(express.static(path.join(baseDir,"homepageForFaculty")));
+// Serve homepageForFaculty at /homepageForFaculty URL prefix
+app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFaculty')));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
 //HodTask
