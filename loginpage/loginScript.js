@@ -34,3 +34,32 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+document.getElementById("teacherForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const facultyId = document.getElementById("facultyId").value;
+    const password = document.getElementById("passwordOfTeacher").value;
+
+    try {
+        const response = await fetch("/TeacherLogin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ facultyId: facultyId, passwordOfTeacher: password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // ✅ Save facultyId in localStorage
+            localStorage.setItem("facultyId", data.facultyId);
+
+            // Redirect to faculty request page
+            window.location.href = data.redirectUrl;
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Network error, please try again.");
+    }
+});

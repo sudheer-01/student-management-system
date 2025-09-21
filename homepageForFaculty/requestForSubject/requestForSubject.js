@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let allBranches = [];
     let allSubjects = [];
+    const facultyId = localStorage.getItem("facultyId");
+
+    if (!facultyId) {
+        // If somehow not logged in, send back to login
+        window.location.href = "/";
+    }
+    console.log("Faculty logged in:", facultyId);
 
 
 
@@ -22,7 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function fetchRequests() {
         try {
-            const response = await fetch("/getRequests");
+            // const response = await fetch("/getRequests");
+            const response = await fetch(`/getRequests?facultyId=${facultyId}`);
             const requests = await response.json();
             displayRequests(requests);
         } catch (error) {
@@ -53,7 +61,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const requestData = {
                         subject: request.subject,
                         branch: request.branch,
-                        year: request.year
+                        year: request.year, 
+                        facultyId: facultyId
                     };
                 
                     console.log("Sending Request:", requestData);
@@ -204,7 +213,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const requestData = {
                 year: selectedYear,
                 branch: selectedBranch,
-                subject: selectedSubject
+                subject: selectedSubject,
+                facultyId: facultyId
             };
         
             try {
@@ -230,12 +240,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 alert("Server error. Try again later.");
             }
         });
-
-
-
-
     }
-
     addSubjectButton.addEventListener("click", createSubjectField);
     
     await fetchAllData();  // Load all data when the page loads
