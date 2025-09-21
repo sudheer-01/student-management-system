@@ -39,7 +39,6 @@ document.getElementById("teacherForm").addEventListener("submit", async function
 
     const facultyId = document.getElementById("facultyId").value;
     const password = document.getElementById("passwordOfTeacher").value;
-
     try {
         const response = await fetch("/TeacherLogin", {
             method: "POST",
