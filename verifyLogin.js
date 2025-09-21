@@ -105,26 +105,46 @@ app.post("/createTeacherAccount", (req, res) => {
 
 var facultyId = "";
 
+// app.post("/TeacherLogin", (req, res) => {
+//         facultyId = req.body.facultyId;
+//         const passwordOfTeacher = req.body.passwordOfTeacher;
+//         con.query(
+//             "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+//             [facultyId, passwordOfTeacher],
+//             (err, result) => {
+//                 if (err) {
+//                     console.error(err);
+//                     return res.status(500).send("Server error. Try again later.");
+//                 }
+//                 if (result.length > 0) {
+//                     return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
+//                 } else {
+//                     return res.send(
+//                         `<script>alert('Invalid Faculty ID or Password.Contact Admin to reset Password.'); window.location.href='/';</script>`
+//                     );
+//                 }
+//             }
+//         );
+// });
 app.post("/TeacherLogin", (req, res) => {
         facultyId = req.body.facultyId;
         const passwordOfTeacher = req.body.passwordOfTeacher;
-        con.query(
-            "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-            [facultyId, passwordOfTeacher],
-            (err, result) => {
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send("Server error. Try again later.");
-                }
-                if (result.length > 0) {
-                    return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
-                } else {
-                    return res.send(
-                        `<script>alert('Invalid Faculty ID or Password.Contact Admin to reset Password.'); window.location.href='/';</script>`
-                    );
-                }
+    con.query(
+        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+        [facultyId, passwordOfTeacher],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Server error. Try again later.");
             }
-        );
+            if (result.length > 0) {
+                // Serve faculty homepage
+                return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
+            } else {
+                return res.status(401).send("Invalid Faculty ID or Password. Contact Admin to reset Password.");
+            }
+        }
+    );
 });
 
 
