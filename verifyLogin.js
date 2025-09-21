@@ -798,6 +798,36 @@ app.post("/updateRequestStatus", (req, res) => {
 
 
 // to open home page home.html from the requests page of faculty
+// app.get("/dashboardOfFaculty", (req, res) => {
+
+//     var { subject, branch, year, facultyId } = req.query;
+
+//     console.log("Received Request:", {subject, branch, year, facultyId });
+
+//     if (!facultyId || !year || !branch || !subject) {
+//         console.log("Missing parameters");
+//         return res.status(400).json({ success: false, message: "Missing required parameters" });
+//     }
+  
+
+//     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
+
+//     con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
+//         if (err) {
+//             console.error("Database error:", err);
+//             return res.status(500).json({ success: false, message: "Database error" });
+//         }
+
+//         //console.log("Query Result:", result);
+//         if (result.length > 0) {
+//             console.log("Redirecting to home page...");
+//             return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" });  // Redirect to GET route
+//         } else {
+//             console.log("No matching record found");
+//             return res.status(404).json({ success: false, message: "No approved request found" });
+//         }
+//     });
+// });
 app.get("/dashboardOfFaculty", (req, res) => {
 
     var { subject, branch, year, facultyId } = req.query;
@@ -808,7 +838,6 @@ app.get("/dashboardOfFaculty", (req, res) => {
         console.log("Missing parameters");
         return res.status(400).json({ success: false, message: "Missing required parameters" });
     }
-  
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
 
@@ -818,13 +847,12 @@ app.get("/dashboardOfFaculty", (req, res) => {
             return res.status(500).json({ success: false, message: "Database error" });
         }
 
-        //console.log("Query Result:", result);
         if (result.length > 0) {
             console.log("Redirecting to home page...");
-            return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" });  // Redirect to GET route
+            return res.sendFile(path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html"));
         } else {
             console.log("No matching record found");
-            return res.status(404).json({ success: false, message: "No approved request found" });
+            return res.status(404).send("No approved request found");
         }
     });
 });

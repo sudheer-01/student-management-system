@@ -63,31 +63,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                         year: request.year, 
                         facultyId: facultyId
                     };
-                
+                    localStorage.setItem("selectedYear", request.year);
+                    localStorage.setItem("selectedBranch", request.branch);
+                    localStorage.setItem("selectedSubject", request.subject);
                     console.log("Sending Request:", requestData);
                 
                     try {
-                     const response = await fetch(`/dashboardOfFaculty?facultyId=${facultyId}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`);
+                     window.location.href = `/dashboardOfFaculty?facultyId=${facultyId}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`;
 
-                
-                        const data = await response.json();
-                        console.log("Response:", data);
-                
-                        if (data.success) {
-                            window.location.href = data.redirectUrl; // Redirects to "/home"
-                        } else {
-                            alert(data.message || "Navigation failed");
-                        }
                     } catch (error) {
                         console.error("Fetch error:", error);
                         alert("Server error. Try again later.");
                     }
                 });
-                
-                
-                
-
-
                 div.appendChild(continueButton);
             }
 
@@ -211,9 +199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 facultyId: facultyId
             };
 
-            localStorage.setItem("selectedYear", selectedYear);
-            localStorage.setItem("selectedBranch", selectedBranch);
-            localStorage.setItem("selectedSubject", selectedSubject);
+           
         
             try {
                 const response = await fetch("/sendRequest", {
