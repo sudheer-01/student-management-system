@@ -50,8 +50,9 @@ document.getElementById("teacherForm").addEventListener("submit", async function
 
         if (data.success) {
             // ✅ Save facultyId in localStorage
+            console.log("Storing facultyId:", data.facultyId);
             localStorage.setItem("facultyId", data.facultyId);
-
+            console.log("Login successful, redirecting...", data.redirectUrl);
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
         } else {

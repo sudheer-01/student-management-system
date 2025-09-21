@@ -106,7 +106,7 @@ app.post("/createTeacherAccount", (req, res) => {
 app.post("/TeacherLogin", (req, res) => {
     const facultyId = req.body.facultyId;
     const passwordOfTeacher = req.body.passwordOfTeacher;
-
+    console.log(facultyId,passwordOfTeacher);
     con.query(
         "SELECT * FROM faculty WHERE facultyId=? AND password=?",
         [facultyId, passwordOfTeacher],
@@ -117,6 +117,7 @@ app.post("/TeacherLogin", (req, res) => {
             }
             if (result.length > 0) {
                 // ✅ Send facultyId to frontend
+                console.log("Login successful for facultyId:", facultyId);
                 return res.json({
                     success: true,
                     facultyId: facultyId,
