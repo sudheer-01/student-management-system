@@ -69,13 +69,32 @@ document.addEventListener("DOMContentLoaded", async () => {
                     console.log("Sending Request:", requestData);
                 
                     try {
-                     window.location.href = `/dashboardOfFaculty?facultyId=${facultyId}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`;
-
+                        const response = await fetch("/dashboardOfFaculty", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                
+                        const data = await response.json();
+                        console.log("Response:", data);
+                
+                        if (data.success) {
+                            window.location.href = data.redirectUrl; // Redirects to "/home"
+                        } else {
+                            alert(data.message || "Navigation failed");
+                        }
                     } catch (error) {
                         console.error("Fetch error:", error);
                         alert("Server error. Try again later.");
                     }
                 });
+                
+                
+                
+
+
                 div.appendChild(continueButton);
             }
 
@@ -199,7 +218,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 facultyId: facultyId
             };
 
-           
+            
         
             try {
                 const response = await fetch("/sendRequest", {
