@@ -14,7 +14,7 @@ app.use(express.static(path.join(baseDir,"NewAccountCreate")));
 // app.use(express.static(path.join(baseDir,"homepageForFaculty")));
 // Serve homepageForFaculty at /homepageForFaculty URL prefix
 app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFaculty')));
-// app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
+app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
 //HodTask
 app.use(express.static(path.join(baseDir,"HodTask")));
@@ -29,7 +29,6 @@ app.use(express.static(path.join(baseDir,"HodTask","viewMarksUpdateRequests")));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
-
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
