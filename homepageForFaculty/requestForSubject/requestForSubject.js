@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let allBranches = [];
     let allSubjects = [];
     const facultyId = localStorage.getItem("facultyId");
-
     if (!facultyId) {
         // If somehow not logged in, send back to login
         window.location.href = "/";

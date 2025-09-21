@@ -805,7 +805,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
 
     var { subject, branch, year, facultyId } = req.body;
 
-    // console.log("Received Request:", { idOfFaculty, subject, branch, year });
+    console.log("Received Request:", {subject, branch, year, facultyId });
 
     if (!facultyId || !year || !branch || !subject) {
         console.log("Missing parameters");
@@ -825,7 +825,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
 
         //console.log("Query Result:", result);
         if (result.length > 0) {
-            // console.log("Redirecting to home page...");
+            console.log("Redirecting to home page...", redirectUrl);
             return res.json({ success: true, redirectUrl: "/home" });  // Redirect to GET route
         } else {
             console.log("No matching record found");
