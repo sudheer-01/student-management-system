@@ -542,7 +542,7 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
     let branch = approvedBranch;
     let year = approvedYear;
     let subject = approvedSubject;
-    let facultyName = facultyId; // Assuming faculty ID is stored
+    let facultyName = req.session.facultyId; // Assuming faculty ID is stored
 
     let query = `INSERT INTO pending_marks_updates 
         (htno, name, year, branch, subject, exam, old_marks, new_marks, requested_by, request_status) 
@@ -687,7 +687,7 @@ app.get("/subjects/:year/:branch", (req, res) => {
 
 // Store faculty requests in the database
 app.post("/sendRequest", (req, res) => {
-    let faculty_id = facultyId;
+    let faculty_id = req.session.facultyId;
     const { year, branch, subject } = req.body;
 
     const query = `
@@ -738,7 +738,7 @@ app.post("/sendRequest", (req, res) => {
 //homepageForFaculty:::requestForSubject
 //to display status of request for faculty
 app.get("/getRequests", (req, res) => {
-    let facId = facultyId;
+    let facId = req.session.facultyId;
     const query = "SELECT facultyName, subject, branch, year, status FROM faculty_requests where faculty_Id = ? ";
     
     con.query(query,[facId], (err, result) => {
@@ -892,7 +892,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
 
 //to display faculty details in the home.html
 app.get("/getFacultyDetails", (req, res) => {
-    const idOfFaculty = facultyId;
+    const idOfFaculty = req.session.facultyId;
     //console.log(facultyId, approvedBranch,approvedYear,approvedSubject);
 
     if (!idOfFaculty || !approvedYear || !approvedBranch || !approvedSubject) {
