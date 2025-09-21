@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                     } catch (error) {
                         console.error("Fetch error:", error);
-                        alert("Server error. Try again later.");
+                        alert("Server error in request For subject.js . Try again later.");
                     }
                 });
                 

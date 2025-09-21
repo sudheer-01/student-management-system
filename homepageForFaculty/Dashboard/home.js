@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     } catch (error) {
         console.error("Error fetching faculty details:", error);
-        alert("Server error. Try again later.");
+        alert("Server error in home.js. Try again later.");
     }
     const logoutBtn = document.getElementById("logoutBtn");
      // logout
