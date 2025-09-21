@@ -846,7 +846,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
             res.send(`
                     <script>
                         localStorage.setItem("facultyId", "${facultyId}");
-                        window.location.href = "/homepageForFaculty/requestForSubject/requestForSubject.html";
+                        window.location.href = "/homepageForFaculty/Dashboard/home.html";
                     </script>
                 `);
         } else {
