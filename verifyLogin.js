@@ -799,7 +799,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
     const idOfFaculty = facultyId;
     var { subject, branch, year } = req.body;
 
-    // console.log("Received Request:", { idOfFaculty, subject, branch, year });
+     console.log("Received Request:", { idOfFaculty, subject, branch, year });
 
     if (!idOfFaculty || !year || !branch || !subject) {
         console.log("Missing parameters");
