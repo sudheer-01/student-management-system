@@ -5,16 +5,6 @@ var app = express();
 var baseDir = __dirname;
 // console.log(baseDir);
 
-const session = require("express-session");
-
-app.use(session({
-    secret: "s4n#$3d0g$", // change this to a strong secret
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true } // set true if using HTTPS
-}));
-
-
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
@@ -113,54 +103,29 @@ app.post("/createTeacherAccount", (req, res) => {
 
 //checking teacher credentials to login to faculty dashboard
 
-// var facultyId = "";
-
-// app.post("/TeacherLogin", (req, res) => {
-//         facultyId = req.body.facultyId;
-//         const passwordOfTeacher = req.body.passwordOfTeacher;
-//         con.query(
-//             "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-//             [facultyId, passwordOfTeacher],
-//             (err, result) => {
-//                 if (err) {
-//                     console.error(err);
-//                     return res.status(500).send("Server error. Try again later.");
-//                 }
-//                 if (result.length > 0) {
-//                     return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
-//                 } else {
-//                     return res.send(
-//                         `<script>alert('Invalid Faculty ID or Password.Contact Admin to reset Password.'); window.location.href='/';</script>`
-//                     );
-//                 }
-//             }
-//         );
-// });
+var facultyId = "";
 
 app.post("/TeacherLogin", (req, res) => {
-    const { facultyId, passwordOfTeacher } = req.body;
-
-    con.query(
-        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-        [facultyId, passwordOfTeacher],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send("Server error. Try again later.");
+        facultyId = req.body.facultyId;
+        const passwordOfTeacher = req.body.passwordOfTeacher;
+        con.query(
+            "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+            [facultyId, passwordOfTeacher],
+            (err, result) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send("Server error. Try again later.");
+                }
+                if (result.length > 0) {
+                    return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
+                } else {
+                    return res.send(
+                        `<script>alert('Invalid Faculty ID or Password.Contact Admin to reset Password.'); window.location.href='/';</script>`
+                    );
+                }
             }
-            if (result.length > 0) {
-                // Save facultyId in session
-                req.session.facultyId = facultyId;
-                return res.sendFile(path.join(baseDir, "homepageForFaculty", "requestForSubject", "requestForSubject.html"));
-            } else {
-                return res.send(
-                    `<script>alert('Invalid Faculty ID or Password. Contact Admin to reset Password.'); window.location.href='/';</script>`
-                );
-            }
-        }
-    );
+        );
 });
-
 
 
 
@@ -544,7 +509,7 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
     let branch = approvedBranch;
     let year = approvedYear;
     let subject = approvedSubject;
-    let facultyName = req.session.facultyId; // Assuming faculty ID is stored
+    let facultyName = facultyId; // Assuming faculty ID is stored
 
     let query = `INSERT INTO pending_marks_updates 
         (htno, name, year, branch, subject, exam, old_marks, new_marks, requested_by, request_status) 
@@ -689,24 +654,24 @@ app.get("/subjects/:year/:branch", (req, res) => {
 
 // Store faculty requests in the database
 app.post("/sendRequest", (req, res) => {
-    const facultyId = req.session.facultyId; // get logged-in facultyId
+    let faculty_id = facultyId;
     const { year, branch, subject } = req.body;
 
-    if (!facultyId || !year || !branch || !subject) {
-        return res.status(400).json({ success: false, message: "Missing data" });
-    }
+    const query = `
+        INSERT INTO faculty_requests (faculty_Id, facultyName, year, branch, subject, status)
+        SELECT f.facultyId, f.name, ?, ?, ?, 'Pending'
+        FROM faculty f
+        WHERE f.facultyId = ?;
+    `;
 
-    const sqlQuery = "INSERT INTO faculty_requests (faculty_Id, year, branch, subject, status) VALUES (?, ?, ?, ?, 'Pending')";
-    
-    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
+    con.query(query, [year, branch, subject, faculty_id], (err, result) => {
         if (err) {
             console.error("Database error:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
+            return res.status(500).send(err);
         }
-        return res.json({ success: true, message: "Request sent successfully" });
+        res.json({ message: "Request sent successfully" });
     });
 });
-
 
 //HodTask:::viewFacultyRequests
 // Retrieve pending faculty requests for HOD based on branch
@@ -740,23 +705,17 @@ app.post("/sendRequest", (req, res) => {
 //homepageForFaculty:::requestForSubject
 //to display status of request for faculty
 app.get("/getRequests", (req, res) => {
-    const facultyId = req.session.facultyId;
-
-    if (!facultyId) {
-        return res.status(401).json({ success: false, message: "Not logged in" });
-    }
-
-    const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ?";
+    let facId = facultyId;
+    const query = "SELECT facultyName, subject, branch, year, status FROM faculty_requests where faculty_Id = ? ";
     
-    con.query(sqlQuery, [facultyId], (err, result) => {
+    con.query(query,[facId], (err, result) => {
         if (err) {
             console.error("Database error:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
+            return res.status(500).send(err);
         }
         res.json(result);
     });
 });
-
 
 //HodTask:::viewFacultyRequests
 app.get("/getYears", (req, res) => {
@@ -832,75 +791,53 @@ app.post("/updateRequestStatus", (req, res) => {
     });
 });
 
-// var approvedYear = 0;
-// var approvedBranch = "";
-// var approvedSubject = "";
-// // to open home page home.html from the requests page of faculty
-// app.post("/dashboardOfFaculty", (req, res) => {
-//     const idOfFaculty = facultyId;
-//     var { subject, branch, year } = req.body;
-
-//     console.log("Received Request:", { idOfFaculty, subject, branch, year });
-
-//     if (!idOfFaculty || !year || !branch || !subject) {
-//         console.log("Missing parameters");
-//         return res.status(400).json({ success: false, message: "Missing required parameters" });
-//     }
-//     approvedYear = year;
-//     approvedBranch = branch;
-//     approvedSubject = subject;
-
-//     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
-
-//     con.query(sqlQuery, [idOfFaculty, year, branch, subject], (err, result) => {
-//         if (err) {
-//             console.error("Database error:", err);
-//             return res.status(500).json({ success: false, message: "Database error" });
-//         }
-
-//         //console.log("Query Result:", result);
-//         if (result.length > 0) {
-//             // console.log("Redirecting to home page...");
-//             return res.json({ success: true, redirectUrl: "/home" });  // Redirect to GET route
-//         } else {
-//             console.log("No matching record found");
-//             return res.status(404).json({ success: false, message: "No approved request found" });
-//         }
-//     });
-// });
-
+var approvedYear = 0;
+var approvedBranch = "";
+var approvedSubject = "";
+// to open home page home.html from the requests page of faculty
 app.post("/dashboardOfFaculty", (req, res) => {
-    const idOfFaculty = req.session.facultyId;   // <-- use session
-    const { subject, branch, year } = req.body;
+    const idOfFaculty = facultyId;
+    var { subject, branch, year } = req.body;
+
+    // console.log("Received Request:", { idOfFaculty, subject, branch, year });
 
     if (!idOfFaculty || !year || !branch || !subject) {
+        console.log("Missing parameters");
         return res.status(400).json({ success: false, message: "Missing required parameters" });
     }
+    approvedYear = year;
+    approvedBranch = branch;
+    approvedSubject = subject;
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
-    con.query(sqlQuery, [idOfFaculty, year, branch, subject], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: "Database error" });
 
+    con.query(sqlQuery, [idOfFaculty, year, branch, subject], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+
+        //console.log("Query Result:", result);
         if (result.length > 0) {
-            const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
-            res.sendFile(filePath);
+            // console.log("Redirecting to home page...");
+            return res.json({ success: true, redirectUrl: "/home" });  // Redirect to GET route
         } else {
+            console.log("No matching record found");
             return res.status(404).json({ success: false, message: "No approved request found" });
         }
     });
 });
 
-
-// // Separate GET route to serve home.html (it is for above dashboardOfFaculty)
-// app.get("/home", (req, res) => {
-//     const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
-//     // console.log("Serving file:", filePath);
-//     res.sendFile(filePath);
-// });
+// Separate GET route to serve home.html (it is for above dashboardOfFaculty)
+app.get("/home", (req, res) => {
+    const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
+    // console.log("Serving file:", filePath);
+    res.sendFile(filePath);
+});
 
 //to display faculty details in the home.html
 app.get("/getFacultyDetails", (req, res) => {
-    const idOfFaculty = req.session.facultyId;
+    const idOfFaculty = facultyId;
     //console.log(facultyId, approvedBranch,approvedYear,approvedSubject);
 
     if (!idOfFaculty || !approvedYear || !approvedBranch || !approvedSubject) {
