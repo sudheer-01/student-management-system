@@ -1412,7 +1412,7 @@ app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
 
             // Determine column (Unit_test_1 or mid_1)
             let column = exam;
-
+            console.log("Updating column:", column);
             // Update marks for each student
             let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
                 return new Promise((resolve, reject) => {
