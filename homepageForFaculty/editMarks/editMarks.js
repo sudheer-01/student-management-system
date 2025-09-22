@@ -68,6 +68,7 @@ document.getElementById("getStudentMarks").addEventListener("click", function() 
 // Request HOD to update marks
 document.getElementById("requestHod").addEventListener("click", function() {
     let selectedExam = document.getElementById("exam").value;
+    console.log("Selected Exam for Request:", selectedExam); // Debugging log
     if (!selectedExam) {
         alert("Please select an exam.");
         return;

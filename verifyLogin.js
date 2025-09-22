@@ -520,7 +520,7 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
         VALUES ?`;
 
     let values = updateRequests
-        .filter(({ newMarks }) => newMarks !== "" && newMarks !== null) // Ensure newMarks is valid
+        .filter(({ newMarks }) => newMarks !== "" && newMarks !== null) 
         .map(({ htno, exam, newMarks, name, oldMarks }) => [
             htno, name, year, branch, subject, exam, oldMarks, newMarks, facultyName, 'Pending'
         ]);
