@@ -100,4 +100,20 @@ document.addEventListener("DOMContentLoaded", async function() {
         console.error("Error fetching exams:", error);
         alert("Failed to load exams.");
     }
+    const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            if (!confirm("Log out of the faculty panel?")) return;
+            // Clear session-related storage
+            localStorage.removeItem("selectedYear");
+            localStorage.removeItem("selectedBranch");
+            localStorage.removeItem("selectedSubject");
+            localStorage.removeItem("facultyId");
+
+            fetch("/logout", { method: "POST" })
+                .then(() => { window.location.href = "/"; })
+                .catch(() => { window.location.href = "/"; });
+        });
+    }
 });
