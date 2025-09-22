@@ -57,44 +57,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 continueButton.classList.add("continue-btn");
 
                 continueButton.addEventListener("click", async () => {
-                    const requestData = {
-                        subject: request.subject,
-                        branch: request.branch,
-                        year: request.year, 
-                        facultyId: facultyId
-                    };
+                    // Store details in localStorage for the dashboard to use
                     localStorage.setItem("selectedYear", request.year);
                     localStorage.setItem("selectedBranch", request.branch);
                     localStorage.setItem("selectedSubject", request.subject);
-                    console.log("Sending Request:", requestData);
-                
-                    try {
-                        const response = await fetch("/dashboardOfFaculty", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestData)
-                        });
-                
-                        const data = await response.json();
-                        console.log("Response:", data);
-                
-                        if (data.success) {
-                            window.location.href = data.redirectUrl; // Redirects to "/home"
-                        } else {
-                            alert(data.message || "Navigation failed");
-                        }
-                    } catch (error) {
-                        console.error("Fetch error:", error);
-                        alert("Server error in request For subject.js . Try again later.");
-                    }
+                    
+                    // Redirect to the dashboard
+                    window.location.href = "/homepageForFaculty/Dashboard/home.html";
                 });
                 
-                
-                
-
-
                 div.appendChild(continueButton);
             }
 
@@ -220,6 +191,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             
         
+            try {
+                const response = await fetch("/sendRequest", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                });
+        
+                const result = await response.json();
+                if (response.ok) {
+                    alert("Request sent successfully!");
+                    this.textContent = "Pending...";
+                    this.style.background = "gray";
+                    this.disabled = true;
+                } else {
+                    alert("Error sending request.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Server error. Try again later.");
+            }
+        });
+    }
+    addSubjectButton.addEventListener("click", createSubjectField);
+    
+    await fetchAllData();  // Load all data when the page loads
+    await fetchRequests();  
+});
             try {
                 const response = await fetch("/sendRequest", {
                     method: "POST",

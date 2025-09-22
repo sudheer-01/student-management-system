@@ -821,8 +821,8 @@ app.post("/dashboardOfFaculty", (req, res) => {
         //console.log("Query Result:", result);
         if (result.length > 0) {
             console.log("Redirecting to home page...");
-            res.sendFile(path.join(baseDir, "homepageForFaculty", "Dashboard", "home.html"));
-            // return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" }); 
+           // res.sendFile(path.join(baseDir, "homepageForFaculty", "Dashboard", "home.html"));
+            return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" }); 
             //  // Redirect to GET route
         } else {
             console.log("No matching record found");
@@ -841,10 +841,9 @@ app.get("/home", (req, res) => {
 //to display faculty details in the home.html
 app.post("/getFacultyDetails", (req, res) => {
     const {year, branch, subject, facultyId} = req.body;
-    console.log(year, branch, subject, facultyId);
 
     if (!facultyId || !year || !branch || !subject) {
-        return res.status(401).json({ success: false, message: "Unauthorized access" });
+        return res.status(401).json({ success: false, message: "Unauthorized access or missing details." });
     }
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
@@ -865,7 +864,7 @@ app.post("/getFacultyDetails", (req, res) => {
                 year: faculty.year
             });
         } else {
-            return res.status(404).json({ success: false, message: "No faculty details found" });
+            return res.status(404).json({ success: false, message: "No approved faculty details found for the selected subject." });
         }
     });
 });
@@ -1033,7 +1032,6 @@ app.post("/addExamToDatabase", (req, res) => {
         }
     });
 });
-
 
 
 
