@@ -1411,7 +1411,7 @@ app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
             }
 
             // Determine column (Unit_test_1 or mid_1)
-            let column = exam.toLowerCase().includes("unit_test") ? "Unit_test_1" : "mid_1";
+            let column = exam;
 
             // Update marks for each student
             let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
