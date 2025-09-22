@@ -822,7 +822,7 @@ app.post("/dashboardOfFaculty", (req, res) => {
         if (result.length > 0) {
             console.log("Redirecting to home page...");
            // res.sendFile(path.join(baseDir, "homepageForFaculty", "Dashboard", "home.html"));
-            return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" }); 
+            return res.json({ success: true, redirectUrl: "/Dashboard/home.html" }); 
             //  // Redirect to GET route
         } else {
             console.log("No matching record found");
