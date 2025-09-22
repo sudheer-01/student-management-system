@@ -841,9 +841,10 @@ app.get("/home", (req, res) => {
 //to display faculty details in the home.html
 app.post("/getFacultyDetails", (req, res) => {
     const {year, branch, subject, facultyId} = req.body;
+    console.log(year, branch, subject, facultyId);
 
     if (!facultyId || !year || !branch || !subject) {
-        return res.status(401).json({ success: false, message: "Unauthorized access or missing details." });
+        return res.status(401).json({ success: false, message: "Unauthorized access" });
     }
 
     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
@@ -864,7 +865,7 @@ app.post("/getFacultyDetails", (req, res) => {
                 year: faculty.year
             });
         } else {
-            return res.status(404).json({ success: false, message: "No approved faculty details found for the selected subject." });
+            return res.status(404).json({ success: false, message: "No faculty details found" });
         }
     });
 });
@@ -1032,6 +1033,7 @@ app.post("/addExamToDatabase", (req, res) => {
         }
     });
 });
+
 
 
 

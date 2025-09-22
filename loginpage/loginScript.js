@@ -47,6 +47,7 @@ document.getElementById("teacherForm").addEventListener("submit", async function
         });
 
         const data = await response.json();
+
         if (data.success) {
             // ✅ Save facultyId in localStorage
             console.log("Storing facultyId:", data.facultyId);

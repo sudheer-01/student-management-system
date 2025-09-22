@@ -57,15 +57,44 @@ document.addEventListener("DOMContentLoaded", async () => {
                 continueButton.classList.add("continue-btn");
 
                 continueButton.addEventListener("click", async () => {
-                    // Store details in localStorage for the dashboard to use
+                    const requestData = {
+                        subject: request.subject,
+                        branch: request.branch,
+                        year: request.year, 
+                        facultyId: facultyId
+                    };
                     localStorage.setItem("selectedYear", request.year);
                     localStorage.setItem("selectedBranch", request.branch);
                     localStorage.setItem("selectedSubject", request.subject);
-                    
-                    // Redirect to the dashboard
-                    window.location.href = "/homepageForFaculty/Dashboard/home.html";
+                    console.log("Sending Request:", requestData);
+                
+                    try {
+                        const response = await fetch("/dashboardOfFaculty", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                
+                        const data = await response.json();
+                        console.log("Response:", data);
+                
+                        if (data.success) {
+                            window.location.href = data.redirectUrl; // Redirects to "/home"
+                        } else {
+                            alert(data.message || "Navigation failed");
+                        }
+                    } catch (error) {
+                        console.error("Fetch error:", error);
+                        alert("Server error in request For subject.js . Try again later.");
+                    }
                 });
                 
+                
+                
+
+
                 div.appendChild(continueButton);
             }
 
@@ -220,6 +249,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchAllData();  // Load all data when the page loads
     await fetchRequests();  
 });
-       
+
 
 
