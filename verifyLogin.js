@@ -296,8 +296,7 @@ app.get("/getData", (req, res) => {
 //homepageForFaculty:::enterMarks
 // Route to fetch student details (year and branch can be added as filters)
 app.get("/getStudents", (req, res) => {
-    let branch = approvedBranch; //g
-    let year = approvedYear; //g
+     const { year, branch } = req.query;
 
     con.query("SELECT DISTINCT htno, name FROM studentmarks WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
         if (err) {

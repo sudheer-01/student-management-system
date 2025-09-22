@@ -12,7 +12,9 @@ async function getStudentDetailsToEnterMarks() {
         return;
     }
     try {
-        const response = await fetch(`/getStudents`);
+        const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        const response = await fetch(`/getStudents?year=${selectedYear}&branch=${selectedBranch}`);
         const students = await response.json();
         
         if (students.length === 0) {
