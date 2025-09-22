@@ -413,8 +413,11 @@ app.post("/saveMarks", (req, res) => {
 //viewing marks
 
 app.get("/getStudentMarks", (req, res) => {
-    const { examColumn, year, branch, subject } = req.query;
-    
+   
+    const examColumn = req.query.exam;  // Get exam name from frontend
+    const year = req.query.year;  // Get year from frontend
+    const branch = req.query.branch;  // Get branch from frontend
+    const subject = req.query.subject;  // Get subject from frontend
     if (!examColumn) {
         return res.status(400).json({ success: false, message: "Exam type is required" });
     }
