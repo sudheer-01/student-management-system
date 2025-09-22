@@ -10,8 +10,10 @@ document.getElementById("getStudentMarks").addEventListener("click", function() 
         alert("Please select an exam.");
         return;
     }
-
-    fetch(`/getStudentMarksForEditing?exam=${selectedExam}`)
+    const selectedYear = localStorage.getItem("selectedYear");
+    const selectedBranch = localStorage.getItem("selectedBranch");
+    const selectedSubject = localStorage.getItem("selectedSubject");
+    fetch(`/getStudentMarksForEditing?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
     .then(response => response.json())
     .then(data => {
         let tbody = document.querySelector("#studentsInformationTable tbody");
@@ -92,11 +94,14 @@ document.getElementById("requestHod").addEventListener("click", function() {
         alert("No valid marks to update.");
         return;
     }
-
+    const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        const selectedSubject = localStorage.getItem("selectedSubject");
+        const facultyId = localStorage.getItem("facultyId");
     fetch("/requestHodToUpdateMarks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requests: updateRequests })
+        body: JSON.stringify({ requests: updateRequests, selectedBranch: selectedBranch, selectedYear: selectedYear, selectedSubject: selectedSubject, facultyId: facultyId })
     })
     .then(response => response.json())
     .then(data => {
@@ -114,7 +119,9 @@ document.getElementById("requestHod").addEventListener("click", function() {
 //----------------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const response = await fetch("/getExams");
+         const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        const response = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
         const exams = await response.json();
         
         const examDropdown = document.getElementById("exam");
@@ -132,3 +139,19 @@ document.addEventListener("DOMContentLoaded", async function() {
         alert("Failed to load exams.");
     }
 });
+ const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            if (!confirm("Log out of the faculty panel?")) return;
+            // Clear session-related storage
+            localStorage.removeItem("selectedYear");
+            localStorage.removeItem("selectedBranch");
+            localStorage.removeItem("selectedSubject");
+            localStorage.removeItem("facultyId");
+
+            fetch("/logout", { method: "POST" })
+                .then(() => { window.location.href = "/"; })
+                .catch(() => { window.location.href = "/"; });
+        });
+    }

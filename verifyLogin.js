@@ -485,10 +485,7 @@ app.get("/getReportDetails", (req, res) => {
 //homepageForFaculty:::editMarks
 // Get student marks for selected exam
 app.get("/getStudentMarksForEditing", (req, res) => {
-    let exam = req.query.exam;
-    let branch = approvedBranch; //g
-    let year = approvedYear;  //g
-    let subject = approvedSubject; //g
+    const { exam, year, branch, subject } = req.query;
     
     // console.log("Exam:", exam);
     // console.log("Branch:", branch);
@@ -513,10 +510,10 @@ app.get("/getStudentMarksForEditing", (req, res) => {
 // Faculty requests HOD approval for marks update
 app.post("/requestHodToUpdateMarks", (req, res) => {
     let updateRequests = req.body.requests;
-    let branch = approvedBranch;
-    let year = approvedYear;
-    let subject = approvedSubject;
-    let facultyName = null // Assuming faculty ID is stored
+    let branch = req.body.selectedBranch; 
+    let year = req.body.selectedYear; 
+    let subject = req.body.selectedSubject; 
+    let facultyName = req.body.facultyId; //facultyId not name
 
     let query = `INSERT INTO pending_marks_updates 
         (htno, name, year, branch, subject, exam, old_marks, new_marks, requested_by, request_status) 
