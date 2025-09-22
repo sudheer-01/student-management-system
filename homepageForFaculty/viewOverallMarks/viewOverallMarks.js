@@ -2,7 +2,7 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
     const selectedSubject = localStorage.getItem("selectedSubject");
-    fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`
+    fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
         .then(response => response.json())
         .then(data => {
             const table = document.getElementById("studentsInformationTable");
