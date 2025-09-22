@@ -63,10 +63,15 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
     console.log("Submitting marks data:", formData); // Debug log
 
     try {
+        const selectedSubject = localStorage.getItem("selectedSubject");
         const response = await fetch("/saveMarks", {
             method: "POST",
             headers: { "Content-Type": "application/json" }, // Ensure JSON format
-            body: JSON.stringify(formData),
+            // body: JSON.stringify(formData),
+              body: JSON.stringify({
+                ...formData,             // keep your existing formData
+                subject: selectedSubject // add subject to it
+            }),
         });
 
         const result = await response.json();

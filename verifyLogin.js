@@ -313,7 +313,7 @@ app.get("/getStudents", (req, res) => {
 //for more information just uncomment tto understand more clearly
 // Route to save student marks
 app.post("/saveMarks", (req, res) => {
-    let subjectName = approvedSubject; // Ensure this has the correct value //g
+    let subjectName = req.body.subject; // Ensure this has the correct value //g
    // console.log(subjectName);
     const exam = req.body.exam;
 
