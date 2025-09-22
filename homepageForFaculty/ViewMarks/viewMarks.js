@@ -13,7 +13,8 @@ function fetchStudentData() {
         alert("Please select an exam.");
         return;
     }
-       
+       const selectedYear = localStorage.getItem("selectedYear");
+    const selectedBranch = localStorage.getItem("selectedBranch");
         const selectedSubject = localStorage.getItem("selectedSubject");
     fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
             tbody.innerHTML = ""; // Clear existing rows
