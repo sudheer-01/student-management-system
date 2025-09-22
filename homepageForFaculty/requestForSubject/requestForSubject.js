@@ -220,35 +220,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchAllData();  // Load all data when the page loads
     await fetchRequests();  
 });
-            try {
-                const response = await fetch("/sendRequest", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestData)
-                });
-        
-                const result = await response.json();
-                if (response.ok) {
-                    alert("Request sent successfully!");
-                    this.textContent = "Pending...";
-                    this.style.background = "gray";
-                    this.disabled = true;
-                } else {
-                    alert("Error sending request.");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Server error. Try again later.");
-            }
-        });
-    }
-    addSubjectButton.addEventListener("click", createSubjectField);
-    
-    await fetchAllData();  // Load all data when the page loads
-    await fetchRequests();  
-});
-
+       
 
 
