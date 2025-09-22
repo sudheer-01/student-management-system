@@ -16,9 +16,7 @@ function fetchStudentData() {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
         const selectedSubject = localStorage.getItem("selectedSubject");
-    fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)  // Pass exam as query param
-        .then(response => response.json())
-        .then(data => {
+    fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
             tbody.innerHTML = ""; // Clear existing rows
             data.forEach((student, index) => {
                 let row = document.createElement("tr");
