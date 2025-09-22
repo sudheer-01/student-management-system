@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     goToDashboardBtn.addEventListener('click', () => {
+        // Directly navigate to the /home route which serves the dashboard
         window.location.href = '/home';
     });
 
@@ -234,4 +235,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchAllData();  // Load all data when the page loads
     await fetchRequests();  
 });
-               
