@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const subjectContainer = document.getElementById("subjectContainer");
     const addSubjectButton = document.getElementById("addSubject");
+    const approvedSubjectsList = document.getElementById("approved-subjects-list");
+    const goToDashboardBtn = document.getElementById("goToDashboardBtn");
 
     let allBranches = [];
     let allSubjects = [];
@@ -37,75 +39,58 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     function displayRequests(requests) {
-        const requestList = document.createElement("div");
-        requestList.classList.add("request-list");
+        const pendingRequestList = document.createElement("div");
+        pendingRequestList.classList.add("request-list");
+        approvedSubjectsList.innerHTML = ''; // Clear previous radio buttons
 
-        requests.forEach(request => {
+        const approvedRequests = requests.filter(r => r.status === 'Approved');
+        const pendingRequests = requests.filter(r => r.status !== 'Approved');
+
+        if (approvedRequests.length > 0) {
+            document.getElementById('approved-subjects-container').style.display = 'block';
+        } else {
+            document.getElementById('approved-subjects-container').style.display = 'none';
+        }
+
+        approvedRequests.forEach(request => {
+            const label = document.createElement('label');
+            label.classList.add('approved-subject-option');
+            label.innerHTML = `
+                <input type="radio" name="approvedSubject" value='${JSON.stringify(request)}'>
+                <span><strong>${request.subject}</strong> (${request.branch} - Year ${request.year})</span>
+            `;
+            approvedSubjectsList.appendChild(label);
+        });
+
+        pendingRequests.forEach(request => {
             const div = document.createElement("div");
             div.classList.add("request-item");
-
             div.innerHTML = `
                 <p><strong>Subject:</strong> ${request.subject}</p>
                 <p><strong>Branch:</strong> ${request.branch}</p>
                 <p><strong>Year:</strong> ${request.year}</p>
                 <p><strong>Status:</strong> ${request.status}</p>
             `;
-
-            if (request.status === "Approved") {
-                const continueButton = document.createElement("button");
-                continueButton.textContent = "Continue";
-                continueButton.classList.add("continue-btn");
-
-                continueButton.addEventListener("click", async () => {
-                    const requestData = {
-                        subject: request.subject,
-                        branch: request.branch,
-                        year: request.year, 
-                        facultyId: facultyId
-                    };
-                    localStorage.setItem("selectedYear", request.year);
-                    localStorage.setItem("selectedBranch", request.branch);
-                    localStorage.setItem("selectedSubject", request.subject);
-                    console.log("Sending Request:", requestData);
-                
-                    try {
-                        const response = await fetch("/dashboardOfFaculty", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestData)
-                        });
-                
-                        const data = await response.json();
-                        console.log("Response:", data);
-                
-                        if (data.success) {
-                            window.location.href = data.redirectUrl; // Redirects to "/home"
-                        } else {
-                            alert(data.message || "Navigation failed");
-                        }
-                    } catch (error) {
-                        console.error("Fetch error:", error);
-                        alert("Server error in request For subject.js . Try again later.");
-                    }
-                });
-                
-                
-                
-
-
-                div.appendChild(continueButton);
-            }
-
-            requestList.appendChild(div);
+            pendingRequestList.appendChild(div);
         });
 
-        subjectContainer.appendChild(requestList);
+        subjectContainer.appendChild(pendingRequestList);
+
+        // Add event listener for radio buttons
+        document.querySelectorAll('input[name="approvedSubject"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const selectedRequest = JSON.parse(this.value);
+                localStorage.setItem("selectedYear", selectedRequest.year);
+                localStorage.setItem("selectedBranch", selectedRequest.branch);
+                localStorage.setItem("selectedSubject", selectedRequest.subject);
+                goToDashboardBtn.style.display = 'block';
+            });
+        });
     }
 
-
-
+    goToDashboardBtn.addEventListener('click', () => {
+        window.location.href = '/home';
+    });
 
     // Fetch branches for a specific year
     async function fetchBranches(year) {
@@ -249,6 +234,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchAllData();  // Load all data when the page loads
     await fetchRequests();  
 });
-
-
-
+               

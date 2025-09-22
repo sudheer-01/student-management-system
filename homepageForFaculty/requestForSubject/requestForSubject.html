@@ -9,9 +9,16 @@
 <body>
     <div class="container">
         <h2>Request Subject Allocation</h2>
+        <div id="approved-subjects-container">
+            <h3>Select an Approved Subject</h3>
+            <div id="approved-subjects-list">
+                <!-- Approved subjects as radio buttons will be injected here -->
+            </div>
+            <button id="goToDashboardBtn" style="display: none;">Go to Dashboard</button>
+        </div>
         <form id="subjectRequestForm">
             <div id="subjectContainer">
-                <!-- Subject selection will be added dynamically here -->
+                <!-- Subject selection for new requests will be added dynamically here -->
             </div>
             <button type="button" id="addSubject">+ Add Subject</button>
         </form>
