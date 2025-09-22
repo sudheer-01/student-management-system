@@ -13,8 +13,10 @@ function fetchStudentData() {
         alert("Please select an exam.");
         return;
     }
-
-    fetch(`http://localhost:9812/getStudentMarks?exam=${selectedExam}`)  // Pass exam as query param
+        const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        const selectedSubject = localStorage.getItem("selectedSubject");
+    fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)  // Pass exam as query param
         .then(response => response.json())
         .then(data => {
             tbody.innerHTML = ""; // Clear existing rows
@@ -34,7 +36,10 @@ function fetchStudentData() {
 
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const response = await fetch("/getExams");
+         const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        // const response = await fetch("/getExams");
+        const response = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
         const exams = await response.json();
         
         const examDropdown = document.getElementById("exam");
@@ -50,5 +55,21 @@ document.addEventListener("DOMContentLoaded", async function() {
     } catch (error) {
         console.error("Error fetching exams:", error);
         alert("Failed to load exams.");
+    }
+    const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            if (!confirm("Log out of the faculty panel?")) return;
+            // Clear session-related storage
+            localStorage.removeItem("selectedYear");
+            localStorage.removeItem("selectedBranch");
+            localStorage.removeItem("selectedSubject");
+            localStorage.removeItem("facultyId");
+
+            fetch("/logout", { method: "POST" })
+                .then(() => { window.location.href = "/"; })
+                .catch(() => { window.location.href = "/"; });
+        });
     }
 });

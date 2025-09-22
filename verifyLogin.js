@@ -411,12 +411,10 @@ app.post("/saveMarks", (req, res) => {
 
 //homepageForFaculty:::ViewMarks
 //viewing marks
-app.get("/getStudentMarks", (req, res) => {
-    let branch = approvedBranch; //g
-    let year = approvedYear; //g
-    let subject = approvedSubject; //g
-    let examColumn = req.query.exam;  // Get exam name from frontend
 
+app.get("/getStudentMarks", (req, res) => {
+    const { examColumn, year, branch, subject } = req.query;
+    
     if (!examColumn) {
         return res.status(400).json({ success: false, message: "Exam type is required" });
     }
