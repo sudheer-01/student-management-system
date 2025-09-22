@@ -83,7 +83,10 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
 
 document.addEventListener("DOMContentLoaded", async function() {
     try {
-        const response = await fetch("/getExams");
+        const selectedYear = localStorage.getItem("selectedYear");
+        const selectedBranch = localStorage.getItem("selectedBranch");
+        // const response = await fetch("/getExams");
+        const response = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
         const exams = await response.json();
         
         const examDropdown = document.getElementById("exam");

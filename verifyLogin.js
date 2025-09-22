@@ -1135,8 +1135,9 @@ app.post("/removeExamColumn", (req, res) => {
 
 //homepageForFaculty::: this is to retrive the exams based on the year and branch
 app.get("/getExams", (req, res) => {
-    const year = approvedYear;
-    const branch = approvedBranch;
+    // const year = approvedYear;
+    // const branch = approvedBranch;
+     const { year, branch } = req.query;
 
     const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
