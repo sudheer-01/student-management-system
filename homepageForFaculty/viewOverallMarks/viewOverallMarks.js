@@ -112,12 +112,10 @@ const logoutBtn = document.getElementById("logoutBtn");
         });
     }
 document.getElementById("printReport").addEventListener("click", function () {
-    fetch("/getReportDetails")
-        .then(response => response.json())
-        .then(data => {
-            const branch = data.branch;
-            const year = data.year;
-            const subject = data.subject;
+
+            const year = localStorage.getItem("selectedYear");
+            const branch = localStorage.getItem("selectedBranch");
+            const subject = localStorage.getItem("selectedSubject");
             
             const printContent = document.getElementById("studentsInformationTable").outerHTML;
             const newWindow = window.open("", "_blank");
@@ -148,6 +146,5 @@ document.getElementById("printReport").addEventListener("click", function () {
 
             newWindow.document.close();
             newWindow.print();
-        })
-        .catch(error => console.error("Error fetching report details:", error));
+        
 });
