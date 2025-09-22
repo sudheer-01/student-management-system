@@ -1,5 +1,8 @@
 document.getElementById("getStudentMarks").addEventListener("click", () => {
-    fetch("/getOverallMarks")
+    const selectedYear = localStorage.getItem("selectedYear");
+    const selectedBranch = localStorage.getItem("selectedBranch");
+    const selectedSubject = localStorage.getItem("selectedSubject");
+    fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`
         .then(response => response.json())
         .then(data => {
             const table = document.getElementById("studentsInformationTable");
@@ -92,7 +95,22 @@ document.getElementById("addColumn").addEventListener("click", () => {
 
     alert("New column added successfully!");
 });
+const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            if (!confirm("Log out of the faculty panel?")) return;
+            // Clear session-related storage
+            localStorage.removeItem("selectedYear");
+            localStorage.removeItem("selectedBranch");
+            localStorage.removeItem("selectedSubject");
+            localStorage.removeItem("facultyId");
 
+            fetch("/logout", { method: "POST" })
+                .then(() => { window.location.href = "/"; })
+                .catch(() => { window.location.href = "/"; });
+        });
+    }
 document.getElementById("printReport").addEventListener("click", function () {
     fetch("/getReportDetails")
         .then(response => response.json())

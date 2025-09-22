@@ -443,9 +443,9 @@ app.get("/getStudentMarks", (req, res) => {
 //homepageForFaculty:::viewOverallMarks
 // API to fetch all students with dynamic exam columns
 app.get("/getOverallMarks", (req, res) => {
-    let branch = approvedBranch;  // g
-    let year = approvedYear;        // g
-    let subject =  approvedSubject;  // g
+    const branch = req.query.branch;  // Get branch from frontend
+    const year = req.query.year;        // Get year from frontend
+    const subject = req.query.subject;  // Get subject from frontend
 
     // Query to get exam columns dynamically
     con.query("SHOW COLUMNS FROM studentmarks", (err, columns) => {
