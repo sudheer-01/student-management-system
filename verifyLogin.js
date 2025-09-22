@@ -418,6 +418,8 @@ app.get("/getStudentMarks", (req, res) => {
     const year = req.query.year;  // Get year from frontend
     const branch = req.query.branch;  // Get branch from frontend
     const subject = req.query.subject;  // Get subject from frontend
+    console.log("Exam Column:", examColumn);
+
     if (!examColumn) {
         return res.status(400).json({ success: false, message: "Exam type is required" });
     }
