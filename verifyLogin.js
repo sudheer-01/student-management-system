@@ -1279,7 +1279,7 @@ app.post("/adminLogin", (req, res) => {
                 return res.sendFile(path.join(baseDir, "admin", "admin.html"));
             } else {
                 return res.send(
-                    `<script>alert('Invalid Faculty ID or Password'); window.location.href='/';</script>`
+                    `<script>alert('Invalid Admin ID or Password'); window.location.href='/';</script>`
                 );
             }
         }
