@@ -1477,7 +1477,7 @@ app.get("/marks", (req, res) => {
 });
 
 // API to get marks for all subjects for a given year and branch
-app.get("/comparative-marks", (req, res) => {
+app.get("/comparativemarks", (req, res) => {
   const { year, branch } = req.query;
   const sql = `
     SELECT *

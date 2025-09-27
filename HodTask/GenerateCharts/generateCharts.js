@@ -167,7 +167,7 @@ async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
-    const response = await fetch(`/comparative-marks?year=${year}&branch=${branch}`);
+    const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
     const data = await response.json();
 
     clearCharts();
