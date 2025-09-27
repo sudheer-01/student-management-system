@@ -25,6 +25,7 @@ app.use(express.static(path.join(baseDir,"HodTask","viewFacultyRequests")));
 app.use(express.static(path.join(baseDir,"HodTask","addAndChangeExams")));
 app.use(express.static(path.join(baseDir,"HodTask","generateStudentReports")));
 app.use(express.static(path.join(baseDir,"HodTask","viewMarksUpdateRequests")));
+app.use(express.static(path.join(baseDir,"HodTask","GenerateCharts")));
 //student
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
@@ -1456,6 +1457,42 @@ app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
 });
 
 
+//generating charts
+// API to get student marks for a subject
+app.get("/marks", (req, res) => {
+  const { subject, year, branch } = req.query;
+  const sql = `
+    SELECT *
+    FROM studentmarks
+    WHERE subject = ? AND year = ? AND branch = ?`;
+
+  db.query(sql, [subject, year, branch], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching data");
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// API to get marks for all subjects for a given year and branch
+app.get("/comparative-marks", (req, res) => {
+  const { year, branch } = req.query;
+  const sql = `
+    SELECT *
+    FROM studentmarks
+    WHERE year = ? AND branch = ?`;
+
+  db.query(sql, [year, branch], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching data");
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 
 const PORT = process.env.PORT || 9812;

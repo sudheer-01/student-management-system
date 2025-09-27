@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Marks Chart</title>
+  <link rel="stylesheet" href="generateCharts.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Student Marks Visualization</h2>
+    <div class="controls">
+      <label for="subject">Choose Subject:</label>
+      <select id="subject">
+        <option value="">Select Subject</option>
+      </select>
+      <label for="year">Year:</label>
+      <select id="year">
+        <option value="">Select Year</option>
+      </select>
+      <label for="branch">Branch:</label>
+      <select id="branch">
+        <option value="">Select Branch</option>
+      </select>
+    </div>
+    <div class="button-group">
+      <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
+      <button onclick="loadComparativeInsightChart()">Comparative Insights</button>
+    </div>
+
+    <div id="studentPerformanceControls" class="controls" style="display: none;">
+      <label for="studentHtno">Select Student:</label>
+      <select id="studentHtno"></select>
+      <button onclick="loadStudentPerformanceChart()">Show Student Performance</button>
+    </div>
+    <div id="chartsContainer"></div>
+  </div>
+
+  <script src="generateCharts.js"></script>
+</body>
+</html>
