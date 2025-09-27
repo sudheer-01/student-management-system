@@ -1466,7 +1466,7 @@ app.get("/marks", (req, res) => {
     FROM studentmarks
     WHERE subject = ? AND year = ? AND branch = ?`;
 
-  db.query(sql, [subject, year, branch], (err, results) => {
+  con.query(sql, [subject, year, branch], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).send("Error fetching data");
@@ -1484,7 +1484,7 @@ app.get("/comparativemarks", (req, res) => {
     FROM studentmarks
     WHERE year = ? AND branch = ?`;
 
-  db.query(sql, [year, branch], (err, results) => {
+  con.query(sql, [year, branch], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).send("Error fetching data");
