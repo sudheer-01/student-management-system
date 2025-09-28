@@ -155,7 +155,6 @@ function showStudentPerformanceControls() {
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
     const subject = document.getElementById("subject").value;
-
     if (!selectedHtno || currentData.length === 0) return;
 
     const studentData = currentData.find(s => s.htno === selectedHtno);
@@ -169,22 +168,6 @@ function loadStudentPerformanceChart() {
     const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
     const examMarks = examKeys.map(key => studentData[key]);
 
-    // Group exam marks by subject
-    const subjectMarks = {};
-    examKeys.forEach((key, index) => {
-        const subjectName = key.split('_')[0]; // Assuming subject is the prefix before underscore
-        if (!subjectMarks[subjectName]) {
-            subjectMarks[subjectName] = {
-                label: subjectName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                data: Array(examKeys.length).fill(0),
-                backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
-                borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
-                borderWidth: 1
-            };
-        }
-        subjectMarks[subjectName].data[examKeys.indexOf(key)] = studentData[key];
-    });
-
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container';
     const canvas = document.createElement('canvas');
@@ -195,8 +178,12 @@ function loadStudentPerformanceChart() {
     const chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: examNames,
-            datasets: Object.values(subjectMarks)
+            labels: [subject], // Use subject as the label
+            datasets: examNames.map((exam, index) => ({
+                label: exam,
+                data: [examMarks[index]], // Marks for the exam
+                backgroundColor: `rgba(${index * 50}, ${index * 30}, ${index * 80}, 0.7)` // Dynamic color
+            }))
         },
         options: {
             responsive: true,
@@ -207,17 +194,17 @@ function loadStudentPerformanceChart() {
                     title: { display: true, text: 'Marks' }
                 },
                 x: {
-                    title: { display: true, text: 'Exams' }
+                    title: { display: true, text: 'Subjects' }
                 }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: `Performance for ${studentData.name} in ${subject}`,
+                    text: `Performance for ${studentData.name} (${studentData.htno}) in ${subject}`,
                     font: { size: 18 }
                 },
                 legend: {
-                    display: true
+                    display: true // Show legend for exams
                 }
             }
         }
@@ -331,5 +318,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         await populateSubjects(selectedYear, selectedBranch);
     });
 });
-
+       
 
