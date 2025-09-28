@@ -5,6 +5,7 @@ if (!window.marksChartInstances) {
 // Store fetched data globally for reuse
 let currentData = [];
 
+// Utility to populate dropdowns
 async function populateDropdown(selectElement, url, valueKey, textKey) {
     try {
         const response = await fetch(url);
@@ -30,10 +31,10 @@ async function populateBranches(year) {
 async function populateSubjects(year, branch) {
     const subjectSelect = document.getElementById("subject");
     await populateDropdown(subjectSelect, `/getSubjects/${year}/${branch}`, 'subject_name', 'subject_name');
+    subjectSelect.style.display = "block"; // show subject dropdown only when needed
 }
 
 function clearCharts() {
-    // Destroy old charts
     window.marksChartInstances.forEach(instance => instance.destroy());
     window.marksChartInstances = [];
 
@@ -41,97 +42,110 @@ function clearCharts() {
     chartsContainer.innerHTML = ''; // Clear previous charts
 }
 
+// SUBJECT EXAM ANALYSIS
 async function loadSubjectExamAnalysis() {
-    const subject = document.getElementById("subject").value;
+    const subjectSelect = document.getElementById("subject");
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
-    clearCharts();
-    const chartsContainer = document.getElementById("chartsContainer");
-    const studentControls = document.getElementById("studentPerformanceControls");
-    studentControls.style.display = 'none';
-
-    // Fetch available exams
-    const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
-    const exams = await examsResponse.json();
-
-    if (!exams || exams.length === 0) {
-        chartsContainer.innerHTML = '<p>No exams found for the selected criteria.</p>';
+    if (!year || !branch) {
+        alert("Please select Year and Branch first.");
         return;
     }
 
-    // Fetch all student data to get all HTNOs
-    const allStudentDataResponse = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exams[0]}`);
-    const allStudentData = await allStudentDataResponse.json();
+    // Show subject dropdown dynamically here
+    await populateSubjects(year, branch);
 
-    // Ensure all HTNOs are present on the x-axis
-    const allHtnos = [...new Set(allStudentData.map(s => s.htno))];
+    // Wait until user selects a subject
+    subjectSelect.onchange = async () => {
+        const subject = subjectSelect.value;
+        if (!subject) return;
 
-    for (const exam of exams) {
-        const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
-        const examData = await response.json();
+        clearCharts();
+        const chartsContainer = document.getElementById("chartsContainer");
+        const studentControls = document.getElementById("studentPerformanceControls");
+        studentControls.style.display = 'none';
 
-        if (examData.length === 0) {
-            chartsContainer.innerHTML += `<p>No data found for ${exam}.</p>`;
-            continue;
+        // Fetch available exams
+        const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+        const exams = await examsResponse.json();
+
+        if (!exams || exams.length === 0) {
+            chartsContainer.innerHTML = '<p>No exams found for the selected criteria.</p>';
+            return;
         }
 
-        const labels = allHtnos;
+        // Fetch all student data to get all HTNOs
+        const allStudentDataResponse = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exams[0]}`);
+        const allStudentData = await allStudentDataResponse.json();
 
-        const marksData = labels.map(htno => {
-            const student = examData.find(s => s.htno === htno);
-            return student ? student.marks : null; // Use null for missing data
-        });
+        const allHtnos = [...new Set(allStudentData.map(s => s.htno))];
 
-        const maxMark = Math.max(...marksData.filter(mark => mark !== null)); // Filter out null values
+        for (const exam of exams) {
+            const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
+            const examData = await response.json();
 
-        const chartContainer = document.createElement('div');
-        chartContainer.className = 'chart-container';
-        const canvas = document.createElement('canvas');
-        chartContainer.appendChild(canvas);
-        chartsContainer.appendChild(chartContainer);
+            if (examData.length === 0) {
+                chartsContainer.innerHTML += `<p>No data found for ${exam}.</p>`;
+                continue;
+            }
 
-        const ctx = canvas.getContext("2d");
-        const chartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Marks',
-                    data: marksData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fill: false,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: Math.ceil((maxMark + 5) / 5) * 5,
-                        title: { display: true, text: 'Marks' }
-                    },
-                    x: {
-                        title: { display: true, text: 'Hall Ticket Number' }
-                    }
+            const labels = allHtnos;
+            const marksData = labels.map(htno => {
+                const student = examData.find(s => s.htno === htno);
+                return student ? student.marks : null;
+            });
+
+            const maxMark = Math.max(...marksData.filter(mark => mark !== null));
+
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            const canvas = document.createElement('canvas');
+            chartContainer.appendChild(canvas);
+            chartsContainer.appendChild(chartContainer);
+
+            const ctx = canvas.getContext("2d");
+            const chartInstance = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Marks',
+                        data: marksData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        tension: 0.1
+                    }]
                 },
-                plugins: {
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: `Student Marks - ${subject} (${exam})`,
-                        font: { size: 16 }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.ceil((maxMark + 5) / 5) * 5,
+                            title: { display: true, text: 'Marks' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Hall Ticket Number' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: `Student Marks - ${subject} (${exam})`,
+                            font: { size: 16 }
+                        }
                     }
                 }
-            }
-        });
-        window.marksChartInstances.push(chartInstance);
-        chartsContainer.appendChild(chartContainer);
-    }
+            });
+            window.marksChartInstances.push(chartInstance);
+        }
+    };
 }
 
+// STUDENT PERFORMANCE (BAR CHART)
 function showStudentPerformanceControls() {
     clearCharts();
     const studentControls = document.getElementById("studentPerformanceControls");
@@ -141,13 +155,13 @@ function showStudentPerformanceControls() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
-    // Fetch student data and populate dropdown
     fetch(`/getStudentReports/${year}/${branch}/${subject}/mid_1`)
         .then(response => response.json())
         .then(data => {
             currentData = data;
             const studentSelect = document.getElementById("studentHtno");
-            studentSelect.innerHTML = '<option value="">Select Student</option>' + data.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
+            studentSelect.innerHTML = '<option value="">Select Student</option>' +
+                data.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
         })
         .catch(error => console.error("Error fetching student data:", error));
 }
@@ -163,7 +177,6 @@ function loadStudentPerformanceChart() {
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
 
-    // Extract exam names and marks
     const examKeys = Object.keys(studentData).filter(key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key));
     const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
     const examMarks = examKeys.map(key => studentData[key]);
@@ -178,24 +191,19 @@ function loadStudentPerformanceChart() {
     const chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: [subject], // Use subject as the label
+            labels: [subject],
             datasets: examNames.map((exam, index) => ({
                 label: exam,
-                data: [examMarks[index]], // Marks for the exam
-                backgroundColor: `rgba(${index * 50}, ${index * 30}, ${index * 80}, 0.7)` // Dynamic color
+                data: [examMarks[index]],
+                backgroundColor: `rgba(${index * 50}, ${index * 30}, ${index * 80}, 0.7)`
             }))
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Marks' }
-                },
-                x: {
-                    title: { display: true, text: 'Subjects' }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'Marks' } },
+                x: { title: { display: true, text: 'Subjects' } }
             },
             plugins: {
                 title: {
@@ -203,15 +211,14 @@ function loadStudentPerformanceChart() {
                     text: `Performance for ${studentData.name} (${studentData.htno}) in ${subject}`,
                     font: { size: 18 }
                 },
-                legend: {
-                    display: true // Show legend for exams
-                }
+                legend: { display: true }
             }
         }
     });
     window.marksChartInstances.push(chartInstance);
 }
 
+// COMPARATIVE SUBJECT INSIGHT
 async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
@@ -228,7 +235,6 @@ async function loadComparativeInsightChart() {
         return;
     }
 
-    // Aggregate marks by subject
     const subjectMarks = {};
     data.forEach(item => {
         if (!subjectMarks[item.subject]) {
@@ -237,7 +243,6 @@ async function loadComparativeInsightChart() {
         subjectMarks[item.subject].push(item.marks);
     });
 
-    // Prepare data for chart
     const labels = Object.keys(subjectMarks);
     const datasets = [{
         label: 'Average Marks',
@@ -260,45 +265,28 @@ async function loadComparativeInsightChart() {
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
+        data: { labels: labels, datasets: datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Average Marks'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Subjects'
-                    }
-                }
+                y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
+                x: { title: { display: true, text: 'Subjects' } }
             },
             plugins: {
                 title: {
                     display: true,
                     text: `Comparative Subject Performance (Year: ${year}, Branch: ${branch})`,
-                    font: {
-                        size: 16
-                    }
+                    font: { size: 16 }
                 },
-                legend: {
-                    display: false
-                }
+                legend: { display: false }
             }
         }
     });
     window.marksChartInstances.push(chartInstance);
 }
 
+// INITIAL LOAD
 document.addEventListener('DOMContentLoaded', async () => {
     const yearSelect = document.getElementById("year");
     const branchSelect = document.getElementById("branch");
@@ -309,14 +297,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     yearSelect.addEventListener('change', async () => {
         const selectedYear = yearSelect.value;
         await populateBranches(selectedYear);
-        subjectSelect.innerHTML = '<option value="">Select Subject</option>'; // Clear subjects
+        subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+        subjectSelect.style.display = "none"; // hide by default
     });
 
-    branchSelect.addEventListener('change', async () => {
-        const selectedYear = yearSelect.value;
-        const selectedBranch = branchSelect.value;
-        await populateSubjects(selectedYear, selectedBranch);
+    branchSelect.addEventListener('change', () => {
+        subjectSelect.style.display = "none"; // hide until Subject Exam Analysis is clicked
     });
 });
-       
-
