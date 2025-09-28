@@ -49,6 +49,7 @@ async function loadSubjectExamAnalysis() {
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
     const studentControls = document.getElementById("studentPerformanceControls");
+    studentControls.style.display = 'none';
 
     // Fetch available exams
     const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
@@ -56,7 +57,6 @@ async function loadSubjectExamAnalysis() {
 
     if (!exams || exams.length === 0) {
         chartsContainer.innerHTML = '<p>No exams found for the selected criteria.</p>';
-        studentControls.style.display = 'none';
         return;
     }
 
@@ -75,11 +75,6 @@ async function loadSubjectExamAnalysis() {
             chartsContainer.innerHTML += `<p>No data found for ${exam}.</p>`;
             continue;
         }
-
-        // Populate student dropdown
-        const studentSelect = document.getElementById("studentHtno");
-        studentSelect.innerHTML = examData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
-        studentControls.style.display = 'flex';
 
         const labels = allHtnos;
 
@@ -137,8 +132,30 @@ async function loadSubjectExamAnalysis() {
     }
 }
 
+function showStudentPerformanceControls() {
+    clearCharts();
+    const studentControls = document.getElementById("studentPerformanceControls");
+    studentControls.style.display = 'flex';
+
+    const subject = document.getElementById("subject").value;
+    const year = document.getElementById("year").value;
+    const branch = document.getElementById("branch").value;
+
+    // Fetch student data and populate dropdown
+    fetch(`/getStudentReports/${year}/${branch}/${subject}/mid_1`)
+        .then(response => response.json())
+        .then(data => {
+            currentData = data;
+            const studentSelect = document.getElementById("studentHtno");
+            studentSelect.innerHTML = '<option value="">Select Student</option>' + data.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
+        })
+        .catch(error => console.error("Error fetching student data:", error));
+}
+
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
+    const subject = document.getElementById("subject").value;
+
     if (!selectedHtno || currentData.length === 0) return;
 
     const studentData = currentData.find(s => s.htno === selectedHtno);
@@ -160,15 +177,15 @@ function loadStudentPerformanceChart() {
 
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: examNames,
             datasets: [{
                 label: `Marks for ${studentData.name} (${studentData.htno})`,
                 data: examMarks,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-                tension: 0.1
+                borderWidth: 1
             }]
         },
         options: {
@@ -186,8 +203,11 @@ function loadStudentPerformanceChart() {
             plugins: {
                 title: {
                     display: true,
-                    text: `Performance for ${studentData.name} in ${studentData.subject}`,
+                    text: `Performance for ${studentData.name} in ${subject}`,
                     font: { size: 18 }
+                },
+                legend: {
+                    display: false
                 }
             }
         }
