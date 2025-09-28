@@ -272,7 +272,7 @@ async function loadComparativeInsightChart() {
     }
 
     // Calculate average marks per subject per exam
-    const subjectMarks = {}; // { subject: { Unit_test_1: avg, Mid_1: avg, ... } }
+    const subjectMarks = {}; // { subject: { exam1: [marks], ... } }
 
     data.forEach(item => {
         const subject = item.subject;
@@ -285,46 +285,53 @@ async function loadComparativeInsightChart() {
         });
     });
 
-    const labels = Object.keys(subjectMarks); // subjects
-    const datasets = examKeys.map((exam, idx) => ({
-        label: exam.replace(/_/g, " "),
-        data: labels.map(subject => {
+    const subjects = Object.keys(subjectMarks); // all subjects
+
+    // Create one chart per exam
+    examKeys.forEach((exam, idx) => {
+        const examData = subjects.map(subject => {
             const marksArray = subjectMarks[subject][exam];
             const total = marksArray.reduce((sum, val) => sum + val, 0);
             return marksArray.length ? total / marksArray.length : 0;
-        }),
-        backgroundColor: `rgba(${50 + idx * 60}, ${100 + idx * 40}, ${150 + idx * 30}, 0.7)`
-    }));
+        });
 
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'chart-container';
-    const canvas = document.createElement('canvas');
-    chartContainer.appendChild(canvas);
-    chartsContainer.appendChild(chartContainer);
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        chartContainer.appendChild(canvas);
+        chartsContainer.appendChild(chartContainer);
 
-    const ctx = canvas.getContext("2d");
-    const chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: labels, datasets: datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
-                x: { title: { display: true, text: 'Subjects' } }
+        const ctx = canvas.getContext("2d");
+        const chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: exam.replace(/_/g, " "),
+                    data: examData,
+                    backgroundColor: `rgba(${50 + idx*60}, ${100 + idx*40}, ${150 + idx*30}, 0.7)`
+                }]
             },
-            plugins: {
-                title: {
-                    display: true,
-                    text: `Comparative Subject Performance (Year: ${year}, Branch: ${branch})`,
-                    font: { size: 16 }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
+                    x: { title: { display: true, text: 'Subjects' } }
                 },
-                legend: { display: true }
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Average Marks per Subject - ${exam.replace(/_/g, " ")}`,
+                        font: { size: 16 }
+                    },
+                    legend: { display: false }
+                }
             }
-        }
-    });
+        });
 
-    window.marksChartInstances.push(chartInstance);
+        window.marksChartInstances.push(chartInstance);
+    });
 }
 
 
