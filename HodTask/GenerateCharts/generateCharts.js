@@ -139,6 +139,7 @@ async function loadSubjectExamAnalysis() {
 
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
+     const subject = document.getElementById("subject").value;
     if (!selectedHtno || currentData.length === 0) return;
 
     const studentData = currentData.find(s => s.htno === selectedHtno);
@@ -186,7 +187,7 @@ function loadStudentPerformanceChart() {
             plugins: {
                 title: {
                     display: true,
-                    text: `Performance for ${studentData.name} in ${studentData.subject}`,
+                    text: `Performance for ${studentData.name} in ${subject}`,
                     font: { size: 18 }
                 }
             }
