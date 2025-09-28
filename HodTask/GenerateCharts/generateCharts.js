@@ -172,55 +172,59 @@ function showStudentPerformanceControls() {
 
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
-
     if (!selectedHtno || currentData.length === 0) return;
 
-    const studentData = currentData.find(s => s.htno === selectedHtno);
-    if (!studentData) return;
+    // ✅ get all subjects for that student
+    const studentData = currentData.filter(s => s.htno === selectedHtno);
+    if (studentData.length === 0) return;
 
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
 
-    const examKeys = Object.keys(studentData).filter(key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key));
-    const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-    const examMarks = examKeys.map(key => studentData[key]);
+    // Subjects = labels
+    const subjects = studentData.map(s => s.subject);
 
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'chart-container';
-    const canvas = document.createElement('canvas');
+    // Exams = Unit_test_1, Mid_1, Unit_test_2
+    const examKeys = ["Unit_test_1", "Mid_1", "Unit_test_2"];
+
+    // Build datasets (one per exam)
+    const datasets = examKeys.map((exam, idx) => ({
+        label: exam.replace(/_/g, " "),
+        data: studentData.map(s => s[exam]),
+        backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
+    }));
+
+    const chartContainer = document.createElement("div");
+    chartContainer.className = "chart-container";
+    const canvas = document.createElement("canvas");
     chartContainer.appendChild(canvas);
     chartsContainer.appendChild(chartContainer);
 
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [subject],
-            datasets: examNames.map((exam, index) => ({
-                label: exam,
-                data: [examMarks[index]],
-                backgroundColor: `rgba(${index * 50}, ${index * 30}, ${index * 80}, 0.7)`
-            }))
-        },
+        type: "bar",
+        data: { labels: subjects, datasets: datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Marks' } },
-                x: { title: { display: true, text: 'Subjects' } }
+                y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+                x: { title: { display: true, text: "Subjects" } }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: `Performance for ${studentData.name} (${studentData.htno})`,
+                    text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
                     font: { size: 18 }
                 },
                 legend: { display: true }
             }
         }
     });
+
     window.marksChartInstances.push(chartInstance);
 }
+
 
 // COMPARATIVE SUBJECT INSIGHT
 async function loadComparativeInsightChart() {

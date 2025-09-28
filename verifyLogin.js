@@ -1498,7 +1498,10 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
 
     // Corrected query: dynamically selecting the column
-    const query = `SELECT * FROM studentmarks WHERE year = ? AND branch = ?`;
+    const query = `SELECT DISTINCT htno, name 
+FROM studentmarks 
+WHERE year = ? AND branch = ?;
+`;
     con.query(query, [year, branch], (err, result) => {
         if (err) return res.status(500).send(err);
         res.json(result);
