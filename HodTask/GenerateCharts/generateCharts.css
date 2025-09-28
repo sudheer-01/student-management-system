@@ -36,8 +36,8 @@ body {
 }
 
 #chartsContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  display: flex;
+  flex-direction: column; /* Display charts one below the other */
   gap: 20px;
   margin-top: 20px;
   width: 100%;

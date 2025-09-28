@@ -74,9 +74,16 @@ async function loadSubjectExamAnalysis() {
         studentSelect.innerHTML = examData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
         studentControls.style.display = 'flex';
 
-        const labels = examData.map(s => s.htno); // Use htno for x-axis
-        const marksData = examData.map(s => s.marks); // Use marks for y-axis
-        const maxMark = Math.max(...marksData);
+        // Ensure all HTNOs are present on the x-axis
+        const allHtnos = [...new Set(examData.map(s => s.htno))];
+        const labels = allHtnos;
+
+        const marksData = labels.map(htno => {
+            const student = examData.find(s => s.htno === htno);
+            return student ? student.marks : null; // Use null for missing data
+        });
+
+        const maxMark = Math.max(...marksData.filter(mark => mark !== null)); // Filter out null values
 
         const chartContainer = document.createElement('div');
         chartContainer.className = 'chart-container';
