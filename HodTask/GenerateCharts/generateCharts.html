@@ -23,17 +23,24 @@
         <option value="">Select Branch</option>
       </select>
     </div>
-    <div class="button-group">
-      <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
-      <button onclick="loadComparativeInsightChart()">Comparative Insights</button>
-    </div>
 
-    <div id="studentPerformanceControls" class="controls" style="display: none;">
-      <label for="studentHtno">Select Student:</label>
-      <select id="studentHtno"></select>
-      <button onclick="loadStudentPerformanceChart()">Show Student Performance</button>
-    </div>
-    <div id="chartsContainer"></div>
+    <!-- <div class="button-group"> -->
+    <div style="margin-bottom: 15px;">
+  <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
+  <button onclick="prepareStudentPerformance()">Show Student Performance</button>
+  <button onclick="loadComparativeInsights()">Comparative Insights</button>
+</div>
+
+<div id="studentDropdownContainer" style="display:none; margin-bottom:10px;">
+  <label>Select Student: </label>
+  <select id="studentSelect" onchange="loadStudentPerformanceChart()">
+    <!-- Students will be added dynamically -->
+  </select>
+</div>
+
+<div id="chartsContainer"></div>
+
+
   </div>
 
   <script src="generateCharts.js"></script>
