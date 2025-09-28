@@ -251,6 +251,13 @@ async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
+    if (!year || !branch) return;
+
+    // Fetch exams dynamically
+    const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+    const examKeys = await examsResponse.json(); // ["Unit_test_1", "Mid_1", "Unit_test_2"]
+
+    // Fetch student marks
     const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
     const data = await response.json();
 
@@ -259,31 +266,35 @@ async function loadComparativeInsightChart() {
     document.getElementById("subjectWrapper").style.display = "none"; // hide subject dropdown
     const chartsContainer = document.getElementById("chartsContainer");
 
-    if (data.length === 0) {
+    if (!data.length) {
         chartsContainer.innerHTML = '<p>No data found for comparative analysis.</p>';
         return;
     }
 
-    const subjectMarks = {};
+    // Calculate average marks per subject per exam
+    const subjectMarks = {}; // { subject: { Unit_test_1: avg, Mid_1: avg, ... } }
+
     data.forEach(item => {
-        if (!subjectMarks[item.subject]) {
-            subjectMarks[item.subject] = [];
+        const subject = item.subject;
+        if (!subjectMarks[subject]) {
+            subjectMarks[subject] = {};
+            examKeys.forEach(exam => subjectMarks[subject][exam] = []);
         }
-        subjectMarks[item.subject].push(item.marks);
+        examKeys.forEach(exam => {
+            if (item[exam] != null) subjectMarks[subject][exam].push(item[exam]);
+        });
     });
 
-    const labels = Object.keys(subjectMarks);
-    const datasets = [{
-        label: 'Average Marks',
+    const labels = Object.keys(subjectMarks); // subjects
+    const datasets = examKeys.map((exam, idx) => ({
+        label: exam.replace(/_/g, " "),
         data: labels.map(subject => {
-            const marks = subjectMarks[subject];
-            const total = marks.reduce((acc, c) => acc + c, 0);
-            return marks.length > 0 ? total / marks.length : 0;
+            const marksArray = subjectMarks[subject][exam];
+            const total = marksArray.reduce((sum, val) => sum + val, 0);
+            return marksArray.length ? total / marksArray.length : 0;
         }),
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-    }];
+        backgroundColor: `rgba(${50 + idx * 60}, ${100 + idx * 40}, ${150 + idx * 30}, 0.7)`
+    }));
 
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container';
@@ -308,12 +319,14 @@ async function loadComparativeInsightChart() {
                     text: `Comparative Subject Performance (Year: ${year}, Branch: ${branch})`,
                     font: { size: 16 }
                 },
-                legend: { display: false }
+                legend: { display: true }
             }
         }
     });
+
     window.marksChartInstances.push(chartInstance);
 }
+
 
 // INITIAL LOAD
 document.addEventListener('DOMContentLoaded', async () => {
