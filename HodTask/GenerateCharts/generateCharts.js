@@ -5,6 +5,9 @@ if (!window.marksChartInstances) {
 // Store fetched data globally for reuse
 let currentData = [];
 
+/**
+ * Populate dropdown with fetched data
+ */
 async function populateDropdown(selectElement, url, valueKey, textKey) {
     try {
         const response = await fetch(url);
@@ -32,7 +35,9 @@ async function populateSubjects(year, branch) {
     await populateDropdown(subjectSelect, `/getSubjects/${year}/${branch}`, 'subject_name', 'subject_name');
 }
 
-
+/**
+ * Clear existing charts
+ */
 function clearCharts() {
     const chartsContainer = document.getElementById("chartsContainer");
     chartsContainer.innerHTML = "";
@@ -40,18 +45,29 @@ function clearCharts() {
     window.marksChartInstances = [];
 }
 
-// 1) Subject Exam Analysis (already working)
+/**
+ * 1) Subject Exam Analysis
+ */
 function loadSubjectExamAnalysis() {
     clearCharts();
     document.getElementById("studentDropdownContainer").style.display = "none";
-    // your existing subject exam chart code goes here
+
+    // TODO: Add your subject exam analysis chart logic here
+    // Example: Average marks of subject in all exams
 }
 
-// 2) Prepare Student Performance (show dropdown)
+/**
+ * 2) Prepare Student Performance (show dropdown)
+ */
 function prepareStudentPerformance() {
     clearCharts();
     const dropdown = document.getElementById("studentSelect");
     dropdown.innerHTML = "";
+
+    if (currentData.length === 0) {
+        alert("No student data loaded!");
+        return;
+    }
 
     currentData.forEach(student => {
         const option = document.createElement("option");
@@ -63,7 +79,9 @@ function prepareStudentPerformance() {
     document.getElementById("studentDropdownContainer").style.display = "block";
 }
 
-// 2) Load Student Performance Chart (Grouped Bar)
+/**
+ * 2) Load Student Performance Chart (Grouped Bar)
+ */
 function loadStudentPerformanceChart() {
     clearCharts();
     const selectedHtno = document.getElementById("studentSelect").value;
@@ -76,6 +94,7 @@ function loadStudentPerformanceChart() {
         .filter(key => !['id','htno','name','subject','year','branch'].includes(key));
 
     const subjects = studentDataAllSubjects.map(s => s.subject);
+
     const datasets = examKeys.map((exam, index) => ({
         label: exam.replace(/_/g," ").toUpperCase(),
         data: studentDataAllSubjects.map(s => s[exam]),
@@ -91,10 +110,7 @@ function loadStudentPerformanceChart() {
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
         type: 'bar',
-        data: {
-            labels: subjects,
-            datasets: datasets
-        },
+        data: { labels: subjects, datasets: datasets },
         options: {
             responsive: true,
             scales: {
@@ -112,10 +128,17 @@ function loadStudentPerformanceChart() {
     window.marksChartInstances.push(chartInstance);
 }
 
-// 3) Comparative Insights (Grouped Bar with Avg per Subject)
+/**
+ * 3) Comparative Insights (Grouped Bar with Avg per Subject)
+ */
 function loadComparativeInsights() {
     clearCharts();
     document.getElementById("studentDropdownContainer").style.display = "none";
+
+    if (currentData.length === 0) {
+        alert("No data available!");
+        return;
+    }
 
     const examKeys = Object.keys(currentData[0])
         .filter(key => !['id','htno','name','subject','year','branch'].includes(key));
@@ -158,7 +181,9 @@ function loadComparativeInsights() {
     window.marksChartInstances.push(chartInstance);
 }
 
-
+/**
+ * Initialize dropdowns on page load
+ */
 document.addEventListener('DOMContentLoaded', async () => {
     const yearSelect = document.getElementById("year");
     const branchSelect = document.getElementById("branch");

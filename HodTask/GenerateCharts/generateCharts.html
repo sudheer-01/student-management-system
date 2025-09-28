@@ -24,23 +24,20 @@
       </select>
     </div>
 
-    <!-- <div class="button-group"> -->
-    <div style="margin-bottom: 15px;">
-  <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
-  <button onclick="prepareStudentPerformance()">Show Student Performance</button>
-  <button onclick="loadComparativeInsights()">Comparative Insights</button>
-</div>
+    <div class="button-group" style="margin-bottom: 15px;">
+      <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
+      <button onclick="prepareStudentPerformance()">Show Student Performance</button>
+      <button onclick="loadComparativeInsights()">Comparative Insights</button>
+    </div>
 
-<div id="studentDropdownContainer" style="display:none; margin-bottom:10px;">
-  <label>Select Student: </label>
-  <select id="studentSelect" onchange="loadStudentPerformanceChart()">
-    <!-- Students will be added dynamically -->
-  </select>
-</div>
+    <div id="studentDropdownContainer" style="display:none; margin-bottom:10px;">
+      <label>Select Student: </label>
+      <select id="studentSelect" onchange="loadStudentPerformanceChart()">
+        <!-- Students will be added dynamically -->
+      </select>
+    </div>
 
-<div id="chartsContainer"></div>
-
-
+    <div id="chartsContainer"></div>
   </div>
 
   <script src="generateCharts.js"></script>
