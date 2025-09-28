@@ -31,7 +31,7 @@ async function populateBranches(year) {
 async function populateSubjects(year, branch) {
     const subjectSelect = document.getElementById("subject");
     await populateDropdown(subjectSelect, `/getSubjects/${year}/${branch}`, 'subject_name', 'subject_name');
-    subjectSelect.style.display = "block"; // show subject dropdown only when needed
+    subjectSelect.parentElement.style.display = "block"; // show wrapper div
 }
 
 function clearCharts() {
@@ -44,6 +44,7 @@ function clearCharts() {
 
 // SUBJECT EXAM ANALYSIS
 async function loadSubjectExamAnalysis() {
+    const subjectWrapper = document.getElementById("subjectWrapper");
     const subjectSelect = document.getElementById("subject");
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
@@ -53,7 +54,8 @@ async function loadSubjectExamAnalysis() {
         return;
     }
 
-    // Show subject dropdown dynamically here
+    // Show subject dropdown only here
+    subjectWrapper.style.display = "block";
     await populateSubjects(year, branch);
 
     // Wait until user selects a subject
@@ -148,6 +150,8 @@ async function loadSubjectExamAnalysis() {
 // STUDENT PERFORMANCE (BAR CHART)
 function showStudentPerformanceControls() {
     clearCharts();
+    const subjectWrapper = document.getElementById("subjectWrapper");
+    subjectWrapper.style.display = "none"; // hide subject dropdown
     const studentControls = document.getElementById("studentPerformanceControls");
     studentControls.style.display = 'flex';
 
@@ -228,6 +232,7 @@ async function loadComparativeInsightChart() {
 
     clearCharts();
     document.getElementById("studentPerformanceControls").style.display = 'none';
+    document.getElementById("subjectWrapper").style.display = "none"; // hide subject dropdown
     const chartsContainer = document.getElementById("chartsContainer");
 
     if (data.length === 0) {
@@ -298,10 +303,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const selectedYear = yearSelect.value;
         await populateBranches(selectedYear);
         subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-        subjectSelect.style.display = "none"; // hide by default
+        document.getElementById("subjectWrapper").style.display = "none"; // hide by default
     });
 
     branchSelect.addEventListener('change', () => {
-        subjectSelect.style.display = "none"; // hide until Subject Exam Analysis is clicked
+        document.getElementById("subjectWrapper").style.display = "none"; // hide until Subject Exam Analysis is clicked
     });
 });

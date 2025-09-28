@@ -10,10 +10,6 @@
   <div class="container">
     <h2>Student Marks Visualization</h2>
     <div class="controls">
-      <label for="subject">Choose Subject:</label>
-      <select id="subject">
-        <option value="">Select Subject</option>
-      </select>
       <label for="year">Year:</label>
       <select id="year">
         <option value="">Select Year</option>
@@ -23,6 +19,15 @@
         <option value="">Select Branch</option>
       </select>
     </div>
+
+    <!-- Subject dropdown hidden by default -->
+    <div id="subjectWrapper" class="controls" style="display: none; margin-top: 10px;">
+      <label for="subject">Choose Subject:</label>
+      <select id="subject">
+        <option value="">Select Subject</option>
+      </select>
+    </div>
+
     <div class="button-group">
       <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
       <button onclick="showStudentPerformanceControls()">Show Student Performance</button>
@@ -34,6 +39,7 @@
       <select id="studentHtno"></select>
       <button onclick="loadStudentPerformanceChart()">Load Student Performance</button>
     </div>
+
     <div id="chartsContainer"></div>
   </div>
 
