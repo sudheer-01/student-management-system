@@ -60,6 +60,13 @@ async function loadSubjectExamAnalysis() {
         return;
     }
 
+    // Fetch all student data to get all HTNOs
+    const allStudentDataResponse = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exams[0]}`);
+    const allStudentData = await allStudentDataResponse.json();
+
+    // Ensure all HTNOs are present on the x-axis
+    const allHtnos = [...new Set(allStudentData.map(s => s.htno))];
+
     for (const exam of exams) {
         const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
         const examData = await response.json();
@@ -74,8 +81,6 @@ async function loadSubjectExamAnalysis() {
         studentSelect.innerHTML = examData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
         studentControls.style.display = 'flex';
 
-        // Ensure all HTNOs are present on the x-axis
-        const allHtnos = [...new Set(examData.map(s => s.htno))];
         const labels = allHtnos;
 
         const marksData = labels.map(htno => {
