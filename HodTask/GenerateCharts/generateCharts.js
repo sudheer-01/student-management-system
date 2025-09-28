@@ -172,7 +172,7 @@ function showStudentPerformanceControls() {
 
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
-    const subject = document.getElementById("subject").value;
+
     if (!selectedHtno || currentData.length === 0) return;
 
     const studentData = currentData.find(s => s.htno === selectedHtno);
@@ -212,7 +212,7 @@ function loadStudentPerformanceChart() {
             plugins: {
                 title: {
                     display: true,
-                    text: `Performance for ${studentData.name} (${studentData.htno}) in ${subject}`,
+                    text: `Performance for ${studentData.name} (${studentData.htno})`,
                     font: { size: 18 }
                 },
                 legend: { display: true }
