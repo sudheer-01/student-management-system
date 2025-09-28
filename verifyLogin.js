@@ -1499,10 +1499,22 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
 
     // Corrected query: dynamically selecting the column
     const query = `SELECT DISTINCT htno, name 
-FROM studentmarks 
-WHERE year = ? AND branch = ?;
-`;
+                    FROM studentmarks 
+                    WHERE year = ? AND branch = ?;
+                    `;
     con.query(query, [year, branch], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json(result);
+    });
+});
+
+app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
+    const { htno, year, branch } = req.params;
+    const query = `SELECT * 
+                    FROM studentmarks 
+                    WHERE year = ? AND branch = ? AND htno = ?;
+                    `;
+    con.query(query, [year, branch, htno], (err, result) => {
         if (err) return res.status(500).send(err);
         res.json(result);
     });

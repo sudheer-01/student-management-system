@@ -170,59 +170,69 @@ function showStudentPerformanceControls() {
         .catch(error => console.error("Error fetching student data:", error));
 }
 
-function loadStudentPerformanceChart() {
+async function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
-    if (!selectedHtno || currentData.length === 0) return;
+    const year = document.getElementById("year").value;
+    const branch = document.getElementById("branch").value;
 
-    // ✅ get all subjects for that student
-    const studentData = currentData.filter(s => s.htno === selectedHtno);
-    if (studentData.length === 0) return;
+    if (!selectedHtno || !year || !branch) return;
 
-    clearCharts();
-    const chartsContainer = document.getElementById("chartsContainer");
+    try {
+        // ✅ Retrieve data from the API
+        const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);
+        const studentData = await response.json();
 
-    // Subjects = labels
-    const subjects = studentData.map(s => s.subject);
+        if (!studentData || studentData.length === 0) return;
 
-    // Exams = Unit_test_1, Mid_1, Unit_test_2
-    const examKeys = ["Unit_test_1", "Mid_1", "Unit_test_2"];
+        clearCharts();
+        const chartsContainer = document.getElementById("chartsContainer");
 
-    // Build datasets (one per exam)
-    const datasets = examKeys.map((exam, idx) => ({
-        label: exam.replace(/_/g, " "),
-        data: studentData.map(s => s[exam]),
-        backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
-    }));
+        // Subjects = labels
+        const subjects = studentData.map(s => s.subject);
 
-    const chartContainer = document.createElement("div");
-    chartContainer.className = "chart-container";
-    const canvas = document.createElement("canvas");
-    chartContainer.appendChild(canvas);
-    chartsContainer.appendChild(chartContainer);
+        // Exams = Unit_test_1, Mid_1, Unit_test_2
+        const examKeys = ["Unit_test_1", "Mid_1", "Unit_test_2"];
 
-    const ctx = canvas.getContext("2d");
-    const chartInstance = new Chart(ctx, {
-        type: "bar",
-        data: { labels: subjects, datasets: datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: "Marks" } },
-                x: { title: { display: true, text: "Subjects" } }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
-                    font: { size: 18 }
+        // Build datasets (one per exam)
+        const datasets = examKeys.map((exam, idx) => ({
+            label: exam.replace(/_/g, " "),
+            data: studentData.map(s => s[exam]),
+            backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
+        }));
+
+        const chartContainer = document.createElement("div");
+        chartContainer.className = "chart-container";
+        const canvas = document.createElement("canvas");
+        chartContainer.appendChild(canvas);
+        chartsContainer.appendChild(chartContainer);
+
+        const ctx = canvas.getContext("2d");
+        const chartInstance = new Chart(ctx, {
+            type: "bar",
+            data: { labels: subjects, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+                    x: { title: { display: true, text: "Subjects" } }
                 },
-                legend: { display: true }
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
+                        font: { size: 18 }
+                    },
+                    legend: { display: true }
+                }
             }
-        }
-    });
+        });
 
-    window.marksChartInstances.push(chartInstance);
+        window.marksChartInstances.push(chartInstance);
+
+    } catch (error) {
+        console.error("Error fetching student data:", error);
+    }
 }
 
 
