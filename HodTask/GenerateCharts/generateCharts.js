@@ -178,19 +178,32 @@ async function loadStudentPerformanceChart() {
     if (!selectedHtno || !year || !branch) return;
 
     try {
+        // ✅ Retrieve data from the API
         const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);
-        const result = await response.json();
-
-        const studentData = result.data;
-        const examKeys = result.exams;
+        const studentData = await response.json();
 
         if (!studentData || studentData.length === 0) return;
 
         clearCharts();
         const chartsContainer = document.getElementById("chartsContainer");
 
+        // Subjects = labels
         const subjects = studentData.map(s => s.subject);
 
+        // Exams = Unit_test_1, Mid_1, Unit_test_2
+        async function loadExams(year, branch) {
+            const response = await fetch(`/getExams?year=${year}&branch=${branch}`);
+            const data = await response.json();
+            return data; // already ["Unit_test_1", "Mid_1", "Unit_test_2"]
+        }
+
+
+            // Example usage in your chart function
+        const examKeys = await loadExams(year, branch);
+
+        // const examKeys = ["Unit_test_1", "Mid_1", "Unit_test_2"];
+
+        // Build datasets (one per exam)
         const datasets = examKeys.map((exam, idx) => ({
             label: exam.replace(/_/g, " "),
             data: studentData.map(s => s[exam]),
@@ -231,7 +244,6 @@ async function loadStudentPerformanceChart() {
         console.error("Error fetching student data:", error);
     }
 }
-
 
 
 // COMPARATIVE SUBJECT INSIGHT
