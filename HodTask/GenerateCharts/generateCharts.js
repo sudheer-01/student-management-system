@@ -169,6 +169,22 @@ function loadStudentPerformanceChart() {
     const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
     const examMarks = examKeys.map(key => studentData[key]);
 
+    // Group exam marks by subject
+    const subjectMarks = {};
+    examKeys.forEach((key, index) => {
+        const subjectName = key.split('_')[0]; // Assuming subject is the prefix before underscore
+        if (!subjectMarks[subjectName]) {
+            subjectMarks[subjectName] = {
+                label: subjectName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                data: Array(examKeys.length).fill(0),
+                backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`,
+                borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+                borderWidth: 1
+            };
+        }
+        subjectMarks[subjectName].data[examKeys.indexOf(key)] = studentData[key];
+    });
+
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container';
     const canvas = document.createElement('canvas');
@@ -180,13 +196,7 @@ function loadStudentPerformanceChart() {
         type: 'bar',
         data: {
             labels: examNames,
-            datasets: [{
-                label: `Marks for ${studentData.name} (${studentData.htno})`,
-                data: examMarks,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
+            datasets: Object.values(subjectMarks)
         },
         options: {
             responsive: true,
@@ -207,7 +217,7 @@ function loadStudentPerformanceChart() {
                     font: { size: 18 }
                 },
                 legend: {
-                    display: false
+                    display: true
                 }
             }
         }
