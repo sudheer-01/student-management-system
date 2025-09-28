@@ -46,71 +46,83 @@ async function loadSubjectExamAnalysis() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
-    const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/mid_1`);
-    currentData = await response.json();
-
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
     const studentControls = document.getElementById("studentPerformanceControls");
 
-    if (currentData.length === 0) {
-        chartsContainer.innerHTML = '<p>No data found for the selected criteria.</p>';
+    // Fetch available exams
+    const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+    const exams = await examsResponse.json();
+
+    if (!exams || exams.length === 0) {
+        chartsContainer.innerHTML = '<p>No exams found for the selected criteria.</p>';
         studentControls.style.display = 'none';
         return;
     }
 
-    // Populate student dropdown
-    const studentSelect = document.getElementById("studentHtno");
-    studentSelect.innerHTML = currentData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
-    studentControls.style.display = 'flex';
+    for (const exam of exams) {
+        const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
+        const examData = await response.json();
 
-    const labels = currentData.map(s => s.htno); // Use htno for x-axis
-    const marksData = currentData.map(s => s.marks); // Use marks for y-axis
-    const maxMark = Math.max(...marksData);
+        if (examData.length === 0) {
+            chartsContainer.innerHTML += `<p>No data found for ${exam}.</p>`;
+            continue;
+        }
 
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'chart-container';
-    const canvas = document.createElement('canvas');
-    chartContainer.appendChild(canvas);
-    chartsContainer.appendChild(chartContainer);
+        // Populate student dropdown
+        const studentSelect = document.getElementById("studentHtno");
+        studentSelect.innerHTML = examData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
+        studentControls.style.display = 'flex';
 
-    const ctx = canvas.getContext("2d");
-    const chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Marks',
-                data: marksData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: Math.ceil((maxMark + 5) / 5) * 5,
-                    title: { display: true, text: 'Marks' }
-                },
-                x: {
-                    title: { display: true, text: 'Hall Ticket Number' }
-                }
+        const labels = examData.map(s => s.htno); // Use htno for x-axis
+        const marksData = examData.map(s => s.marks); // Use marks for y-axis
+        const maxMark = Math.max(...marksData);
+
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'chart-container';
+        const canvas = document.createElement('canvas');
+        chartContainer.appendChild(canvas);
+        chartsContainer.appendChild(chartContainer);
+
+        const ctx = canvas.getContext("2d");
+        const chartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Marks',
+                    data: marksData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
             },
-            plugins: {
-                legend: { display: false },
-                title: {
-                    display: true,
-                    text: `Student Marks - ${subject}`,
-                    font: { size: 16 }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: Math.ceil((maxMark + 5) / 5) * 5,
+                        title: { display: true, text: 'Marks' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Hall Ticket Number' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: `Student Marks - ${subject} (${exam})`,
+                        font: { size: 16 }
+                    }
                 }
             }
-        }
-    });
-    window.marksChartInstances.push(chartInstance);
+        });
+        window.marksChartInstances.push(chartInstance);
+        chartsContainer.appendChild(chartContainer);
+    }
 }
 
 function loadStudentPerformanceChart() {
