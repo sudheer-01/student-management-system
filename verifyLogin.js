@@ -1510,15 +1510,33 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
 
 app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
     const { htno, year, branch } = req.params;
-    const query = `SELECT * 
-                    FROM studentmarks 
-                    WHERE year = ? AND branch = ? AND htno = ?;
-                    `;
-    con.query(query, [year, branch, htno], (err, result) => {
+
+    // 1️⃣ Get all columns of the table except year, branch, htno, name, subject
+    const columnQuery = `
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = 'your_database_name' 
+          AND TABLE_NAME = 'studentmarks'
+          AND COLUMN_NAME NOT IN ('year', 'branch', 'htno', 'name', 'subject')
+    `;
+
+    con.query(columnQuery, (err, columnsResult) => {
         if (err) return res.status(500).send(err);
-        res.json(result);
+
+        const examKeys = columnsResult.map(c => c.COLUMN_NAME);
+
+        // 2️⃣ Get student data
+        const query = `SELECT * 
+                       FROM studentmarks 
+                       WHERE year = ? AND branch = ? AND htno = ?`;
+        con.query(query, [year, branch, htno], (err, studentData) => {
+            if (err) return res.status(500).send(err);
+
+            res.json({ exams: examKeys, data: studentData });
+        });
     });
 });
+
 
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
