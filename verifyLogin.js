@@ -1494,6 +1494,16 @@ app.get("/comparativemarks", (req, res) => {
   });
 });
 
+app.get("/getStudentsData/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+
+    // Corrected query: dynamically selecting the column
+    const query = `SELECT * FROM studentmarks WHERE year = ? AND branch = ?`;
+    con.query(query, [year, branch], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json(result);
+    });
+});
 
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {

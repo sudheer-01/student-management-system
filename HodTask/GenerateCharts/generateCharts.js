@@ -155,11 +155,11 @@ function showStudentPerformanceControls() {
     const studentControls = document.getElementById("studentPerformanceControls");
     studentControls.style.display = 'flex';
 
-    const subject = document.getElementById("subject").value;
+    
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
-    fetch(`/getStudentReports/${year}/${branch}/${subject}/mid_1`)
+    fetch(`/getStudentsData/${year}/${branch}`)
         .then(response => response.json())
         .then(data => {
             currentData = data;
