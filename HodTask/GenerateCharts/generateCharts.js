@@ -60,12 +60,23 @@ async function loadSubjectExamAnalysis() {
         return;
     }
 
-    // Fetch all student data to get all HTNOs
+    // Fetch all student data to populate dropdown & currentData
     const allStudentDataResponse = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exams[0]}`);
-    const allStudentData = await allStudentDataResponse.json();
+    currentData = await allStudentDataResponse.json();  // ✅ update currentData
 
-    // Ensure all HTNOs are present on the x-axis
-    const allHtnos = [...new Set(allStudentData.map(s => s.htno))];
+    if (!currentData || currentData.length === 0) {
+        chartsContainer.innerHTML = '<p>No student data found.</p>';
+        studentControls.style.display = 'none';
+        return;
+    }
+
+    // Populate student dropdown
+    const studentSelect = document.getElementById("studentHtno");
+    studentSelect.innerHTML = currentData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
+    studentControls.style.display = 'flex';
+
+    // Draw line charts for each exam
+    const allHtnos = [...new Set(currentData.map(s => s.htno))];
 
     for (const exam of exams) {
         const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
@@ -76,19 +87,13 @@ async function loadSubjectExamAnalysis() {
             continue;
         }
 
-        // Populate student dropdown
-        const studentSelect = document.getElementById("studentHtno");
-        studentSelect.innerHTML = examData.map(s => `<option value="${s.htno}">${s.htno} - ${s.name}</option>`).join('');
-        studentControls.style.display = 'flex';
-
         const labels = allHtnos;
-
         const marksData = labels.map(htno => {
             const student = examData.find(s => s.htno === htno);
-            return student ? student.marks : null; // Use null for missing data
+            return student ? student.marks : null;
         });
 
-        const maxMark = Math.max(...marksData.filter(mark => mark !== null)); // Filter out null values
+        const maxMark = Math.max(...marksData.filter(m => m !== null));
 
         const chartContainer = document.createElement('div');
         chartContainer.className = 'chart-container';
@@ -133,7 +138,6 @@ async function loadSubjectExamAnalysis() {
             }
         });
         window.marksChartInstances.push(chartInstance);
-        chartsContainer.appendChild(chartContainer);
     }
 }
 
@@ -155,9 +159,9 @@ function loadStudentPerformanceChart() {
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
 
-    // Extract exam names and marks dynamically (skip null/undefined)
+    // Extract exam names & marks
     const examKeys = Object.keys(studentData).filter(
-        key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key)
+        key => !['id', 'htno', 'name', 'subject', 'year', 'branch', 'marks'].includes(key)
     );
 
     const examNames = examKeys.map(key =>
@@ -165,7 +169,6 @@ function loadStudentPerformanceChart() {
     );
 
     const examMarks = examKeys.map(key => studentData[key] ?? null);
-
     const maxMark = Math.max(...examMarks.filter(m => m !== null));
 
     // Chart container
@@ -175,33 +178,31 @@ function loadStudentPerformanceChart() {
     chartContainer.appendChild(canvas);
     chartsContainer.appendChild(chartContainer);
 
-    // Chart.js line plot
+    // Chart.js horizontal bar chart
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: examNames,
             datasets: [{
                 label: `Marks for ${studentData.name} (${studentData.htno})`,
                 data: examMarks,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
                 borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: true,
-                tension: 0.2,
-                pointRadius: 5,
-                pointHoverRadius: 7
+                borderWidth: 1
             }]
         },
         options: {
+            indexAxis: 'y', // ✅ horizontal
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
+                x: {
                     beginAtZero: true,
                     max: Math.ceil((maxMark + 5) / 5) * 5,
                     title: { display: true, text: 'Marks' }
                 },
-                x: {
+                y: {
                     title: { display: true, text: 'Exams' }
                 }
             },
@@ -258,7 +259,7 @@ async function loadComparativeInsightChart() {
             const total = marks.reduce((acc, c) => acc + c, 0);
             return marks.length > 0 ? total / marks.length : 0;
         }),
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1
     }];
@@ -298,9 +299,7 @@ async function loadComparativeInsightChart() {
                 title: {
                     display: true,
                     text: `Comparative Subject Performance (Year: ${year}, Branch: ${branch})`,
-                    font: {
-                        size: 16
-                    }
+                    font: { size: 16 }
                 },
                 legend: {
                     display: false
@@ -330,5 +329,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         await populateSubjects(selectedYear, selectedBranch);
     });
 });
-
-
