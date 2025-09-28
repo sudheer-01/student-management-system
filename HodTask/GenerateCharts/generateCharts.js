@@ -139,26 +139,43 @@ async function loadSubjectExamAnalysis() {
 
 function loadStudentPerformanceChart() {
     const selectedHtno = document.getElementById("studentHtno").value;
-     const subject = document.getElementById("subject").value;
-    if (!selectedHtno || currentData.length === 0) return;
+    const subject = document.getElementById("subject").value;
+
+    if (!selectedHtno || currentData.length === 0) {
+        console.warn("No student selected or no data available.");
+        return;
+    }
 
     const studentData = currentData.find(s => s.htno === selectedHtno);
-    if (!studentData) return;
+    if (!studentData) {
+        console.warn("No data found for student:", selectedHtno);
+        return;
+    }
 
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
 
-    // Extract exam names and marks
-    const examKeys = Object.keys(studentData).filter(key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key));
-    const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-    const examMarks = examKeys.map(key => studentData[key]);
+    // Extract exam names and marks dynamically (skip null/undefined)
+    const examKeys = Object.keys(studentData).filter(
+        key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key)
+    );
 
+    const examNames = examKeys.map(key =>
+        key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    );
+
+    const examMarks = examKeys.map(key => studentData[key] ?? null);
+
+    const maxMark = Math.max(...examMarks.filter(m => m !== null));
+
+    // Chart container
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container';
     const canvas = document.createElement('canvas');
     chartContainer.appendChild(canvas);
     chartsContainer.appendChild(chartContainer);
 
+    // Chart.js line plot
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
         type: 'line',
@@ -168,8 +185,11 @@ function loadStudentPerformanceChart() {
                 label: `Marks for ${studentData.name} (${studentData.htno})`,
                 data: examMarks,
                 borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-                tension: 0.1
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.2,
+                pointRadius: 5,
+                pointHoverRadius: 7
             }]
         },
         options: {
@@ -178,6 +198,7 @@ function loadStudentPerformanceChart() {
             scales: {
                 y: {
                     beginAtZero: true,
+                    max: Math.ceil((maxMark + 5) / 5) * 5,
                     title: { display: true, text: 'Marks' }
                 },
                 x: {
@@ -189,12 +210,19 @@ function loadStudentPerformanceChart() {
                     display: true,
                     text: `Performance for ${studentData.name} in ${subject}`,
                     font: { size: 18 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `Marks: ${ctx.raw}`
+                    }
                 }
             }
         }
     });
+
     window.marksChartInstances.push(chartInstance);
 }
+
 
 async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
