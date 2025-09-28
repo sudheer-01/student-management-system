@@ -147,6 +147,11 @@ function loadStudentPerformanceChart() {
     clearCharts();
     const chartsContainer = document.getElementById("chartsContainer");
 
+    // Extract exam names and marks
+    const examKeys = Object.keys(studentData).filter(key => !['id', 'htno', 'name', 'subject', 'year', 'branch'].includes(key));
+    const examNames = examKeys.map(key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+    const examMarks = examKeys.map(key => studentData[key]);
+
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container';
     const canvas = document.createElement('canvas');
@@ -155,15 +160,15 @@ function loadStudentPerformanceChart() {
 
     const ctx = canvas.getContext("2d");
     const chartInstance = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
-            labels: ['Marks'],
+            labels: examNames,
             datasets: [{
                 label: `Marks for ${studentData.name} (${studentData.htno})`,
-                data: [studentData.marks],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                data: examMarks,
                 borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                fill: false,
+                tension: 0.1
             }]
         },
         options: {
@@ -173,6 +178,9 @@ function loadStudentPerformanceChart() {
                 y: {
                     beginAtZero: true,
                     title: { display: true, text: 'Marks' }
+                },
+                x: {
+                    title: { display: true, text: 'Exams' }
                 }
             },
             plugins: {
