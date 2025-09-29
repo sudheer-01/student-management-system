@@ -659,9 +659,9 @@ app.get("/getRequests", (req, res) => {
 });
 
 //HodTask:::viewFacultyRequests
-app.get("/getYears", (req, res) => {
-    res.json(hodYears.map(year => ({ year })));
-});
+// app.get("/getYears", (req, res) => {
+//     res.json(hodYears.map(year => ({ year })));
+// });
 // app.get("/getBranches/:year", (req, res) => {
 //     const { year,branch } = req.params;
 
