@@ -1,7 +1,8 @@
 // Load available years dynamically
 async function loadYears() {
-    
-        const years =  JSON.parse(localStorage.getItem("hodYears"));
+        const storedYears = localStorage.getItem("hodYears");
+        let years = [];
+        years =  storedYears.split(",").map(year => ({ year }));
         console.log("HOD Years from localStorage:", years); // Debugging log
         const yearDropdown = document.getElementById("yearDropdown");
         yearDropdown.innerHTML = '<option value="">Select Year</option>';
