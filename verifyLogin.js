@@ -685,6 +685,7 @@ app.get("/getBranches/:year", (req, res) => {
             console.error("Database error:", err);
             return res.status(500).send(err);
         }
+        console.log(result);
         res.json(result);
     });
 });
