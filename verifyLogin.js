@@ -697,12 +697,12 @@ app.get("/getbranches/:year/:branch", (req, res) => {
 
     if (year === "1") {
         // Fetch only 1st-year branches
-        year = parseInt(year);
+        
         query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
         params = [1];
     } else {
         // Fetch only HOD-related branches for other years
-        year = parseInt(year);
+        
         query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
         params = [year, `%${branch}%`];
     }
