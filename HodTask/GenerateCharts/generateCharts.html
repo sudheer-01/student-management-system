@@ -20,18 +20,18 @@
       </select>
     </div>
 
-    <!-- Subject dropdown hidden by default -->
-    <div id="subjectWrapper" class="controls" style="display: none; margin-top: 10px;">
+    <div class="button-group">
+      <button onclick="showSubjectExamAnalysisControls()">Subject Exam Analysis</button>
+      <button onclick="showStudentPerformanceControls()">Show Student Performance</button>
+      <button onclick="loadComparativeInsightChart()">Comparative Insights</button>
+    </div>
+
+    <div id="subjectExamAnalysisControls" class="controls" style="display: none;">
       <label for="subject">Choose Subject:</label>
       <select id="subject">
         <option value="">Select Subject</option>
       </select>
-    </div>
-
-    <div class="button-group">
-      <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
-      <button onclick="showStudentPerformanceControls()">Show Student Performance</button>
-      <button onclick="loadComparativeInsightChart()">Comparative Insights</button>
+      <button onclick="loadSubjectExamAnalysis()">Load Subject Exam Analysis</button>
     </div>
 
     <div id="studentPerformanceControls" class="controls" style="display: none;">
