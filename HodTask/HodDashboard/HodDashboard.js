@@ -13,12 +13,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (hodBranchNav) {
             hodBranchNav.textContent = `Branch: ${hodBranch}`;
             const pill = document.getElementById("branchPillText");
-            if (pill) pill.textContent = data.hodBranch;
+            if (pill) pill.textContent = hodBranch;
         }
 
         // Update profile avatar with first letter of HOD name
-        if (profileAvatar && data.hodName) {
-            profileAvatar.textContent = data.hodName.charAt(0).toUpperCase();
+        if (profileAvatar && hodName) {
+            profileAvatar.textContent = hodName.charAt(0).toUpperCase();
         }
 
         // Update years display
