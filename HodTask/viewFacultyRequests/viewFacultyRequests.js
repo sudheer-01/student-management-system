@@ -64,7 +64,6 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
         alert("Server error. Try again later.");
     }
 });
-
 // Load faculty requests when clicking the button
 document.getElementById("loadRequests").addEventListener("click", async function () {
     const year = document.getElementById("yearDropdown").value;
