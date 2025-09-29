@@ -62,3 +62,36 @@ document.getElementById("teacherForm").addEventListener("submit", async function
         alert("Network error, please try again.");
     }
 });
+document.getElementById("hodForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const HodId = document.getElementById("HodId").value;
+    const passwordOfHod = document.getElementById("passwordOfHod").value;
+
+    try {
+        const response = await fetch("/loginToHodDashBoard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ HodId: HodId, passwordOfHod: passwordOfHod })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // ✅ Save HOD details in localStorage
+            console.log("Storing HOD details:", data.hodDetails);
+            localStorage.setItem("hodName", data.hodDetails.hodName);
+            localStorage.setItem("hodBranch", data.hodDetails.hodBranch);
+            localStorage.setItem("hodYears", JSON.stringify(data.hodDetails.hodYears)); // Store as string
+
+            console.log("Login successful, redirecting...", data.redirectUrl);
+            // Redirect to HOD dashboard page
+            window.location.href = data.redirectUrl;
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Network error, please try again.");
+    }
+});

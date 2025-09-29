@@ -189,10 +189,6 @@ app.post("/createHodAccount", (req, res) => {
 
 //checking hod credentials to login into hod dashboard
 
-var hodName = ""; //g
-var hodBranch = ""; //g
-var hodYears; //g
-
 app.post("/loginToHodDashBoard", (req, res) => {
     const hodId = req.body.HodId;
     const passwordOfHod = req.body.passwordOfHod;
@@ -206,14 +202,26 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 return res.status(500).send("Server error. Try again later.");
             }
             if (result.length > 0) {
+                // ✅ Send HOD details to the client
+                const hodDetails = {
+                    hodName: result[0].name,
+                    hodBranch: result[0].branch,
+                    hodYears: result[0].year.split(",")
+                };
+                console.log("Hod Details:", hodDetails);
+                return res.json({
+                    success: true,
+                    hodDetails: hodDetails,
+                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+                });
                 // Store HOD details in global variables
-                hodName = result[0].name;
+                /*hodName = result[0].name;
                 hodBranch = result[0].branch;
                 
                 // Convert ENUM year value to an array
                 hodYears = result[0].year.split(","); 
 
-                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));
+                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
             } else {
                 return res.send(
                     `<script>alert('Invalid HOD ID or Password. Contact Admin to reset password.'); window.location.href='/';</script>`
@@ -224,7 +232,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
 });
 //this to display hod details like name, years, branch dynmically when the dom content loaded
 //this is for above code
-app.get("/getHodDetails", (req, res) => {
+/*app.get("/getHodDetails", (req, res) => {
     if (hodName && hodBranch && hodYears) {
         res.json({
             hodName,
@@ -234,8 +242,7 @@ app.get("/getHodDetails", (req, res) => {
     } else {
         res.status(400).json({ error: "HOD details not found. Please log in again." });
     }
-});
-
+});*/
 
 //Entering sutdent details such as htno and name by hod 
 app.post("/saveData", (req, res) => {
