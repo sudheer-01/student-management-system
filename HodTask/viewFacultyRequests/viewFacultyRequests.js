@@ -37,6 +37,7 @@ async function loadYears() {
 // Load branches dynamically based on selected year and HOD's branch
 document.getElementById("yearDropdown").addEventListener("change", async function () {
     const year = this.value;
+    console.log("Selected year:", year); // Debugging log
 
     if (!year) {
         document.getElementById("branchDropdown").innerHTML = '<option value="">Select Branch</option>';
@@ -45,6 +46,7 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
 
     try {
         const branch = localStorage.getItem("hodBranch");
+        console.log("HOD Branch from localStorage:", branch); // Debugging log
         const response = await fetch(`/getBranches/${year}/${branch}`);
         const branches = await response.json();
 
