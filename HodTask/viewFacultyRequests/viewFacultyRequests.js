@@ -15,7 +15,6 @@ async function loadYears() {
         // If not JSON, fallback to comma-split ("2,3,4")
         parsedYears = storedYears.split(",");
     }
-
     // Convert to array of objects { year: "X" }
     const years = parsedYears.map(year => ({ year: year.trim() }));
 
