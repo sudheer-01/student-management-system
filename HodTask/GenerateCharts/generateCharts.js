@@ -334,6 +334,7 @@ async function loadComparativeInsightChart() {
     });
 }
 
+
 // INITIAL LOAD
 document.addEventListener('DOMContentLoaded', async () => {
     const yearSelect = document.getElementById("year");

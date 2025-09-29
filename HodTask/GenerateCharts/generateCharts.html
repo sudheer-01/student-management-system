@@ -1,63 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Student Marks Visualization</title>
-  <link rel="stylesheet" href="generateCharts.css" />
+  <meta charset="UTF-8">
+  <title>Student Marks Chart</title>
+  <link rel="stylesheet" href="generateCharts.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="page-bg">
-    <main class="card">
-      <header class="card-header">
-        <h1 class="title">Student Marks Visualization</h1>
-        <p class="subtitle">Select the academic year and branch, then choose analysis options below.</p>
-      </header>
+  <div class="container">
+    <h2>Student Marks Visualization</h2>
+    <div class="controls">
+      <label for="year">Year:</label>
+      <select id="year">
+        <option value="">Select Year</option>
+      </select>
+      <label for="branch">Branch:</label>
+      <select id="branch">
+        <option value="">Select Branch</option>
+      </select>
+    </div>
 
-      <section class="controls-row">
-        <div class="control">
-          <label for="year">Year</label>
-          <select id="year" aria-label="Select year">
-            <option value="">Select Year</option>
-          </select>
-        </div>
+    <div class="button-group">
+      <button onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
+      <button onclick="showStudentPerformanceControls()">Show Student Performance</button>
+      <button onclick="loadComparativeInsightChart()">Comparative Insights</button>
+    </div>
 
-        <div class="control">
-          <label for="branch">Branch</label>
-          <select id="branch" aria-label="Select branch">
-            <option value="">Select Branch</option>
-          </select>
-        </div>
-      </section>
+    <!-- ✅ Moved subject dropdown here (below buttons) -->
+    <div id="subjectWrapper" class="controls" style="display: none; margin-top: 10px;">
+      <label for="subject">Choose Subject:</label>
+      <select id="subject">
+        <option value="">Select Subject</option>
+      </select>
+    </div>
 
-      <section class="actions">
-        <div class="button-group">
-          <button class="btn btn-primary" onclick="loadSubjectExamAnalysis()">Subject Exam Analysis</button>
-          <button class="btn btn-primary-outline" onclick="showStudentPerformanceControls()">Show Student Performance</button>
-          <button class="btn btn-secondary" onclick="loadComparativeInsightChart()">Comparative Insights</button>
-        </div>
+    <div id="studentPerformanceControls" class="controls" style="display: none;">
+      <label for="studentHtno">Select Student:</label>
+      <select id="studentHtno"></select>
+      <button onclick="loadStudentPerformanceChart()">Load Student Performance</button>
+    </div>
 
-        <!-- Subject dropdown (hidden by default, shown by JS) -->
-        <div id="subjectWrapper" class="inline-control" style="display: none;">
-          <label for="subject">Choose Subject</label>
-          <select id="subject">
-            <option value="">Select Subject</option>
-          </select>
-        </div>
-
-        <!-- Student selection controls (hidden by default, shown by JS) -->
-        <div id="studentPerformanceControls" class="inline-control" style="display: none;">
-          <label for="studentHtno">Select Student</label>
-          <select id="studentHtno" aria-label="Select student"></select>
-          <button class="btn btn-small btn-primary" onclick="loadStudentPerformanceChart()">Load Performance</button>
-        </div>
-      </section>
-
-      <section id="chartsContainer" class="charts-area">
-        <!-- Charts are appended here by JS -->
-      </section>
-    </main>
+    <div id="chartsContainer"></div>
   </div>
 
   <script src="generateCharts.js"></script>
