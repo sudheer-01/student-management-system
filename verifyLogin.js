@@ -48,14 +48,7 @@ app.get("/",(req,res) =>
     res.sendFile(path.join(baseDir,"Home","index.html"));
 }
 );
-//---------------------------------------------------------------
-// app.get("/login",(req,res) =>
-// {
-//     res.sendFile(path.join(baseDir,"loginpage","login.html"));
-// }
-// );  
-// IDHI LEKUNNA LOGIN.HTML VASTHUNDHI GA
-//---------------------------------------------------------------
+
 
 // entering teacher details into database
 app.post("/createTeacherAccount", (req, res) => {
@@ -132,9 +125,6 @@ app.post("/TeacherLogin", (req, res) => {
     );
 });
 
-
-
-
 // entering hod details into database
 app.post("/createHodAccount", (req, res) => {
     var yearOfHod = parseInt(req.body.yearOfHod);  // Ensure integer conversion
@@ -195,6 +185,7 @@ app.post("/createHodAccount", (req, res) => {
 var hodName = ""; //g
 var hodBranch = ""; //g
 var hodYears; //g
+
 app.post("/loginToHodDashBoard", (req, res) => {
     const hodId = req.body.HodId;
     const passwordOfHod = req.body.passwordOfHod;
@@ -239,14 +230,6 @@ app.get("/getHodDetails", (req, res) => {
 });
 
 
-//from HodTask:::EnterStudentDetails
-//--------------------------------
-//here we are taking the year and branch like 2nd years having csm-a csm -b
-// app.post("/toGetBranchAndYearOfHod", (req, res) => {
-//   branchOfSpecificDepartmentHod = req.body.branch;
-//   yearOfSpecificDepartmentHod = parseInt(req.body.year);
-// });
-//--------------------------------
 //Entering sutdent details such as htno and name by hod 
 app.post("/saveData", (req, res) => {
     let students = req.body.students;
@@ -482,7 +465,6 @@ app.get("/getReportDetails", (req, res) => {
     });
 });
 
-
 //homepageForFaculty:::editMarks
 // Get student marks for selected exam
 app.get("/getStudentMarksForEditing", (req, res) => {
@@ -505,7 +487,6 @@ app.get("/getStudentMarksForEditing", (req, res) => {
         }
     });
 });
-
 
 // Faculty requests HOD approval for marks update
 // Faculty requests HOD approval for marks update
@@ -539,36 +520,6 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
         }
     });
 });
-
-
-// Update student marks--------------------------------------------------
-// app.post("/updateStudentMarks", (req, res) => {
-//     let updatedMarks = req.body.marks;
-//     let branch = approvedBranch;
-//     let year = approvedYear;
-//     let subject = approvedSubject;
-
-//     let query = `UPDATE studentMarks SET ?? = ? WHERE htno = ? AND branch = ? AND year = ? AND subject = ?`;
-
-//     let promises = updatedMarks.map(({ htno, exam, marks }) => {
-//         return new Promise((resolve, reject) => {
-//             con.query(query, [exam, marks, htno, branch, year, subject], (err, result) => {
-//                 if (err) {
-//                     console.error("Error updating marks:", err);
-//                     reject(err);
-//                 } else {
-//                     resolve(result);
-//                 }
-//             });
-//         });
-//     });
-
-//     Promise.all(promises)
-//         .then(() => res.json({ success: true, message: "Marks updated successfully" }))
-//         .catch(() => res.status(500).json({ success: false, message: "Database error" }));
-// });
-
-//-----------------------------------------------------------------------------------------
 
 //HodTask:::addBranchesAndSubjects
 app.post("/saveSubjects", async (req, res) => {
@@ -678,35 +629,6 @@ app.post("/sendRequest", (req, res) => {
     });
 });
 
-//HodTask:::viewFacultyRequests
-// Retrieve pending faculty requests for HOD based on branch
-// app.get("/hodRequests/:branch", (req, res) => {
-//     const { branch } = req.params;
-    
-//     const query = "SELECT faculty_Id, facultyName, year, subject, status FROM faculty_requests WHERE branch = ? AND status = 'Pending'";
-//     con.query(query, [branch], (err, result) => {
-//         if (err) {
-//             console.error("Database error:", err);
-//             return res.status(500).send(err);
-//         }
-//         res.json(result);
-//     });
-// });
-
-//by hod
-// app.post("/updateRequestStatus", (req, res) => {
-//     const { facultyId, status } = req.body;
-
-//     const query = "UPDATE faculty_requests SET status = ? WHERE faculty_Id = ?";
-//     con.query(query, [status, facultyId], (err, result) => {
-//         if (err) {
-//             console.error("Database update error:", err);
-//             return res.status(500).send(err);
-//         }
-//         res.send({ message: "Status updated successfully." });
-//     });
-// });
-
 //homepageForFaculty:::requestForSubject
 //to display status of request for faculty
 app.get("/getRequests", (req, res) => {
@@ -796,7 +718,6 @@ app.post("/updateRequestStatus", (req, res) => {
     });
 });
 
-
 // to open home page home.html from the requests page of faculty
 app.post("/dashboardOfFaculty", (req, res) => {
 
@@ -870,46 +791,7 @@ app.post("/getFacultyDetails", (req, res) => {
     });
 });
 
-
-//HodTask:::addAndChangeExams
-//-------------------
-// app.post("/addExams", (req, res) => {
-//     const { year, branch, exams } = req.body;
-
-//     if (!year || !branch || !Array.isArray(exams) || exams.length === 0) {
-//         return res.status(400).send("Invalid input!");
-//     }
-
-//     // Convert array to JSON
-//     const examsJSON = JSON.stringify(exams);
-
-//     // Insert or update the exams list for the branch
-//     const insertQuery = `
-//         INSERT INTO examsOfSpecificYearAndBranch (year, branch, exams) 
-//         VALUES (?, ?, ?) 
-//         ON DUPLICATE KEY UPDATE exams = VALUES(exams)`;
-
-//     con.query(insertQuery, [year, branch, examsJSON], (err) => {
-//         if (err) {
-//             console.error("Error inserting exams:", err);
-//             return res.status(500).send("Database error");
-//         }
-
-//         // Dynamically alter `studentMarks` table to add the new exams as columns
-//         const alterQueries = exams.map(exam => `ALTER TABLE studentMarks ADD COLUMN ${exam} INT DEFAULT NULL`);
-        
-//         // Execute all ALTER statements
-//         Promise.all(alterQueries.map(query => new Promise((resolve, reject) => {
-//             con.query(query, (err) => err ? reject(err) : resolve());
-//         })))
-//         .then(() => res.send("Exams added successfully and studentMarks table updated!"))
-//         .catch(error => {
-//             console.error("Error updating studentMarks:", error);
-//             res.status(500).send("Error updating studentMarks table");
-//         });
-//     });
-// });
-
+//to get exam columns from examsofspecificyearandbranch table
 app.get("/getExamColumns/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
 
@@ -940,8 +822,6 @@ app.get("/getExamColumns/:year/:branch", (req, res) => {
         }
     });
 });
-
-
 
 // Add a New Exam Column to studentMarks
 app.post("/addExamToDatabase", (req, res) => {
@@ -1034,9 +914,6 @@ app.post("/addExamToDatabase", (req, res) => {
     });
 });
 
-
-
-
 // Remove an Exam Column from studentMarks and 
 app.post("/removeExamColumn", (req, res) => {
     const { year, branch, examName } = req.body;
@@ -1117,21 +994,6 @@ app.post("/removeExamColumn", (req, res) => {
         });
     });
 });
-
-
-
-// app.get("/getExams/:year/:branch", (req, res) => {
-//     const { year, branch } = req.params;
-
-//     con.query("SELECT exams FROM examsOfSpecificYearAndBranch WHERE year = ? AND branch = ?", [year, branch], (err, result) => {
-//         if (err) return res.status(500).send(err);
-//         if (result.length === 0) return res.json([]);
-
-//         const examsList = JSON.parse(result[0].exams);
-//         res.json(examsList);
-//     });
-// });
-//----------------------------------------
 
 //homepageForFaculty::: this is to retrive the exams based on the year and branch
 app.get("/getExams", (req, res) => {
