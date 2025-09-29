@@ -676,8 +676,8 @@ app.get("/getBranches/:year", (req, res) => {
     } else {
         // Fetch only HOD-related branches for other years
         year = parseInt(year);
-        query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
-        params = [year, `%${branch}%`];
+        query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name = ?";
+        params = [year, branch];
     }
 
     con.query(query, params, (err, result) => {
