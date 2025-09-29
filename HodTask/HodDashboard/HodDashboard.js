@@ -1,23 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const logoutBtn = document.getElementById("logoutBtn");
     const profileAvatar = document.getElementById("profileAvatar");
-    
-    try {
-        const response = await fetch("/getHodDetails");
-        const data = await response.json();
-
-        if (data.error) {
-            alert(data.error);
-            window.location.href = "/"; // Redirect to login if details are missing
-            return;
-        }
         
         // Update HOD details in navbar
+        const hodName = localStorage.getItem("hodName");
+        const hodBranch = localStorage.getItem("hodBranch");
+        const hodYears = JSON.parse(localStorage.getItem("hodYears")) || [];
+
         const hodNameNav = document.getElementById("hodNameNav");
         const hodBranchNav = document.getElementById("hodBranchNav");
-        if (hodNameNav) hodNameNav.textContent = `HOD: ${data.hodName}`;
+        if (hodNameNav) hodNameNav.textContent = `HOD: ${hodName}`;
         if (hodBranchNav) {
-            hodBranchNav.textContent = `Branch: ${data.hodBranch}`;
+            hodBranchNav.textContent = `Branch: ${hodBranch}`;
             const pill = document.getElementById("branchPillText");
             if (pill) pill.textContent = data.hodBranch;
         }
@@ -28,11 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // Update years display
-        document.getElementById("hodYears").innerText = `Available Years: ${data.hodYears.join(", ")}`;
-    } catch (error) {
-        console.error("Error fetching HOD details:", error);
-        alert("Failed to load HOD details. Try again later.");
-    }
+        document.getElementById("hodYears").innerText = `Available Years: ${hodYears.join(", ")}`;
+    
 
     if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
