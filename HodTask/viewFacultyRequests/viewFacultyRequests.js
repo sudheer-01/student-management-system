@@ -2,7 +2,7 @@
 async function loadYears() {
     
         const years =  JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
-
+        console.log("HOD Years from localStorage:", years); // Debugging log
         const yearDropdown = document.getElementById("yearDropdown");
         yearDropdown.innerHTML = '<option value="">Select Year</option>';
 
