@@ -1,22 +1,30 @@
 // Load available years dynamically
 async function loadYears() {
-        const storedYears = localStorage.getItem("hodYears");
-        let years = [];
-        years =  storedYears.split(",").map(year => ({ year }));
-        console.log("HOD Years from localStorage:", years); // Debugging log
-        const yearDropdown = document.getElementById("yearDropdown");
-        yearDropdown.innerHTML = '<option value="">Select Year</option>';
+    const storedYears = localStorage.getItem("hodYears");
 
-        years.forEach(({ year }) => {
-            const option = document.createElement("option");
-            option.value = year;
-            console.log(option.value);
-            option.textContent = `${year} Year`;
-            console.log(option.value);
-            yearDropdown.appendChild(option);
-        });
-    
+    // Handle case when nothing is stored yet
+    if (!storedYears) {
+        console.warn("No HOD years found in localStorage");
+        return;
+    }
+
+    // Convert string -> array of objects { year: "X" }
+    const years = storedYears.split(",").map(year => ({ year }));
+
+    console.log("HOD Years from localStorage:", years);
+
+    // Populate dropdown
+    const yearDropdown = document.getElementById("yearDropdown");
+    yearDropdown.innerHTML = '<option value="">Select Year</option>';
+
+    years.forEach(({ year }) => {
+        const option = document.createElement("option");
+        option.value = year.trim();   // trim to avoid spaces
+        option.textContent = `${year.trim()} Year`;
+        yearDropdown.appendChild(option);
+    });
 }
+
 
 // Load branches dynamically based on selected year and HOD's branch
 document.getElementById("yearDropdown").addEventListener("change", async function () {
