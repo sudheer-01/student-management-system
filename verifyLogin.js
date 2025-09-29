@@ -663,7 +663,7 @@ app.get("/getYears", (req, res) => {
     res.json(hodYears.map(year => ({ year })));
 });
 app.get("/getBranches/:year", (req, res) => {
-    const { year } = req.params;
+    const { year,branch } = req.params;
 
     let query;
     let params;
@@ -675,7 +675,7 @@ app.get("/getBranches/:year", (req, res) => {
     } else {
         // Fetch only HOD-related branches for other years
         query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
-        params = [year, `%${hodBranch}%`];
+        params = [year, `%${branch}%`];
     }
 
     con.query(query, params, (err, result) => {

@@ -1,8 +1,7 @@
 // Load available years dynamically
 async function loadYears() {
-    try {
-        const response = await fetch("/getYears");
-        const years = await response.json();
+    
+        const years =  JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
 
         const yearDropdown = document.getElementById("yearDropdown");
         yearDropdown.innerHTML = '<option value="">Select Year</option>';
@@ -13,10 +12,7 @@ async function loadYears() {
             option.textContent = `${year} Year`;
             yearDropdown.appendChild(option);
         });
-    } catch (error) {
-        console.error("Error loading years:", error);
-        alert("Server error. Try again later.");
-    }
+    
 }
 
 // Load branches dynamically based on selected year and HOD's branch
@@ -29,7 +25,8 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
     }
 
     try {
-        const response = await fetch(`/getBranches/${year}`);
+        const branch = localStorage.getItem("hodBranch");
+        const response = await fetch(`/getBranches/${year}/${branch}`);
         const branches = await response.json();
 
         const branchDropdown = document.getElementById("branchDropdown");
@@ -128,7 +125,6 @@ document.getElementById("loadRequests").addEventListener("click", async function
         alert("Server error. Try again later.");
     }
 });
-
 // Function to update request status
 async function updateStatus(facultyId, year, branch, subject, status) {
     console.log("Sending request with:", facultyId, year, branch, subject, status); // Debugging log
