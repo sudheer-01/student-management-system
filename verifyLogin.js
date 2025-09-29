@@ -689,7 +689,7 @@ app.get("/getYears", (req, res) => {
 //     });
 // });
 
-app.get("/getBranches/:year/:branch", (req, res) => {
+app.get("/getbranches/:year/:branch", (req, res) => {
     const { year,branch } = req.params;
 
     let query;
