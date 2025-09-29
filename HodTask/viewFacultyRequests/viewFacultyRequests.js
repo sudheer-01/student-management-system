@@ -139,7 +139,6 @@ async function updateStatus(facultyId, year, branch, subject, status) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ facultyId, status, year, branch, subject })
         });
-
         const result = await response.json();
         console.log("Server response:", result); // Debugging log
 

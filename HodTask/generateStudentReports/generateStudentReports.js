@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 yearSelect.appendChild(option);
             });
         });
-
     // Fetch branches based on year selection
     yearSelect.addEventListener("change", function () {
         branchSelect.innerHTML = `<option value="">--Select Branch--</option>`;

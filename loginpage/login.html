@@ -18,7 +18,7 @@
         <button id="Admin" class="tab-btn" type="button" onclick="switchTab('allDetailsOfAdmin', this)"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Admin</span></button>
       </nav>
       <!-- HOD details -->
-      <form id="hodForm" class="allDetails allDetailsOfHod" action="/loginToHodDashBoard" method="POST" aria-labelledby="hod">
+      <form id="hodForm" class="allDetails allDetailsOfHod"  aria-labelledby="hod">
         <label for="HodId">HOD Id:</label>
         <div class="input-group">
           <i class="fa-solid fa-id-card input-icon" aria-hidden="true"></i>
@@ -80,7 +80,6 @@
             <input type="submit" value="Get Marks" />
         </form>
         
-
         <!-- Admin details  -->
         <form id="adminForm" class="allDetails allDetailsOfAdmin" method="post" action="/adminLogin" aria-labelledby="Admin">
             <label for="idOfAdmin">ID:</label>

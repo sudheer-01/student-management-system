@@ -12,7 +12,6 @@ async function fetchYears() {
         years.forEach(({ year }) => {
             yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
         });
-
         yearSelect.addEventListener("change", fetchBranches);
     } catch (error) {
         console.error("Error fetching years:", error);

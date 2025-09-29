@@ -46,7 +46,6 @@ async function loadExams() {
     const branch = document.getElementById("branchSelect").value;
     
     if (!year || !branch) return; // Ensure both are selected before fetching
-
     try {
         const response = await fetch(`/getExamColumns/${year}/${branch}`);
         const exams = await response.json();

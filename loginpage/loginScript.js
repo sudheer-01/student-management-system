@@ -45,7 +45,6 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ facultyId: facultyId, passwordOfTeacher: password })
         });
-
         const data = await response.json();
 
         if (data.success) {
@@ -57,6 +56,34 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             window.location.href = data.redirectUrl;
         } else {
             alert(data.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Network error, please try again.");
+    }
+});
+document.getElementById("hodForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const HodId = document.getElementById("HodId").value;
+    const passwordOfHod = document.getElementById("passwordOfHod").value;
+
+    try {
+        const response = await fetch("/loginToHodDashBoard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ HodId: HodId, passwordOfHod: passwordOfHod })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Store HOD details in localStorage
+            localStorage.setItem("hodDetails", data.hodDetails);
+            window.location.href = data.redirectUrl;
+        } else {
+            document.getElementById("hodError").textContent = data.message;
+            document.getElementById("hodError").style.display = "block";
         }
     } catch (error) {
         console.error("Error:", error);
