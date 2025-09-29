@@ -8,28 +8,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let selectedYear = null;
     let branchCount = 0;
-    let hodBranch = "";
-    let hodYears = [];
-    // Fetch HOD details from backend
-    try {
-        const response = await fetch("/getHodDetails");
-        const hodData = await response.json();
-
-        if (hodData.error) {
-            alert("HOD details not found. Please log in again.");
-            return;
-        }
-
-        hodBranch = hodData.hodBranch;
-        hodYears = hodData.hodYears.map(year => parseInt(year)); // Ensure years are numbers
+    let hodBranch = localStorage.getItem("hodBranch");
+    let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
 
         populateYearDropdown();
-    } catch (error) {
-        console.error("Error fetching HOD details:", error);
-        alert("Error loading HOD details. Try again.");
-    }
-
-    // Populate the year dropdown dynamically
     // Populate the year dropdown dynamically
 function populateYearDropdown() {
     yearDropdown.innerHTML = ""; // Clear existing options
