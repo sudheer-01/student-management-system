@@ -9,7 +9,9 @@ async function loadYears() {
         years.forEach(({ year }) => {
             const option = document.createElement("option");
             option.value = year;
+            console.log(option.value);
             option.textContent = `${year} Year`;
+            console.log(option.value);
             yearDropdown.appendChild(option);
         });
     
