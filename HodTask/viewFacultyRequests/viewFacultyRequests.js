@@ -47,7 +47,7 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
     try {
         const branch = localStorage.getItem("hodBranch");
         console.log("HOD Branch from localStorage:", branch); // Debugging log
-        const response = await fetch(`/getBranches/${year}/${branch}`);
+        const response = await fetch(`/getbranches/${year}/${branch}`);
         const branches = await response.json();
         const branchDropdown = document.getElementById("branchDropdown");
         branchDropdown.innerHTML = '<option value="">Select Branch</option>';

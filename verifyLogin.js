@@ -689,7 +689,33 @@ app.get("/getBranches/:year", (req, res) => {
         res.json(result);
     });
 });
+app.get("/getbranches/:year/:branch", (req, res) => {
+    const { year,branch } = req.params;
 
+    let query;
+    let params;
+
+    if (year === "1") {
+        // Fetch only 1st-year branches
+        year = parseInt(year);
+        query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
+        params = [1];
+    } else {
+        // Fetch only HOD-related branches for other years
+        year = parseInt(year);
+        query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name = ?";
+        params = [year, branch];
+    }
+
+    con.query(query, params, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        console.log(result);
+        res.json(result);
+    });
+});
 
 app.get("/hodRequests/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
