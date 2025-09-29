@@ -2,14 +2,22 @@
 async function loadYears() {
     const storedYears = localStorage.getItem("hodYears");
 
-    // Handle case when nothing is stored yet
     if (!storedYears) {
         console.warn("No HOD years found in localStorage");
         return;
     }
 
-    // Convert string -> array of objects { year: "X" }
-    const years = storedYears.split(",").map(year => ({ year }));
+    let parsedYears;
+    try {
+        // Try parsing as JSON first (["2","3","4"])
+        parsedYears = JSON.parse(storedYears);
+    } catch (e) {
+        // If not JSON, fallback to comma-split ("2,3,4")
+        parsedYears = storedYears.split(",");
+    }
+
+    // Convert to array of objects { year: "X" }
+    const years = parsedYears.map(year => ({ year: year.trim() }));
 
     console.log("HOD Years from localStorage:", years);
 
@@ -19,8 +27,8 @@ async function loadYears() {
 
     years.forEach(({ year }) => {
         const option = document.createElement("option");
-        option.value = year.trim();   // trim to avoid spaces
-        option.textContent = `${year.trim()} Year`;
+        option.value = year;
+        option.textContent = `${year} Year`;
         yearDropdown.appendChild(option);
     });
 }
