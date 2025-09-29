@@ -1,58 +1,146 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #e6f2ff; /* Light blue background */
   text-align: center;
   padding: 20px;
+  color: #333;
 }
 
 .container {
-  width: 80%;
+  width: 90%;
+  max-width: 1200px;
   margin: auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
+
+h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
 .controls {
   margin-bottom: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .controls label {
-  font-weight: bold;
+  font-weight: 600;
+  color: #555;
 }
 
-.controls select,
-.controls input {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.controls select {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  color: #444;
+  background: #f9f9f9;
+  transition: border-color 0.3s;
+}
+
+.controls select:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .button-group {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
+}
+
+.button-group button {
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.button-group button:hover {
+  background: #0056b3;
 }
 
 #chartsContainer {
   display: flex;
-  flex-direction: column; /* Display charts one below the other */
-  gap: 20px;
-  margin-top: 20px;
+  flex-direction: column;
+  gap: 30px;
+  margin-top: 30px;
   width: 100%;
 }
 
 .chart-container {
   position: relative;
-  height: 40vh;
+  height: 500px;
   width: 100%;
   background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 canvas {
   margin-top: 20px;
+}
+
+/* Style for student performance controls */
+#studentPerformanceControls,
+#subjectExamAnalysisControls {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+#studentPerformanceControls label,
+#subjectExamAnalysisControls label {
+  font-weight: 600;
+  color: #555;
+}
+
+#studentPerformanceControls select,
+#subjectExamAnalysisControls select {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  color: #444;
+  background: #f9f9f9;
+  transition: border-color 0.3s;
+}
+
+#studentPerformanceControls select:focus,
+#subjectExamAnalysisControls select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+#studentPerformanceControls button,
+#subjectExamAnalysisControls button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#studentPerformanceControls button:hover,
+#subjectExamAnalysisControls button:hover {
+  background: #0056b3;
 }
