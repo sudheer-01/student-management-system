@@ -17,6 +17,7 @@ app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFac
 app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
 //HodTask
+app.use('/HodTask', express.static(path.join(baseDir, 'HodTask')));
 app.use(express.static(path.join(baseDir,"HodTask")));
 app.use(express.static(path.join(baseDir,"HodTask","HodDashboard")));
 app.use(express.static(path.join(baseDir,"HodTask","EnterStudentDetails")));

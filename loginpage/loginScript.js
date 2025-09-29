@@ -45,7 +45,6 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ facultyId: facultyId, passwordOfTeacher: password })
         });
-
         const data = await response.json();
 
         if (data.success) {
