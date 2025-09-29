@@ -102,6 +102,7 @@ async function updateStatus(faculty, subject, exam, status) {
     }
 }
 
+
 async function toggleStudentTable(button, faculty, subject, exam) {
     let existingTable = document.querySelector(".student-table");
     if (existingTable) existingTable.remove(); // Remove previous table if present

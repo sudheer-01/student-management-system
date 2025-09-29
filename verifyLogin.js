@@ -17,7 +17,6 @@ app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFac
 app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
 //HodTask
-app.use('/HodTask', express.static(path.join(baseDir, 'HodTask')));
 app.use(express.static(path.join(baseDir,"HodTask")));
 app.use(express.static(path.join(baseDir,"HodTask","HodDashboard")));
 app.use(express.static(path.join(baseDir,"HodTask","EnterStudentDetails")));
@@ -49,7 +48,14 @@ app.get("/",(req,res) =>
     res.sendFile(path.join(baseDir,"Home","index.html"));
 }
 );
-
+//---------------------------------------------------------------
+// app.get("/login",(req,res) =>
+// {
+//     res.sendFile(path.join(baseDir,"loginpage","login.html"));
+// }
+// );  
+// IDHI LEKUNNA LOGIN.HTML VASTHUNDHI GA
+//---------------------------------------------------------------
 
 // entering teacher details into database
 app.post("/createTeacherAccount", (req, res) => {
@@ -180,7 +186,12 @@ app.post("/createHodAccount", (req, res) => {
     );
 });
 
+
 //checking hod credentials to login into hod dashboard
+
+var hodName = ""; //g
+var hodBranch = ""; //g
+var hodYears; //g
 
 app.post("/loginToHodDashBoard", (req, res) => {
     const hodId = req.body.HodId;
@@ -195,17 +206,14 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 return res.status(500).send("Server error. Try again later.");
             }
             if (result.length > 0) {
-                // Store HOD details in localStorage
-                const hodDetails = {
-                    hodName: result[0].name,
-                    hodBranch: result[0].branch,
-                    hodYears: result[0].year.split(",")
-                };
-                // Convert hodDetails to JSON string
-                const hodDetailsString = JSON.stringify(hodDetails);
+                // Store HOD details in global variables
+                hodName = result[0].name;
+                hodBranch = result[0].branch;
+                
+                // Convert ENUM year value to an array
+                hodYears = result[0].year.split(","); 
 
-                // Send the JSON string to the client
-                res.json({ success: true, hodDetails: hodDetailsString, redirectUrl: "/HodTask/HodDashboard/HodDashboard.html" });
+                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));
             } else {
                 return res.send(
                     `<script>alert('Invalid HOD ID or Password. Contact Admin to reset password.'); window.location.href='/';</script>`

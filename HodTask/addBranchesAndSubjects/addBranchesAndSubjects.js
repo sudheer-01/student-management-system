@@ -10,51 +10,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     let branchCount = 0;
     let hodBranch = "";
     let hodYears = [];
+    // Fetch HOD details from backend
+    try {
+        const response = await fetch("/getHodDetails");
+        const hodData = await response.json();
 
-    // Retrieve HOD details from localStorage
-    const hodDetailsString = localStorage.getItem('hodDetails');
-    const hodDetails = JSON.parse(hodDetailsString);
+        if (hodData.error) {
+            alert("HOD details not found. Please log in again.");
+            return;
+        }
 
-    if (hodDetails) {
-        hodBranch = hodDetails.hodBranch;
-        hodYears = hodDetails.hodYears.map(year => parseInt(year)); // Ensure years are numbers
+        hodBranch = hodData.hodBranch;
+        hodYears = hodData.hodYears.map(year => parseInt(year)); // Ensure years are numbers
 
         populateYearDropdown();
-    } else {
-        alert("HOD details not found. Please log in again.");
-        return;
+    } catch (error) {
+        console.error("Error fetching HOD details:", error);
+        alert("Error loading HOD details. Try again.");
     }
 
     // Populate the year dropdown dynamically
-    function populateYearDropdown() {
-        yearDropdown.innerHTML = ""; // Clear existing options
+    // Populate the year dropdown dynamically
+function populateYearDropdown() {
+    yearDropdown.innerHTML = ""; // Clear existing options
 
-        // Add default option
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.textContent = "Choose Year";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        yearDropdown.appendChild(defaultOption);
+    // Add default option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Choose Year";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    yearDropdown.appendChild(defaultOption);
 
-        if (hodYears.length === 0) {
-            // If no specific years assigned, allow selecting all years
-            [1, 2, 3, 4].forEach(year => {
-                const option = document.createElement("option");
-                option.value = year;
-                option.textContent = `${year} Year`;
-                yearDropdown.appendChild(option);
-            });
-        } else {
-            // Only show assigned years for the HOD
-            hodYears.forEach(year => {
-                const option = document.createElement("option");
-                option.value = year;
-                option.textContent = `${year} Year`;
-                yearDropdown.appendChild(option);
-            });
-        }
+    if (hodYears.length === 0) {
+        // If no specific years assigned, allow selecting all years
+        [1, 2, 3, 4].forEach(year => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = `${year} Year`;
+            yearDropdown.appendChild(option);
+        });
+    } else {
+        // Only show assigned years for the HOD
+        hodYears.forEach(year => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = `${year} Year`;
+            yearDropdown.appendChild(option);
+        });
     }
+}
+
 
     // Handle year selection
     yearDropdown.addEventListener("change", () => {
@@ -170,6 +176,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Please enter valid subject names.");
             return;
         }
+
         try {
             const response = await fetch("/saveSubjects", {
                 method: "POST",
@@ -192,4 +199,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 });
-      
