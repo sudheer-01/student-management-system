@@ -102,7 +102,6 @@ app.post("/createTeacherAccount", (req, res) => {
         }
     );
 });
-
 //checking teacher credentials to login to faculty dashboard
 
 app.post("/TeacherLogin", (req, res) => {
