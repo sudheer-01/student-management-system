@@ -1502,8 +1502,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: process.env.BREVO_USER, // stored in .env
-    pass: process.env.BREVO_PASS  // stored in .env
+    user: BREVO_USER, // stored in .env
+    pass: BREVO_PASS  // stored in .env
   }
 });
 
