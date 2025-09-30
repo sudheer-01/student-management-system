@@ -32,6 +32,8 @@ app.use('/studentsMarks', express.static(path.join(baseDir, 'studentsMarks')));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
+//forgot password
+app.use(express.static(path.join(baseDir,"ForgotPassword")));
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
