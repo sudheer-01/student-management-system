@@ -95,6 +95,7 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
         alert("Network error, please try again.");
     }
 });
+
 document.getElementById("studentForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -108,22 +109,22 @@ document.getElementById("studentForm").addEventListener("submit", async function
             body: JSON.stringify({ year: year, htno: htno })
         });
 
-        // ✅ Save student details in localStorage
-        localStorage.setItem("studentYear", year);
-        localStorage.setItem("studentHtno", htno);
+        const data = await response.json();
 
-        if (response.redirected) {
-            // If backend redirects to studentMarks.html
-            window.location.href = response.url;
+        if (data.success) {
+            // ✅ Save student details in localStorage
+            localStorage.setItem("studentYear", data.studentDetails.year);
+            localStorage.setItem("studentHtno", data.studentDetails.htno);
+
+            // ✅ Redirect to marks page
+            window.location.href = data.redirectUrl;
         } else {
-            const data = await response.text();
-            if (data.includes("Invalid HTNO or Year")) {
-                alert("Invalid HTNO or Year");
-                window.location.href = "/";
-            }
+            alert(data.message || "Invalid HTNO or Year");
+            window.location.href = "/";
         }
     } catch (error) {
         console.error("Error:", error);
         alert("Network error, please try again.");
     }
 });
+
