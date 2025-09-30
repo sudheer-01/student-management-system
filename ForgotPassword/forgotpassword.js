@@ -61,22 +61,24 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 
 document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
   const otp = document.getElementById("otp").value;
+  const userId = document.getElementById("userId").value;
 
   try {
     const response = await fetch("/verifyOtp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp })
+      body: JSON.stringify({ otp, userId })
     });
     const data = await response.json();
 
     if (data.success) {
       document.getElementById("passwordSection").style.display = "block";
     } else {
-      alert("Invalid OTP");
+      alert(data.message || "Invalid OTP");
     }
   } catch (error) {
     console.error(error);
     alert("Error verifying OTP");
   }
 });
+

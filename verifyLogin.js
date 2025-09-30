@@ -5,6 +5,7 @@ var app = express();
 var baseDir = __dirname;
 // console.log(baseDir);
 
+const nodemailer = require("nodemailer");
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
@@ -1493,7 +1494,51 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 
 //------------------------------------------------------
 //forgot password
+
+
+// Create transporter using Sendinblue SMTP
+const transporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false, // true for port 465, false for 587
+    auth: {
+        user: "983e91001@smtp-brevo.com", // your SMTP login
+        pass: "xsmtpsib-45b5b0b2ea195e37a804fd5685bdc822ff22feb8ae909b6e9562852325efdb52-4TvsRVcq8KI7NpJW"         // your generated SMTP key
+    }
+});
+
+// Function to send OTP email
+async function sendOtpEmail(toEmail, otp) {
+    try {
+        const info = await transporter.sendMail({
+            from: '"College Portal" <983e91001@smtp-brevo.com>', // sender
+            to: toEmail,                                          // receiver
+            subject: "Your OTP for Password Reset",
+            text: `Your OTP is: ${otp}`,
+            html: `<p>Your OTP for password reset is: <b>${otp}</b></p>`
+        });
+        console.log("OTP sent: ", info.messageId);
+        return true;
+    } catch (error) {
+        console.error("Error sending OTP: ", error);
+        return false;
+    }
+}
+
+module.exports = { sendOtpEmail };
+
+
+
 // Forgot Password API
+const { sendOtpEmail } = require("./mailer"); // import the mailer
+
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Temporary in-memory OTP store (you can later use DB or cache)
+let otpStore = {};
+
 app.post("/forgotpassword", (req, res) => {
   const { role, userId } = req.body;
 
@@ -1506,29 +1551,75 @@ app.post("/forgotpassword", (req, res) => {
     return res.json({ success: false, message: "Invalid role selected" });
   }
 
-  con.query(query, [userId], (err, result) => {
+  con.query(query, [userId], async (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    if (result.length > 0) {
-      // send email later with nodemailer
-      return res.json({ success: true, email: result[0].email });
-    } else {
+
+    if (result.length === 0) {
       return res.json({ success: false, message: "ID not found" });
+    }
+
+    const email = result[0].email;
+    const otp = generateOtp();
+
+    // Save OTP in memory with a TTL (e.g., 5 min)
+    otpStore[userId] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+
+    // Configure Nodemailer with Sendinblue SMTP
+    let transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "983e91001@smtp-brevo.com", // your SMTP login
+        pass: "**********I7NpJW"          // your SMTP key
+      }
+    });
+
+    // Email content
+    let mailOptions = {
+      from: '"MyApp Support" <983e91001@smtp-brevo.com>',
+      to: email,
+      subject: "Your OTP for Password Reset",
+      text: `Your OTP for password reset is: ${otp}. It is valid for 5 minutes.`,
+      html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      return res.json({ success: true, email });
+    } catch (mailErr) {
+      console.error("Error sending email:", mailErr);
+      return res.status(500).json({ success: false, message: "Failed to send OTP email" });
     }
   });
 });
 
 // Verify OTP API (dummy for now)
 app.post("/verifyOtp", (req, res) => {
-  const { otp } = req.body;
-  if (otp === "123456") { // later replace with generated OTP
-    res.json({ success: true });
+  const { userId, otp } = req.body;
+
+  if (!otpStore[userId]) {
+    return res.json({ success: false, message: "OTP expired or invalid" });
+  }
+
+  const record = otpStore[userId];
+  if (Date.now() > record.expires) {
+    delete otpStore[userId];
+    return res.json({ success: false, message: "OTP expired" });
+  }
+
+  if (otp === record.otp) {
+    delete otpStore[userId]; // OTP used, remove it
+    return res.json({ success: true });
   } else {
-    res.json({ success: false });
+    return res.json({ success: false, message: "Invalid OTP" });
   }
 });
+
+
 
 // Reset Password API
 app.post("/resetPassword", (req, res) => {
