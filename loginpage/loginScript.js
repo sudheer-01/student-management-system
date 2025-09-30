@@ -95,3 +95,35 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
         alert("Network error, please try again.");
     }
 });
+document.getElementById("studentForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const year = document.getElementById("year").value;
+    const htno = document.getElementById("htno").value;
+
+    try {
+        const response = await fetch("/studentCheckin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ year: year, htno: htno })
+        });
+
+        // ✅ Save student details in localStorage
+        localStorage.setItem("studentYear", year);
+        localStorage.setItem("studentHtno", htno);
+
+        if (response.redirected) {
+            // If backend redirects to studentMarks.html
+            window.location.href = response.url;
+        } else {
+            const data = await response.text();
+            if (data.includes("Invalid HTNO or Year")) {
+                alert("Invalid HTNO or Year");
+                window.location.href = "/";
+            }
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Network error, please try again.");
+    }
+});

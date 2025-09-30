@@ -28,6 +28,7 @@ app.use(express.static(path.join(baseDir,"HodTask","generateStudentReports")));
 app.use(express.static(path.join(baseDir,"HodTask","viewMarksUpdateRequests")));
 app.use(express.static(path.join(baseDir,"HodTask","GenerateCharts")));
 //student
+app.use('/studentsMarks', express.static(path.join(baseDir, 'studentsMarks')));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
@@ -1076,29 +1077,67 @@ app.get("/getExams", (req, res) => {
 });
 
 //studentMarks
-var stuYear = 0;
-var stuHtno = "";
+// var stuYear = 0;
+// var stuHtno = "";
+// app.post("/studentCheckin", (req, res) => {
+//     stuYear = req.body.year;
+//     stuHtno = req.body.htno;
+//     con.query(
+//         "SELECT * FROM studentmarks WHERE year=? AND htno=?",
+//         [stuYear, stuHtno],
+//         (err, result) => {
+//             if (err) {
+//                 console.error(err);
+//                 return res.status(500).send("Server error. Try again later.");
+//             }
+//             if (result.length > 0) {
+//                 return res.sendFile(path.join(baseDir, "studentsMarks","studentsMarks.html"));
+//             } else {
+//                 return res.send(
+//                     `<script>alert('Invalid HTNO or Year'); window.location.href='/';</script>`
+//                 );
+//             }
+//         }
+//     );
+// });
+// studentMarks
 app.post("/studentCheckin", (req, res) => {
-    stuYear = req.body.year;
-    stuHtno = req.body.htno;
+    const stuYear = req.body.year;
+    const stuHtno = req.body.htno;
+
     con.query(
         "SELECT * FROM studentmarks WHERE year=? AND htno=?",
         [stuYear, stuHtno],
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("Server error. Try again later.");
+                return res.status(500).json({
+                    success: false,
+                    message: "Server error. Try again later."
+                });
             }
+
             if (result.length > 0) {
-                return res.sendFile(path.join(baseDir, "studentsMarks","studentsMarks.html"));
+                // ✅ If valid, send success + redirect URL
+                return res.json({
+                    success: true,
+                    redirectUrl: "/studentsMarks/studentsMarks.html",
+                    studentDetails: {
+                        year: stuYear,
+                        htno: stuHtno
+                    }
+                });
             } else {
-                return res.send(
-                    `<script>alert('Invalid HTNO or Year'); window.location.href='/';</script>`
-                );
+                return res.json({
+                    success: false,
+                    message: "Invalid HTNO or Year"
+                });
             }
         }
     );
 });
+
+
 
 app.post("/studentDashboard", (req, res) => {
     //console.log("Received request at /studentDashboard");
