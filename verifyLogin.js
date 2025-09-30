@@ -1173,13 +1173,19 @@ app.post("/studentDashboard/:year/:htno", (req, res) => {
                 return res.status(404).json({ error: "No exam mapping found for this branch/year." });
             }
 
-            let examsJson;
-            try {
-                examsJson = JSON.parse(examResults[0].exams); // Parse exams JSON
-            } catch (parseErr) {
-                console.error("Error parsing exams JSON:", parseErr);
-                return res.status(500).json({ error: "Invalid exam mapping format." });
-            }
+           let examsJson;
+try {
+    examsJson = examResults[0].exams;
+
+    // If MySQL returned string, parse it
+    if (typeof examsJson === "string") {
+        examsJson = JSON.parse(examsJson);
+    }
+} catch (parseErr) {
+    console.error("Error parsing exams JSON:", parseErr);
+    return res.status(500).json({ error: "Invalid exam mapping format." });
+}
+
 
             // Extract exam columns (["Unit_test_1", "Mid_1", ...])
             const examColumns = Object.values(examsJson).map(col => `\`${col}\``);
