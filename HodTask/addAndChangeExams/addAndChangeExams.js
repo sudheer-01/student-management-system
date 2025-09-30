@@ -3,26 +3,46 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 async function fetchYears() {
     try {
-        const response = await fetch("/getYears");
-        const years = await response.json();
-        const yearSelect = document.getElementById("yearSelect");
-
-        yearSelect.innerHTML = `<option value="">Select Year</option>`;
-        years.forEach(({ year }) => {
-            yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
-        });
-
-        yearSelect.addEventListener("change", fetchBranches);
-    } catch (error) {
-        console.error("Error fetching years:", error);
+    const storedYears = localStorage.getItem("hodYears");
+    if (!storedYears) {
+        console.warn("No HOD years found in localStorage");
+        return;
     }
+
+    let parsedYears;
+    try {
+        // Try parsing JSON (["2","3","4"])
+        parsedYears = JSON.parse(storedYears);
+    } catch (e) {
+        // Fallback to comma-split ("2,3,4")
+        parsedYears = storedYears.split(",");
+    }
+
+    // Convert to numbers (int)
+    const years = parsedYears.map(year => parseInt(year, 10));
+
+    const yearSelect = document.getElementById("yearSelect");
+    yearSelect.innerHTML = `<option value="">Select Year</option>`;
+
+    years.forEach(year => {
+        yearSelect.innerHTML += `<option value="${year}">${year} Year</option>`;
+    });
+
+    yearSelect.addEventListener("change", fetchBranches);
+} catch (error) {
+    console.error("Error loading years from localStorage:", error);
 }
+
+}
+
 async function fetchBranches() {
     const year = document.getElementById("yearSelect").value;
-    if (!year) return;
+    const branch = localStorage.getItem("hodBranch"); // example: "CSE" or "ECE"
+    
+    if (!year || !branch) return;
 
     try {
-        const response = await fetch(`/getBranches/${year}`);
+        const response = await fetch(`/getbranches/${year}/${branch}`);
         const branches = await response.json();
         const branchSelect = document.getElementById("branchSelect");
 
@@ -30,7 +50,6 @@ async function fetchBranches() {
         branches.forEach(({ branch_name }) => {
             branchSelect.innerHTML += `<option value="${branch_name}">${branch_name}</option>`;
         });
-
         branchSelect.addEventListener("change", loadExams);
     } catch (error) {
         console.error("Error fetching branches:", error);
