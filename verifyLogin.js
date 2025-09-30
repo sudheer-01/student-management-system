@@ -1510,6 +1510,7 @@ const transporter = nodemailer.createTransport({
 // Function to send OTP email
 async function sendOtpEmail(toEmail, otp) {
   try {
+    console.log("Sending OTP to:(in sendotpemail)", toEmail);
     const info = await transporter.sendMail({
       from: `"College Portal" <${process.env.BREVO_USER}>`,
       to: toEmail,
@@ -1539,7 +1540,7 @@ let otpStore = {};
 // =================== Forgot Password ===================
 app.post("/forgotpassword", (req, res) => {
   const { role, userId } = req.body;
-
+  console.log("Forgot password request for:", role, userId);
   let query = "";
   if (role === "faculty") {
     query = "SELECT email FROM faculty WHERE facultyId = ?";
@@ -1560,11 +1561,12 @@ app.post("/forgotpassword", (req, res) => {
     }
 
     const email = result[0].email;
+    console.log("User email found:", email);
     const otp = generateOtp();
-
+    console.log("Generated OTP:", otp);
     // Store OTP with 5 min expiry
     otpStore[userId] = { otp, expires: Date.now() + 5 * 60 * 1000 };
-
+    console.log("OTP stored:", otpStore[userId]);
     // Send OTP via email
     const sent = await sendOtpEmail(email, otp);
     if (sent) {
