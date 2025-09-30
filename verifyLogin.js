@@ -1578,7 +1578,7 @@ app.post("/forgotpassword", (req, res) => {
 // =================== Verify OTP ===================
 app.post("/verifyOtp", (req, res) => {
   const { userId, otp } = req.body;
-
+    console.log("Verifying OTP for:", userId, otp);
   if (!otpStore[userId]) {
     return res.json({ success: false, message: "OTP expired or invalid" });
   }
