@@ -1527,7 +1527,7 @@ async function sendOtpEmail(toEmail, otp) {
 
 module.exports = { sendOtpEmail };
 
-const { sendOtpEmail } = require("./mailer"); // import mailer
+
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
