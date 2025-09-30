@@ -1138,72 +1138,93 @@ app.post("/studentCheckin", (req, res) => {
 });
 
 
-
 app.post("/studentDashboard/:year/:htno", (req, res) => {
-    //console.log("Received request at /studentDashboard");
-
-     const { year, htno } = req.params;
-
-    //console.log(`Backend using HTNO: ${htno}, Year: ${year}`);
+    const { year, htno } = req.params;
 
     if (!year || !htno) {
-        console.error("Session expired or invalid credentials.");
         return res.status(400).json({ error: "Session expired or invalid credentials." });
     }
 
-    const getColumnsQuery = `
-    SELECT COLUMN_NAME 
-    FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = 'studentmarks' 
-    AND COLUMN_NAME NOT IN ('year', 'branch', 'htno', 'name', 'subject')
-`;
+    // Step 1: Get student's branch
+    const getBranchQuery = `SELECT branch, name FROM studentmarks WHERE year = ? AND htno = ? LIMIT 1`;
 
-    con.query(getColumnsQuery, (colErr, colResults) => {
-        if (colErr) {
-            console.error("Error fetching columns:", colErr);
-            return res.status(500).json({ error: "Error retrieving exam details." });
+    con.query(getBranchQuery, [year, htno], (branchErr, branchResults) => {
+        if (branchErr) {
+            console.error("Error fetching branch:", branchErr);
+            return res.status(500).json({ error: "Error retrieving student branch." });
         }
 
-        // Extract column names and wrap them in backticks to avoid SQL syntax errors
-        const examColumns = colResults.map(col => `\`${col.COLUMN_NAME}\``);
-        //console.log("Exam Columns:", examColumns); // Debugging: Check the extracted columns
+        if (branchResults.length === 0) {
+            return res.status(404).json({ error: "Invalid HTNO or Year" });
+        }
 
-        const getStudentQuery = `
-            SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
-            FROM studentmarks 
-            WHERE year = ? AND htno = ? AND branch = (SELECT branch FROM studentmarks WHERE year = ? AND htno = ? LIMIT 1)
-        `;
+        const branch = branchResults[0].branch;
 
-        con.query(getStudentQuery, [year, htno], (err, results) => {
-            if (err) {
-                console.error("Database error:", err);
-                return res.status(500).json({ error: "Server error. Try again later." });
+        // Step 2: Get allowed exams from examsofspecificyearandbranch
+        const getExamsQuery = `SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ? LIMIT 1`;
+
+        con.query(getExamsQuery, [year, branch], (examErr, examResults) => {
+            if (examErr) {
+                console.error("Error fetching exams:", examErr);
+                return res.status(500).json({ error: "Error retrieving exam details." });
             }
 
-            if (results.length === 0) {
-                console.warn("Invalid HTNO or Year.");
-                return res.status(404).json({ error: "Invalid HTNO or Year" });
+            if (examResults.length === 0) {
+                return res.status(404).json({ error: "No exam mapping found for this branch/year." });
             }
 
-            const studentInfo = {
-                year: results[0].year,
-                branch: results[0].branch,
-                htno: results[0].htno,
-                name: results[0].name,
-                subjects: results.map(row => {
-                    let marks = {};
-                    colResults.forEach(col => {
-                        marks[col.COLUMN_NAME] = row[col.COLUMN_NAME] !== null ? row[col.COLUMN_NAME] : "N/A";
-                    });
-                    return { subject: row.subject, marks };
-                }),
-            };
+            let examsJson;
+            try {
+                examsJson = JSON.parse(examResults[0].exams); // Parse exams JSON
+            } catch (parseErr) {
+                console.error("Error parsing exams JSON:", parseErr);
+                return res.status(500).json({ error: "Invalid exam mapping format." });
+            }
 
-        //console.log("Sending student data:", studentInfo); // Debugging: Ensure data is formatted correctly
-        res.json(studentInfo);
+            // Extract exam columns (["Unit_test_1", "Mid_1", ...])
+            const examColumns = Object.values(examsJson).map(col => `\`${col}\``);
+
+            if (examColumns.length === 0) {
+                return res.status(404).json({ error: "No exam columns found for this branch/year." });
+            }
+
+            // Step 3: Fetch student data with only those columns
+            const getStudentQuery = `
+                SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
+                FROM studentmarks
+                WHERE year = ? AND htno = ? AND branch = ?
+            `;
+
+            con.query(getStudentQuery, [year, htno, branch], (err, results) => {
+                if (err) {
+                    console.error("Database error:", err);
+                    return res.status(500).json({ error: "Server error. Try again later." });
+                }
+
+                if (results.length === 0) {
+                    return res.status(404).json({ error: "No student records found." });
+                }
+
+                const studentInfo = {
+                    year: results[0].year,
+                    branch: results[0].branch,
+                    htno: results[0].htno,
+                    name: results[0].name,
+                    subjects: results.map(row => {
+                        let marks = {};
+                        Object.values(examsJson).forEach(col => {
+                            marks[col] = row[col] !== null ? row[col] : "N/A";
+                        });
+                        return { subject: row.subject, marks };
+                    }),
+                };
+
+                res.json(studentInfo);
+            });
+        });
     });
 });
-});
+
 
 //admin login
 app.post("/adminLogin", (req, res) => {
