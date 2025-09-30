@@ -1,59 +1,8 @@
-document.getElementById("forgotForm").addEventListener("submit", async function (e) {
+document.getElementById("forgotForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
   const role = document.getElementById("role").value;
   const userId = document.getElementById("userId").value;
-
-  try {
-    const response = await fetch("/forgotpassword", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, userId })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      document.getElementById("emailSection").classList.remove("hidden");
-      document.getElementById("retrievedEmail").value = data.email;
-    } else {
-      alert(data.message);
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Server error, please try again.");
-  }
-});
-
-// Send OTP
-document.getElementById("sendOtpBtn").addEventListener("click", async function () {
-  const email = document.getElementById("retrievedEmail").value;
-
-  try {
-    const response = await fetch("/sendOtp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert("OTP sent to your email!");
-      document.getElementById("otpSection").classList.remove("hidden");
-    } else {
-      alert(data.message);
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Server error, please try again.");
-  }
-});
-
-// Reset Password
-document.getElementById("resetPasswordBtn").addEventListener("click", async function () {
-  const email = document.getElementById("retrievedEmail").value;
-  const otp = document.getElementById("otp").value;
   const newPassword = document.getElementById("newPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
@@ -66,19 +15,68 @@ document.getElementById("resetPasswordBtn").addEventListener("click", async func
     const response = await fetch("/resetPassword", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp, newPassword })
+      body: JSON.stringify({ role, userId, newPassword })
     });
-
     const data = await response.json();
-
     if (data.success) {
-      alert("Password reset successful!");
-      window.location.href = "/";
+      alert("Password updated successfully!");
+      window.location.href = "/login.html";
     } else {
       alert(data.message);
     }
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Server error, please try again.");
+  } catch (error) {
+    console.error(error);
+    alert("Error updating password");
+  }
+});
+
+document.getElementById("sendOtpBtn").addEventListener("click", async function () {
+  const role = document.getElementById("role").value;
+  const userId = document.getElementById("userId").value;
+
+  if (!role || !userId) {
+    alert("Please select role and enter ID first!");
+    return;
+  }
+
+  try {
+    const response = await fetch("/forgotpassword", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, userId })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      document.getElementById("email").value = data.email;
+      document.getElementById("otpSection").style.display = "block";
+    } else {
+      alert(data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Error retrieving email");
+  }
+});
+
+document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+  const otp = document.getElementById("otp").value;
+
+  try {
+    const response = await fetch("/verifyOtp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      document.getElementById("passwordSection").style.display = "block";
+    } else {
+      alert("Invalid OTP");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Error verifying OTP");
   }
 });
