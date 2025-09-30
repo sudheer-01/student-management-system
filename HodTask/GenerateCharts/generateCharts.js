@@ -5,7 +5,7 @@ if (!window.marksChartInstances) {
 // Store fetched data globally for reuse
 let currentData = [];
 
-// Utility to populate dropdowns
+// Utility to populate dropdowns (only for subjects, students, etc.)
 async function populateDropdown(selectElement, url, valueKey, textKey) {
     try {
         const response = await fetch(url);
@@ -25,7 +25,8 @@ async function populateDropdown(selectElement, url, valueKey, textKey) {
 
 async function populateBranches(year) {
     const branchSelect = document.getElementById("branch");
-    await populateDropdown(branchSelect, `/getBranches/${year}`, 'branch_name', 'branch_name');
+    const hodBranch = localStorage.getItem("hodBranch") || "";
+    await populateDropdown(branchSelect, `/getbranches/${year}/${hodBranch}`, 'branch_name', 'branch_name');
 }
 
 async function populateSubjects(year, branch) {
@@ -155,7 +156,6 @@ function showStudentPerformanceControls() {
     const studentControls = document.getElementById("studentPerformanceControls");
     studentControls.style.display = 'flex';
 
-    
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
@@ -197,11 +197,7 @@ async function loadStudentPerformanceChart() {
             return data; // already ["Unit_test_1", "Mid_1", "Unit_test_2"]
         }
 
-
-            // Example usage in your chart function
         const examKeys = await loadExams(year, branch);
-
-        // const examKeys = ["Unit_test_1", "Mid_1", "Unit_test_2"];
 
         // Build datasets (one per exam)
         const datasets = examKeys.map((exam, idx) => ({
@@ -244,7 +240,6 @@ async function loadStudentPerformanceChart() {
         console.error("Error fetching student data:", error);
     }
 }
-
 
 // COMPARATIVE SUBJECT INSIGHT
 async function loadComparativeInsightChart() {
@@ -340,7 +335,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const branchSelect = document.getElementById("branch");
     const subjectSelect = document.getElementById("subject");
 
-    await populateDropdown(yearSelect, '/getYears', 'year', 'year');
+    // ✅ Load years from localStorage instead of API
+    const storedYears = localStorage.getItem("hodYears");
+    if (storedYears) {
+        const years = JSON.parse(storedYears).map(y => parseInt(y, 10));
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        years.forEach(year => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = `${year} Year`;
+            yearSelect.appendChild(option);
+        });
+    }
 
     yearSelect.addEventListener('change', async () => {
         const selectedYear = yearSelect.value;
