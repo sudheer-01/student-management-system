@@ -12,62 +12,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let studentData = []; // To store all students for filtering
     
-    // Fetch available years
-        try {
-        const storedYears = localStorage.getItem("hodYears");
-        if (!storedYears) {
-            console.warn("No HOD years found in localStorage");
-            return;
-        }
+// Fetch available years from localStorage instead of API
+const storedYears = localStorage.getItem("hodYears");
+const hodBranch = localStorage.getItem("hodBranch"); // HOD branch filter
 
-        let parsedYears;
-        try {
-            // Try parsing JSON (["2","3","4"])
-            parsedYears = JSON.parse(storedYears);
-        } catch (e) {
-            // Fallback to comma-split ("2,3,4")
-            parsedYears = storedYears.split(",");
-        }
+if (storedYears) {
+    let parsedYears;
+    try {
+        parsedYears = JSON.parse(storedYears); // ["2","3","4"]
+    } catch (e) {
+        parsedYears = storedYears.split(","); // "2,3,4"
+    }
 
-        // Convert to numbers (int)
-        const years = parsedYears.map(year => parseInt(year, 10));
-
-        const yearSelect = document.getElementById("yearSelect");
-        yearSelect.innerHTML = `<option value="">Select Year</option>`;
-
-        years.forEach(year => {
-            yearSelect.innerHTML += `<option value="${year}">${year} Year</option>`;
-        });
-
-        yearSelect.addEventListener("change", fetchBranches);
-        } catch (error) {
-            console.error("Error loading years from localStorage:", error);
-        }
-    // Fetch branches based on year selection
-    yearSelect.addEventListener("change", function () {
-        branchSelect.innerHTML = `<option value="">--Select Branch--</option>`;
-        subjectSelect.innerHTML = `<option value="">--Select Subject--</option>`;
-        examSelect.innerHTML = `<option value="">--Select Exam--</option>`;
-        subjectSelect.disabled = true;
-        examSelect.disabled = true;
-        fetchReportsBtn.disabled = true;
-        const branch = localStorage.getItem("hodBranch");
-        if (yearSelect.value) {
-            branchSelect.disabled = false;
-            fetch(`/getbranches/${yearSelect.value}/${branch}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(branch => {
-                        let option = document.createElement("option");
-                        option.value = branch.branch_name;
-                        option.textContent = branch.branch_name;
-                        branchSelect.appendChild(option);
-                    });
-                });
-        } else {
-            branchSelect.disabled = true;
-        }
+    parsedYears.forEach(year => {
+        let option = document.createElement("option");
+        option.value = year.trim();
+        option.textContent = `${year.trim()} Year`;
+        yearSelect.appendChild(option);
     });
+}
+
+// Fetch branches based on year selection
+yearSelect.addEventListener("change", function () {
+    branchSelect.innerHTML = `<option value="">--Select Branch--</option>`;
+    subjectSelect.innerHTML = `<option value="">--Select Subject--</option>`;
+    examSelect.innerHTML = `<option value="">--Select Exam--</option>`;
+    subjectSelect.disabled = true;
+    examSelect.disabled = true;
+    fetchReportsBtn.disabled = true;
+
+    if (yearSelect.value) {
+        branchSelect.disabled = false;
+
+        // Call updated API with year + hodBranch
+        fetch(`/getbranches/${yearSelect.value}/${hodBranch}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(branch => {
+                    let option = document.createElement("option");
+                    option.value = branch.branch_name;
+                    option.textContent = branch.branch_name;
+                    branchSelect.appendChild(option);
+                });
+            });
+    } else {
+        branchSelect.disabled = true;
+    }
+});
+
 
     // Fetch subjects based on year & branch
     branchSelect.addEventListener("change", function () {
