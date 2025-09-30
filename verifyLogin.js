@@ -1139,11 +1139,10 @@ app.post("/studentCheckin", (req, res) => {
 
 
 
-app.post("/studentDashboard", (req, res) => {
+app.post("/studentDashboard/:year/:htno", (req, res) => {
     //console.log("Received request at /studentDashboard");
 
-    let year = stuYear; // Already stored in backend
-    let htno = stuHtno; // Already stored in backend
+     const { year, htno } = req.params;
 
     //console.log(`Backend using HTNO: ${htno}, Year: ${year}`);
 

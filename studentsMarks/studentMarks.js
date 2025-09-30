@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
             statusMessage.classList.remove("hidden");
         }
         fetchMarksBtn.disabled = true;
-
-        fetch("/studentDashboard", { method: "POST" })
+        const studentYear = localStorage.getItem("studentYear");
+        const studentHtno = localStorage.getItem("studentHtno");
+        fetch(`/studentDashboard/${studentYear}/${studentHtno}`, { method: "POST" })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
