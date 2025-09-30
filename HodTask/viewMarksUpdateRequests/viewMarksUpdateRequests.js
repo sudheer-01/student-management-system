@@ -6,31 +6,48 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadYears() {
-    const response = await fetch("/getYears");
-    const years = await response.json();
-    const dropdown = document.getElementById("yearDropdown");
+    try {
+        // Get stored years from localStorage
+        const storedYears = localStorage.getItem("hodYears");
+        if (!storedYears) return;
 
-    dropdown.innerHTML = '<option value="">Select Year</option>';
-    years.forEach(({ year }) => {
-        let option = new Option(`${year} Year`, year);
-        dropdown.add(option);
-    });
+        // Parse and clean years (convert to integers)
+        const years = JSON.parse(storedYears).map(y => parseInt(y, 10));
+
+        const dropdown = document.getElementById("yearDropdown");
+        dropdown.innerHTML = '<option value="">Select Year</option>';
+
+        years.forEach(year => {
+            let option = new Option(`${year} Year`, year);
+            dropdown.add(option);
+        });
+    } catch (err) {
+        console.error("Error loading years:", err);
+    }
 }
 
 async function loadBranches() {
     const year = document.getElementById("yearDropdown").value;
     if (!year) return;
 
-    const response = await fetch(`/getBranches/${year}`);
-    const branches = await response.json();
-    const dropdown = document.getElementById("branchDropdown");
+    // HOD branch filter from localStorage
+    const hodBranch = localStorage.getItem("hodBranch") || "";
 
-    dropdown.innerHTML = '<option value="">Select Branch</option>';
-    branches.forEach(({ branch_name }) => {
-        let option = new Option(branch_name, branch_name);
-        dropdown.add(option);
-    });
+    try {
+        const response = await fetch(`/getbranches/${year}/${hodBranch}`);
+        const branches = await response.json();
+        const dropdown = document.getElementById("branchDropdown");
+
+        dropdown.innerHTML = '<option value="">Select Branch</option>';
+        branches.forEach(({ branch_name }) => {
+            let option = new Option(branch_name, branch_name);
+            dropdown.add(option);
+        });
+    } catch (err) {
+        console.error("Error loading branches:", err);
+    }
 }
+
 
 async function loadRequests() {
     const year = document.getElementById("yearDropdown").value;
