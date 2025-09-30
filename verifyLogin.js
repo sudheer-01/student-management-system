@@ -1171,7 +1171,7 @@ app.post("/studentDashboard/:year/:htno", (req, res) => {
         const getStudentQuery = `
             SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
             FROM studentmarks 
-            WHERE year = ? AND htno = ?
+            WHERE year = ? AND htno = ? AND branch = (SELECT branch FROM studentmarks WHERE year = ? AND htno = ? LIMIT 1)
         `;
 
         con.query(getStudentQuery, [year, htno], (err, results) => {
