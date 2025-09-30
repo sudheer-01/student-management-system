@@ -4,7 +4,7 @@ var app = express();
 // console.log(__dirname);
 var baseDir = __dirname;
 // console.log(baseDir);
-require("dotenv").config();
+
 
 const nodemailer = require("nodemailer");
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
