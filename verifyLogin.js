@@ -1491,6 +1491,71 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
     });
 });
 
+//------------------------------------------------------
+//forgot password
+// Forgot password -> fetch email
+app.post("/forgotpassword", (req, res) => {
+  const { role, userId } = req.body;
+
+  if (!role || !userId) {
+    return res.json({ success: false, message: "Role and ID are required." });
+  }
+
+  let table = role === "hod" ? "hod_details" : "faculty";
+
+  con.query(
+    `SELECT email FROM ${table} WHERE id = ? LIMIT 1`,
+    [userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.json({ success: false, message: "Server error." });
+      }
+      if (result.length === 0) {
+        return res.json({ success: false, message: "ID not found." });
+      }
+      res.json({ success: true, email: result[0].email });
+    }
+  );
+});
+
+// Send OTP (we’ll add nodemailer later)
+app.post("/sendOtp", (req, res) => {
+  const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+
+  // Store OTP temporarily (in-memory or DB)
+  otpStore[email] = otp;
+
+  console.log(`OTP for ${email}: ${otp}`); // DEBUG: later send via nodemailer
+  res.json({ success: true });
+});
+
+// Reset Password
+app.post("/resetPassword", (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (otpStore[email] != otp) {
+    return res.json({ success: false, message: "Invalid OTP." });
+  }
+
+  // Update password in DB
+  con.query(
+    `UPDATE faculty SET password=? WHERE email=?;
+     UPDATE hod_details SET password=? WHERE email=?;`,
+    [newPassword, email, newPassword, email],
+    (err) => {
+      if (err) {
+        console.error(err);
+        return res.json({ success: false, message: "Error updating password." });
+      }
+      delete otpStore[email];
+      res.json({ success: true });
+    }
+  );
+});
+//------------------------------------------------------
+
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
