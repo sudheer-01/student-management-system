@@ -47,31 +47,36 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
   });
 
   const data = await response.json();
-  if (data.success) {
-    alert("OTP sent to " + data.email);
-    document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
-  const otp = document.getElementById("otp").value;
-  const userId = document.getElementById("userId").value;
+if (data.success) {
+  alert("OTP sent to " + data.email);
 
-  try {
-    const response = await fetch("/verifyOtp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp, userId })
-    });
-    const data = await response.json();
+  // Show OTP section when OTP is sent
+  document.getElementById("otpSection").style.display = "block";
 
-    if (data.success) {
-      document.getElementById("passwordSection").style.display = "block";
-    } else {
-      alert(data.message || "Invalid OTP");
+  document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+    const otp = document.getElementById("otp").value;
+    const userId = document.getElementById("userId").value;
+
+    try {
+      const response = await fetch("/verifyOtp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp, userId })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        document.getElementById("passwordSection").style.display = "block";
+      } else {
+        alert(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error verifying OTP");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Error verifying OTP");
-  }
-});
-  } else {
+  });
+}
+ else {
     alert("Error: " + data.message);
   }
 } catch (err) {
