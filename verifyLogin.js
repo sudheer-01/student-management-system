@@ -5,8 +5,6 @@ var app = express();
 var baseDir = __dirname;
 // console.log(baseDir);
 
-
-const SibApiV3Sdk = require("sib-api-v3-sdk");
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
@@ -1496,31 +1494,34 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 //------------------------------------------------------
 //forgot password
 
-// ================= Brevo Setup =================
-const client = SibApiV3Sdk.ApiClient.instance;
-client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
-
-// Function to send OTP email via Brevo
 async function sendOtpEmail(toEmail, otp) {
-  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
-    to: [{ email: toEmail }],
-    sender: { email: process.env.BREVO_USER, name: "College Portal" },
-    subject: "Your OTP for Password Reset",
-    htmlContent: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
-  });
+  const msg = {
+    to: toEmail,
+    from: 'student.info.mgmnt.system@gmail.com', // use the email you verified in SendGrid Single Sender
+    subject: 'Your OTP for Password Reset',
+    html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`,
+  };
 
   try {
-    const result = await tranEmailApi.sendTransacEmail(sendSmtpEmail);
-    console.log("✅ OTP sent:", result.messageId || result);
+    const response = await sgMail.send(msg);
+    console.log('✅ OTP sent:', response[0].statusCode);
     return { success: true };
   } catch (error) {
-    const msg = error.response ? error.response.text : error.message || error;
-    console.error("❌ Error sending OTP:", msg);
-    return { success: false, message: msg };
+    console.error('❌ Error sending OTP:', error.response ? error.response.body : error.message);
+    return { success: false, message: error.message || 'Failed to send OTP' };
   }
 }
+
+// Example usage:
+(async () => {
+  const testEmail = 'recipient@example.com';  // Replace with recipient email
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  await sendOtpEmail(testEmail, otp);
+})();
+
 
 
 // ================= OTP Handling =================
