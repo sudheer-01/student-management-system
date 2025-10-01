@@ -1506,7 +1506,7 @@ const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 async function sendOtpEmail(toEmail, otp) {
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
     to: [{ email: toEmail }],
-    sender: { email: "sudheer111222111@gmail.com", name: "College Portal" },
+    sender: { email: process.env.BREVO_USER, name: "College Portal" },
     subject: "Your OTP for Password Reset",
     htmlContent: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
   });
