@@ -6,7 +6,7 @@ var baseDir = __dirname;
 // console.log(baseDir);
 
 
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
@@ -1496,29 +1496,24 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 //------------------------------------------------------
 //forgot password
 
-// Nodemailer transporter using Sendinblue (Brevo)
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER, 
-    pass: process.env.BREVO_PASS  
-  }
-});
+// ================= Brevo Setup =================
+const client = SibApiV3Sdk.ApiClient.instance;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
-// Function to send OTP email
+const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+
+// Function to send OTP email via Brevo
 async function sendOtpEmail(toEmail, otp) {
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
+    to: [{ email: toEmail }],
+    sender: { email: process.env.BREVO_USER, name: "College Portal" },
+    subject: "Your OTP for Password Reset",
+    htmlContent: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
+  });
+
   try {
-    console.log("Sending OTP to:(in sendotpemail)", toEmail);
-    const info = await transporter.sendMail({
-      from: `"College Portal" <${process.env.BREVO_USER}>`,
-      to: toEmail,
-      subject: "Your OTP for Password Reset",
-      text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
-      html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
-    });
-    console.log("✅ OTP sent:", info.messageId);
+    const result = await tranEmailApi.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ OTP sent:", result.messageId || result);
     return true;
   } catch (error) {
     console.error("❌ Error sending OTP:", error);
@@ -1526,10 +1521,7 @@ async function sendOtpEmail(toEmail, otp) {
   }
 }
 
-module.exports = { sendOtpEmail };
-
-
-
+// ================= OTP Handling =================
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -1537,11 +1529,12 @@ function generateOtp() {
 // Temporary in-memory OTP store
 let otpStore = {};
 
-// =================== Forgot Password ===================
+// ================= Forgot Password =================
 app.post("/forgotpassword", (req, res) => {
   const { role, userId } = req.body;
   console.log("Forgot password request for:", role, userId);
   let query = "";
+
   if (role === "faculty") {
     query = "SELECT email FROM faculty WHERE facultyId = ?";
   } else if (role === "hod") {
@@ -1562,25 +1555,27 @@ app.post("/forgotpassword", (req, res) => {
 
     const email = result[0].email;
     console.log("User email found:", email);
+
     const otp = generateOtp();
-    console.log("Generated OTP:", otp);
-    // Store OTP with 5 min expiry
     otpStore[userId] = { otp, expires: Date.now() + 5 * 60 * 1000 };
-    console.log("OTP stored:", otpStore[userId]);
-    // Send OTP via email
+    console.log("Generated OTP:", otp);
+
     const sent = await sendOtpEmail(email, otp);
     if (sent) {
       return res.json({ success: true, email });
     } else {
-      return res.status(500).json({ success: false, message: "Failed to send OTP email" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to send OTP email" });
     }
   });
 });
 
-// =================== Verify OTP ===================
+// ================= Verify OTP =================
 app.post("/verifyOtp", (req, res) => {
   const { userId, otp } = req.body;
-    console.log("Verifying OTP for:", userId, otp);
+  console.log("Verifying OTP for:", userId, otp);
+
   if (!otpStore[userId]) {
     return res.json({ success: false, message: "OTP expired or invalid" });
   }
@@ -1599,11 +1594,11 @@ app.post("/verifyOtp", (req, res) => {
   }
 });
 
-// =================== Reset Password ===================
+// ================= Reset Password =================
 app.post("/resetPassword", (req, res) => {
   const { role, userId, newPassword } = req.body;
-
   let query = "";
+
   if (role === "faculty") {
     query = "UPDATE faculty SET password=? WHERE facultyId=?";
   } else if (role === "hod") {
