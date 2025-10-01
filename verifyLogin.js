@@ -5,6 +5,8 @@ var app = express();
 var baseDir = __dirname;
 // console.log(baseDir);
 
+
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 //WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
@@ -1493,35 +1495,33 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 
 //------------------------------------------------------
 //forgot password
-const nodemailer = require("nodemailer");
 
-// ================= Gmail SMTP Setup =================
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,      
-    pass: process.env.GMAIL_APP_PASS   
-  }
-});
+// ================= Brevo Setup =================
+const client = SibApiV3Sdk.ApiClient.instance;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
-// Function to send OTP email via Gmail
+const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+
+// Function to send OTP email via Brevo
 async function sendOtpEmail(toEmail, otp) {
-  const mailOptions = {
-    from: `"College Portal" <${process.env.GMAIL_USER}>`,
-    to: toEmail,
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
+    to: [{ email: toEmail }],
+    sender: { email: process.env.BREVO_USER, name: "College Portal" },
     subject: "Your OTP for Password Reset",
-    html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
-  };
+    htmlContent: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
+  });
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ OTP sent:", info.messageId);
+    const result = await tranEmailApi.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ OTP sent:", result.messageId || result);
     return { success: true };
   } catch (error) {
-    console.error("❌ Error sending OTP:", error.message || error);
-    return { success: false, message: error.message || error };
+    const msg = error.response ? error.response.text : error.message || error;
+    console.error("❌ Error sending OTP:", msg);
+    return { success: false, message: msg };
   }
 }
+
 
 // ================= OTP Handling =================
 function generateOtp() {
@@ -1535,15 +1535,25 @@ let otpStore = {};
 app.post("/forgotpassword", (req, res) => {
   const { role, userId } = req.body;
   console.log("Forgot password request for:", role, userId);
-
   let query = "";
-  if (role === "faculty") query = "SELECT email FROM faculty WHERE facultyId = ?";
-  else if (role === "hod") query = "SELECT email FROM hod_details WHERE hod_id = ?";
-  else return res.json({ success: false, message: "Invalid role selected" });
 
+  if (role === "faculty") {
+    query = "SELECT email FROM faculty WHERE facultyId = ?";
+  } else if (role === "hod") {
+    query = "SELECT email FROM hod_details WHERE hod_id = ?";
+  } else {
+    return res.json({ success: false, message: "Invalid role selected" });
+  }
+   
   con.query(query, [userId], async (err, result) => {
-    if (err) return res.status(500).json({ success: false, message: "Server error" });
-    if (result.length === 0) return res.json({ success: false, message: "ID not found" });
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+
+    if (result.length === 0) {
+      return res.json({ success: false, message: "ID not found" });
+    }
 
     const email = result[0].email;
     console.log("User email found:", email);
@@ -1553,8 +1563,15 @@ app.post("/forgotpassword", (req, res) => {
     console.log("Generated OTP:", otp);
 
     const sent = await sendOtpEmail(email, otp);
-    if (sent.success) return res.json({ success: true, email });
-    else return res.status(500).json({ success: false, message: sent.message || "Failed to send OTP email" });
+
+if (sent.success) {
+  return res.json({ success: true, email });
+} else {
+  return res
+    .status(500)
+    .json({ success: false, message: sent.message || "Failed to send OTP email" });
+}
+
   });
 });
 
@@ -1563,7 +1580,9 @@ app.post("/verifyOtp", (req, res) => {
   const { userId, otp } = req.body;
   console.log("Verifying OTP for:", userId, otp);
 
-  if (!otpStore[userId]) return res.json({ success: false, message: "OTP expired or invalid" });
+  if (!otpStore[userId]) {
+    return res.json({ success: false, message: "OTP expired or invalid" });
+  }
 
   const record = otpStore[userId];
   if (Date.now() > record.expires) {
@@ -1584,12 +1603,19 @@ app.post("/resetPassword", (req, res) => {
   const { role, userId, newPassword } = req.body;
   let query = "";
 
-  if (role === "faculty") query = "UPDATE faculty SET password=? WHERE facultyId=?";
-  else if (role === "hod") query = "UPDATE hod_details SET password=? WHERE hod_id=?";
-  else return res.json({ success: false, message: "Invalid role selected" });
+  if (role === "faculty") {
+    query = "UPDATE faculty SET password=? WHERE facultyId=?";
+  } else if (role === "hod") {
+    query = "UPDATE hod_details SET password=? WHERE hod_id=?";
+  } else {
+    return res.json({ success: false, message: "Invalid role selected" });
+  }
 
   con.query(query, [newPassword, userId], (err) => {
-    if (err) return res.status(500).json({ success: false, message: "Server error" });
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
     return res.json({ success: true, message: "Password updated successfully" });
   });
 });
