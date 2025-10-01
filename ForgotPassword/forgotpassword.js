@@ -66,6 +66,7 @@ if (data.success) {
       const data = await response.json();
 
       if (data.success) {
+        alert("OTP verified successfully!");
         document.getElementById("passwordSection").style.display = "block";
       } else {
         alert(data.message || "Invalid OTP");
