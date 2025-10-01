@@ -39,24 +39,24 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
     return;
   }
 
-  try {
-    const response = await fetch("/forgotpassword", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, userId })
-    });
-    const data = await response.json();
+ try {
+  const response = await fetch("/forgotpassword", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, userId })
+  });
 
-    if (data.success) {
-      document.getElementById("email").value = data.email;
-      document.getElementById("otpSection").style.display = "block";
-    } else {
-      alert(data.message);
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error retrieving email");
+  const data = await response.json();
+  if (data.success) {
+    alert("OTP sent to " + data.email);
+  } else {
+    alert("Error: " + data.message);
   }
+} catch (err) {
+  console.error("Fetch error:", err);
+  alert("Server error. Check logs.");
+}
+
 });
 
 document.getElementById("verifyOtpBtn").addEventListener("click", async function () {

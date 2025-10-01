@@ -1514,16 +1514,14 @@ async function sendOtpEmail(toEmail, otp) {
   try {
     const result = await tranEmailApi.sendTransacEmail(sendSmtpEmail);
     console.log("✅ OTP sent:", result.messageId || result);
-    return true;
+    return { success: true };
   } catch (error) {
-    if (error.response) {
-      console.error("❌ Error sending OTP:", error.response.text);
-    } else {
-      console.error("❌ Error sending OTP:", error.message || error);
-    }
-    return false;
+    const msg = error.response ? error.response.text : error.message || error;
+    console.error("❌ Error sending OTP:", msg);
+    return { success: false, message: msg };
   }
 }
+
 
 // ================= OTP Handling =================
 function generateOtp() {
@@ -1546,7 +1544,7 @@ app.post("/forgotpassword", (req, res) => {
   } else {
     return res.json({ success: false, message: "Invalid role selected" });
   }
-
+   
   con.query(query, [userId], async (err, result) => {
     if (err) {
       console.error(err);
@@ -1565,13 +1563,15 @@ app.post("/forgotpassword", (req, res) => {
     console.log("Generated OTP:", otp);
 
     const sent = await sendOtpEmail(email, otp);
-    if (sent) {
-      return res.json({ success: true, email });
-    } else {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to send OTP email" });
-    }
+
+        if (sent.success) {
+        return res.json({ success: true, email });
+        } else {
+        return res
+            .status(500)
+            .json({ success: false, message: sent.message || "Failed to send OTP email" });
+        }
+
   });
 });
 
