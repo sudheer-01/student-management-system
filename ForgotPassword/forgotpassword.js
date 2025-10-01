@@ -49,17 +49,7 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
   const data = await response.json();
   if (data.success) {
     alert("OTP sent to " + data.email);
-  } else {
-    alert("Error: " + data.message);
-  }
-} catch (err) {
-  console.error("Fetch error:", err);
-  alert("Server error. Check logs.");
-}
-
-});
-
-document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+    document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
   const otp = document.getElementById("otp").value;
   const userId = document.getElementById("userId").value;
 
@@ -81,4 +71,15 @@ document.getElementById("verifyOtpBtn").addEventListener("click", async function
     alert("Error verifying OTP");
   }
 });
+  } else {
+    alert("Error: " + data.message);
+  }
+} catch (err) {
+  console.error("Fetch error:", err);
+  alert("Server error. Check logs.");
+}
+
+});
+
+
 
