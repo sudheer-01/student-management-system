@@ -1,3 +1,67 @@
+document.getElementById("sendOtpBtn").addEventListener("click", async function () {
+  const role = document.getElementById("role").value;
+  const userId = document.getElementById("userId").value;
+  const emailInput = document.getElementById("email");
+
+  if (!role || !userId) {
+    alert("Please select role and enter ID first!");
+    return;
+  }
+
+  try {
+    const response = await fetch("/forgotpassword", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, userId })
+    });
+    const data = await response.json();
+    if (data.success) {
+      emailInput.value = data.email;
+      alert("OTP sent to " + data.email);
+      document.getElementById("otpSection").style.display = "block";
+      // Disable Send OTP button until process restarts
+      document.getElementById("sendOtpBtn").disabled = true;
+      document.getElementById("role").disabled = true;
+      document.getElementById("userId").readOnly = true;
+    } else {
+      alert("Error: " + data.message);
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    alert("Server error. Check logs.");
+  }
+});
+
+document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
+  const otp = document.getElementById("otp").value;
+  const userId = document.getElementById("userId").value;
+
+  if (!otp) {
+    alert("Please enter the OTP sent to your email.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/verifyOtp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp, userId })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      document.getElementById("passwordSection").style.display = "block";
+      document.getElementById("otp").readOnly = true;
+      document.getElementById("verifyOtpBtn").disabled = true;
+    } else {
+      alert(data.message || "Invalid OTP");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Error verifying OTP");
+  }
+});
+
 document.getElementById("forgotForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
@@ -29,56 +93,3 @@ document.getElementById("forgotForm").addEventListener("submit", async function(
     alert("Error updating password");
   }
 });
-
-document.getElementById("sendOtpBtn").addEventListener("click", async function () {
-  const role = document.getElementById("role").value;
-  const userId = document.getElementById("userId").value;
-
-  if (!role || !userId) {
-    alert("Please select role and enter ID first!");
-    return;
-  }
-
- try {
-  const response = await fetch("/forgotpassword", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, userId })
-  });
-
-  const data = await response.json();
-  if (data.success) {
-    alert("OTP sent to " + data.email);
-  } else {
-    alert("Error: " + data.message);
-  }
-} catch (err) {
-  console.error("Fetch error:", err);
-  alert("Server error. Check logs.");
-}
-
-});
-
-document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
-  const otp = document.getElementById("otp").value;
-  const userId = document.getElementById("userId").value;
-
-  try {
-    const response = await fetch("/verifyOtp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp, userId })
-    });
-    const data = await response.json();
-
-    if (data.success) {
-      document.getElementById("passwordSection").style.display = "block";
-    } else {
-      alert(data.message || "Invalid OTP");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error verifying OTP");
-  }
-});
-
