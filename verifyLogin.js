@@ -1516,10 +1516,15 @@ async function sendOtpEmail(toEmail, otp) {
     console.log("✅ OTP sent:", result.messageId || result);
     return true;
   } catch (error) {
-    console.error("❌ Error sending OTP:", error);
+    if (error.response) {
+      console.error("❌ Error sending OTP:", error.response.text);
+    } else {
+      console.error("❌ Error sending OTP:", error.message || error);
+    }
     return false;
   }
 }
+
 
 // ================= OTP Handling =================
 function generateOtp() {
