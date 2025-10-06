@@ -1,0 +1,81 @@
+:root {
+    --bg: #f6f8fb;
+    --bg-2: #eef2f7;
+    --card: #ffffff;
+    --muted: #5a6a85;
+    --text: #0b1220;
+    --brand: #1f6feb;
+    --brand-2: #3fb7ff;
+    --accent: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --border: rgba(11,18,32,0.10);
+    --shadow: 0 12px 32px rgba(11, 18, 32, 0.12);
+    --radius: 12px;
+}
+
+/* Navbar styling */
+.topnav { 
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    padding: 14px 24px; 
+    box-shadow: var(--shadow);
+}
+
+.brand { 
+    font-weight: 800; 
+    font-size: 20px;
+    color: var(--brand);
+}
+
+.nav-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.nav-right { 
+    display: flex; 
+    align-items: center; 
+    gap: 20px; 
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-btn { 
+    padding: 8px 14px; 
+    font-weight: 600; 
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--danger);
+    color: white;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.logout-btn:hover {
+    background: #b91c1c;
+}
