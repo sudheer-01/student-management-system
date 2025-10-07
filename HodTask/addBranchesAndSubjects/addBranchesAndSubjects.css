@@ -12,9 +12,11 @@
 
 /* ===== NAVBAR STYLING (matches your first screenshot) ===== */
 .topnav {
-  position: sticky;
+    position: fixed;       /* ⬅️ changed from sticky */
   top: 0;
-  z-index: 10;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   background: var(--card);
   display: flex;
   align-items: center;
@@ -100,11 +102,11 @@
 
 /* ===== PAGE BODY AND FORM ===== */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #e5eef8;
   text-align: center;
-  padding: 40px;
   margin: 0;
+  padding-top: 80px;
 }
 
 /* Main container */
