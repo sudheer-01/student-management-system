@@ -1,8 +1,11 @@
-/* ===== NAVBAR STYLING (matches your first screenshot) ===== */
+/* =========================
+   GLOBAL THEME VARIABLES
+========================= */
 :root {
   --card: #ffffff;
   --brand: #1f6feb;
-  --brand-2: #3fb7ff;
+  --brand-light: #60a5fa;
+  --brand-dark: #2563eb;
   --danger: #dc2626;
   --border: rgba(11,18,32,0.10);
   --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
@@ -10,7 +13,9 @@
   font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
-/* Navbar container */
+/* =========================
+   NAVBAR STYLING
+========================= */
 .topnav {
   position: sticky;
   top: 0;
@@ -24,29 +29,27 @@
   box-shadow: var(--shadow);
 }
 
-/* Brand title */
 .brand {
   font-weight: 800;
   font-size: 20px;
   color: var(--brand);
-  white-space: nowrap;
 }
 
-/* Nav link buttons container */
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
+  flex-grow: 1;
 }
 
-/* Buttons style */
 .btn {
   display: inline-block;
   text-decoration: none;
   color: #fff;
   background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  padding: 8px 14px;
+  padding: 8px 16px;
   font-size: 14px;
   border-radius: 10px;
   font-weight: 500;
@@ -59,15 +62,14 @@
   transform: translateY(-2px);
 }
 
-/* Logout button on right */
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-end;
 }
 
 .logout-btn {
-  padding: 8px 14px;
+  padding: 8px 16px;
   border: none;
   border-radius: var(--radius);
   background: var(--danger);
@@ -83,8 +85,7 @@
   transform: translateY(-1px);
 }
 
-/* Responsive navbar */
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .topnav {
     flex-direction: column;
     align-items: flex-start;
@@ -92,16 +93,17 @@
   }
   .nav-actions {
     flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 
-/* ===== EXISTING PAGE STYLING (your original code) ===== */
+/* =========================
+   PAGE BACKGROUND
+========================= */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #90a7be;
+  background: #e8f0fb;
   margin: 0;
-  padding: 20px;
-  text-align: center;
+  padding: 0px;
 }
 
 .exam-container {

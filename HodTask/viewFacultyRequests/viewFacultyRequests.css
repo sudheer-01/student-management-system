@@ -1,8 +1,11 @@
-/* ===== GLOBAL VARIABLES ===== */
+/* =========================
+   GLOBAL THEME VARIABLES
+========================= */
 :root {
   --card: #ffffff;
   --brand: #1f6feb;
-  --brand-2: #3fb7ff;
+  --brand-light: #60a5fa;
+  --brand-dark: #2563eb;
   --danger: #dc2626;
   --border: rgba(11,18,32,0.10);
   --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
@@ -10,7 +13,9 @@
   font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
-/* ===== NAVBAR STYLING (matches all HOD pages) ===== */
+/* =========================
+   NAVBAR STYLING
+========================= */
 .topnav {
   position: sticky;
   top: 0;
@@ -28,7 +33,6 @@
   font-weight: 800;
   font-size: 20px;
   color: var(--brand);
-  white-space: nowrap;
 }
 
 .nav-actions {
@@ -81,7 +85,6 @@
   transform: translateY(-1px);
 }
 
-/* Responsive navbar */
 @media (max-width: 900px) {
   .topnav {
     flex-direction: column;
@@ -94,12 +97,13 @@
   }
 }
 
-/* ===== PAGE BODY ===== */
+/* =========================
+   PAGE BACKGROUND
+========================= */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #e5eef8;
+  background: #e8f0fb;
   margin: 0;
-  padding: 40px 20px;
+  padding: 0px;
 }
 
 /* ===== CONTAINER ===== */

@@ -1,8 +1,11 @@
-/* ===== GLOBAL VARIABLES ===== */
+/* =========================
+   GLOBAL THEME VARIABLES
+========================= */
 :root {
   --card: #ffffff;
   --brand: #1f6feb;
-  --brand-2: #3fb7ff;
+  --brand-light: #60a5fa;
+  --brand-dark: #2563eb;
   --danger: #dc2626;
   --border: rgba(11,18,32,0.10);
   --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
@@ -10,13 +13,13 @@
   font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
-/* ===== NAVBAR STYLING (matches your first screenshot) ===== */
+/* =========================
+   NAVBAR STYLING
+========================= */
 .topnav {
-    position: fixed;       /* ⬅️ changed from sticky */
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
+  z-index: 10;
   background: var(--card);
   display: flex;
   align-items: center;
@@ -26,15 +29,12 @@
   box-shadow: var(--shadow);
 }
 
-/* Brand title */
 .brand {
   font-weight: 800;
   font-size: 20px;
   color: var(--brand);
-  white-space: nowrap;
 }
 
-/* Navigation buttons group */
 .nav-actions {
   display: flex;
   align-items: center;
@@ -44,7 +44,6 @@
   flex-grow: 1;
 }
 
-/* Buttons */
 .btn {
   display: inline-block;
   text-decoration: none;
@@ -63,7 +62,6 @@
   transform: translateY(-2px);
 }
 
-/* Logout button */
 .nav-right {
   display: flex;
   align-items: center;
@@ -87,7 +85,6 @@
   transform: translateY(-1px);
 }
 
-/* Responsive navbar */
 @media (max-width: 900px) {
   .topnav {
     flex-direction: column;
@@ -100,15 +97,14 @@
   }
 }
 
-/* ===== PAGE BODY AND FORM ===== */
+/* =========================
+   PAGE BACKGROUND
+========================= */
 body {
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #e5eef8;
-  text-align: center;
+  background: #e8f0fb;
   margin: 0;
-  padding-top: 80px;
+  padding: 0px;
 }
-
 /* Main container */
 .container {
   background: #ffffff;
