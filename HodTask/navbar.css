@@ -9,7 +9,6 @@
   --radius: 12px;
 }
 
-/* Navbar container */
 .topnav { 
   position: sticky; 
   top: 0; 
@@ -24,7 +23,6 @@
   box-shadow: var(--shadow);
 }
 
-/* Brand */
 .brand { 
   font-weight: 800; 
   font-size: 20px;
@@ -33,7 +31,6 @@
   white-space: nowrap;
 }
 
-/* Navigation links */
 .nav-actions { 
   display: flex; 
   align-items: center; 
@@ -61,7 +58,6 @@
   box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
 }
 
-/* Right section (Logout button only now) */
 .nav-right {
   display: flex;
   align-items: center;
@@ -87,7 +83,6 @@
   box-shadow: 0 4px 12px rgba(220,38,38,0.25);
 }
 
-/* Responsive adjustments */
 @media (max-width: 800px) {
   .topnav {
     flex-direction: column;
