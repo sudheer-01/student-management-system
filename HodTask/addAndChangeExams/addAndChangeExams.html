@@ -4,12 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Exams</title>
-    <link rel="stylesheet" href="navbar.css">
-
     <link rel="stylesheet" href="addAndChangeExams.css">
 </head>
 <body>
-    <div id="navbar"></div>
+    <nav class="topnav">
+    <div class="brand">SIMS-HOD Panel</div>
+    <div class="nav-actions">
+        <a class="btn ghost small" href="/addBranchesAndSubjects.html">Branches & Subjects</a>
+        <a class="btn ghost small" href="/viewFacultyRequests.html">Faculty Requests</a>
+        <a class="btn ghost small" href="/enterStudentDetails.html">Student Details</a>
+        <a class="btn ghost small" href="/addAndChangeExams.html">Exams</a>
+        <a class="btn ghost small" href="/generateStudentReports.html">Reports</a>
+        <a class="btn ghost small" href="/viewMarksUpdateRequests.html">Marks Updates</a>
+        <a class="btn ghost small" href="/generateCharts.html">Performance Charts</a>
+    </div>
+    <div class="nav-right">
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+    </nav>
 
     <div class="exam-container">
         <h2>Manage Exams (Add & Remove Exams)</h2>
@@ -44,13 +56,6 @@
         </table>
     </div>
     <script src="addAndChangeExams.js"></script>
-    <script>
-    fetch("navbar.html")
-        .then(response => response.text())
-        .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        });
-    </script>
-    <script src="logout.js"></script>
+     <script src="logout.js"></script>
 </body>
 </html>
