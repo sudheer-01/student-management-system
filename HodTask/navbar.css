@@ -1,78 +1,79 @@
-/* --- Navbar --- */
+/* Navbar Styles */
 :root {
   --card: #ffffff;
   --brand: #1f6feb;
   --brand-2: #3fb7ff;
   --danger: #dc2626;
   --border: rgba(11,18,32,0.10);
-  --shadow: 0 12px 32px rgba(11, 18, 32, 0.12);
+  --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
   --radius: 12px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
-.topnav { 
-  position: sticky; 
-  top: 0; 
-  z-index: 10; 
+/* Navbar Container */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: var(--card);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border); 
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 14px 24px; 
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
-.brand { 
-  font-weight: 800; 
+/* Brand Name */
+.brand {
+  font-weight: 800;
   font-size: 20px;
   color: var(--brand);
-  letter-spacing: 0.2px;
   white-space: nowrap;
 }
 
-.nav-actions { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  margin-left: 24px;
+/* Nav Buttons */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.btn.ghost.small { 
-  padding: 8px 12px; 
-  font-size: 13px; 
-  border-radius: 10px; 
+.btn {
+  display: inline-block;
+  text-decoration: none;
   color: #fff;
   background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  border: none;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 10px;
   font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
 }
 
-.btn.ghost.small:hover {
+.btn:hover {
   background: linear-gradient(120deg, #93c5fd, #2563eb);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
 }
 
+/* Right Section */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.logout-btn { 
-  padding: 8px 14px; 
-  font-weight: 600; 
-  font-size: 13px;
-  border: 1px solid var(--border);
+/* Logout Button */
+.logout-btn {
+  padding: 8px 14px;
+  border: none;
   border-radius: var(--radius);
   background: var(--danger);
   color: white;
   cursor: pointer;
+  font-weight: 600;
   transition: all 0.25s ease;
   box-shadow: 0 2px 8px rgba(220,38,38,0.18);
 }
@@ -80,22 +81,16 @@
 .logout-btn:hover {
   background: #b91c1c;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220,38,38,0.25);
 }
 
+/* Responsive */
 @media (max-width: 800px) {
   .topnav {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
   }
   .nav-actions {
-    width: 100%;
-    justify-content: flex-start;
     flex-wrap: wrap;
-  }
-  .nav-right {
-    margin-top: 10px;
-    width: 100%;
-    justify-content: flex-start;
   }
 }
