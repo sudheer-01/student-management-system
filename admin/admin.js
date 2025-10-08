@@ -127,13 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(() => { window.location.href = "/"; });
         });
     }
-    // navigate to Update Database page
-const updateDbBtn = document.getElementById("updateDbBtn");
-if (updateDbBtn) {
-    updateDbBtn.addEventListener("click", function () {
-        window.location.href = "/UpdateDatabase/updateDatabase.html";
-    });
-}
+
 
 
     // initial load
