@@ -202,7 +202,9 @@ app.post("/loginToHodDashBoard", (req, res) => {
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("Server error. Try again later.");
+                return res.send(
+                    `<script>alert('Invalid HOD ID or Password. Contact Admin to reset password.'); window.location.href='/';</script>`
+                );
             }
             if (result.length > 0) {
                 // ✅ Send HOD details to the client
