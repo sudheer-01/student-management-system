@@ -1,7 +1,12 @@
+// Store original backend data to restore later
+let originalData = null;
+
+// When fetching student data, also store the original data & headers
 document.getElementById("getStudentMarks").addEventListener("click", () => {
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
     const selectedSubject = localStorage.getItem("selectedSubject");
+
     fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
         .then(response => response.json())
         .then(data => {
@@ -9,92 +14,65 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
             const thead = table.querySelector("thead tr");
             const tbody = table.querySelector("tbody");
 
-            tbody.innerHTML = ""; // Clear previous data
+            tbody.innerHTML = "";
             thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
 
             if (data.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
                 return;
             }
-            // Extract dynamic column names from first row (excluding htno, name)
+
+            // Save original data for reset
+            originalData = JSON.parse(JSON.stringify(data));
+
             let examColumns = Object.keys(data[0]).filter(col => col !== "htno" && col !== "name");
 
-            // Append dynamic exam headers
+            // Append headers
             examColumns.forEach(col => {
                 const th = document.createElement("th");
-                th.textContent = col.replace(/_/g, " "); // Format column name
+                th.textContent = col.replace(/_/g, " ");
                 thead.appendChild(th);
             });
 
-            // Append student data rows
+            // Fill table
             data.forEach((student, index) => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
-
                 examColumns.forEach(col => {
-                    tr.innerHTML += `<td>${student[col] ?? "-"}</td>`; // Show '-' if null
+                    tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
                 });
-
                 tbody.appendChild(tr);
             });
 
-            // Populate exam selection checkboxes
-            const examCheckboxes = document.getElementById("examCheckboxes");
-            examCheckboxes.innerHTML = ""; // Clear previous checkboxes
+            // Update checkboxes for column selection
+            updateExamCheckboxes();
 
-            examColumns.forEach(col => {
-                let label = document.createElement("label");
-                let checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = col;
-                label.appendChild(checkbox);
-                label.appendChild(document.createTextNode(col.replace(/_/g, " ")));
-                examCheckboxes.appendChild(label);
-            });
-
-            document.getElementById("addColumnSection").style.display = "block"; // Show add column section
+            document.getElementById("addColumnSection").style.display = "block";
         })
         .catch(error => console.error("Error fetching student marks:", error));
 });
 
-// Function to add a new column
-// document.getElementById("addColumn").addEventListener("click", () => {
-//     const selectedExams = Array.from(document.querySelectorAll("#examCheckboxes input:checked")).map(checkbox => checkbox.value);
-//     const newColumnName = document.getElementById("newColumnName").value.trim();
-//     const columnPosition = parseInt(document.getElementById("columnPosition").value, 10);
+// ✅ Utility: Update exam selection checkboxes dynamically
+function updateExamCheckboxes() {
+    const thead = document.querySelector("#studentsInformationTable thead tr");
+    const examCheckboxes = document.getElementById("examCheckboxes");
+    examCheckboxes.innerHTML = "";
 
-//     if (selectedExams.length === 0 || newColumnName === "") {
-//         alert("Please select exams and enter a column name.");
-//         return;
-//     }
+    // Skip first 3 static columns (S.NO, HallTicket, Name)
+    Array.from(thead.children)
+        .slice(3)
+        .forEach(th => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = th.textContent;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(th.textContent));
+            examCheckboxes.appendChild(label);
+        });
+}
 
-//     const thead = document.getElementById("studentsInformationTable").querySelector("thead tr");
-//     const tbody = document.getElementById("studentsInformationTable").querySelector("tbody");
-
-//     // Insert the new column header at the specified position
-//     let newTh = document.createElement("th");
-//     newTh.textContent = newColumnName;
-//     thead.insertBefore(newTh, thead.children[columnPosition]);
-
-//     // Insert calculated sum for each student in the new column
-//     Array.from(tbody.children).forEach(row => {
-//         let studentData = row.children;
-//         let sum = 0;
-
-//         selectedExams.forEach(exam => {
-//             let examIndex = [...thead.children].findIndex(th => th.textContent === exam.replace(/_/g, " "));
-//             let marks = studentData[examIndex]?.textContent || "0";
-//             sum += parseInt(marks) || 0;
-//         });
-
-//         let newTd = document.createElement("td");
-//         newTd.textContent = sum;
-//         row.insertBefore(newTd, row.children[columnPosition]);
-//     });
-
-//     alert("New column added successfully!");
-// });
-
+// ✅ Add Column (Sum / Average)
 document.getElementById("addColumn").addEventListener("click", () => {
     const selectedExams = Array.from(document.querySelectorAll("#examCheckboxes input:checked")).map(cb => cb.value);
     const newColumnName = document.getElementById("newColumnName").value.trim();
@@ -122,22 +100,23 @@ document.getElementById("addColumn").addEventListener("click", () => {
     newTh.textContent = newColumnName;
     thead.insertBefore(newTh, thead.children[columnPosition]);
 
-    // For each student row, calculate new column value
+    // Calculate and insert values
     Array.from(tbody.children).forEach(row => {
-        let studentCells = row.children;
-        let values = [];
+        const studentCells = row.children;
+        const values = [];
 
         selectedExams.forEach(exam => {
-            let examIndex = [...thead.children].findIndex(th => th.textContent === exam.replace(/_/g, " "));
+            const examIndex = [...thead.children].findIndex(th => th.textContent === exam);
             if (examIndex !== -1) {
-                let val = parseFloat(studentCells[examIndex]?.textContent) || 0;
+                const val = parseFloat(studentCells[examIndex]?.textContent) || 0;
                 values.push(val);
             }
         });
 
-        const result = operationType === "average" && values.length > 0
-            ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)
-            : values.reduce((a, b) => a + b, 0);
+        const result =
+            operationType === "average" && values.length > 0
+                ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)
+                : values.reduce((a, b) => a + b, 0);
 
         const newTd = document.createElement("td");
         newTd.textContent = result;
@@ -145,11 +124,13 @@ document.getElementById("addColumn").addEventListener("click", () => {
     });
 
     alert(`New column '${newColumnName}' (${operationType.toUpperCase()}) added successfully!`);
+
+    updateExamCheckboxes(); // ✅ Refresh checkboxes to include new column
 });
 
+// 🗑️ Remove Column
 document.getElementById("removeColumn").addEventListener("click", () => {
     const columnName = prompt("Enter the exact column name you want to remove:");
-
     if (!columnName) return;
 
     const table = document.getElementById("studentsInformationTable");
@@ -157,21 +138,52 @@ document.getElementById("removeColumn").addEventListener("click", () => {
     const tbody = table.querySelector("tbody");
 
     const colIndex = [...thead.children].findIndex(th => th.textContent.trim() === columnName.trim());
-
     if (colIndex === -1) {
         alert("Column not found!");
         return;
     }
 
-    // Remove header
     thead.removeChild(thead.children[colIndex]);
-
-    // Remove column cells from each row
-    Array.from(tbody.children).forEach(row => {
-        row.removeChild(row.children[colIndex]);
-    });
+    Array.from(tbody.children).forEach(row => row.removeChild(row.children[colIndex]));
 
     alert(`Column '${columnName}' removed successfully.`);
+
+    updateExamCheckboxes(); // ✅ Refresh checkboxes again
+});
+
+// ♻️ Clear All Added Columns — restore original backend data
+document.getElementById("clearColumns").addEventListener("click", () => {
+    if (!originalData) {
+        alert("No data to restore!");
+        return;
+    }
+
+    const table = document.getElementById("studentsInformationTable");
+    const thead = table.querySelector("thead tr");
+    const tbody = table.querySelector("tbody");
+
+    tbody.innerHTML = "";
+    thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
+
+    const examColumns = Object.keys(originalData[0]).filter(col => col !== "htno" && col !== "name");
+
+    examColumns.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col.replace(/_/g, " ");
+        thead.appendChild(th);
+    });
+
+    originalData.forEach((student, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
+        examColumns.forEach(col => {
+            tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
+        });
+        tbody.appendChild(tr);
+    });
+
+    alert("✅ Table restored to original state!");
+    updateExamCheckboxes();
 });
 
 
