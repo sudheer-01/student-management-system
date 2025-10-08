@@ -210,7 +210,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         row.style.display = meetsCondition ? "" : "none";
     });
 
-    alert(`✅ Filter applied: showing students with ≥ ${filterValue} in ${selectedColumns.join(", ")}.`);
+    alert(`✅ Filter applied: showing students with <= ${filterValue} in ${selectedColumns.join(", ")}.`);
 });
 
 // ❌ Clear Filter
