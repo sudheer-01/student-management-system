@@ -120,9 +120,53 @@ async function updateStatus(faculty, subject, exam, status) {
 }
 
 
+// async function toggleStudentTable(button, faculty, subject, exam) {
+//     let existingTable = document.querySelector(".student-table");
+//     if (existingTable) existingTable.remove(); // Remove previous table if present
+
+//     try {
+//         const response = await fetch(`/getUpdate/${faculty}/${subject}/${exam}`);
+//         if (!response.ok) throw new Error("Failed to fetch data");
+
+//         const students = await response.json();
+
+//         if (students.length === 0) {
+//             alert("No student details found for this request.");
+//             return;
+//         }
+
+//         let table = document.createElement("table");
+//         table.classList.add("student-table");
+//         table.innerHTML = `
+//             <tr>
+//                 <th>HTNO</th>
+//                 <th>Name</th>
+//                 <th>Old Marks</th>
+//                 <th>New Marks</th>
+//             </tr>
+//         `;
+
+//         students.forEach(student => {
+//             let row = `<tr>
+//                 <td>${student.htno}</td>
+//                 <td>${student.name}</td>
+//                 <td>${student.old_marks}</td>
+//                 <td>${student.new_marks}</td>
+//             </tr>`;
+//             table.innerHTML += row;
+//         });
+
+//         button.closest("tr").after(table); // Insert table below the clicked row
+//     } catch (error) {
+//         console.error("Error fetching update details:", error);
+//         alert("Error fetching details. Please try again.");
+//     }
+// }
+
 async function toggleStudentTable(button, faculty, subject, exam) {
+    // Remove any existing expanded student table
     let existingTable = document.querySelector(".student-table");
-    if (existingTable) existingTable.remove(); // Remove previous table if present
+    if (existingTable) existingTable.remove();
 
     try {
         const response = await fetch(`/getUpdate/${faculty}/${subject}/${exam}`);
@@ -130,11 +174,15 @@ async function toggleStudentTable(button, faculty, subject, exam) {
 
         const students = await response.json();
 
-        if (students.length === 0) {
-            alert("No student details found for this request.");
+        // ✅ Filter only students whose marks have changed
+        const changedStudents = students.filter(s => s.old_marks !== s.new_marks);
+
+        if (changedStudents.length === 0) {
+            alert("No students have updated marks for this request.");
             return;
         }
 
+        // Build the filtered table
         let table = document.createElement("table");
         table.classList.add("student-table");
         table.innerHTML = `
@@ -146,22 +194,27 @@ async function toggleStudentTable(button, faculty, subject, exam) {
             </tr>
         `;
 
-        students.forEach(student => {
-            let row = `<tr>
-                <td>${student.htno}</td>
-                <td>${student.name}</td>
-                <td>${student.old_marks}</td>
-                <td>${student.new_marks}</td>
-            </tr>`;
+        changedStudents.forEach(student => {
+            let row = `
+                <tr>
+                    <td>${student.htno}</td>
+                    <td>${student.name}</td>
+                    <td>${student.old_marks}</td>
+                    <td>${student.new_marks}</td>
+                </tr>
+            `;
             table.innerHTML += row;
         });
 
-        button.closest("tr").after(table); // Insert table below the clicked row
+        // Insert the new table below the clicked row
+        button.closest("tr").after(table);
     } catch (error) {
         console.error("Error fetching update details:", error);
         alert("Error fetching details. Please try again.");
     }
 }
+
+// Logout functionality
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
