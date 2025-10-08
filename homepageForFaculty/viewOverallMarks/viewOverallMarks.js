@@ -277,3 +277,33 @@ document.getElementById("printReport").addEventListener("click", function () {
             newWindow.print();
         
 });
+// 🔽 EXPORT TABLE TO CSV FUNCTIONALITY
+document.getElementById("exportCSV").addEventListener("click", function () {
+    const table = document.getElementById("studentsInformationTable");
+    if (!table) return alert("No table data found!");
+
+    let csvContent = "";
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll("th, td");
+        const rowData = Array.from(cols)
+            .map(col => {
+                // Escape commas and quotes
+                let text = col.innerText.replace(/,/g, "");
+                if (text.includes('"')) text = text.replace(/"/g, '""');
+                return `"${text}"`;
+            })
+            .join(",");
+        csvContent += rowData + "\n";
+    });
+
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Student_Marks_Report.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+});

@@ -184,3 +184,18 @@ th {
         align-items: center;
     }
 }
+#printReport, #exportCSV {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 15px;
+    border-radius: 6px;
+    margin: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#printReport:hover, #exportCSV:hover {
+    background-color: #0056b3;
+}
