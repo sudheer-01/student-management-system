@@ -478,7 +478,6 @@ app.get("/getStudentMarks", (req, res) => {
 app.get("/getOverallMarks", (req, res) => {
     const { branch, year, subject } = req.query;
 
-    // Step 1: Fetch the exams for the specific year and branch
     const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(examQuery, [year, branch], (err, examResult) => {
@@ -491,23 +490,30 @@ app.get("/getOverallMarks", (req, res) => {
             return res.status(404).json({ success: false, message: "No exams found for this year and branch" });
         }
 
-        // Step 2: Parse exams JSON to extract exam names dynamically
+        // ✅ Handle both string and object cases
+        let examsData = examResult[0].exams;
         let examsObj;
-        try {
-            examsObj = JSON.parse(examResult[0].exams);
-        } catch (parseError) {
-            console.error("Error parsing exams JSON:", parseError);
-            return res.status(500).json({ success: false, message: "Invalid exam data format" });
+
+        if (typeof examsData === "string") {
+            try {
+                examsObj = JSON.parse(examsData);
+            } catch (parseError) {
+                console.error("Error parsing exams JSON string:", parseError);
+                return res.status(500).json({ success: false, message: "Invalid exams JSON format" });
+            }
+        } else if (typeof examsData === "object" && examsData !== null) {
+            examsObj = examsData;
+        } else {
+            return res.status(500).json({ success: false, message: "Unexpected exams data format" });
         }
 
-        // Extract exam names (e.g., ["Unit_test_1", "Mid_1", "Unit_test_2"])
         const examColumns = Object.values(examsObj);
 
         if (examColumns.length === 0) {
             return res.status(404).json({ success: false, message: "No exam columns found" });
         }
 
-        // Step 3: Dynamically build the SQL query using these exam columns
+        // Build SQL dynamically
         const selectedColumns = ["htno", "name", ...examColumns].join(", ");
         const sqlQuery = `SELECT ${selectedColumns} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
 
@@ -517,11 +523,11 @@ app.get("/getOverallMarks", (req, res) => {
                 return res.status(500).json({ success: false, message: "Database error" });
             }
 
-            // Step 4: Return the filtered data
             res.json(results);
         });
     });
 });
+
 
 app.get("/getReportDetails", (req, res) => {
     res.json({
