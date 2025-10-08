@@ -1716,7 +1716,7 @@ app.post("/api/delete-semester-data", (req, res) => {
         sql = `DELETE FROM subjects WHERE year = ? AND branch_name = ?`;
       }
 
-      db.query(sql, [year, branch], (err, result) => {
+      con.query(sql, [year, branch], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -1737,7 +1737,7 @@ app.get("/api/branches/:year", (req, res) => {
     }
 
     const sql = "SELECT branch_name FROM branches WHERE year = ?";
-    db.query(sql, [year], (err, results) => {
+    con.query(sql, [year], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         const branches = results.map(row => row.branch_name);
         res.json({ branches });
