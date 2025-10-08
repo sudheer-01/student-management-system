@@ -1,7 +1,7 @@
-// Store original backend data to restore later
 let originalData = null;
+let currentData = null; // store current filtered/modified data
 
-// When fetching student data, also store the original data & headers
+// Fetch data and render
 document.getElementById("getStudentMarks").addEventListener("click", () => {
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
@@ -10,55 +10,56 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
     fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
         .then(response => response.json())
         .then(data => {
-            const table = document.getElementById("studentsInformationTable");
-            const thead = table.querySelector("thead tr");
-            const tbody = table.querySelector("tbody");
-
-            tbody.innerHTML = "";
-            thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
-
-            if (data.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
-                return;
-            }
-
-            // Save original data for reset
+            renderTable(data);
             originalData = JSON.parse(JSON.stringify(data));
-
-            let examColumns = Object.keys(data[0]).filter(col => col !== "htno" && col !== "name");
-
-            // Append headers
-            examColumns.forEach(col => {
-                const th = document.createElement("th");
-                th.textContent = col.replace(/_/g, " ");
-                thead.appendChild(th);
-            });
-
-            // Fill table
-            data.forEach((student, index) => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
-                examColumns.forEach(col => {
-                    tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
-                });
-                tbody.appendChild(tr);
-            });
-
-            // Update checkboxes for column selection
-            updateExamCheckboxes();
-
+            currentData = JSON.parse(JSON.stringify(data));
             document.getElementById("addColumnSection").style.display = "block";
+            document.getElementById("filterSection").style.display = "block";
         })
         .catch(error => console.error("Error fetching student marks:", error));
 });
 
-// ✅ Utility: Update exam selection checkboxes dynamically
+// 🔁 Render Table Function
+function renderTable(data) {
+    const table = document.getElementById("studentsInformationTable");
+    const thead = table.querySelector("thead tr");
+    const tbody = table.querySelector("tbody");
+
+    tbody.innerHTML = "";
+    thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
+
+    if (data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
+        return;
+    }
+
+    const examColumns = Object.keys(data[0]).filter(col => col !== "htno" && col !== "name");
+
+    examColumns.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col.replace(/_/g, " ");
+        thead.appendChild(th);
+    });
+
+    data.forEach((student, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
+        examColumns.forEach(col => {
+            tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
+        });
+        tbody.appendChild(tr);
+    });
+
+    updateExamCheckboxes();
+    updateFilterCheckboxes();
+}
+
+// ✅ Update exam selection checkboxes dynamically
 function updateExamCheckboxes() {
     const thead = document.querySelector("#studentsInformationTable thead tr");
     const examCheckboxes = document.getElementById("examCheckboxes");
     examCheckboxes.innerHTML = "";
 
-    // Skip first 3 static columns (S.NO, HallTicket, Name)
     Array.from(thead.children)
         .slice(3)
         .forEach(th => {
@@ -72,7 +73,26 @@ function updateExamCheckboxes() {
         });
 }
 
-// ✅ Add Column (Sum / Average)
+// ✅ Update filter column checkboxes dynamically
+function updateFilterCheckboxes() {
+    const thead = document.querySelector("#studentsInformationTable thead tr");
+    const filterCheckboxes = document.getElementById("filterColumnCheckboxes");
+    filterCheckboxes.innerHTML = "";
+
+    Array.from(thead.children)
+        .slice(3)
+        .forEach(th => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = th.textContent;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(th.textContent));
+            filterCheckboxes.appendChild(label);
+        });
+}
+
+// ➕ Add Column (Sum/Average)
 document.getElementById("addColumn").addEventListener("click", () => {
     const selectedExams = Array.from(document.querySelectorAll("#examCheckboxes input:checked")).map(cb => cb.value);
     const newColumnName = document.getElementById("newColumnName").value.trim();
@@ -88,19 +108,16 @@ document.getElementById("addColumn").addEventListener("click", () => {
     const thead = table.querySelector("thead tr");
     const tbody = table.querySelector("tbody");
 
-    // Prevent duplicate column names
     const existingHeaders = Array.from(thead.children).map(th => th.textContent.trim());
     if (existingHeaders.includes(newColumnName)) {
         alert("A column with this name already exists!");
         return;
     }
 
-    // Insert new column header
     const newTh = document.createElement("th");
     newTh.textContent = newColumnName;
     thead.insertBefore(newTh, thead.children[columnPosition]);
 
-    // Calculate and insert values
     Array.from(tbody.children).forEach(row => {
         const studentCells = row.children;
         const values = [];
@@ -113,10 +130,12 @@ document.getElementById("addColumn").addEventListener("click", () => {
             }
         });
 
-        const result =
-            operationType === "average" && values.length > 0
-                ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2)
-                : values.reduce((a, b) => a + b, 0);
+        let result = 0;
+        if (operationType === "average" && values.length > 0) {
+            result = Math.round(values.reduce((a, b) => a + b, 0) / values.length); // ✅ rounded to integer
+        } else {
+            result = values.reduce((a, b) => a + b, 0);
+        }
 
         const newTd = document.createElement("td");
         newTd.textContent = result;
@@ -125,7 +144,8 @@ document.getElementById("addColumn").addEventListener("click", () => {
 
     alert(`New column '${newColumnName}' (${operationType.toUpperCase()}) added successfully!`);
 
-    updateExamCheckboxes(); // ✅ Refresh checkboxes to include new column
+    updateExamCheckboxes();
+    updateFilterCheckboxes();
 });
 
 // 🗑️ Remove Column
@@ -147,14 +167,28 @@ document.getElementById("removeColumn").addEventListener("click", () => {
     Array.from(tbody.children).forEach(row => row.removeChild(row.children[colIndex]));
 
     alert(`Column '${columnName}' removed successfully.`);
-
-    updateExamCheckboxes(); // ✅ Refresh checkboxes again
+    updateExamCheckboxes();
+    updateFilterCheckboxes();
 });
 
-// ♻️ Clear All Added Columns — restore original backend data
+// ♻️ Clear All Added Columns
 document.getElementById("clearColumns").addEventListener("click", () => {
     if (!originalData) {
         alert("No data to restore!");
+        return;
+    }
+    renderTable(originalData);
+    currentData = JSON.parse(JSON.stringify(originalData));
+    alert("✅ Table restored to original state!");
+});
+
+// 🔍 Apply Filter
+document.getElementById("applyFilter").addEventListener("click", () => {
+    const filterValue = parseFloat(document.getElementById("filterValue").value);
+    const selectedColumns = Array.from(document.querySelectorAll("#filterColumnCheckboxes input:checked")).map(cb => cb.value);
+
+    if (selectedColumns.length === 0 || isNaN(filterValue)) {
+        alert("Please select at least one column and enter a valid number!");
         return;
     }
 
@@ -162,28 +196,31 @@ document.getElementById("clearColumns").addEventListener("click", () => {
     const thead = table.querySelector("thead tr");
     const tbody = table.querySelector("tbody");
 
-    tbody.innerHTML = "";
-    thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
+    const colIndexes = selectedColumns.map(col =>
+        [...thead.children].findIndex(th => th.textContent === col)
+    );
 
-    const examColumns = Object.keys(originalData[0]).filter(col => col !== "htno" && col !== "name");
-
-    examColumns.forEach(col => {
-        const th = document.createElement("th");
-        th.textContent = col.replace(/_/g, " ");
-        thead.appendChild(th);
-    });
-
-    originalData.forEach((student, index) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
-        examColumns.forEach(col => {
-            tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
+    const rows = Array.from(tbody.children);
+    rows.forEach(row => {
+        const cells = row.children;
+        const meetsCondition = colIndexes.every(i => {
+            const val = parseFloat(cells[i]?.textContent) || 0;
+            return val <= filterValue;
         });
-        tbody.appendChild(tr);
+        row.style.display = meetsCondition ? "" : "none";
     });
 
-    alert("✅ Table restored to original state!");
-    updateExamCheckboxes();
+    alert(`✅ Filter applied: showing students with ≥ ${filterValue} in ${selectedColumns.join(", ")}.`);
+});
+
+// ❌ Clear Filter
+document.getElementById("clearFilter").addEventListener("click", () => {
+    Array.from(document.querySelectorAll("#studentsInformationTable tbody tr")).forEach(row => {
+        row.style.display = "";
+    });
+    document.getElementById("filterValue").value = "";
+    document.querySelectorAll("#filterColumnCheckboxes input").forEach(cb => (cb.checked = false));
+    alert("✅ All filters cleared!");
 });
 
 
