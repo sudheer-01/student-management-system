@@ -41,3 +41,11 @@ tbody tr:hover { background: #f8fafc; }
 .approve:hover { background: #15803d; }
 .reject { background: #ef4444; color: white; }
 .reject:hover { background: #dc2626; }
+.btn.ghost {
+    background: transparent;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+.btn.ghost:hover {
+    background: #f1f5f9;
+}

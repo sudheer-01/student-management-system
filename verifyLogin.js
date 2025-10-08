@@ -10,6 +10,7 @@ var baseDir = __dirname;
 app.use(express.static(path.join(baseDir,"Home")));
 app.use(express.static(path.join(baseDir,"loginpage")));
 app.use(express.static(path.join(baseDir,"NewAccountCreate")));
+app.use(express.static(path.join(baseDir,"UpdateDatabase")));
 //homepageForFaculty
 app.use(express.static(path.join(baseDir,"homepageForFaculty")));
 // Serve homepageForFaculty at /homepageForFaculty URL prefix
