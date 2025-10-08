@@ -1680,6 +1680,72 @@ app.post("/resetPassword", (req, res) => {
 
 //------------------------------------------------------
 
+//code for admin to delete all data of specific year and branch
+app.post("/api/delete-semester-data", (req, res) => {
+  const { year, branch } = req.body;
+
+  if (!year || !branch) {
+    return res.status(400).json({ error: "Year and branch are required" });
+  }
+
+  // Tables from which data will be deleted
+  const tables = [
+    "branches",
+    "examsofspecificyearandbranch",
+    "faculty_requests",
+    "pending_marks_updates",
+    "studentmarks",
+    "subjects"
+  ];
+
+  // Build delete queries
+  const queries = tables.map((table) => {
+    return new Promise((resolve, reject) => {
+      let sql = "";
+      if (table === "branches") {
+        sql = `DELETE FROM branches WHERE year = ? AND branch_name = ?`;
+      } else if (table === "examsofspecificyearandbranch") {
+        sql = `DELETE FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?`;
+      } else if (table === "faculty_requests") {
+        sql = `DELETE FROM faculty_requests WHERE year = ? AND branch = ?`;
+      } else if (table === "pending_marks_updates") {
+        sql = `DELETE FROM pending_marks_updates WHERE year = ? AND branch = ?`;
+      } else if (table === "studentmarks") {
+        sql = `DELETE FROM studentmarks WHERE year = ? AND branch = ?`;
+      } else if (table === "subjects") {
+        sql = `DELETE FROM subjects WHERE year = ? AND branch_name = ?`;
+      }
+
+      db.query(sql, [year, branch], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  });
+
+  Promise.all(queries)
+    .then(() => res.json({ message: `Data for year ${year}, branch ${branch} deleted successfully.` }))
+    .catch((err) => res.status(500).json({ error: err.message }));
+});
+
+// Fetch branches based on selected year
+app.get("/api/branches/:year", (req, res) => {
+    const year = req.params.year;
+
+    if (!year) {
+        return res.status(400).json({ error: "Year is required" });
+    }
+
+    const sql = "SELECT branch_name FROM branches WHERE year = ?";
+    db.query(sql, [year], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        const branches = results.map(row => row.branch_name);
+        res.json({ branches });
+    });
+});
+
+
+
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
