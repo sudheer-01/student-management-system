@@ -21,20 +21,30 @@
     <button id="getStudentMarks">Click to Get Students' Overall Marks</button>
 
     <!-- Section for Adding New Column -->
-    <div id="addColumnSection" style="display: none;" class="exam-container">
-        <h3>Add a New Column</h3>
-        
-        <label>Select Exams to Sum:</label>
-        <div id="examCheckboxes" class="exam-list"></div> <!-- Checkboxes will be dynamically added here -->
+   <!-- Section for Adding / Removing Columns -->
+<div id="addColumnSection" style="display: none;" class="exam-container">
+    <h3>Column Operations</h3>
     
-        <label>Enter Column Name:</label>
-        <input type="text" id="newColumnName" placeholder="Enter column name"/>
-    
-        <label>Insert Column At Position:</label>
-        <input type="number" id="columnPosition" min="1" value="1"/>
-    
-        <button id="addColumn">Add Column</button>
+    <label>Select Exams:</label>
+    <div id="examCheckboxes" class="exam-list"></div> <!-- dynamically filled -->
+
+    <label>Enter Column Name:</label>
+    <input type="text" id="newColumnName" placeholder="Enter column name"/>
+
+    <label>Insert Column At Position:</label>
+    <input type="number" id="columnPosition" min="1" value="1"/>
+
+    <div style="margin-top: 10px;">
+        <label><input type="radio" name="operationType" value="sum" checked> Sum</label>
+        <label><input type="radio" name="operationType" value="average"> Average</label>
     </div>
+
+    <div style="margin-top: 15px;">
+        <button id="addColumn">➕ Add Column</button>
+        <button id="removeColumn">🗑️ Remove Column</button>
+    </div>
+</div>
+
     
 
     <table id="studentsInformationTable" border="1">
