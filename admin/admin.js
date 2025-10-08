@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
 const updateDbBtn = document.getElementById("updateDbBtn");
 if (updateDbBtn) {
     updateDbBtn.addEventListener("click", function () {
-        window.location.href = "UpdateDatabase/updateDatabase.html";
+        window.location.href = "/UpdateDatabase/updateDatabase.html";
     });
 }
 
