@@ -278,6 +278,7 @@ document.getElementById("printReport").addEventListener("click", function () {
         
 });
 // 🔽 EXPORT TABLE TO CSV FUNCTIONALITY
+// 🔽 EXPORT ONLY VISIBLE TABLE DATA TO CSV
 document.getElementById("exportCSV").addEventListener("click", function () {
     const table = document.getElementById("studentsInformationTable");
     if (!table) return alert("No table data found!");
@@ -286,11 +287,15 @@ document.getElementById("exportCSV").addEventListener("click", function () {
     const rows = table.querySelectorAll("tr");
 
     rows.forEach(row => {
+        // Skip hidden rows (e.g., filtered out)
+        if (row.style.display === "none") return;
+
         const cols = row.querySelectorAll("th, td");
         const rowData = Array.from(cols)
             .map(col => {
-                // Escape commas and quotes
-                let text = col.innerText.replace(/,/g, "");
+                let text = col.innerText.trim();
+                // Remove commas and escape quotes
+                text = text.replace(/,/g, "");
                 if (text.includes('"')) text = text.replace(/"/g, '""');
                 return `"${text}"`;
             })
@@ -298,12 +303,13 @@ document.getElementById("exportCSV").addEventListener("click", function () {
         csvContent += rowData + "\n";
     });
 
-    // Create and trigger download
+    // Trigger download
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Student_Marks_Report.csv";
+    link.download = "Filtered_Student_Marks.csv";
     link.click();
     URL.revokeObjectURL(url);
 });
+
