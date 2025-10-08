@@ -10,7 +10,7 @@ var baseDir = __dirname;
 app.use(express.static(path.join(baseDir,"Home")));
 app.use(express.static(path.join(baseDir,"loginpage")));
 app.use(express.static(path.join(baseDir,"NewAccountCreate")));
-app.use(express.static(path.join(baseDir,"UpdateDatabase")));
+
 //homepageForFaculty
 app.use(express.static(path.join(baseDir,"homepageForFaculty")));
 // Serve homepageForFaculty at /homepageForFaculty URL prefix
@@ -33,6 +33,7 @@ app.use('/studentsMarks', express.static(path.join(baseDir, 'studentsMarks')));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
+app.use(express.static(path.join(baseDir,"UpdateDatabase")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
 
