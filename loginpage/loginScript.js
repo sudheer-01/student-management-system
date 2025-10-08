@@ -92,7 +92,7 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("Network error, please try again.");
+        alert("Invalid HOD ID or Password.");
     }
 });
 

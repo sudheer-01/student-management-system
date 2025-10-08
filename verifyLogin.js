@@ -129,7 +129,7 @@ app.post("/TeacherLogin", (req, res) => {
                     redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
                 });
             } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password. Contact Admin to reset Password." });
+                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
             }
         }
     );
@@ -203,7 +203,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
             if (err) {
                 console.error(err);
                 return res.send(
-                    `<script>alert('Invalid HOD ID or Password. Contact Admin to reset password.'); window.location.href='/';</script>`
+                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
                 );
             }
             if (result.length > 0) {
@@ -229,7 +229,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
             } else {
                 return res.send(
-                    `<script>alert('Invalid HOD ID or Password. Contact Admin to reset password.'); window.location.href='/';</script>`
+                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
                 );
             }
         }
