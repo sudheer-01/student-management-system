@@ -21,30 +21,38 @@
     <button id="getStudentMarks">Click to Get Students' Overall Marks</button>
 
     <!-- Section for Adding New Column -->
-   <!-- Section for Adding / Removing Columns -->
+<!-- Section for Adding / Removing Columns -->
 <div id="addColumnSection" style="display: none;" class="exam-container">
     <h3>Column Operations</h3>
 
-    <label>Select Exams:</label>
-    <div id="examCheckboxes" class="exam-list"></div> <!-- dynamically filled -->
-
-    <label>Enter Column Name:</label>
-    <input type="text" id="newColumnName" placeholder="Enter column name"/>
-
-    <label>Insert Column At Position:</label>
-    <input type="number" id="columnPosition" min="1" value="1"/>
-
-    <div style="margin-top: 10px;">
-        <label><input type="radio" name="operationType" value="sum" checked> Sum</label>
-        <label><input type="radio" name="operationType" value="average"> Average</label>
+    <!-- Select Exams Row -->
+    <div class="exam-row">
+        <label><strong>Select Exams:</strong></label>
+        <div id="examCheckboxes" class="exam-list-inline"></div>
     </div>
 
-    <div style="margin-top: 15px;">
+    <!-- Input + Radio Row -->
+    <div class="exam-row">
+        <label><strong>Enter Column Name:</strong></label>
+        <input type="text" id="newColumnName" placeholder="Enter column name"/>
+
+        <label><strong>Insert Column At Position:</strong></label>
+        <input type="number" id="columnPosition" min="1" value="1"/>
+
+        <div class="exam-radio-group">
+            <label><input type="radio" name="operationType" value="sum" checked> Sum</label>
+            <label><input type="radio" name="operationType" value="average"> Average</label>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="exam-buttons">
         <button id="addColumn">➕ Add Column</button>
         <button id="removeColumn">🗑️ Remove Column</button>
         <button id="clearColumns">♻️ Clear All Added Columns</button>
     </div>
 </div>
+
 
     
 

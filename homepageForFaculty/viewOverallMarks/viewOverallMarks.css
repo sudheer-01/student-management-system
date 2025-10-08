@@ -100,3 +100,87 @@ th {
     gap: 5px;
     cursor: pointer;
 }
+.exam-container {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 15px 25px;
+    width: 85%;
+    margin: 20px auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.exam-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.exam-list-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.exam-radio-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.exam-row input[type="text"],
+.exam-row input[type="number"] {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 160px;
+}
+
+.exam-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.exam-buttons button {
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.exam-buttons button:hover {
+    background-color: #0056b3;
+}
+
+/* Inline checkbox alignment */
+.exam-list-inline label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Responsive handling for smaller screens */
+@media (max-width: 768px) {
+    .exam-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .exam-row input {
+        width: 100%;
+    }
+
+    .exam-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
