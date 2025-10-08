@@ -445,25 +445,71 @@ app.get("/getStudentMarks", (req, res) => {
 });
 //homepageForFaculty:::viewOverallMarks
 // API to fetch all students with dynamic exam columns
-app.get("/getOverallMarks", (req, res) => {
-    const branch = req.query.branch;  // Get branch from frontend
-    const year = req.query.year;        // Get year from frontend
-    const subject = req.query.subject;  // Get subject from frontend
+// app.get("/getOverallMarks", (req, res) => {
+//     const branch = req.query.branch;  // Get branch from frontend
+//     const year = req.query.year;        // Get year from frontend
+//     const subject = req.query.subject;  // Get subject from frontend
 
-    // Query to get exam columns dynamically
-    con.query("SHOW COLUMNS FROM studentmarks", (err, columns) => {
+//     // Query to get exam columns dynamically
+//     con.query("SHOW COLUMNS FROM studentmarks", (err, columns) => {
+//         if (err) {
+//             console.error("Error fetching column names:", err);
+//             return res.status(500).json({ success: false, message: "Database error" });
+//         }
+
+//         // Extract column names excluding non-exam fields
+//         let examColumns = columns
+//             .map(col => col.Field)
+//             .filter(col => !["year", "branch", "htno", "name", "subject"].includes(col));
+
+//         // Construct SQL Query to fetch data dynamically
+//         let sqlQuery = `SELECT htno, name, ${examColumns.join(", ")} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
+
+//         con.query(sqlQuery, [branch, year, subject], (err, results) => {
+//             if (err) {
+//                 console.error("Error fetching student marks:", err);
+//                 return res.status(500).json({ success: false, message: "Database error" });
+//             }
+
+//             res.json(results);
+//         });
+//     });
+// });
+app.get("/getOverallMarks", (req, res) => {
+    const { branch, year, subject } = req.query;
+
+    // Step 1: Fetch the exams for the specific year and branch
+    const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(examQuery, [year, branch], (err, examResult) => {
         if (err) {
-            console.error("Error fetching column names:", err);
+            console.error("Error fetching exams:", err);
             return res.status(500).json({ success: false, message: "Database error" });
         }
 
-        // Extract column names excluding non-exam fields
-        let examColumns = columns
-            .map(col => col.Field)
-            .filter(col => !["year", "branch", "htno", "name", "subject"].includes(col));
+        if (examResult.length === 0) {
+            return res.status(404).json({ success: false, message: "No exams found for this year and branch" });
+        }
 
-        // Construct SQL Query to fetch data dynamically
-        let sqlQuery = `SELECT htno, name, ${examColumns.join(", ")} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
+        // Step 2: Parse exams JSON to extract exam names dynamically
+        let examsObj;
+        try {
+            examsObj = JSON.parse(examResult[0].exams);
+        } catch (parseError) {
+            console.error("Error parsing exams JSON:", parseError);
+            return res.status(500).json({ success: false, message: "Invalid exam data format" });
+        }
+
+        // Extract exam names (e.g., ["Unit_test_1", "Mid_1", "Unit_test_2"])
+        const examColumns = Object.values(examsObj);
+
+        if (examColumns.length === 0) {
+            return res.status(404).json({ success: false, message: "No exam columns found" });
+        }
+
+        // Step 3: Dynamically build the SQL query using these exam columns
+        const selectedColumns = ["htno", "name", ...examColumns].join(", ");
+        const sqlQuery = `SELECT ${selectedColumns} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
 
         con.query(sqlQuery, [branch, year, subject], (err, results) => {
             if (err) {
@@ -471,6 +517,7 @@ app.get("/getOverallMarks", (req, res) => {
                 return res.status(500).json({ success: false, message: "Database error" });
             }
 
+            // Step 4: Return the filtered data
             res.json(results);
         });
     });

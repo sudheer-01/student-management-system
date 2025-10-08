@@ -16,7 +16,6 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
                 tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
                 return;
             }
-
             // Extract dynamic column names from first row (excluding htno, name)
             let examColumns = Object.keys(data[0]).filter(col => col !== "htno" && col !== "name");
 

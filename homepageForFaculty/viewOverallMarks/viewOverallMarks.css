@@ -13,7 +13,6 @@ body {
     justify-content: center; /* Center elements vertically */
     margin: 20px 0;
 }
-
 /* Increase size of dropdown and buttons */
 select, button {
     padding: 10px 15px; /* Increased padding */
