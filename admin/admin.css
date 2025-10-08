@@ -49,3 +49,28 @@ tbody tr:hover { background: #f8fafc; }
 .btn.ghost:hover {
     background: #f1f5f9;
 }
+a.btn {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    padding: 8px 14px;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+}
+
+a.btn:hover {
+    background-color: #0056b3;
+}
+
+a.btn.ghost {
+    background-color: transparent;
+    border: 2px solid #007bff;
+    color: #007bff;
+}
+
+a.btn.ghost:hover {
+    background-color: #007bff;
+    color: white;
+}
