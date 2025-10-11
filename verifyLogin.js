@@ -1926,129 +1926,49 @@ app.post("/api/update-row", (req, res) => {
 });
 
 
+// ✅ Fetch all faculty or hod data (no year/branch filter)
+app.get("/api/get-table-data-simple", (req, res) => {
+  const { table } = req.query;
+  if (!["faculty", "hod_details"].includes(table))
+    return res.status(400).json({ error: "Invalid table" });
+
+  con.query(`SELECT * FROM ${table}`, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// ✅ Update specific record (faculty or HOD)
+app.post("/api/update/:table", (req, res) => {
+  const { table } = req.params;
+  const { row } = req.body;
+
+  const idField = table === "faculty" ? "facultyId" : "hod_id";
+  const id = row[idField];
+  delete row[idField];
+
+  const setClause = Object.keys(row).map(k => `${k}=?`).join(", ");
+  const values = Object.values(row);
+
+  con.query(`UPDATE ${table} SET ${setClause} WHERE ${idField}=?`, [...values, id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, message: "Row updated successfully." });
+  });
+});
+
+// ✅ Delete specific record (faculty or HOD)
+app.delete("/api/delete-row/:table/:id", (req, res) => {
+  const { table, id } = req.params;
+  const idField = table === "faculty" ? "facultyId" : "hod_id";
+
+  con.query(`DELETE FROM ${table} WHERE ${idField}=?`, [id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, message: "Row deleted successfully." });
+  });
+});
+
+
 //------------------
-// Common helper
-function buildUpdateQuery(table, row, keyFields) {
-    const keys = Object.keys(row).filter(k => !keyFields.includes(k));
-    const setClause = keys.map(k => `${k} = ?`).join(", ");
-    const whereClause = keyFields.map(k => `${k} = ?`).join(" AND ");
-    const values = [...keys.map(k => row[k]), ...keyFields.map(k => row[k])];
-    const sql = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
-    return { sql, values };
-}
-
-// 1. Branches
-app.post("/api/update/branches", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("branches", row, ["id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 2. Examsofspecificyearandbranch
-app.post("/api/update/examsofspecificyearandbranch", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("examsofspecificyearandbranch", row, ["id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 3. Faculty
-app.post("/api/update/faculty", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("faculty", row, ["facultyId"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 4. Faculty Requests
-app.post("/api/update/faculty_requests", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("faculty_requests", row, ["id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 5. HOD Details
-app.post("/api/update/hod_details", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("hod_details", row, ["hod_id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 6. Pending Marks Updates
-app.post("/api/update/pending_marks_updates", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("pending_marks_updates", row, ["id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 7. Studentmarks (dynamic columns)
-app.post("/api/update/studentmarks", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const keyFields = ["year", "branch", "htno", "subject"];
-            const { sql, values } = buildUpdateQuery("studentmarks", row, keyFields);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// 8. Subjects
-app.post("/api/update/subjects", (req, res) => {
-    const { rows } = req.body;
-    try {
-        rows.forEach(row => {
-            const { sql, values } = buildUpdateQuery("subjects", row, ["id"]);
-            con.query(sql, values);
-        });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 
 
 
