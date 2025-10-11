@@ -11,53 +11,61 @@
         <div class="container">
             <header class="page-header">
                 <h1>Update Database</h1>
-                <p class="subtitle">Perform delete operations on semester data</p>
+                <p class="subtitle">Manage semester data efficiently</p>
             </header>
 
             <a href="admin.html">← Back to Admin Panel</a>
 
             <div class="content">
-    <div class="form-group">
-        <label for="year">Select Year:</label>
-        <select id="year">
-            <option value="">--Select Year--</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-    </div>
 
-    <div class="form-group">
-        <label for="branch">Select Branch:</label>
-        <select id="branch">
-            <option value="">--Select Branch--</option>
-        </select>
-    </div>
+                <!-- Form Row: Year, Branch, Action -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="year">Select Year:</label>
+                        <select id="year">
+                            <option value="">--Select Year--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
 
-    <div class="form-group">
-        <label for="action">Select Action:</label>
-        <select id="action">
-            <option value="">--Select Action--</option>
-            <option value="delete">Delete All Data</option>
-            <option value="update">Update Table</option>
-            <option value="export">Export CSV</option>
-        </select>
-    </div>
+                    <div class="form-group">
+                        <label for="branch">Select Branch:</label>
+                        <select id="branch">
+                            <option value="">--Select Branch--</option>
+                        </select>
+                    </div>
 
-    <div class="form-group" id="tableSelectGroup" style="display:none;">
-        <label for="tableSelect">Select Table:</label>
-        <select id="tableSelect">
-            <option value="">--Select Table--</option>
-        </select>
-    </div>
+                    <div class="form-group">
+                        <label for="action">Select Action:</label>
+                        <select id="action">
+                            <option value="">--Select Action--</option>
+                            <option value="delete">Delete All Data</option>
+                            <option value="update">Update Table</option>
+                            <option value="export">Export CSV</option>
+                        </select>
+                    </div>
+                </div>
 
-    <button id="actionBtn">Proceed</button>
-    <p id="message"></p>
+                <!-- Table selection (hidden until update/export) -->
+                <div class="form-group" id="tableSelectGroup" style="display:none; margin-top: 15px;">
+                    <label for="tableSelect">Select Table:</label>
+                    <select id="tableSelect">
+                        <option value="">--Select Table--</option>
+                    </select>
+                </div>
 
-    <div id="tableDataContainer"></div>
-</div>
+                <!-- Action button -->
+                <button id="actionBtn">Proceed</button>
 
+                <!-- Message area -->
+                <p id="message"></p>
+
+                <!-- Table data container for update/delete -->
+                <div id="tableDataContainer"></div>
+            </div>
         </div>
     </div>
     <script src="updateDatabase.js"></script>

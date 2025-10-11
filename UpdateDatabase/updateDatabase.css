@@ -85,3 +85,160 @@ button:hover {
 .error {
     color: red;
 }
+/* General body and page styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.page {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 850px;
+    max-width: 95%;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #333;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}
+
+a {
+    display: inline-block;
+    margin: 15px 0;
+    text-decoration: none;
+    color: #007BFF;
+    font-weight: 500;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Form row styles: Year, Branch, Action side by side */
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 200px;
+}
+
+label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+}
+
+select, button {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Message styles */
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+/* Table container and styling */
+#tableDataContainer {
+    margin-top: 25px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f7f7f7;
+    font-weight: 600;
+}
+
+td button {
+    margin-right: 5px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+td button:hover {
+    opacity: 0.85;
+}
+
+button.update-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+button.delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+    .form-row {
+        flex-direction: column;
+    }
+}
