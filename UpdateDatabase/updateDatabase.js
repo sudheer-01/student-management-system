@@ -139,17 +139,51 @@ function deleteRow(table, row) {
 }
 
 // EXPORT CSV
+// EXPORT CSV
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const tables = ["branches","examsofspecificyearandbranch","faculty","faculty_requests","hod_details","pending_marks_updates","studentmarks","subjects"];
+  const tables = [
+    "branches",
+    "examsofspecificyearandbranch",
+    "faculty",
+    "faculty_requests",
+    "hod_details",
+    "pending_marks_updates",
+    "studentmarks",
+    "subjects"
+  ];
+
   dynamicContent.innerHTML = `
     <h3>Select Tables to Export:</h3>
     <div id="exportList" style="margin:10px 0;">
       ${tables.map(t => `<label><input type="checkbox" value="${t}"> ${t}</label><br>`).join("")}
     </div>
-    <button id="downloadBtn" class="export-btn">Download Selected CSVs</button>
+    <button id="downloadBtn" class="export-btn">⬇️ Download Selected CSVs</button>
   `;
-  document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
+
+  const downloadBtn = document.getElementById("downloadBtn");
+  downloadBtn.addEventListener("click", () => {
+    const selected = Array.from(document.querySelectorAll("#exportList input:checked")).map(i => i.value);
+    if (!selected.length) {
+      alert("Select at least one table!");
+      return;
+    }
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+
+    if (!year || !branch) {
+      alert("Please select year and branch before exporting.");
+      return;
+    }
+
+    // Open each CSV one by one (ensures browser allows it)
+    for (const t of selected) {
+      const url = `/api/export-csv?table=${t}&year=${year}&branch=${branch}`;
+      window.open(url, "_blank");
+    }
+  });
 });
+
 
 function downloadSelectedCSVs() {
   const selected = Array.from(document.querySelectorAll("#exportList input:checked")).map(i => i.value);
