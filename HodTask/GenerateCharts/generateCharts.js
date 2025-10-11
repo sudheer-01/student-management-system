@@ -176,7 +176,6 @@ async function loadStudentPerformanceChart() {
     const branch = document.getElementById("branch").value;
 
     if (!selectedHtno || !year || !branch) return;
-
     try {
         // ✅ Retrieve data from the API
         const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);

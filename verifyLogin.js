@@ -1536,17 +1536,78 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
     });
 });
 
+// app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
+//     const { htno, year, branch } = req.params;
+//     const query = `SELECT * 
+//                     FROM studentmarks 
+//                     WHERE year = ? AND branch = ? AND htno = ?;
+//                     `;
+//     con.query(query, [year, branch, htno], (err, result) => {
+//         if (err) return res.status(500).send(err);
+//         res.json(result);
+//     });
+// });
+
 app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
-    const { htno, year, branch } = req.params;
-    const query = `SELECT * 
-                    FROM studentmarks 
-                    WHERE year = ? AND branch = ? AND htno = ?;
-                    `;
-    con.query(query, [year, branch, htno], (err, result) => {
-        if (err) return res.status(500).send(err);
-        res.json(result);
+  const { htno, year, branch } = req.params;
+
+  // Step 1: Get exam list dynamically
+  const examQuery = `
+    SELECT exams 
+    FROM examsofspecificyearandbranch 
+    WHERE year = ? AND branch = ?;
+  `;
+
+  con.query(examQuery, [year, branch], (err, examResult) => {
+    if (err) return res.status(500).json({ error: "Error fetching exams", details: err });
+
+    if (!examResult.length || !examResult[0].exams)
+      return res.json({ message: "No exams configured for this year and branch" });
+
+    // Parse exam list safely
+    let examsData = examResult[0].exams;
+    if (typeof examsData === "object") examsData = JSON.stringify(examsData);
+
+    let exams = [];
+    try {
+      const parsed = JSON.parse(examsData);
+      exams = Array.isArray(parsed) ? parsed : Object.values(parsed);
+    } catch (parseError) {
+      console.error("Error parsing exams JSON:", parseError);
+      return res.status(500).json({ error: "Invalid exams format in DB" });
+    }
+
+    if (exams.length === 0)
+      return res.json({ message: "No exams found" });
+
+    // Step 2: Dynamically build SQL columns for pivoting
+    const dynamicColumns = exams
+      .map(
+        exam =>
+          `MAX(CASE WHEN examname = '${exam}' THEN marks END) AS \`${exam}\``
+      )
+      .join(", ");
+
+    // Step 3: Final query
+    const marksQuery = `
+      SELECT 
+        subject,
+        ${dynamicColumns},
+        MAX(name) AS name,
+        MAX(htno) AS htno
+      FROM studentmarks
+      WHERE year = ? AND branch = ? AND htno = ?
+      GROUP BY subject;
+    `;
+
+    // Step 4: Execute final query
+    con.query(marksQuery, [year, branch, htno], (err, result) => {
+      if (err) return res.status(500).json({ error: "Error fetching marks", details: err });
+      res.json(result);
     });
+  });
 });
+
 
 //------------------------------------------------------
 //forgot password
