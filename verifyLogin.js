@@ -1848,6 +1848,64 @@ app.get("/api/branches/:year", (req, res) => {
 });
 
 
+// Fetch table data for year/branch
+app.get("/api/get-table-data", (req, res) => {
+    const { table, year, branch } = req.query;
+    if (!table || !year || !branch) return res.status(400).json({ error: "Missing params" });
+
+    let sql = "";
+    const params = [year, branch];
+
+    if (table === "branches") sql = "SELECT * FROM branches WHERE year=? AND branch_name=?";
+    else if (table === "examsofspecificyearandbranch") sql = "SELECT * FROM examsofspecificyearandbranch WHERE year=? AND branch=?";
+    else if (table === "faculty_requests") sql = "SELECT * FROM faculty_requests WHERE year=? AND branch=?";
+    else if (table === "pending_marks_updates") sql = "SELECT * FROM pending_marks_updates WHERE year=? AND branch=?";
+    else if (table === "studentmarks") sql = "SELECT * FROM studentmarks WHERE year=? AND branch=?";
+    else if (table === "subjects") sql = "SELECT * FROM subjects WHERE year=? AND branch_name=?";
+    else return res.status(400).json({ error: "Invalid table" });
+
+    con.query(sql, params, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Delete single row
+app.delete("/api/delete-row", (req, res) => {
+    const { table, id } = req.query;
+    if (!table || !id) return res.status(400).json({ error: "Missing params" });
+
+    const sql = `DELETE FROM ${table} WHERE id=?`;
+    con.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: `Row deleted successfully from ${table}` });
+    });
+});
+
+// Export CSV
+app.get("/api/export-csv", async (req, res) => {
+    const { table, year, branch } = req.query;
+    if (!table || !year || !branch) return res.status(400).send("Missing params");
+
+    const sql = table === "subjects" || table === "branches"
+        ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
+        : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
+
+    con.query(sql, [year, branch], (err, results) => {
+        if (err) return res.status(500).send(err.message);
+
+        const header = Object.keys(results[0] || {}).join(",");
+        const rows = results.map(r => Object.values(r).join(",")).join("\n");
+        const csv = header + "\n" + rows;
+
+        res.setHeader("Content-disposition", `attachment; filename=${table}-${year}-${branch}.csv`);
+        res.set("Content-Type", "text/csv");
+        res.send(csv);
+    });
+});
+
+
+
 
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
