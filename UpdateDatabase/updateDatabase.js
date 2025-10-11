@@ -7,7 +7,6 @@ const actionBtn = document.getElementById("actionBtn");
 const message = document.getElementById("message");
 const tableDataContainer = document.getElementById("tableDataContainer");
 
-// Populate branches dynamically
 yearSelect.addEventListener("change", () => {
     const year = yearSelect.value;
     branchSelect.innerHTML = '<option value="">--Select Branch--</option>';
@@ -26,7 +25,6 @@ yearSelect.addEventListener("change", () => {
         .catch(err => console.error(err));
 });
 
-// Show table dropdown if action requires it
 actionSelect.addEventListener("change", () => {
     const action = actionSelect.value;
     tableDataContainer.innerHTML = "";
@@ -39,7 +37,7 @@ actionSelect.addEventListener("change", () => {
 });
 
 function fetchTablesForAction() {
-    const tables = ["branches", "examsofspecificyearandbranch", "faculty_requests", "pending_marks_updates", "studentmarks", "subjects", "hod_details"];
+    const tables = ["branches", "examsofspecificyearandbranch", "faculty", "faculty_requests", "hod_details", "pending_marks_updates", "studentmarks", "subjects"];
     tableSelect.innerHTML = '<option value="">--Select Table--</option>';
     tables.forEach(table => {
         const option = document.createElement("option");
@@ -49,7 +47,7 @@ function fetchTablesForAction() {
     });
 }
 
-// Main action button
+// main action button
 actionBtn.addEventListener("click", async () => {
     const year = yearSelect.value;
     const branch = branchSelect.value;
@@ -64,30 +62,34 @@ actionBtn.addEventListener("click", async () => {
 
     if (action === "delete") {
         if (!confirm(`Are you sure to delete all data for year ${year}, branch ${branch}?`)) return;
-
         fetch("/api/delete-semester-data", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ year, branch })
         })
-        .then(res => res.json())
-        .then(data => {
-            message.textContent = data.message || data.error;
-            message.className = data.error ? "error" : "success";
-        })
-        .catch(err => {
-            message.textContent = err.message;
-            message.className = "error";
-        });
-    } 
+            .then(res => res.json())
+            .then(data => {
+                message.textContent = data.message || data.error;
+                message.className = data.error ? "error" : "success";
+            })
+            .catch(err => {
+                message.textContent = err.message;
+                message.className = "error";
+            });
+    }
+
     else if (action === "update") {
         if (!table) {
             message.textContent = "Please select a table to update.";
             message.className = "error";
             return;
         }
-        loadTableData(table, year, branch);
-    } 
+
+        const res = await fetch(`/api/get-table-data?year=${year}&branch=${branch}&table=${table}`);
+        const data = await res.json();
+        renderEditableTable(table, data);
+    }
+
     else if (action === "export") {
         if (!table) {
             message.textContent = "Please select a table to export.";
@@ -98,15 +100,7 @@ actionBtn.addEventListener("click", async () => {
     }
 });
 
-// Load and render table data
-function loadTableData(table, year, branch) {
-    fetch(`/api/get-table-data?year=${year}&branch=${branch}&table=${table}`)
-        .then(res => res.json())
-        .then(data => renderTableData(table, data))
-        .catch(err => console.error(err));
-}
-
-function renderTableData(table, data) {
+function renderEditableTable(table, data) {
     tableDataContainer.innerHTML = "";
     if (!data.length) {
         tableDataContainer.textContent = "No data found.";
@@ -115,103 +109,71 @@ function renderTableData(table, data) {
 
     const tableEl = document.createElement("table");
     tableEl.border = "1";
+
+    // headers
     const header = document.createElement("tr");
     Object.keys(data[0]).forEach(key => {
         const th = document.createElement("th");
         th.textContent = key;
         header.appendChild(th);
     });
-    header.appendChild(document.createElement("th")); // Actions
     tableEl.appendChild(header);
 
-    data.forEach(row => {
+    // rows
+    data.forEach((row, rIdx) => {
         const tr = document.createElement("tr");
-        Object.keys(row).forEach(key => {
+        tr.dataset.index = rIdx;
+        Object.entries(row).forEach(([key, val]) => {
             const td = document.createElement("td");
-            td.textContent = row[key];
+            td.contentEditable = key !== "id" && key !== "facultyId" && key !== "hod_id" && key !== "year" && key !== "branch";
+            td.textContent = val;
+            td.dataset.key = key;
+            td.addEventListener("input", () => tr.classList.add("edited"));
             tr.appendChild(td);
         });
-
-        const actionTd = document.createElement("td");
-        const updateBtn = document.createElement("button");
-        updateBtn.textContent = "Update";
-        updateBtn.onclick = () => updateRow(table, row);
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.onclick = () => deleteRow(table, row);
-        actionTd.appendChild(updateBtn);
-        actionTd.appendChild(deleteBtn);
-        tr.appendChild(actionTd);
-
         tableEl.appendChild(tr);
     });
 
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Update Table";
+    saveBtn.className = "update-btn";
+    saveBtn.style.marginTop = "10px";
+    saveBtn.onclick = () => saveTableChanges(table, tableEl, data);
+
     tableDataContainer.appendChild(tableEl);
+    tableDataContainer.appendChild(saveBtn);
 }
 
-function updateRow(table, row) {
-    const tr = document.querySelector(`tr[data-id='${row.id}']`);
-    if (!tr) return;
-
-    // Replace each cell with an input, except actions
-    const tds = tr.querySelectorAll("td");
-    Object.keys(row).forEach((key, index) => {
-        if (key === "id") return; // skip ID
-        const input = document.createElement("input");
-        input.value = row[key];
-        input.style.width = "90%";
-        tds[index].innerHTML = "";
-        tds[index].appendChild(input);
+function saveTableChanges(table, tableEl, originalData) {
+    const editedRows = [];
+    tableEl.querySelectorAll("tr.edited").forEach(tr => {
+        const idx = tr.dataset.index;
+        const updatedRow = { ...originalData[idx] };
+        tr.querySelectorAll("td").forEach(td => {
+            const key = td.dataset.key;
+            if (key) updatedRow[key] = td.textContent.trim();
+        });
+        editedRows.push(updatedRow);
     });
 
-    // Replace buttons with Save/Cancel
-    const actionTd = tds[tds.length - 1];
-    actionTd.innerHTML = "";
+    if (!editedRows.length) {
+        alert("No changes detected!");
+        return;
+    }
 
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Save";
-    saveBtn.className = "update-btn";
-    saveBtn.onclick = () => {
-        const updatedData = {};
-        Object.keys(row).forEach((key, idx) => {
-            if (key === "id") updatedData[key] = row[key];
-            else updatedData[key] = tds[idx].querySelector("input").value;
-        });
-
-        fetch(`/api/update-row`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table, data: updatedData })
-        })
+    fetch(`/api/update/${table}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: editedRows })
+    })
         .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("Row updated successfully");
-                actionBtn.click(); // reload table
+        .then(resp => {
+            if (resp.success) {
+                alert("Table updated successfully!");
+                actionBtn.click();
             } else {
-                alert("Error updating row: " + data.error);
+                alert("Error updating table: " + resp.error);
             }
-        });
-    };
-
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "Cancel";
-    cancelBtn.className = "delete-btn";
-    cancelBtn.onclick = () => actionBtn.click(); // reload table
-
-    actionTd.appendChild(saveBtn);
-    actionTd.appendChild(cancelBtn);
-}
-
-
-function deleteRow(table, row) {
-    if (!confirm("Are you sure to delete this row?")) return;
-    fetch(`/api/delete-row?table=${table}&id=${row.id}`, { method: "DELETE" })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-            const year = yearSelect.value;
-            const branch = branchSelect.value;
-            loadTableData(table, year, branch); // Reload table
-        });
+        })
+        .catch(err => alert("Error: " + err.message));
 }
