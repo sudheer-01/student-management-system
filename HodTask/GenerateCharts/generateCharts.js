@@ -170,77 +170,135 @@ function showStudentPerformanceControls() {
         .catch(error => console.error("Error fetching student data:", error));
 }
 
-async function loadStudentPerformanceChart() {
-    const selectedHtno = document.getElementById("studentHtno").value;
-    const year = document.getElementById("year").value;
-    const branch = document.getElementById("branch").value;
+// async function loadStudentPerformanceChart() {
+//     const selectedHtno = document.getElementById("studentHtno").value;
+//     const year = document.getElementById("year").value;
+//     const branch = document.getElementById("branch").value;
 
-    if (!selectedHtno || !year || !branch) return;
-    try {
-        // ✅ Retrieve data from the API
-        const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);
-        const studentData = await response.json();
+//     if (!selectedHtno || !year || !branch) return;
+//     try {
+//         // ✅ Retrieve data from the API
+//         const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);
+//         const studentData = await response.json();
 
-        if (!studentData || studentData.length === 0) return;
+//         if (!studentData || studentData.length === 0) return;
 
-        clearCharts();
-        const chartsContainer = document.getElementById("chartsContainer");
+//         clearCharts();
+//         const chartsContainer = document.getElementById("chartsContainer");
 
-        // Subjects = labels
-        const subjects = studentData.map(s => s.subject);
+//         // Subjects = labels
+//         const subjects = studentData.map(s => s.subject);
 
-        // Exams = Unit_test_1, Mid_1, Unit_test_2
-        async function loadExams(year, branch) {
-            const response = await fetch(`/getExams?year=${year}&branch=${branch}`);
-            const data = await response.json();
-            return data; // already ["Unit_test_1", "Mid_1", "Unit_test_2"]
-        }
+//         // Exams = Unit_test_1, Mid_1, Unit_test_2
+//         async function loadExams(year, branch) {
+//             const response = await fetch(`/getExams?year=${year}&branch=${branch}`);
+//             const data = await response.json();
+//             return data; // already ["Unit_test_1", "Mid_1", "Unit_test_2"]
+//         }
 
-        const examKeys = await loadExams(year, branch);
+//         const examKeys = await loadExams(year, branch);
 
-        // Build datasets (one per exam)
-        const datasets = examKeys.map((exam, idx) => ({
-            label: exam.replace(/_/g, " "),
-            data: studentData.map(s => s[exam]),
-            backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
-        }));
+//         // Build datasets (one per exam)
+//         const datasets = examKeys.map((exam, idx) => ({
+//             label: exam.replace(/_/g, " "),
+//             data: studentData.map(s => s[exam]),
+//             backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
+//         }));
 
-        const chartContainer = document.createElement("div");
-        chartContainer.className = "chart-container";
-        const canvas = document.createElement("canvas");
-        chartContainer.appendChild(canvas);
-        chartsContainer.appendChild(chartContainer);
+//         const chartContainer = document.createElement("div");
+//         chartContainer.className = "chart-container";
+//         const canvas = document.createElement("canvas");
+//         chartContainer.appendChild(canvas);
+//         chartsContainer.appendChild(chartContainer);
 
-        const ctx = canvas.getContext("2d");
-        const chartInstance = new Chart(ctx, {
-            type: "bar",
-            data: { labels: subjects, datasets: datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: "Marks" } },
-                    x: { title: { display: true, text: "Subjects" } }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
-                        font: { size: 18 }
-                    },
-                    legend: { display: true }
-                }
-            }
-        });
+//         const ctx = canvas.getContext("2d");
+//         const chartInstance = new Chart(ctx, {
+//             type: "bar",
+//             data: { labels: subjects, datasets: datasets },
+//             options: {
+//                 responsive: true,
+//                 maintainAspectRatio: false,
+//                 scales: {
+//                     y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+//                     x: { title: { display: true, text: "Subjects" } }
+//                 },
+//                 plugins: {
+//                     title: {
+//                         display: true,
+//                         text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
+//                         font: { size: 18 }
+//                     },
+//                     legend: { display: true }
+//                 }
+//             }
+//         });
 
-        window.marksChartInstances.push(chartInstance);
+//         window.marksChartInstances.push(chartInstance);
 
-    } catch (error) {
-        console.error("Error fetching student data:", error);
-    }
-}
+//     } catch (error) {
+//         console.error("Error fetching student data:", error);
+//     }
+// }
 
 // COMPARATIVE SUBJECT INSIGHT
+
+async function loadStudentPerformanceChart(htno, year, branch) {
+  const chartsContainer = document.getElementById("chartsContainer");
+  chartsContainer.innerHTML = "<p>Loading student data...</p>";
+
+  try {
+    const res = await fetch(`/getIndividualStudentData/${htno}/${year}/${branch}`);
+    const result = await res.json();
+
+    if (!result || !result.data || result.data.length === 0) {
+      chartsContainer.innerHTML = "<p>No data found for this student.</p>";
+      return;
+    }
+
+    const exams = result.exams; // dynamic exam list
+    const studentData = result.data;
+
+    // Step 1: Prepare labels (subjects)
+    const subjects = studentData.map(s => s.subject);
+
+    // Step 2: Prepare datasets (one per exam)
+    const datasets = exams.map((exam, i) => ({
+      label: exam.replace(/_/g, " ").toUpperCase(),
+      data: studentData.map(s => s[exam] ?? 0),
+      backgroundColor: `hsl(${i * 60}, 70%, 60%)`,
+    }));
+
+    // Step 3: Clear old chart and draw new
+    chartsContainer.innerHTML = `<canvas id="studentChart"></canvas>`;
+    const ctx = document.getElementById("studentChart").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: subjects,
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+          x: { title: { display: true, text: "Subjects" } }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: `Performance Chart for ${studentData[0].name} (${htno})`
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    chartsContainer.innerHTML = "<p>Error loading chart.</p>";
+  }
+}
+
+
 async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;

@@ -1551,33 +1551,51 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
 app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
   const { htno, year, branch } = req.params;
 
-  // Step 1: Get dynamic exam columns from INFORMATION_SCHEMA
-  const columnQuery = `
-    SELECT COLUMN_NAME 
-    FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = 'studentmarks' 
-    AND COLUMN_NAME NOT IN ('year','branch','htno','name','subject');
+  // Step 1: Get exam list dynamically
+  const examQuery = `
+    SELECT exams 
+    FROM examsofspecificyearandbranch 
+    WHERE year = ? AND branch = ?;
   `;
 
-  con.query(columnQuery, (err, columnsResult) => {
-    if (err) return res.status(500).json({ error: "Error fetching columns", details: err });
+  con.query(examQuery, [year, branch], (err, examResult) => {
+    if (err)
+      return res.status(500).json({ error: "Error fetching exams", details: err });
 
-    const exams = columnsResult.map(row => row.COLUMN_NAME);
+    if (!examResult.length || !examResult[0].exams)
+      return res.json({ message: "No exams configured for this year and branch" });
+
+    // Parse exams JSON safely
+    let examsData = examResult[0].exams;
+    if (typeof examsData === "object") examsData = JSON.stringify(examsData);
+
+    let exams = [];
+    try {
+      const parsed = JSON.parse(examsData);
+      exams = Array.isArray(parsed) ? parsed : Object.values(parsed);
+    } catch (parseError) {
+      console.error("Error parsing exams JSON:", parseError);
+      return res.status(500).json({ error: "Invalid exams format in DB" });
+    }
+
     if (exams.length === 0)
-      return res.json({ message: "No exam columns found in table" });
+      return res.json({ message: "No exams found" });
 
-    // Step 2: Build final query dynamically
-    const selectedColumns = exams.map(exam => `\`${exam}\``).join(", ");
-
+    // Step 2: Build dynamic SQL to select only required exam columns
+    const columnsToSelect = exams.map(e => `\`${e}\``).join(", ");
     const marksQuery = `
-      SELECT subject, ${selectedColumns}, name, htno
+      SELECT subject, ${columnsToSelect}, name, htno
       FROM studentmarks
       WHERE year = ? AND branch = ? AND htno = ?;
     `;
 
+    // Step 3: Execute query
     con.query(marksQuery, [year, branch, htno], (err, result) => {
-      if (err) return res.status(500).json({ error: "Error fetching marks", details: err });
-      res.json(result);
+      if (err) {
+        console.error("Error fetching marks:", err);
+        return res.status(500).json({ error: "Error fetching marks", details: err });
+      }
+      res.json({ exams, data: result });
     });
   });
 });
