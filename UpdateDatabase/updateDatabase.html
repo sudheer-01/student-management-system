@@ -17,37 +17,54 @@
       <a href="admin.html">← Back to Admin Dashboard</a>
 
       <div class="content">
-        <!-- Step 1: Year and Branch Selection -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="year">Select Year:</label>
-            <select id="year">
+  <!-- 🔹 Action selection first -->
+  <div class="form-group">
+      <label for="action">Select Action:</label>
+      <select id="action">
+          <option value="">--Select Action--</option>
+          <option value="faculty">Update/Delete Faculty</option>
+          <option value="hod">Update/Delete HOD</option>
+          <option value="delete">Delete All Year/Branch Data</option>
+          <option value="update">Update Table (Year/Branch)</option>
+          <option value="export">Export CSV</option>
+      </select>
+  </div>
+
+  <!-- 🔹 Year & Branch (hidden initially for faculty/hod) -->
+  <div class="year-branch-row">
+      <div class="form-group">
+          <label for="year">Select Year:</label>
+          <select id="year">
               <option value="">--Select Year--</option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="branch">Select Branch:</label>
-            <select id="branch">
-              <option value="">--Select Branch--</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Step 2: Action Buttons -->
-        <div id="actionButtons" style="display:none; margin-top:25px;">
-          <button id="deleteBtn" class="delete-btn">🗑️ Delete Semester Data</button>
-          <button id="updateBtn" class="update-btn">✏️ Update Faculty / HOD</button>
-          <button id="exportBtn" class="export-btn">⬇️ Export CSV</button>
-        </div>
-
-        <p id="message"></p>
-        <div id="dynamicContent"></div>
+          </select>
       </div>
+
+      <div class="form-group">
+          <label for="branch">Select Branch:</label>
+          <select id="branch">
+              <option value="">--Select Branch--</option>
+          </select>
+      </div>
+  </div>
+
+  <!-- 🔹 Table selection (for update/export only) -->
+  <div class="form-group" id="tableSelectGroup" style="display:none;">
+      <label for="tableSelect">Select Table:</label>
+      <select id="tableSelect">
+          <option value="">--Select Table--</option>
+      </select>
+  </div>
+
+  <button id="actionBtn">Proceed</button>
+  <p id="message"></p>
+
+  <div id="tableDataContainer"></div>
+</div>
+
     </div>
   </div>
   <script src="updateDatabase.js"></script>

@@ -123,3 +123,22 @@ td[contenteditable="true"] {
 
 .action-pill.update { background-color: #28a745; color: white; }
 .action-pill.delete { background-color: #dc3545; color: white; }
+.year-branch-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#action {
+  width: 50%;
+}
+
+button#actionBtn {
+  margin-top: 1.5rem;
+}
