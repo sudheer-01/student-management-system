@@ -302,94 +302,196 @@ async function loadStudentPerformanceChart() {
 }
 
 
+// async function loadComparativeInsightChart() {
+//     const year = document.getElementById("year").value;
+//     const branch = document.getElementById("branch").value;
+
+//     if (!year || !branch) return;
+
+//     // Fetch exams dynamically
+//     const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+//     const examKeys = await examsResponse.json(); // ["Unit_test_1", "Mid_1", "Unit_test_2"]
+
+//     // Fetch student marks
+//     const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
+//     const data = await response.json();
+
+//     clearCharts();
+//     document.getElementById("studentPerformanceControls").style.display = 'none';
+//     document.getElementById("subjectWrapper").style.display = "none"; // hide subject dropdown
+//     const chartsContainer = document.getElementById("chartsContainer");
+
+//     if (!data.length) {
+//         chartsContainer.innerHTML = '<p>No data found for comparative analysis.</p>';
+//         return;
+//     }
+
+//     // Calculate average marks per subject per exam
+//     const subjectMarks = {}; // { subject: { exam1: [marks], ... } }
+
+//     data.forEach(item => {
+//         const subject = item.subject;
+//         if (!subjectMarks[subject]) {
+//             subjectMarks[subject] = {};
+//             examKeys.forEach(exam => subjectMarks[subject][exam] = []);
+//         }
+//         examKeys.forEach(exam => {
+//             if (item[exam] != null) subjectMarks[subject][exam].push(item[exam]);
+//         });
+//     });
+
+//     const subjects = Object.keys(subjectMarks); // all subjects
+
+//     // Create one chart per exam
+//     examKeys.forEach((exam, idx) => {
+//         const examData = subjects.map(subject => {
+//             const marksArray = subjectMarks[subject][exam];
+//             const total = marksArray.reduce((sum, val) => sum + val, 0);
+//             return marksArray.length ? total / marksArray.length : 0;
+//         });
+
+//         const chartContainer = document.createElement('div');
+//         chartContainer.className = 'chart-container';
+//         const canvas = document.createElement('canvas');
+//         chartContainer.appendChild(canvas);
+//         chartsContainer.appendChild(chartContainer);
+
+//         const ctx = canvas.getContext("2d");
+//         const chartInstance = new Chart(ctx, {
+//             type: 'bar',
+//             data: {
+//                 labels: subjects,
+//                 datasets: [{
+//                     label: exam.replace(/_/g, " "),
+//                     data: examData,
+//                     backgroundColor: `rgba(${50 + idx*60}, ${100 + idx*40}, ${150 + idx*30}, 0.7)`
+//                 }]
+//             },
+//             options: {
+//                 responsive: true,
+//                 maintainAspectRatio: false,
+//                 scales: {
+//                     y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
+//                     x: { title: { display: true, text: 'Subjects' } }
+//                 },
+//                 plugins: {
+//                     title: {
+//                         display: true,
+//                         text: `Average Marks per Subject - ${exam.replace(/_/g, " ")}`,
+//                         font: { size: 16 }
+//                     },
+//                     legend: { display: false }
+//                 }
+//             }
+//         });
+
+//         window.marksChartInstances.push(chartInstance);
+//     });
+// }
+
+// INITIAL LOAD
+
 async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
     if (!year || !branch) return;
 
-    // Fetch exams dynamically
-    const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
-    const examKeys = await examsResponse.json(); // ["Unit_test_1", "Mid_1", "Unit_test_2"]
-
-    // Fetch student marks
-    const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
-    const data = await response.json();
-
     clearCharts();
     document.getElementById("studentPerformanceControls").style.display = 'none';
-    document.getElementById("subjectWrapper").style.display = "none"; // hide subject dropdown
+    document.getElementById("subjectWrapper").style.display = "none";
     const chartsContainer = document.getElementById("chartsContainer");
+    chartsContainer.innerHTML = "<p>Loading comparative data...</p>";
 
-    if (!data.length) {
-        chartsContainer.innerHTML = '<p>No data found for comparative analysis.</p>';
-        return;
-    }
+    try {
+        // Step 1: Fetch exams dynamically
+        const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+        const examKeys = await examsResponse.json();
 
-    // Calculate average marks per subject per exam
-    const subjectMarks = {}; // { subject: { exam1: [marks], ... } }
-
-    data.forEach(item => {
-        const subject = item.subject;
-        if (!subjectMarks[subject]) {
-            subjectMarks[subject] = {};
-            examKeys.forEach(exam => subjectMarks[subject][exam] = []);
+        if (!examKeys || examKeys.length === 0) {
+            chartsContainer.innerHTML = "<p>No exams found for this year & branch.</p>";
+            return;
         }
-        examKeys.forEach(exam => {
-            if (item[exam] != null) subjectMarks[subject][exam].push(item[exam]);
-        });
-    });
 
-    const subjects = Object.keys(subjectMarks); // all subjects
+        // Step 2: Fetch student marks (backend now returns only relevant columns)
+        const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
+        const data = await response.json();
 
-    // Create one chart per exam
-    examKeys.forEach((exam, idx) => {
-        const examData = subjects.map(subject => {
-            const marksArray = subjectMarks[subject][exam];
-            const total = marksArray.reduce((sum, val) => sum + val, 0);
-            return marksArray.length ? total / marksArray.length : 0;
-        });
+        if (!data.length) {
+            chartsContainer.innerHTML = '<p>No data found for comparative analysis.</p>';
+            return;
+        }
 
-        const chartContainer = document.createElement('div');
-        chartContainer.className = 'chart-container';
-        const canvas = document.createElement('canvas');
-        chartContainer.appendChild(canvas);
-        chartsContainer.appendChild(chartContainer);
-
-        const ctx = canvas.getContext("2d");
-        const chartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: subjects,
-                datasets: [{
-                    label: exam.replace(/_/g, " "),
-                    data: examData,
-                    backgroundColor: `rgba(${50 + idx*60}, ${100 + idx*40}, ${150 + idx*30}, 0.7)`
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
-                    x: { title: { display: true, text: 'Subjects' } }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Average Marks per Subject - ${exam.replace(/_/g, " ")}`,
-                        font: { size: 16 }
-                    },
-                    legend: { display: false }
-                }
+        // Step 3: Aggregate marks per subject per exam
+        const subjectMarks = {}; // { subject: { exam1: [marks], ... } }
+        data.forEach(item => {
+            const subject = item.subject;
+            if (!subjectMarks[subject]) {
+                subjectMarks[subject] = {};
+                examKeys.forEach(exam => subjectMarks[subject][exam] = []);
             }
+            examKeys.forEach(exam => {
+                if (item[exam] != null) subjectMarks[subject][exam].push(item[exam]);
+            });
         });
 
-        window.marksChartInstances.push(chartInstance);
-    });
+        const subjects = Object.keys(subjectMarks);
+
+        // Step 4: Clear container & draw charts
+        chartsContainer.innerHTML = "";
+
+        examKeys.forEach((exam, idx) => {
+            const examData = subjects.map(subject => {
+                const marksArray = subjectMarks[subject][exam];
+                const total = marksArray.reduce((sum, val) => sum + val, 0);
+                return marksArray.length ? total / marksArray.length : 0;
+            });
+
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            const canvas = document.createElement('canvas');
+            chartContainer.appendChild(canvas);
+            chartsContainer.appendChild(chartContainer);
+
+            const ctx = canvas.getContext("2d");
+            const chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: subjects,
+                    datasets: [{
+                        label: exam.replace(/_/g, " "),
+                        data: examData,
+                        backgroundColor: `rgba(${50 + idx*60}, ${100 + idx*40}, ${150 + idx*30}, 0.7)`
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
+                        x: { title: { display: true, text: 'Subjects' } }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Average Marks per Subject - ${exam.replace(/_/g, " ")}`,
+                            font: { size: 16 }
+                        },
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            window.marksChartInstances.push(chartInstance);
+        });
+
+    } catch (error) {
+        console.error("Error loading comparative chart:", error);
+        chartsContainer.innerHTML = "<p>Error loading comparative analysis.</p>";
+    }
 }
 
-// INITIAL LOAD
+
 document.addEventListener('DOMContentLoaded', async () => {
     const yearSelect = document.getElementById("year");
     const branchSelect = document.getElementById("branch");

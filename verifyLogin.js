@@ -1505,22 +1505,71 @@ app.get("/marks", (req, res) => {
 });
 
 // API to get marks for all subjects for a given year and branch
-app.get("/comparativemarks", (req, res) => {
-  const { year, branch } = req.query;
-  const sql = `
-    SELECT *
-    FROM studentmarks
-    WHERE year = ? AND branch = ?`;
+// app.get("/comparativemarks", (req, res) => {
+//   const { year, branch } = req.query;
+//   const sql = `
+//     SELECT *
+//     FROM studentmarks
+//     WHERE year = ? AND branch = ?`;
 
-  con.query(sql, [year, branch], (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Error fetching data");
-    } else {
-      res.json(results);
+//   con.query(sql, [year, branch], (err, results) => {
+//     if (err) {
+//       console.error(err);
+//       res.status(500).send("Error fetching data");
+//     } else {
+//       res.json(results);
+//     }
+//   });
+// });
+// Fetch comparative marks for a year and branch (only exams from examsofspecificyearandbranch)
+app.get("/comparativemarks", (req, res) => {
+    const { year, branch } = req.query;
+
+    if (!year || !branch) {
+        return res.status(400).json({ error: "Year and branch are required" });
     }
-  });
+
+    // Step 1: Get exams for this year & branch
+    const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+    con.query(examQuery, [year, branch], (err, examResult) => {
+        if (err) {
+            console.error("Error fetching exams:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (!examResult.length || !examResult[0].exams) {
+            return res.json([]); // no exams
+        }
+
+        let exams = examResult[0].exams;
+
+        // If stored as JSON string, parse it
+        if (typeof exams === "string") {
+            try {
+                exams = JSON.parse(exams);
+            } catch (parseErr) {
+                console.error("Error parsing exams JSON:", parseErr);
+                return res.status(500).json({ error: "Error processing exam data" });
+            }
+        }
+
+        const examColumns = Array.isArray(exams) ? exams : Object.values(exams);
+
+        // Step 2: Select only relevant columns from studentmarks
+        const columns = ["htno", "name", "subject", ...examColumns].map(col => `\`${col}\``).join(", ");
+        const studentQuery = `SELECT ${columns} FROM studentmarks WHERE year = ? AND branch = ?`;
+
+        con.query(studentQuery, [year, branch], (err2, studentResults) => {
+            if (err2) {
+                console.error("Error fetching student marks:", err2);
+                return res.status(500).json({ error: "Database error" });
+            }
+
+            res.json(studentResults);
+        });
+    });
 });
+
 
 app.get("/getStudentsData/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
