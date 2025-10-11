@@ -1551,62 +1551,37 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
 app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
   const { htno, year, branch } = req.params;
 
-  // Step 1: Get exam list dynamically
-  const examQuery = `
-    SELECT exams 
-    FROM examsofspecificyearandbranch 
-    WHERE year = ? AND branch = ?;
+  // Step 1: Get dynamic exam columns from INFORMATION_SCHEMA
+  const columnQuery = `
+    SELECT COLUMN_NAME 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'studentmarks' 
+    AND COLUMN_NAME NOT IN ('year','branch','htno','name','subject');
   `;
 
-  con.query(examQuery, [year, branch], (err, examResult) => {
-    if (err) return res.status(500).json({ error: "Error fetching exams", details: err });
+  con.query(columnQuery, (err, columnsResult) => {
+    if (err) return res.status(500).json({ error: "Error fetching columns", details: err });
 
-    if (!examResult.length || !examResult[0].exams)
-      return res.json({ message: "No exams configured for this year and branch" });
-
-    // Parse exam list safely
-    let examsData = examResult[0].exams;
-    if (typeof examsData === "object") examsData = JSON.stringify(examsData);
-
-    let exams = [];
-    try {
-      const parsed = JSON.parse(examsData);
-      exams = Array.isArray(parsed) ? parsed : Object.values(parsed);
-    } catch (parseError) {
-      console.error("Error parsing exams JSON:", parseError);
-      return res.status(500).json({ error: "Invalid exams format in DB" });
-    }
-
+    const exams = columnsResult.map(row => row.COLUMN_NAME);
     if (exams.length === 0)
-      return res.json({ message: "No exams found" });
+      return res.json({ message: "No exam columns found in table" });
 
-    // Step 2: Dynamically build SQL columns for pivoting
-    const dynamicColumns = exams
-      .map(
-        exam =>
-          `MAX(CASE WHEN examname = '${exam}' THEN marks END) AS \`${exam}\``
-      )
-      .join(", ");
+    // Step 2: Build final query dynamically
+    const selectedColumns = exams.map(exam => `\`${exam}\``).join(", ");
 
-    // Step 3: Final query
     const marksQuery = `
-      SELECT 
-        subject,
-        ${dynamicColumns},
-        MAX(name) AS name,
-        MAX(htno) AS htno
+      SELECT subject, ${selectedColumns}, name, htno
       FROM studentmarks
-      WHERE year = ? AND branch = ? AND htno = ?
-      GROUP BY subject;
+      WHERE year = ? AND branch = ? AND htno = ?;
     `;
 
-    // Step 4: Execute final query
     con.query(marksQuery, [year, branch, htno], (err, result) => {
       if (err) return res.status(500).json({ error: "Error fetching marks", details: err });
       res.json(result);
     });
   });
 });
+
 
 
 //------------------------------------------------------
