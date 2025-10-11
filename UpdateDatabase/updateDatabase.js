@@ -39,7 +39,7 @@ actionSelect.addEventListener("change", () => {
 });
 
 function fetchTablesForAction() {
-    const tables = ["branches", "examsofspecificyearandbranch", "faculty_requests", "pending_marks_updates", "studentmarks", "subjects"];
+    const tables = ["branches", "examsofspecificyearandbranch", "faculty_requests", "pending_marks_updates", "studentmarks", "subjects", "hod_details"];
     tableSelect.innerHTML = '<option value="">--Select Table--</option>';
     tables.forEach(table => {
         const option = document.createElement("option");
