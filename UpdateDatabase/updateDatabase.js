@@ -150,8 +150,59 @@ function renderTableData(table, data) {
 }
 
 function updateRow(table, row) {
-    alert("Implement update row functionality for " + table);
+    const tr = document.querySelector(`tr[data-id='${row.id}']`);
+    if (!tr) return;
+
+    // Replace each cell with an input, except actions
+    const tds = tr.querySelectorAll("td");
+    Object.keys(row).forEach((key, index) => {
+        if (key === "id") return; // skip ID
+        const input = document.createElement("input");
+        input.value = row[key];
+        input.style.width = "90%";
+        tds[index].innerHTML = "";
+        tds[index].appendChild(input);
+    });
+
+    // Replace buttons with Save/Cancel
+    const actionTd = tds[tds.length - 1];
+    actionTd.innerHTML = "";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Save";
+    saveBtn.className = "update-btn";
+    saveBtn.onclick = () => {
+        const updatedData = {};
+        Object.keys(row).forEach((key, idx) => {
+            if (key === "id") updatedData[key] = row[key];
+            else updatedData[key] = tds[idx].querySelector("input").value;
+        });
+
+        fetch(`/api/update-row`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ table, data: updatedData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Row updated successfully");
+                actionBtn.click(); // reload table
+            } else {
+                alert("Error updating row: " + data.error);
+            }
+        });
+    };
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.className = "delete-btn";
+    cancelBtn.onclick = () => actionBtn.click(); // reload table
+
+    actionTd.appendChild(saveBtn);
+    actionTd.appendChild(cancelBtn);
 }
+
 
 function deleteRow(table, row) {
     if (!confirm("Are you sure to delete this row?")) return;

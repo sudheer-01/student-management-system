@@ -242,3 +242,67 @@ button.delete-btn {
         flex-direction: column;
     }
 }
+/* Table container */
+#tableDataContainer {
+    margin-top: 25px;
+    overflow-x: auto;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #eef5ff;
+}
+
+/* Action buttons as pills */
+td button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+td button.update-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+td button.update-btn:hover {
+    background-color: #218838;
+}
+
+td button.delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+td button.delete-btn:hover {
+    background-color: #c82333;
+}

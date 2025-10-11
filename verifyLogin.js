@@ -1903,6 +1903,27 @@ app.get("/api/export-csv", async (req, res) => {
         res.send(csv);
     });
 });
+app.post("/api/update-row", (req, res) => {
+    const { table, data } = req.body;
+
+    if (!table || !data || !data.id) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+
+    const id = data.id;
+    delete data.id;
+
+    const columns = Object.keys(data);
+    const values = Object.values(data);
+
+    const setString = columns.map(col => `${col} = ?`).join(", ");
+    const sql = `UPDATE ${table} SET ${setString} WHERE id = ?`;
+
+    con.query(sql, [...values, id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
 
 
 
