@@ -242,7 +242,10 @@ function showStudentPerformanceControls() {
 
 // COMPARATIVE SUBJECT INSIGHT
 
-async function loadStudentPerformanceChart(htno, year, branch) {
+async function loadStudentPerformanceChart() {
+    const htno = document.getElementById("studentHtno").value;
+    const year = document.getElementById("year").value;
+    const branch = document.getElementById("branch").value;
   const chartsContainer = document.getElementById("chartsContainer");
   chartsContainer.innerHTML = "<p>Loading student data...</p>";
 
