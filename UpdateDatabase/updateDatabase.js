@@ -139,55 +139,16 @@ function deleteRow(table, row) {
 }
 
 // EXPORT CSV
-// document.getElementById("exportBtn").addEventListener("click", () => {
-//   const tables = ["branches","examsofspecificyearandbranch","faculty_requests","pending_marks_updates","studentmarks","subjects"];
-//   dynamicContent.innerHTML = `
-//     <h3>Select Tables to Export:</h3>
-//     <div id="exportList" style="margin:10px 0;">
-//       ${tables.map(t => `<label><input type="checkbox" value="${t}"> ${t}</label><br>`).join("")}
-//     </div>
-//     <button id="downloadBtn" class="export-btn">Download Selected CSVs</button>
-//   `;
-//   document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
-// });
-
-app.get("/api/export-csv", async (req, res) => {
-    const { table, year, branch } = req.query;
-    if (!table || !year || !branch)
-        return res.status(400).send("Missing params");
-
-    const sql =
-        table === "subjects" || table === "branches"
-            ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
-            : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
-
-    con.query(sql, [year, branch], (err, results) => {
-        if (err) return res.status(500).send(err.message);
-        if (!results.length) return res.status(404).send("No data found");
-
-        // Convert each row properly (handle JSON fields)
-        const processedResults = results.map(row => {
-            const newRow = {};
-            for (let key in row) {
-                const val = row[key];
-                // If it's an object (e.g. JSON column), stringify it
-                if (typeof val === "object" && val !== null) {
-                    newRow[key] = JSON.stringify(val).replace(/,/g, ";"); // Avoid breaking CSV commas
-                } else {
-                    newRow[key] = val;
-                }
-            }
-            return newRow;
-        });
-
-        const header = Object.keys(processedResults[0]).join(",");
-        const rows = processedResults.map(r => Object.values(r).join(",")).join("\n");
-        const csv = header + "\n" + rows;
-
-        res.setHeader("Content-disposition", `attachment; filename=${table}-${year}-${branch}.csv`);
-        res.set("Content-Type", "text/csv");
-        res.send(csv);
-    });
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const tables = ["branches","examsofspecificyearandbranch","faculty_requests","pending_marks_updates","studentmarks","subjects"];
+  dynamicContent.innerHTML = `
+    <h3>Select Tables to Export:</h3>
+    <div id="exportList" style="margin:10px 0;">
+      ${tables.map(t => `<label><input type="checkbox" value="${t}"> ${t}</label><br>`).join("")}
+    </div>
+    <button id="downloadBtn" class="export-btn">Download Selected CSVs</button>
+  `;
+  document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
 });
 
 function downloadSelectedCSVs() {
