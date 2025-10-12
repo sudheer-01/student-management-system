@@ -140,7 +140,7 @@ function deleteRow(table, row) {
 
 // EXPORT CSV
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const tables = ["branches","examsofspecificyearandbranch","faculty","faculty_requests","hod_details","pending_marks_updates","studentmarks","subjects"];
+  const tables = ["branches","examsofspecificyearandbranch","faculty_requests","pending_marks_updates","studentmarks","subjects"];
   dynamicContent.innerHTML = `
     <h3>Select Tables to Export:</h3>
     <div id="exportList" style="margin:10px 0;">
