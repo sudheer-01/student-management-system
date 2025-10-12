@@ -151,12 +151,26 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
 });
 
+// function downloadSelectedCSVs() {
+//   const selected = Array.from(document.querySelectorAll("#exportList input:checked")).map(i => i.value);
+//   if (!selected.length) return alert("Select at least one table!");
+
+//   const year = yearSelect.value, branch = branchSelect.value;
+//   selected.forEach(t => {
+//     window.open(`/api/export-csv?table=${t}&year=${year}&branch=${branch}`, "_blank");
+//   });
+// }
+
 function downloadSelectedCSVs() {
-  const selected = Array.from(document.querySelectorAll("#exportList input:checked")).map(i => i.value);
+  const selected = Array.from(document.querySelectorAll("#exportList input:checked"))
+    .map(i => i.value);
   if (!selected.length) return alert("Select at least one table!");
 
-  const year = yearSelect.value, branch = branchSelect.value;
-  selected.forEach(t => {
-    window.open(`/api/export-csv?table=${t}&year=${year}&branch=${branch}`, "_blank");
-  });
+  const year = yearSelect.value;
+  const branch = branchSelect.value;
+  if (!year || !branch) return alert("Select year and branch first!");
+
+  // Create one request for all tables
+  const url = `/api/export-csv?tables=${selected.join(",")}&year=${year}&branch=${branch}`;
+  window.open(url, "_blank");
 }

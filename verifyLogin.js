@@ -1885,17 +1885,35 @@ app.delete("/api/delete-row", (req, res) => {
 // Export CSV
 // app.get("/api/export-csv", async (req, res) => {
 //     const { table, year, branch } = req.query;
-//     if (!table || !year || !branch) return res.status(400).send("Missing params");
+//     if (!table || !year || !branch)
+//         return res.status(400).send("Missing params");
 
-//     const sql = table === "subjects" || table === "branches"
-//         ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
-//         : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
+//     const sql =
+//         table === "subjects" || table === "branches"
+//             ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
+//             : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
 
 //     con.query(sql, [year, branch], (err, results) => {
 //         if (err) return res.status(500).send(err.message);
+//         if (!results.length) return res.status(404).send("No data found");
 
-//         const header = Object.keys(results[0] || {}).join(",");
-//         const rows = results.map(r => Object.values(r).join(",")).join("\n");
+//         // Convert each row properly (handle JSON fields)
+//         const processedResults = results.map(row => {
+//             const newRow = {};
+//             for (let key in row) {
+//                 const val = row[key];
+//                 // If it's an object (e.g. JSON column), stringify it
+//                 if (typeof val === "object" && val !== null) {
+//                     newRow[key] = JSON.stringify(val).replace(/,/g, ";"); // Avoid breaking CSV commas
+//                 } else {
+//                     newRow[key] = val;
+//                 }
+//             }
+//             return newRow;
+//         });
+
+//         const header = Object.keys(processedResults[0]).join(",");
+//         const rows = processedResults.map(r => Object.values(r).join(",")).join("\n");
 //         const csv = header + "\n" + rows;
 
 //         res.setHeader("Content-disposition", `attachment; filename=${table}-${year}-${branch}.csv`);
@@ -1903,44 +1921,65 @@ app.delete("/api/delete-row", (req, res) => {
 //         res.send(csv);
 //     });
 // });
+const fs = require("fs");
 
 app.get("/api/export-csv", async (req, res) => {
-    const { table, year, branch } = req.query;
-    if (!table || !year || !branch)
+    const { tables, year, branch } = req.query; // 'tables' can be comma-separated
+    if (!tables || !year || !branch)
         return res.status(400).send("Missing params");
 
-    const sql =
-        table === "subjects" || table === "branches"
-            ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
-            : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
+    const tableList = tables.split(",");
+    let finalCSV = "";
 
-    con.query(sql, [year, branch], (err, results) => {
-        if (err) return res.status(500).send(err.message);
-        if (!results.length) return res.status(404).send("No data found");
-
-        // Convert each row properly (handle JSON fields)
-        const processedResults = results.map(row => {
-            const newRow = {};
-            for (let key in row) {
-                const val = row[key];
-                // If it's an object (e.g. JSON column), stringify it
-                if (typeof val === "object" && val !== null) {
-                    newRow[key] = JSON.stringify(val).replace(/,/g, ";"); // Avoid breaking CSV commas
-                } else {
-                    newRow[key] = val;
-                }
-            }
-            return newRow;
+    const runQuery = (sql, params) =>
+        new Promise((resolve, reject) => {
+            con.query(sql, params, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
         });
 
-        const header = Object.keys(processedResults[0]).join(",");
-        const rows = processedResults.map(r => Object.values(r).join(",")).join("\n");
-        const csv = header + "\n" + rows;
+    try {
+        for (const table of tableList) {
+            const sql =
+                table === "subjects" || table === "branches"
+                    ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
+                    : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
 
-        res.setHeader("Content-disposition", `attachment; filename=${table}-${year}-${branch}.csv`);
+            const results = await runQuery(sql, [year, branch]);
+            if (!results.length) continue;
+
+            // Process rows to handle JSON columns
+            const processedResults = results.map(row => {
+                const newRow = {};
+                for (let key in row) {
+                    const val = row[key];
+                    if (typeof val === "object" && val !== null) {
+                        newRow[key] = JSON.stringify(val).replace(/,/g, ";");
+                    } else {
+                        newRow[key] = val;
+                    }
+                }
+                return newRow;
+            });
+
+            const header = Object.keys(processedResults[0]).join(",");
+            const rows = processedResults.map(r => Object.values(r).join(",")).join("\n");
+            const csv = `${header}\n${rows}`;
+
+            finalCSV += `\n\n===== ${table.toUpperCase()} =====\n${csv}\n`;
+        }
+
+        if (!finalCSV.trim()) return res.status(404).send("No data found for selected tables");
+
+        res.setHeader("Content-disposition", `attachment; filename=combined-${year}-${branch}.csv`);
         res.set("Content-Type", "text/csv");
-        res.send(csv);
-    });
+        res.send(finalCSV);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error generating CSV");
+    }
 });
 
 
