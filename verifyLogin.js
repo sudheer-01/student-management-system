@@ -1972,7 +1972,7 @@ app.get("/api/export-csv", async (req, res) => {
 
         if (!finalCSV.trim()) return res.status(404).send("No data found for selected tables");
 
-        res.setHeader("Content-disposition", `attachment; filename=combined-${year}-${branch}.csv`);
+        res.setHeader("Content-disposition", `attachment; filename=${year}-${branch}.csv`);
         res.set("Content-Type", "text/csv");
         res.send(finalCSV);
 
