@@ -1654,26 +1654,58 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 //------------------------------------------------------
 //forgot password
 
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// const sgMail = require('@sendgrid/mail');
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// async function sendOtpEmail(toEmail, otp) {
+//   const msg = {
+//     to: toEmail,
+//     from: 'sudheer111222111@gmail.com', // use the email you verified in SendGrid Single Sender
+//     subject: 'Your OTP for Password Reset',
+//     html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`,
+//   };
+
+//   try {
+//     const response = await sgMail.send(msg);
+//     console.log('✅ OTP sent:', response[0].statusCode);
+//     return { success: true };
+//   } catch (error) {
+//     console.error('❌ Error sending OTP:', error.response ? error.response.body : error.message);
+//     return { success: false, message: error.message || 'Failed to send OTP' };
+//   }
+// }
+
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER, // "apikey"
+    pass: process.env.BREVO_API_KEY
+  }
+});
 
 async function sendOtpEmail(toEmail, otp) {
-  const msg = {
+  const mailOptions = {
+    from: '"Student Management System" <noreply@yourdomain.com>', 
     to: toEmail,
-    from: 'sudheer111222111@gmail.com', // use the email you verified in SendGrid Single Sender
-    subject: 'Your OTP for Password Reset',
-    html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`,
+    subject: "Your OTP for Password Reset",
+    html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`
   };
 
   try {
-    const response = await sgMail.send(msg);
-    console.log('✅ OTP sent:', response[0].statusCode);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP sent:", info.messageId);
     return { success: true };
   } catch (error) {
-    console.error('❌ Error sending OTP:', error.response ? error.response.body : error.message);
-    return { success: false, message: error.message || 'Failed to send OTP' };
+    console.error("❌ Error sending OTP:", error.message);
+    return { success: false, message: error.message };
   }
 }
+
+
 
 // Example usage:
 (async () => {
