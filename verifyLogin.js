@@ -1660,7 +1660,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 async function sendOtpEmail(toEmail, otp) {
   const msg = {
     to: toEmail,
-    from: 'student.info.mgmnt.system@gmail.com', // use the email you verified in SendGrid Single Sender
+    from: 'sudheer111222111@gmail.com', // use the email you verified in SendGrid Single Sender
     subject: 'Your OTP for Password Reset',
     html: `<p>Your OTP for password reset is: <b>${otp}</b>. It is valid for 5 minutes.</p>`,
   };
