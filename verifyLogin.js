@@ -1687,6 +1687,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+
 async function sendOtpEmail(toEmail, otp) {
   const mailOptions = {
     from: '"Student Management System" <noreply@yourdomain.com>', 
