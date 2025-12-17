@@ -628,46 +628,51 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
 //         res.status(500).json({ error: "Database error while saving subjects." });
 //     }
 // });
-app.get("/checkFreezeStatus/:year", async (req, res) => {
-    const { year } = req.params;
+app.get("/checkFreezeStatus/:year/:branch", async (req, res) => {
+    const { year, branch } = req.params;
     const db = con.promise();
 
     const [rows] = await db.query(
-        "SELECT DISTINCT is_frozen FROM branches WHERE year = ?",
-        [year]
+        "SELECT is_frozen FROM branches WHERE year = ? AND branch_name LIKE ? LIMIT 1",
+        [year, `${branch}%`]
     );
 
-    if (rows.length === 0) return res.json({ frozen: false });
+    if (rows.length === 0) {
+        return res.json({ frozen: false });
+    }
 
     res.json({ frozen: rows[0].is_frozen === 1 });
 });
-app.get("/getFrozenData/:year", async (req, res) => {
-    const { year } = req.params;
+
+
+app.get("/getFrozenData/:year/:branch", async (req, res) => {
+    const { year, branch } = req.params;
     const db = con.promise();
 
     const [branches] = await db.query(
-        "SELECT branch_name FROM branches WHERE year = ?",
-        [year]
+        "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?",
+        [year, `${branch}%`]
     );
 
     const [subjects] = await db.query(
-        "SELECT DISTINCT subject_name FROM subjects WHERE year = ?",
-        [year]
+        "SELECT DISTINCT subject_name FROM subjects WHERE year = ? AND branch_name LIKE ?",
+        [year, `${branch}%`]
     );
 
     res.json({ branches, subjects });
 });
+
 app.post("/saveSubjects", async (req, res) => {
     const { year, branches, subjects, freeze } = req.body;
     const db = con.promise();
 
     const [existing] = await db.query(
-        "SELECT is_frozen FROM branches WHERE year = ? LIMIT 1",
-        [year]
+        "SELECT is_frozen FROM branches WHERE year = ? AND branch_name LIKE ? LIMIT 1",
+        [year, `${branches[0].split('-')[0]}%`]
     );
 
     if (existing.length && existing[0].is_frozen === 1) {
-        return res.status(403).json({ error: "Data already frozen for this year." });
+        return res.status(403).json({ error: "Data already frozen for this branch and year." });
     }
 
     await Promise.all(

@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjectContainer.innerHTML = "";
         branchCount = 0;
 
-        const res = await fetch(`/checkFreezeStatus/${selectedYear}`);
+        const res = await fetch(`/checkFreezeStatus/${selectedYear}/${hodBranch}`);
         const data = await res.json();
 
         if (data.frozen) {
@@ -74,7 +74,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     async function loadFrozenData() {
-        const res = await fetch(`/getFrozenData/${selectedYear}`);
+        const res = await fetch(`/getFrozenData/${selectedYear}/${hodBranch}`);
+
         const data = await res.json();
 
         data.branches.forEach(b => {
