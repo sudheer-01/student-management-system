@@ -125,15 +125,45 @@ function fetchStudentData() {
     let year = document.getElementById("yearSelect").value;
     let branch = document.getElementById("branchSelect").value;
 
+    const noDataMsg = document.getElementById("noDataMsg");
+
     if (!year || !branch) {
-        alert("Please select both Year and Branch.");
+        alert("Please select both Year and Section.");
         return;
     }
 
     fetch(`/getData?branch=${branch}&year=${year}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch student data");
+            }
+            return response.json();
+        })
         .then(data => {
+            // Clear previous table data
             tbody.innerHTML = "";
+
+            // CASE 1: No data available
+            if (!data || data.length === 0) {
+                table.style.display = "none";
+                document.getElementById("addRow").style.display = "none";
+                document.getElementById("save").style.display = "none";
+
+                if (noDataMsg) {
+                    noDataMsg.style.display = "block";
+                }
+                return;
+            }
+
+            // CASE 2: Data exists
+            if (noDataMsg) {
+                noDataMsg.style.display = "none";
+            }
+
+            table.style.display = "table";
+            document.getElementById("addRow").style.display = "inline-block";
+            document.getElementById("save").style.display = "inline-block";
+
             data.forEach((student, index) => {
                 let row = document.createElement("tr");
                 row.innerHTML = `
@@ -144,7 +174,10 @@ function fetchStudentData() {
                 tbody.appendChild(row);
             });
         })
-        .catch(error => console.error("Error fetching data:", error));
+        .catch(error => {
+            console.error("Error fetching student data:", error);
+            alert("Error while fetching student details.");
+        });
 }
 
 function showTableControls() {
@@ -161,3 +194,39 @@ if (logoutBtn) {
                 .catch(() => { window.location.href = "/"; });
         });
     }
+document.getElementById("importExcel").addEventListener("click", () => {
+    const fileInput = document.getElementById("excelFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an Excel file.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        tbody.innerHTML = "";
+        sno = 1;
+
+        rows.forEach(student => {
+            if (!student["HallTicket Number"] || !student["Student Name"]) return;
+
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${sno}</td>
+                <td><input type="text" value="${student["HallTicket Number"]}" required></td>
+                <td><input type="text" value="${student["Student Name"]}" required></td>
+            `;
+            tbody.appendChild(tr);
+            sno++;
+        });
+
+        showTableControls();
+    };
+    reader.readAsArrayBuffer(file);
+});

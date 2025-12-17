@@ -276,3 +276,18 @@ tr:hover {
     font-size: 13px;
   }
 }
+
+#excelFile {
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  width: 220px;
+}
+
+#importExcel {
+  background: linear-gradient(120deg, #f59e0b, #d97706);
+}
+
+#importExcel:hover {
+  filter: brightness(1.1);
+}
