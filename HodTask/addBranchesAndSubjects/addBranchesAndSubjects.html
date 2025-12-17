@@ -24,29 +24,28 @@
     </nav>
 
     <div class="container">
-        <h2>Manage Subjects & Branches</h2>
-        <p>Please select the academic year to manage branches and subjects accordingly.</p>
-        <!-- Year Selection -->
+        <h2>Manage Subjects & Sections</h2>
+        <p>Please select the academic year to manage sections and subjects accordingly.</p>
+
         <label for="year"><strong>Select Year:</strong></label>
         <select id="year">
             <option value="">Choose Year</option>
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
         </select>
 
-        <!-- Branch Management -->
-        <h3>Branches</h3>
+        <!-- Section Management -->
+        <h3>Sections</h3>
         <div id="branchContainer"></div>
-        <button id="addBranch" class="add-btn">+ Add Branch</button>
-
+        <button id="addBranch" class="add-btn">+ Add Section</button>
         <!-- Subject Management -->
         <h3>Subjects</h3>
         <div id="subjectContainer"></div>
         <button id="addSubject" class="add-btn">+ Add Subject</button>
 
-        <button id="saveData" class="save-btn">Save to Database</button>
+        <!-- Freeze + Save -->
+        <div class="action-row">
+            <button id="freezeData" class="freeze-btn">Freeze</button>
+            <button id="saveData" class="save-btn">Save to Database</button>
+        </div>
     </div>
 
     <script src="addBranchesAndSubjects.js"></script>

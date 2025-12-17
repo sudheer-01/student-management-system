@@ -411,3 +411,41 @@ body {
         padding: 0.5em 1vw;
     }
 }
+.instructions {
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+}
+
+.instructions-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--brand);
+}
+
+.instructions-list {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.instructions-list li {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.instructions-list strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.instructions-note {
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+}

@@ -10,47 +10,106 @@ document.addEventListener("DOMContentLoaded", async () => {
     let branchCount = 0;
     let hodBranch = localStorage.getItem("hodBranch");
     let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
+    
+    const freezeBtn = document.getElementById("freezeData");
+    let isFrozen = false;
 
-        populateYearDropdown();
+    populateYearDropdown();
     // Populate the year dropdown dynamically
-function populateYearDropdown() {
-    yearDropdown.innerHTML = ""; // Clear existing options
+    function populateYearDropdown() {
+        yearDropdown.innerHTML = ""; // Clear existing options
 
-    // Add default option
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Choose Year";
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    yearDropdown.appendChild(defaultOption);
+        // Add default option
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Choose Year";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        yearDropdown.appendChild(defaultOption);
 
-    if (hodYears.length === 0) {
-        // If no specific years assigned, allow selecting all years
-        [1, 2, 3, 4].forEach(year => {
-            const option = document.createElement("option");
-            option.value = year;
-            option.textContent = `${year} Year`;
-            yearDropdown.appendChild(option);
-        });
-    } else {
-        // Only show assigned years for the HOD
-        hodYears.forEach(year => {
-            const option = document.createElement("option");
-            option.value = year;
-            option.textContent = `${year} Year`;
-            yearDropdown.appendChild(option);
-        });
+        if (hodYears.length === 0) {
+            // If no specific years assigned, allow selecting all years
+            [1, 2, 3, 4].forEach(year => {
+                const option = document.createElement("option");
+                option.value = year;
+                option.textContent = `${year} Year`;
+                yearDropdown.appendChild(option);
+            });
+        } else {
+            // Only show assigned years for the HOD
+            hodYears.forEach(year => {
+                const option = document.createElement("option");
+                option.value = year;
+                option.textContent = `${year} Year`;
+                yearDropdown.appendChild(option);
+            });
+        }
     }
-}
-
 
     // Handle year selection
-    yearDropdown.addEventListener("change", () => {
+    // yearDropdown.addEventListener("change", () => {
+    //     selectedYear = yearDropdown.value;
+    //     branchContainer.innerHTML = "";
+    //     subjectContainer.innerHTML = "";
+    //     branchCount = 0;
+    // });
+
+    yearDropdown.addEventListener("change", async () => {
         selectedYear = yearDropdown.value;
         branchContainer.innerHTML = "";
         subjectContainer.innerHTML = "";
         branchCount = 0;
+
+        const res = await fetch(`/checkFreezeStatus/${selectedYear}`);
+        const data = await res.json();
+
+        if (data.frozen) {
+            isFrozen = true;
+            loadFrozenData();
+            disableEditing();
+        } else {
+            isFrozen = false;
+            enableEditing();
+        }
     });
+    
+    async function loadFrozenData() {
+        const res = await fetch(`/getFrozenData/${selectedYear}`);
+        const data = await res.json();
+
+        data.branches.forEach(b => {
+            branchContainer.innerHTML += `
+                <div class="branch-row">
+                    <input type="text" value="${b.branch_name}" readonly>
+                </div>`;
+        });
+
+        data.subjects.forEach(s => {
+            subjectContainer.innerHTML += `
+                <div class="subject-row">
+                    <input type="text" value="${s.subject_name}" readonly>
+                </div>`;
+        });
+    }
+     function disableEditing() {
+        addBranchBtn.disabled = true;
+        addSubjectBtn.disabled = true;
+        saveBtn.disabled = true;
+        freezeBtn.disabled = true;
+    }
+    function enableEditing() {
+        addBranchBtn.disabled = false;
+        addSubjectBtn.disabled = false;
+        saveBtn.disabled = false;
+        freezeBtn.disabled = false;
+    }
+    freezeBtn.addEventListener("click", () => {
+        if (!confirm("Once frozen, data cannot be changed. Continue?")) return;
+        isFrozen = true;
+        alert("Data will be frozen on save.");
+    });
+
+
 
     // Add Branch Button Click
     addBranchBtn.addEventListener("click", () => {
@@ -163,7 +222,13 @@ function populateYearDropdown() {
             const response = await fetch("/saveSubjects", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ year: selectedYear, branches, subjects })
+                // body: JSON.stringify({ year: selectedYear, branches, subjects })
+                body: JSON.stringify({
+                year: selectedYear,
+                branches,
+                subjects,
+                freeze: isFrozen
+            })
             });
 
             const result = await response.json();

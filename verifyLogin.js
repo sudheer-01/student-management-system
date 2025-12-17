@@ -596,37 +596,101 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
 });
 
 //HodTask:::addBranchesAndSubjects
-app.post("/saveSubjects", async (req, res) => {
-    const { year, branches, subjects } = req.body;
+// app.post("/saveSubjects", async (req, res) => {
+//     const { year, branches, subjects } = req.body;
 
-    if (!year || !branches.length || !subjects.length) {
-        return res.status(400).json({ error: "Year, branches, and subjects are required!" });
+//     if (!year || !branches.length || !subjects.length) {
+//         return res.status(400).json({ error: "Year, branches, and subjects are required!" });
+//     }
+
+//     try {
+//         const db = con.promise();
+
+//         // Insert dynamically generated branches
+//         await Promise.all(
+//             branches.map(branch =>
+//                 db.query("INSERT IGNORE INTO branches (year, branch_name) VALUES (?, ?)", [year, branch])
+//             )
+//         );
+
+//         // Insert subjects for each branch
+//         await Promise.all(
+//             branches.flatMap(branch =>
+//                 subjects.map(subject =>
+//                     db.query("INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)", [year, branch, subject])
+//                 )
+//             )
+//         );
+
+//         res.json({ message: "Branches and subjects saved successfully!" });
+//     } catch (err) {
+//         console.error("Database Insert Error:", err);
+//         res.status(500).json({ error: "Database error while saving subjects." });
+//     }
+// });
+app.get("/checkFreezeStatus/:year", async (req, res) => {
+    const { year } = req.params;
+    const db = con.promise();
+
+    const [rows] = await db.query(
+        "SELECT DISTINCT is_frozen FROM branches WHERE year = ?",
+        [year]
+    );
+
+    if (rows.length === 0) return res.json({ frozen: false });
+
+    res.json({ frozen: rows[0].is_frozen === 1 });
+});
+app.get("/getFrozenData/:year", async (req, res) => {
+    const { year } = req.params;
+    const db = con.promise();
+
+    const [branches] = await db.query(
+        "SELECT branch_name FROM branches WHERE year = ?",
+        [year]
+    );
+
+    const [subjects] = await db.query(
+        "SELECT DISTINCT subject_name FROM subjects WHERE year = ?",
+        [year]
+    );
+
+    res.json({ branches, subjects });
+});
+app.post("/saveSubjects", async (req, res) => {
+    const { year, branches, subjects, freeze } = req.body;
+    const db = con.promise();
+
+    const [existing] = await db.query(
+        "SELECT is_frozen FROM branches WHERE year = ? LIMIT 1",
+        [year]
+    );
+
+    if (existing.length && existing[0].is_frozen === 1) {
+        return res.status(403).json({ error: "Data already frozen for this year." });
     }
 
-    try {
-        const db = con.promise();
-
-        // Insert dynamically generated branches
-        await Promise.all(
-            branches.map(branch =>
-                db.query("INSERT IGNORE INTO branches (year, branch_name) VALUES (?, ?)", [year, branch])
+    await Promise.all(
+        branches.map(branch =>
+            db.query(
+                "INSERT INTO branches (year, branch_name, is_frozen) VALUES (?, ?, ?)",
+                [year, branch, freeze ? 1 : 0]
             )
-        );
+        )
+    );
 
-        // Insert subjects for each branch
-        await Promise.all(
-            branches.flatMap(branch =>
-                subjects.map(subject =>
-                    db.query("INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)", [year, branch, subject])
+    await Promise.all(
+        branches.flatMap(branch =>
+            subjects.map(subject =>
+                db.query(
+                    "INSERT INTO subjects (year, branch_name, subject_name, is_frozen) VALUES (?, ?, ?, ?)",
+                    [year, branch, subject, freeze ? 1 : 0]
                 )
             )
-        );
+        )
+    );
 
-        res.json({ message: "Branches and subjects saved successfully!" });
-    } catch (err) {
-        console.error("Database Insert Error:", err);
-        res.status(500).json({ error: "Database error while saving subjects." });
-    }
+    res.json({ message: "Saved and frozen successfully." });
 });
 
 
