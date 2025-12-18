@@ -1438,20 +1438,19 @@ app.get("/getExamsForHod/:year/:branch", (req, res) => {
 
        // console.log("Raw exam data from DB:", result[0].exams);
 
-        let examsData = result[0].exams;
+       try {
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
 
-        // If examsData is an object instead of a JSON string, convert it to JSON string
-        if (typeof examsData === "object") {
-            examsData = JSON.stringify(examsData);
-        }
+            // ✅ RETURN EXAM NAMES, NOT MARKS
+            const examNames = Object.keys(examsJSON);
 
-        try {
-            const examsJSON = JSON.parse(examsData);
-            const examList = Array.isArray(examsJSON) ? examsJSON : Object.values(examsJSON);
-            res.json(examList);
-        } catch (parseError) {
-            console.error("Error parsing exams JSON:", parseError);
-            res.status(500).json({ error: "Error processing exam data" });
+            res.json(examNames);
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).send("Error processing exam data");
         }
     });
 });

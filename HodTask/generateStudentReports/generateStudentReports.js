@@ -88,7 +88,6 @@ yearSelect.addEventListener("change", function () {
     branchSelect.addEventListener("change", function () {
         examSelect.innerHTML = `<option value="">--Select Exam--</option>`;
         examSelect.disabled = true;
-
         if (yearSelect.value && branchSelect.value) {
             fetch(`/getExamsForHod/${yearSelect.value}/${branchSelect.value}`)
                 .then(response => response.json())
