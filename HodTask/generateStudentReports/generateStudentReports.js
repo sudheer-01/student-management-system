@@ -234,70 +234,95 @@ yearSelect.addEventListener("change", function () {
         const selectedSubject = document.getElementById("subject").value;
         const selectedExam = document.getElementById("exam").value;
 
-        const tableContent = `
+        const marksHeader =
+            currentMaxMarks !== null
+                ? `Marks (Max: ${currentMaxMarks})`
+                : "Marks";
+
+        const tableRows = studentBody.innerHTML;
+
+        const printContent = `
             <html>
             <head>
-                <title>Student Report</title>
+                <title>Students Report</title>
                 <style>
                     body {
                         font-family: Arial, sans-serif;
                         margin: 20px;
-                    }
-                    h2, h3 {
                         text-align: center;
+                    }
+                    img {
+                        max-width: 120px;
+                        margin-bottom: 10px;
+                    }
+                    h2 {
+                        margin: 10px 0;
+                    }
+                    .info-row {
+                        margin: 15px 0;
+                        font-size: 15px;
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: space-around;
                     }
                     table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin-top: 20px;
+                        margin-top: 15px;
                     }
                     th, td {
                         border: 1px solid black;
                         padding: 8px;
-                        text-align: left;
+                        text-align: center;
                     }
                     th {
                         background-color: #f2f2f2;
                     }
-                    .details {
-                        text-align: center;
-                        font-size: 16px;
-                        margin-bottom: 10px;
-                    }
                 </style>
             </head>
             <body>
-                <h2>Student Report</h2>
-                <div class="details">
-                    <p><strong>Year:</strong> ${selectedYear}</p>
-                    <p><strong>Branch:</strong> ${selectedBranch}</p>
-                    <p><strong>Subject:</strong> ${selectedSubject}</p>
-                    <p><strong>Exam:</strong> ${selectedExam}</p>
+                <!-- College Logo -->
+                <img src="balaji.png" alt="College Logo">
+
+                <!-- Report Title -->
+                <h2>STUDENTS REPORT</h2>
+
+                <!-- Single Row Info -->
+                <div class="info-row">
+                    <span>Year: ${selectedYear}</span>
+                    <span>Section: ${selectedBranch}</span>
+                    <span>Subject: ${selectedSubject}</span>
+                    <span>Exam: ${selectedExam}</span>
                 </div>
+
+                <!-- Student Table -->
                 <table>
                     <thead>
                         <tr>
                             <th>HTNO</th>
                             <th>Name</th>
-                            <th>Marks</th>
+                            <th>${marksHeader}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${studentBody.innerHTML}
+                        ${tableRows}
                     </tbody>
                 </table>
+
                 <script>
-                    window.onload = function() { window.print(); }
+                    window.onload = function () {
+                        window.print();
+                    };
                 </script>
             </body>
             </html>
         `;
 
         const printWindow = window.open("", "_blank");
-        printWindow.document.write(tableContent);
+        printWindow.document.write(printContent);
         printWindow.document.close();
     }
-
+    
 });
 
 
