@@ -308,7 +308,6 @@ yearSelect.addEventListener("change", function () {
                 }
 
                 .signature-line {
-                    border-top: 1px solid black;
                     margin-top: 40px;
                     padding-top: 6px;
                     font-weight: bold;
