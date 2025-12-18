@@ -1018,33 +1018,22 @@ app.post("/addExamToDatabase", (req, res) => {
 
         if (result.length > 0 && result[0].exams) {
             try {
-                examsJSON =
-                    typeof result[0].exams === "object"
-                        ? result[0].exams
-                        : JSON.parse(result[0].exams);
+                examsJSON = typeof result[0].exams === "object"
+                    ? result[0].exams
+                    : JSON.parse(result[0].exams);
             } catch (e) {
                 console.error("Error parsing exams JSON:", e);
                 return res.status(500).send("Invalid exams JSON");
             }
         }
 
-        // 🚫 Prevent duplicate exam name
-        const exists = Object.values(examsJSON).some(
-            exam => exam.name === examName
-        );
-        if (exists) {
+        // 🚫 Prevent duplicate exam
+        if (examsJSON[examName]) {
             return res.status(409).send("Exam already exists for this section");
         }
 
-        // ✅ Generate next exam key (exam1, exam2, ...)
-        const nextIndex = Object.keys(examsJSON).length + 1;
-        const examKey = `exam${nextIndex}`;
-
-        // ✅ Store BOTH name and max marks
-        examsJSON[examKey] = {
-            name: examName,
-            maxMarks: parseInt(maxMarks)
-        };
+        // ✅ Store exam with max marks
+        examsJSON[examName] = parseInt(maxMarks);
 
         const saveQuery =
             result.length > 0
@@ -1062,12 +1051,10 @@ app.post("/addExamToDatabase", (req, res) => {
                 return res.status(500).send("Error saving exam data");
             }
 
-            // ---- studentmarks column creation (unchanged logic) ----
+            // ---- Student Marks table column creation ----
             const checkColumnQuery = `
-                SELECT COLUMN_NAME
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_NAME = 'studentmarks'
-                AND COLUMN_NAME = ?`;
+                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'studentmarks' AND COLUMN_NAME = ?`;
 
             con.query(checkColumnQuery, [examName], (colErr, colRes) => {
                 if (colErr) {
@@ -1082,20 +1069,21 @@ app.post("/addExamToDatabase", (req, res) => {
                         CHECK (\`${examName}\` BETWEEN 0 AND ${maxMarks})
                         DEFAULT NULL`;
 
-                    con.query(alterQuery, err2 => {
-                        if (err2) {
-                            console.error("Error adding column:", err2);
+                    con.query(alterQuery, (alterErr) => {
+                        if (alterErr) {
+                            console.error("Error adding column:", alterErr);
                             return res.status(500).send("Error adding exam column");
                         }
-                        res.send("Exam added successfully");
+                        return res.send("Exam added successfully");
                     });
                 } else {
-                    res.send("Exam added successfully");
+                    return res.send("Exam added successfully");
                 }
             });
         });
     });
 });
+
 
 
 // Remove an Exam Column from studentMarks and 
