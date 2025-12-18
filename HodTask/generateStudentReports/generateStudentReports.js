@@ -336,7 +336,7 @@ yearSelect.addEventListener("change", function () {
             <!-- Signatures -->
             <div class="signatures">
                 <div class="signature-box">
-                    <div class="signature-line">Class Teacher</div>
+                    <div class="signature-line">Subject Faculty</div>
                 </div>
                 <div class="signature-box">
                     <div class="signature-line">HOD</div>

@@ -23,19 +23,22 @@
     </div>
     </nav>
     <div class="container">
-        <h2>Faculty Requests</h2>
+        <h2>Marks Update Requests</h2>
         
         <label for="yearDropdown">Select Year:</label>
         <select id="yearDropdown">
             <option value="">Select Year</option>
         </select>
 
-        <label for="branchDropdown">Select Branch:</label>
+        <label for="branchDropdown">Select Section:</label>
         <select id="branchDropdown">
-            <option value="">Select Branch</option>
+            <option value="">Select Section</option>
         </select>
 
         <button id="loadRequests">Load Requests</button>
+        <p id="noRequestsMsg" style="display:none; text-align:center; font-weight:600; margin-top:20px;">
+            No Marks Update Requests Available
+        </p>
 
         <table>
             <thead>

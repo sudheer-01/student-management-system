@@ -53,6 +53,8 @@ async function loadRequests() {
     const year = document.getElementById("yearDropdown").value;
     const branch = document.getElementById("branchDropdown").value;
 
+    const noMsg = document.getElementById("noRequestsMsg");
+
     if (!year || !branch) {
         alert("Please select both year and branch.");
         return;
@@ -65,23 +67,30 @@ async function loadRequests() {
         return;
     }
 
-    const text = await response.text();
-    if (!text) {
-        alert("No data found.");
+    const requests = await response.json();
+
+    if (!requests || requests.length === 0) {
+        document.getElementById("requestTable").innerHTML = "";
+        noMsg.style.display = "block"; // ✅ SHOW MESSAGE
         return;
     }
 
-    try {
-        const requests = JSON.parse(text);
-        populateTable(requests);
-    } catch (error) {
-        console.error("Error parsing JSON:", error);
-    }
+    noMsg.style.display = "none"; // ✅ HIDE MESSAGE
+    populateTable(requests);
 }
 
 function populateTable(requests) {
     const tableBody = document.getElementById("requestTable");
+    const noMsg = document.getElementById("noRequestsMsg");
+
     tableBody.innerHTML = "";
+
+    if (!requests || requests.length === 0) {
+        noMsg.style.display = "block";
+        return;
+    }
+
+    noMsg.style.display = "none";
 
     requests.forEach(req => {
         let row = document.createElement("tr");
@@ -118,50 +127,6 @@ async function updateStatus(faculty, subject, exam, status) {
         alert("Error updating status. Please try again.");
     }
 }
-
-
-// async function toggleStudentTable(button, faculty, subject, exam) {
-//     let existingTable = document.querySelector(".student-table");
-//     if (existingTable) existingTable.remove(); // Remove previous table if present
-
-//     try {
-//         const response = await fetch(`/getUpdate/${faculty}/${subject}/${exam}`);
-//         if (!response.ok) throw new Error("Failed to fetch data");
-
-//         const students = await response.json();
-
-//         if (students.length === 0) {
-//             alert("No student details found for this request.");
-//             return;
-//         }
-
-//         let table = document.createElement("table");
-//         table.classList.add("student-table");
-//         table.innerHTML = `
-//             <tr>
-//                 <th>HTNO</th>
-//                 <th>Name</th>
-//                 <th>Old Marks</th>
-//                 <th>New Marks</th>
-//             </tr>
-//         `;
-
-//         students.forEach(student => {
-//             let row = `<tr>
-//                 <td>${student.htno}</td>
-//                 <td>${student.name}</td>
-//                 <td>${student.old_marks}</td>
-//                 <td>${student.new_marks}</td>
-//             </tr>`;
-//             table.innerHTML += row;
-//         });
-
-//         button.closest("tr").after(table); // Insert table below the clicked row
-//     } catch (error) {
-//         console.error("Error fetching update details:", error);
-//         alert("Error fetching details. Please try again.");
-//     }
-// }
 
 async function toggleStudentTable(button, faculty, subject, exam) {
     // Remove any existing expanded student table
