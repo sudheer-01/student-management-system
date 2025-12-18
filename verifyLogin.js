@@ -1001,7 +1001,7 @@ app.post("/addExamToDatabase", (req, res) => {
     if (!year || !branch || !examNameWithSpaces) {
         return res.status(400).send("Year, branch, and exam name are required");
     }
-    const examName = examNameWithSpaces.replace(/\s+/g, "_");
+    const examName = examNameWithSpaces.replace(/\s+/g, "");
     //console.log(examName);
 
     const getQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";

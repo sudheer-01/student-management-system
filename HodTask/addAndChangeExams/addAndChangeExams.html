@@ -32,13 +32,25 @@
             </div>
             <div class="field-group">
                 <label for="branchSelect">Select Section:</label>
-                <select id="branchSelect"></select>
+                <select id="branchSelect" multiple></select>
             </div>
         </div>
         <div class="row-group">
             <div class="field-group" style="flex:2;">
                 <label for="examName">Enter New Exam Name:</label>
-                <input type="text" id="examName" placeholder="e.g., Final Exam">
+                <select id="examType">
+                <option value="">Select Exam Type</option>
+                <option value="MidTest">Mid Test</option>
+                <option value="SlipTest">Slip Test</option>
+                <option value="InternalAssessment">Internal Assessment</option>
+                <option value="FinalExam">Final Exam</option>
+            </select>
+            <select id="examNumber">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
             </div>
             <div class="field-group" style="flex:1;align-self:flex-end;">
                 <button id="addExam">Add Exam</button>

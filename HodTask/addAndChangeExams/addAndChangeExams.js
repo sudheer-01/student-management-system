@@ -86,30 +86,37 @@ async function loadExams() {
 
 
 document.getElementById("addExam").addEventListener("click", async function () {
-    const examNameWithSpaces = document.getElementById("examName").value.trim();
     const year = document.getElementById("yearSelect").value;
-    const branch = document.getElementById("branchSelect").value;
+    const examType = document.getElementById("examType").value;
+    const examNumber = document.getElementById("examNumber").value;
 
-    if (!examName) {
-        alert("Please enter an exam name.");
+    const branchSelect = document.getElementById("branchSelect");
+    const selectedBranches = Array.from(branchSelect.selectedOptions).map(opt => opt.value);
+
+    if (!year || !examType || selectedBranches.length === 0) {
+        alert("Please select Year, Sections, and Exam Type.");
         return;
     }
 
-    try {
-        const response = await fetch("/addExamToDatabase", {
+    // CamelCase exam name (NO underscores)
+    const examName = `${examType}${examNumber}`;
+
+    for (const branch of selectedBranches) {
+        await fetch("/addExamToDatabase", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ year, branch, examNameWithSpaces })
+            body: JSON.stringify({
+                year,
+                branch,
+                examNameWithSpaces: examName
+            })
         });
-
-        const message = await response.text();
-        alert(message);
-        loadExams();
-        document.getElementById("examName").value = "";
-    } catch (error) {
-        console.error("Error adding exam:", error);
     }
+
+    alert("Exams added successfully for selected sections.");
+    loadExams();
 });
+
 
 function addExamRow(examName) {
     const tbody = document.querySelector("#examsTable tbody");
