@@ -114,12 +114,32 @@ yearSelect.addEventListener("change", function () {
     // Fetch student reports
     fetchReportsBtn.addEventListener("click", function () {
         fetch(`/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subjectSelect.value}/${examSelect.value}`)
-            .then(response => response.json())
-            .then(data => {
-                studentData = data; // Store the full student data
-                displayStudents(studentData); // Show all students initially
-            });
+        .then(response => response.json())
+        .then(async data => {
+            studentData = data;
+
+            // 🔹 Fetch max marks for selected exam
+            const maxMarksResponse = await fetch(
+                `/getExamMaxMarks/${yearSelect.value}/${branchSelect.value}/${examSelect.value}`
+            );
+            const maxMarksData = await maxMarksResponse.json();
+
+            updateMarksHeader(maxMarksData.maxMarks);
+            displayStudents(studentData);
+        });
+
     });
+    
+    function updateMarksHeader(maxMarks) {
+        const marksHeader = document.querySelector("#studentTable thead th:last-child");
+
+        if (maxMarks !== null) {
+            marksHeader.textContent = `Marks (Max: ${maxMarks})`;
+        } else {
+            marksHeader.textContent = "Marks";
+        }
+    }
+
 
     // Function to display students in the table
     function displayStudents(data) {

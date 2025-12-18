@@ -1455,6 +1455,40 @@ app.get("/getExamsForHod/:year/:branch", (req, res) => {
     });
 });
 
+// Fetch max marks for a specific exam
+app.get("/getExamMaxMarks/:year/:branch/:exam", (req, res) => {
+    const { year, branch, exam } = req.params;
+
+    const query =
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Error fetching exam max marks:", err);
+            return res.status(500).send("Database error");
+        }
+
+        if (result.length === 0 || !result[0].exams) {
+            return res.json({ maxMarks: null });
+        }
+
+        try {
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            const maxMarks = examsJSON[exam] ?? null;
+
+            res.json({ maxMarks });
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).send("Invalid exams data");
+        }
+    });
+});
+
+
 //HodTask:::viewMarksUpdateRequests
 app.get("/getRequests/:year/:branch", (req, res) => {
     const query = `SELECT DISTINCT requested_by, subject, exam, requested_at, request_status FROM pending_marks_updates WHERE year = ? AND branch = ? AND request_status = 'Pending'`;
