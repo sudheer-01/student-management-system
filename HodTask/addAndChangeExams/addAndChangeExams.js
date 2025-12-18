@@ -46,7 +46,7 @@ async function fetchBranches() {
         const branches = await response.json();
         const branchSelect = document.getElementById("branchSelect");
 
-        branchSelect.innerHTML = `<option value="">Select Branch</option>`;
+        branchSelect.innerHTML = `<option value="">Select Section</option>`;
         branches.forEach(({ branch_name }) => {
             branchSelect.innerHTML += `<option value="${branch_name}">${branch_name}</option>`;
         });
