@@ -237,88 +237,126 @@ yearSelect.addEventListener("change", function () {
         const selectedSubject = document.getElementById("subject").value;
         const selectedExam = document.getElementById("exam").value;
 
-        const marksHeader =
-            currentMaxMarks !== null
-                ? `Marks (Max: ${currentMaxMarks})`
-                : "Marks";
-
-        const tableRows = studentBody.innerHTML;
+        const tableHTML = document.getElementById("studentTable").outerHTML;
 
         const printContent = `
-            <html>
-            <head>
-                <title>Students Report</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 20px;
-                        text-align: center;
-                    }
-                    img {
-                        max-width: 120px;
-                        margin-bottom: 10px;
-                    }
-                    h2 {
-                        margin: 10px 0;
-                    }
-                    .info-row {
-                        margin: 15px 0;
-                        font-size: 15px;
-                        font-weight: bold;
-                        display: flex;
-                        justify-content: space-around;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 15px;
-                    }
-                    th, td {
-                        border: 1px solid black;
-                        padding: 8px;
-                        text-align: center;
-                    }
-                    th {
-                        background-color: #f2f2f2;
-                    }
-                </style>
-            </head>
-            <body>
-                <!-- College Logo -->
-                <img src="balaji.png" alt="College Logo">
+        <html>
+        <head>
+            <title>Students Report</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 20mm;
+                }
 
-                <!-- Report Title -->
-                <h2>STUDENTS REPORT</h2>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }
 
-                <!-- Single Row Info -->
-                <div class="info-row">
-                    <span>Year: ${selectedYear}</span>
-                    <span>Section: ${selectedBranch}</span>
-                    <span>Subject: ${selectedSubject}</span>
-                    <span>Exam: ${selectedExam}</span>
+                /* College Image */
+                .college-banner {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    margin-bottom: 20px;
+                }
+
+                h2 {
+                    text-align: center;
+                    margin: 10px 0;
+                    font-size: 22px;
+                }
+
+                /* Single row details */
+                .details-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 15px 0 20px 0;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                }
+
+                th, td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+
+                /* Signatures */
+                .signatures {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 60px;
+                    text-align: center;
+                    font-size: 14px;
+                }
+
+                .signature-box {
+                    width: 22%;
+                }
+
+                .signature-line {
+                    border-top: 1px solid black;
+                    margin-top: 40px;
+                    padding-top: 6px;
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+
+        <body>
+            <!-- Full-width College Image -->
+            <img src="balaji.png" class="college-banner" />
+
+            <!-- Report Heading -->
+            <h2>Students Report</h2>
+
+            <!-- Details in One Row -->
+            <div class="details-row">
+                <div>Year: ${selectedYear}</div>
+                <div>Section: ${selectedBranch}</div>
+                <div>Subject: ${selectedSubject}</div>
+                <div>Exam: ${selectedExam}</div>
+            </div>
+
+            <!-- Students Table -->
+            ${tableHTML}
+
+            <!-- Signatures -->
+            <div class="signatures">
+                <div class="signature-box">
+                    <div class="signature-line">Class Teacher</div>
                 </div>
+                <div class="signature-box">
+                    <div class="signature-line">HOD</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Dean</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Principal</div>
+                </div>
+            </div>
 
-                <!-- Student Table -->
-                <table>
-                    <thead>
-                        <tr>
-                            <th>HTNO</th>
-                            <th>Name</th>
-                            <th>${marksHeader}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableRows}
-                    </tbody>
-                </table>
-
-                <script>
-                    window.onload = function () {
-                        window.print();
-                    };
-                </script>
-            </body>
-            </html>
+            <script>
+                window.onload = function () {
+                    window.print();
+                }
+            </script>
+        </body>
+        </html>
         `;
 
         const printWindow = window.open("", "_blank");
