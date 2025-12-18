@@ -966,7 +966,8 @@ app.post("/getFacultyDetails", (req, res) => {
 app.get("/getExamColumns/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
 
-    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+    const query =
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(query, [year, branch], (err, result) => {
         if (err) {
@@ -974,21 +975,22 @@ app.get("/getExamColumns/:year/:branch", (req, res) => {
             return res.status(500).send("Database error");
         }
 
-        if (result.length === 0) {
-            return res.json([]); // No exams found
+        if (result.length === 0 || !result[0].exams) {
+            return res.json([]);
         }
 
-        let examsData = result[0].exams; // Extract exams column
-       // console.log("Raw exams data:", examsData);
-
         try {
-            // If examsData is a string, parse it; otherwise, use it directly
-            const examsJSON = typeof examsData === "string" ? JSON.parse(examsData) : examsData;
-            const exams = Object.values(examsJSON); // Convert object values into array
-          //  console.log("Parsed exams:", exams);
-            res.json(exams);
-        } catch (parseError) {
-            console.error("Error parsing exams JSON:", parseError);
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            // ✅ RETURN EXAM NAMES, NOT MARKS
+            const examNames = Object.keys(examsJSON);
+
+            res.json(examNames);
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
             res.status(500).send("Error processing exam data");
         }
     });
@@ -1094,76 +1096,52 @@ app.post("/removeExamColumn", (req, res) => {
         return res.status(400).send("Year, branch, and exam name are required");
     }
 
-    const getQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+    const getQuery =
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(getQuery, [year, branch], (err, result) => {
         if (err) {
-            console.error("Error fetching exams:", err);
+            console.error(err);
             return res.status(500).send("Database error");
         }
 
         if (result.length === 0 || !result[0].exams) {
-            return res.status(404).send("No exams found for the given year and branch");
+            return res.status(404).send("No exams found");
         }
 
-        let examsData = result[0].exams;
+        let examsJSON =
+            typeof result[0].exams === "string"
+                ? JSON.parse(result[0].exams)
+                : result[0].exams;
 
-        // Ensure examsData is a valid JSON string before parsing
-        let examsJSON;
-        try {
-            examsJSON = typeof examsData === "string" ? JSON.parse(examsData) : examsData;
-        } catch (parseError) {
-            console.error("Error parsing JSON:", parseError);
-            return res.status(500).send("Invalid JSON format in database");
+        // ✅ REMOVE BY KEY (EXAM NAME)
+        if (!examsJSON[examName]) {
+            return res.status(404).send("Exam not found");
         }
 
-        let examKeyToRemove = null;
+        delete examsJSON[examName];
 
-        // Find the key associated with the exam name
-        for (let key in examsJSON) {
-            if (examsJSON[key] === examName) {
-                examKeyToRemove = key;
-                break;
-            }
-        }
+        const updateQuery =
+            "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?";
 
-        if (!examKeyToRemove) {
-            return res.status(404).send("Exam not found in exams list");
-        }
-
-        // Remove the exam from JSON
-        delete examsJSON[examKeyToRemove];
-
-        // Reorder exams to maintain proper numbering (exam1, exam2, ...)
-        let newExamsJSON = {};
-        let counter = 1;
-        Object.values(examsJSON).forEach((exam) => {
-            newExamsJSON[`exam${counter}`] = exam;
-            counter++;
-        });
-
-        // Update the exams JSON in the database
-        const updateQuery = "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?";
-
-        con.query(updateQuery, [JSON.stringify(newExamsJSON), year, branch], (updateErr) => {
-            if (updateErr) {
-                console.error("Error updating exams JSON:", updateErr);
-                return res.status(500).send("Error updating exams JSON");
-            }
-
-            // Instead of deleting the exam column in studentMarks, set values to NULL
-            const updateStudentMarksQuery = `UPDATE studentmarks SET \`${examName}\` = NULL WHERE year = ? AND branch = ?`;
-
-            con.query(updateStudentMarksQuery, [year, branch], (updateMarksErr) => {
-                if (updateMarksErr) {
-                    console.error("Error updating student marks:", updateMarksErr);
-                    return res.status(500).send("Error updating student marks");
+        con.query(
+            updateQuery,
+            [JSON.stringify(examsJSON), year, branch],
+            (updateErr) => {
+                if (updateErr) {
+                    console.error(updateErr);
+                    return res.status(500).send("Error updating exams");
                 }
 
-                //res.send("Exam removed successfully and numbering adjusted!");
-                res.send("Exam removed successfully!");
-            });
-        });
+                // Nullify marks (do NOT drop column)
+                const nullifyQuery =
+                    `UPDATE studentmarks SET \`${examName}\` = NULL WHERE year = ? AND branch = ?`;
+
+                con.query(nullifyQuery, [year, branch], () => {
+                    res.send("Exam removed successfully");
+                });
+            }
+        );
     });
 });
 
