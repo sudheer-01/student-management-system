@@ -289,6 +289,3 @@ tr:hover {
     margin-bottom: 4px;
   }
 }
-select[multiple] {
-  height: 120px;
-}
