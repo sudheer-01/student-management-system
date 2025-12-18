@@ -174,21 +174,34 @@ yearSelect.addEventListener("change", function () {
     
 
     // Show Print button only when table is displayed
-    function displayStudents(data) {
+   function displayStudents(data) {
         studentBody.innerHTML = "";
-        studentTable.style.display = data.length > 0 ? "table" : "none";
-        printReportBtn.style.display = data.length > 0 ? "block" : "none"; // Show print button
+
+        const noDataMessage = document.getElementById("noDataMessage");
+
+        if (!data || data.length === 0) {
+            studentTable.style.display = "none";
+            printReportBtn.style.display = "none";
+            noDataMessage.style.display = "block";
+            return;
+        }
+
+        // If data exists
+        noDataMessage.style.display = "none";
+        studentTable.style.display = "table";
+        printReportBtn.style.display = "block";
 
         data.forEach(student => {
             let row = document.createElement("tr");
             row.innerHTML = `
                 <td>${student.htno}</td>
                 <td>${student.name}</td>
-                <td>${student.marks || "N/A"}</td>
+                <td>${student.marks ?? "N/A"}</td>
             `;
             studentBody.appendChild(row);
         });
     }
+
 
     // Print the student report
     printReportBtn.addEventListener("click", function () {
