@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const filterInput = document.getElementById("filterMarks");
     const applyFilterBtn = document.getElementById("applyFilter");
     const printReportBtn = document.getElementById("printReport");
+    let currentMaxMarks = null;
+
 
     let studentData = []; // To store all students for filtering
     
@@ -118,16 +120,17 @@ yearSelect.addEventListener("change", function () {
         .then(async data => {
             studentData = data;
 
-            // 🔹 Fetch max marks for selected exam
             const maxMarksResponse = await fetch(
                 `/getExamMaxMarks/${yearSelect.value}/${branchSelect.value}/${examSelect.value}`
             );
             const maxMarksData = await maxMarksResponse.json();
 
-            updateMarksHeader(maxMarksData.maxMarks);
+            currentMaxMarks = maxMarksData.maxMarks; // ✅ IMPORTANT
+
+            updateMarksHeader(currentMaxMarks);
             displayStudents(studentData);
         });
-
+ 
     });
     
     function updateMarksHeader(maxMarks) {
@@ -322,7 +325,7 @@ yearSelect.addEventListener("change", function () {
         printWindow.document.write(printContent);
         printWindow.document.close();
     }
-    
+
 });
 
 
