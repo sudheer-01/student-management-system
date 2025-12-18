@@ -139,13 +139,37 @@ yearSelect.addEventListener("change", function () {
 
     // Apply filter for students based on marks
     applyFilterBtn.addEventListener("click", function () {
-        const filterValue = parseInt(filterInput.value);
-        if (!isNaN(filterValue)) {
-            const filteredData = studentData.filter(student => student.marks !== "N/A" && student.marks < filterValue);
-            displayStudents(filteredData);
-        } else {
-            displayStudents(studentData); // Reset if no valid input
+        const criteria = document.getElementById("filterType").value;
+        const marksValue = parseInt(filterInput.value);
+
+        if (!criteria || isNaN(marksValue)) {
+            alert("Please select filter criteria and enter marks");
+            return;
         }
+
+        let filteredData = [];
+
+        switch (criteria) {
+            case "less":
+                filteredData = studentData.filter(
+                    s => s.marks !== "N/A" && s.marks < marksValue
+                );
+                break;
+
+            case "greater":
+                filteredData = studentData.filter(
+                    s => s.marks !== "N/A" && s.marks > marksValue
+                );
+                break;
+
+            case "equal":
+                filteredData = studentData.filter(
+                    s => s.marks !== "N/A" && s.marks === marksValue
+                );
+                break;
+        }
+
+        displayStudents(filteredData);
     });
     
 

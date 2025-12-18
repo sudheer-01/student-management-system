@@ -54,14 +54,26 @@
             <button id="fetchReports" disabled>Fetch Student Reports</button>
         </div>
         <div class="form-row" style="margin-top: 10px;">
-            <div class="form-group" style="flex:2;">
-                <label for="filterMarks">Filter students who got less than:</label>
+            <div class="form-group">
+                <label for="filterType">Filter Criteria:</label>
+                <select id="filterType">
+                    <option value="">--Select Criteria--</option>
+                    <option value="less">Below Cutoff</option>
+                    <option value="greater">Above Cutoff</option>
+                    <option value="equal">Exact Score</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="filterMarks">Marks:</label>
                 <input type="number" id="filterMarks" placeholder="Enter marks">
             </div>
-            <div class="form-group" style="flex:1;align-self:flex-end;">
-                <button id="applyFilter">Apply Filter</button>
+
+            <div class="form-group" style="align-self:flex-end;">
+                <button id="applyFilter">Refine Report</button>
             </div>
         </div>
+
         <table id="studentTable" style="display: none;">
             <thead>
                 <tr>
