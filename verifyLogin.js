@@ -996,15 +996,17 @@ app.get("/getExamColumns/:year/:branch", (req, res) => {
 
 // Add a New Exam Column to studentMarks
 app.post("/addExamToDatabase", (req, res) => {
-    const { year, branch, examNameWithSpaces } = req.body;
+    const { year, branch, examNameWithSpaces, maxMarks } = req.body;
 
-    if (!year || !branch || !examNameWithSpaces) {
-        return res.status(400).send("Year, branch, and exam name are required");
+    if (!year || !branch || !examNameWithSpaces || !maxMarks) {
+        return res.status(400).send("Year, branch, exam name, and max marks are required");
     }
-    const examName = examNameWithSpaces.replace(/\s+/g, "");
-    //console.log(examName);
 
-    const getQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+    // CamelCase, no spaces, no underscores
+    const examName = examNameWithSpaces.replace(/\s+/g, "");
+
+    const getQuery =
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
     con.query(getQuery, [year, branch], (err, result) => {
         if (err) {
@@ -1014,76 +1016,87 @@ app.post("/addExamToDatabase", (req, res) => {
 
         let examsJSON = {};
 
-        if (result.length > 0) {
-            let examsData = result[0].exams;
-
-            if (!examsData || examsData === "null" || examsData === "") {
-                // If exams is NULL or an empty string, initialize as empty object
-                examsJSON = {};
-            } else if (typeof examsData === "object") {
-                // If already an object, use it directly
-                examsJSON = examsData;
-            } else {
-                try {
-                    examsJSON = JSON.parse(examsData);
-                } catch (parseError) {
-                    console.error("Error parsing exams JSON:", parseError);
-                    return res.status(500).send("Error processing exam data");
-                }
+        if (result.length > 0 && result[0].exams) {
+            try {
+                examsJSON =
+                    typeof result[0].exams === "object"
+                        ? result[0].exams
+                        : JSON.parse(result[0].exams);
+            } catch (e) {
+                console.error("Error parsing exams JSON:", e);
+                return res.status(500).send("Invalid exams JSON");
             }
         }
 
-        // Add new exam with dynamic numbering
-        const newExamKey = `exam${Object.keys(examsJSON).length + 1}`;
-        examsJSON[newExamKey] = examName;
-
-        if (result.length > 0) {
-            // Update existing record
-            const updateQuery = "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?";
-            con.query(updateQuery, [JSON.stringify(examsJSON), year, branch], handleExamInsertion);
-        } else {
-            // Insert new record
-            const insertQuery = "INSERT INTO examsofspecificyearandbranch (year, branch, exams) VALUES (?, ?, ?)";
-            con.query(insertQuery, [year, branch, JSON.stringify(examsJSON)], handleExamInsertion);
+        // 🚫 Prevent duplicate exam name
+        const exists = Object.values(examsJSON).some(
+            exam => exam.name === examName
+        );
+        if (exists) {
+            return res.status(409).send("Exam already exists for this section");
         }
 
-        function handleExamInsertion(dbErr) {
+        // ✅ Generate next exam key (exam1, exam2, ...)
+        const nextIndex = Object.keys(examsJSON).length + 1;
+        const examKey = `exam${nextIndex}`;
+
+        // ✅ Store BOTH name and max marks
+        examsJSON[examKey] = {
+            name: examName,
+            maxMarks: parseInt(maxMarks)
+        };
+
+        const saveQuery =
+            result.length > 0
+                ? "UPDATE examsofspecificyearandbranch SET exams = ? WHERE year = ? AND branch = ?"
+                : "INSERT INTO examsofspecificyearandbranch (exams, year, branch) VALUES (?, ?, ?)";
+
+        const params =
+            result.length > 0
+                ? [JSON.stringify(examsJSON), year, branch]
+                : [JSON.stringify(examsJSON), year, branch];
+
+        con.query(saveQuery, params, (dbErr) => {
             if (dbErr) {
-                console.error("Error updating/inserting exams:", dbErr);
+                console.error("Error saving exams:", dbErr);
                 return res.status(500).send("Error saving exam data");
             }
 
-            // Check if column exists in studentMarks table
+            // ---- studentmarks column creation (unchanged logic) ----
             const checkColumnQuery = `
-                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = 'studentmarks' AND COLUMN_NAME = ?`;
+                SELECT COLUMN_NAME
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'studentmarks'
+                AND COLUMN_NAME = ?`;
 
-            con.query(checkColumnQuery, [examName], (columnErr, columnResult) => {
-                if (columnErr) {
-                    console.error("Error checking exam column:", columnErr);
+            con.query(checkColumnQuery, [examName], (colErr, colRes) => {
+                if (colErr) {
+                    console.error("Error checking column:", colErr);
                     return res.status(500).send("Error checking exam column");
                 }
 
-                if (columnResult.length === 0) {
-                    // Column does not exist, so add it
-                    const alterQuery = `ALTER TABLE studentmarks ADD COLUMN \`${examName}\` TINYINT DEFAULT NULL`;
+                if (colRes.length === 0) {
+                    const alterQuery = `
+                        ALTER TABLE studentmarks
+                        ADD COLUMN \`${examName}\` TINYINT
+                        CHECK (\`${examName}\` BETWEEN 0 AND ${maxMarks})
+                        DEFAULT NULL`;
 
-                    con.query(alterQuery, (alterErr) => {
-                        if (alterErr) {
-                            console.error("Error adding exam column:", alterErr);
+                    con.query(alterQuery, err2 => {
+                        if (err2) {
+                            console.error("Error adding column:", err2);
                             return res.status(500).send("Error adding exam column");
                         }
-                        //res.send("Exam added successfully and column created in studentMarks!");
                         res.send("Exam added successfully");
                     });
                 } else {
-                    //res.send("Exam added successfully (column already exists in studentMarks).");
                     res.send("Exam added successfully");
                 }
             });
-        }
+        });
     });
 });
+
 
 // Remove an Exam Column from studentMarks and 
 app.post("/removeExamColumn", (req, res) => {

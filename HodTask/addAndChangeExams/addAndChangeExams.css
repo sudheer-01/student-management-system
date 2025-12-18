@@ -289,3 +289,14 @@ tr:hover {
     margin-bottom: 4px;
   }
 }
+.exam-row {
+  display: grid;
+  grid-template-columns: auto 1fr 100px 120px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.exam-row input[type="number"] {
+  padding: 6px;
+}

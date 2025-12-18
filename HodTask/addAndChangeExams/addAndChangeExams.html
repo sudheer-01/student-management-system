@@ -35,27 +35,55 @@
                 <select id="branchSelect"></select>
             </div>
         </div>
-        <div class="row-group">
-            <div class="field-group" style="flex:2;">
-                <label for="examName">Enter New Exam Name:</label>
-                <select id="examType">
-                <option value="">Select Exam Type</option>
-                <option value="MidTest">Mid Test</option>
-                <option value="SlipTest">Slip Test</option>
-                <option value="InternalAssessment">Internal Assessment</option>
-                <option value="FinalExam">Final Exam</option>
-            </select>
-            <select id="examNumber">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
+        
+        <h3>Select Exams</h3>
+
+        <div id="examChecklist">
+            <!-- Each row -->
+            <div class="exam-row">
+                <input type="checkbox" value="UnitTest">
+                <span>Unit Test</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
             </div>
-            <div class="field-group" style="flex:1;align-self:flex-end;">
-                <button id="addExam">Add Exam</button>
+
+            <div class="exam-row">
+                <input type="checkbox" value="Mid">
+                <span>Mid Exam</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
+            </div>
+
+            <div class="exam-row">
+                <input type="checkbox" value="Assignment">
+                <span>Assignment</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
+            </div>
+
+            <div class="exam-row">
+                <input type="checkbox" value="PPT">
+                <span>PPT Presentation</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
+            </div>
+
+            <div class="exam-row">
+                <input type="checkbox" value="LabInternal">
+                <span>Lab Internal</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
+            </div>
+
+            <div class="exam-row">
+                <input type="checkbox" value="LabExternal">
+                <span>Lab External</span>
+                <input type="number" class="exam-number" min="0" placeholder="No">
+                <input type="number" class="max-marks" min="1" placeholder="Max Marks">
             </div>
         </div>
+
+
         <h3>Existing Exams:</h3>
         <table id="examsTable">
             <thead>

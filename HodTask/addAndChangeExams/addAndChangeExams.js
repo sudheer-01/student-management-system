@@ -85,37 +85,48 @@ async function loadExams() {
 }
 
 
-document.getElementById("addExam").addEventListener("click", async function () {
+document.getElementById("addExam").addEventListener("click", async () => {
     const year = document.getElementById("yearSelect").value;
-    const examType = document.getElementById("examType").value;
-    const examNumber = document.getElementById("examNumber").value;
+    const branch = document.getElementById("branchSelect").value;
 
-    const branchSelect = document.getElementById("branchSelect");
-    const selectedBranches = Array.from(branchSelect.selectedOptions).map(opt => opt.value);
-
-    if (!year || !examType || selectedBranches.length === 0) {
-        alert("Please select Year, Sections, and Exam Type.");
+    if (!year || !branch) {
+        alert("Please select Year and Section.");
         return;
     }
 
-    // CamelCase exam name (NO underscores)
-    const examName = `${examType}${examNumber}`;
+    const examRows = document.querySelectorAll("#examChecklist .exam-row");
 
-    for (const branch of selectedBranches) {
+    for (const row of examRows) {
+        const checkbox = row.querySelector("input[type='checkbox']");
+        if (!checkbox.checked) continue;
+
+        const examBase = checkbox.value;
+        const number = row.querySelector(".exam-number").value || 0;
+        const maxMarks = row.querySelector(".max-marks").value;
+
+        if (!maxMarks) {
+            alert(`Please enter max marks for ${examBase}`);
+            return;
+        }
+
+        const examName = number == 0 ? examBase : `${examBase}${number}`;
+
         await fetch("/addExamToDatabase", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 year,
                 branch,
-                examNameWithSpaces: examName
+                examNameWithSpaces: examName,
+                maxMarks
             })
         });
     }
 
-    alert("Exams added successfully for selected sections.");
+    alert("Selected exams added successfully.");
     loadExams();
 });
+
 
 
 function addExamRow(examName) {
