@@ -782,12 +782,61 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
                 return;
             }
 
-            commonBox.appendChild(
-                createCommonStudentTable(subjects, subjectData)
-            );
+            ranges.forEach(range => {
+                // ===== HEADING FOR RANGE =====
+                const heading = document.createElement("h4");
+                heading.textContent = `Level: ${range.label}`;
+                commonBox.appendChild(heading);
+
+                // ===== FIND COMMON STUDENTS IN THIS RANGE =====
+                let common = subjectData[subjects[0]]
+                    .filter(s => s.marks >= range.from && s.marks <= range.to)
+                    .map(s => s.htno);
+
+                subjects.slice(1).forEach(sub => {
+                    const set = subjectData[sub]
+                        .filter(s => s.marks >= range.from && s.marks <= range.to)
+                        .map(s => s.htno);
+                    common = common.filter(h => set.includes(h));
+                });
+
+                // ===== TABLE =====
+                const table = document.createElement("table");
+                table.className = "student-range-table";
+
+                const header = document.createElement("tr");
+                header.innerHTML = `<th>HTNO</th><th>Name</th>`;
+                subjects.forEach(sub => header.innerHTML += `<th>${sub}</th>`);
+                table.appendChild(header);
+
+                if (!common.length) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td colspan="${subjects.length + 2}">
+                            <em>No common students in this range</em>
+                        </td>`;
+                    table.appendChild(row);
+                } else {
+                    common.forEach(htno => {
+                        const row = document.createElement("tr");
+                        const student = subjectData[subjects[0]].find(s => s.htno === htno);
+
+                        row.innerHTML = `<td>${htno}</td><td>${student.name}</td>`;
+
+                        subjects.forEach(sub => {
+                            const rec = subjectData[sub].find(s => s.htno === htno);
+                            row.innerHTML += `<td>${rec ? rec.marks : "-"}</td>`;
+                        });
+
+                        table.appendChild(row);
+                    });
+                }
+
+                commonBox.appendChild(table);
+            });
+
             commonBox.style.display = "block";
         };
-
 
         new Chart(commonBlock.querySelector("canvas"), {
             type: "bar",
