@@ -70,7 +70,7 @@ async function loadSubjectExamAnalysis() {
         studentControls.style.display = 'none';
 
         // Fetch available exams
-        const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
+        const examsResponse = await fetch(`/getExamsForHod?year=${year}&branch=${branch}`);
         const exams = await examsResponse.json();
 
         if (!exams || exams.length === 0) {
