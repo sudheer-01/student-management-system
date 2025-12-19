@@ -1147,41 +1147,26 @@ app.post("/removeExamColumn", (req, res) => {
 
 //homepageForFaculty::: this is to retrive the exams based on the year and branch
 app.get("/getExams", (req, res) => {
-    // const year = approvedYear;
-    // const branch = approvedBranch;
-     const { year, branch } = req.query;
+    const { year, branch } = req.query;
 
     const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
-
     con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Error fetching exams:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-
-        if (result.length === 0 || !result[0].exams) {
-            return res.json([]); // No exams found
-        }
-
-       // console.log("Raw exam data from DB:", result[0].exams);
-
-        let examsData = result[0].exams;
-
-        // If examsData is an object instead of a JSON string, convert it to JSON string
-        if (typeof examsData === "object") {
-            examsData = JSON.stringify(examsData);
-        }
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (!result.length || !result[0].exams) return res.json([]);
 
         try {
-            const examsJSON = JSON.parse(examsData);
-            const examList = Array.isArray(examsJSON) ? examsJSON : Object.values(examsJSON);
-            res.json(examList);
-        } catch (parseError) {
-            console.error("Error parsing exams JSON:", parseError);
-            res.status(500).json({ error: "Error processing exam data" });
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            res.json(Object.keys(examsJSON)); // ✅ FIX
+        } catch (e) {
+            res.status(500).json({ error: "Invalid exam data" });
         }
     });
 });
+
 
 // studentMarks
 app.post("/studentCheckin", (req, res) => {
@@ -1562,22 +1547,6 @@ app.get("/marks", (req, res) => {
 });
 
 // API to get marks for all subjects for a given year and branch
-// app.get("/comparativemarks", (req, res) => {
-//   const { year, branch } = req.query;
-//   const sql = `
-//     SELECT *
-//     FROM studentmarks
-//     WHERE year = ? AND branch = ?`;
-
-//   con.query(sql, [year, branch], (err, results) => {
-//     if (err) {
-//       console.error(err);
-//       res.status(500).send("Error fetching data");
-//     } else {
-//       res.json(results);
-//     }
-//   });
-// });
 // Fetch comparative marks for a year and branch (only exams from examsofspecificyearandbranch)
 app.get("/comparativemarks", (req, res) => {
     const { year, branch } = req.query;
@@ -1599,18 +1568,8 @@ app.get("/comparativemarks", (req, res) => {
         }
 
         let exams = examResult[0].exams;
-
-        // If stored as JSON string, parse it
-        if (typeof exams === "string") {
-            try {
-                exams = JSON.parse(exams);
-            } catch (parseErr) {
-                console.error("Error parsing exams JSON:", parseErr);
-                return res.status(500).json({ error: "Error processing exam data" });
-            }
-        }
-
-        const examColumns = Array.isArray(exams) ? exams : Object.values(exams);
+        if (typeof exams === "string") exams = JSON.parse(exams);
+        const examColumns = Object.keys(exams); // ✅ FIX
 
         // Step 2: Select only relevant columns from studentmarks
         const columns = ["htno", "name", "subject", ...examColumns].map(col => `\`${col}\``).join(", ");
@@ -1642,18 +1601,6 @@ app.get("/getStudentsData/:year/:branch", (req, res) => {
     });
 });
 
-// app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
-//     const { htno, year, branch } = req.params;
-//     const query = `SELECT * 
-//                     FROM studentmarks 
-//                     WHERE year = ? AND branch = ? AND htno = ?;
-//                     `;
-//     con.query(query, [year, branch, htno], (err, result) => {
-//         if (err) return res.status(500).send(err);
-//         res.json(result);
-//     });
-// });
-
 app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
   const { htno, year, branch } = req.params;
 
@@ -1678,7 +1625,7 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
     let exams = [];
     try {
       const parsed = JSON.parse(examsData);
-      exams = Array.isArray(parsed) ? parsed : Object.values(parsed);
+    const exams = Object.keys(parsed); // ✅ FIX
     } catch (parseError) {
       console.error("Error parsing exams JSON:", parseError);
       return res.status(500).json({ error: "Invalid exams format in DB" });

@@ -70,7 +70,7 @@ async function loadSubjectExamAnalysis() {
         studentControls.style.display = 'none';
 
         // Fetch available exams
-        const examsResponse = await fetch(`/getExamsForHod?year=${year}&branch=${branch}`);
+        const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
         const exams = await examsResponse.json();
 
         if (!exams || exams.length === 0) {
@@ -99,11 +99,14 @@ async function loadSubjectExamAnalysis() {
                 return student ? student.marks : null;
             });
 
-            const maxMark = Math.max(...marksData.filter(mark => mark !== null));
+            const maxMarksRes = await fetch(`/getExamMaxMarks/${year}/${branch}/${exam}`);
+            const { maxMark } = await maxMarksRes.json();
+
 
             const chartContainer = document.createElement('div');
             chartContainer.className = 'chart-container';
             const canvas = document.createElement('canvas');
+
             chartContainer.appendChild(canvas);
             chartsContainer.appendChild(chartContainer);
 
