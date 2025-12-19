@@ -194,67 +194,160 @@ document.addEventListener("change", e => {
 /*************************************************
  * GENERATE ANALYSIS
  *************************************************/
-generateBtn.onclick = async () => {
-  clearCharts();
+function createStudentRangeTable(exam, ranges, students) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "student-range-wrapper";
 
-  const configs = document.querySelectorAll(".exam-config");
-  for (const cfg of configs) {
-    const exam = cfg.querySelector(".levelCount")?.dataset.exam;
-    if (!exam) continue;
+    const table = document.createElement("table");
+    table.className = "student-range-table";
 
-    const inputs = cfg.querySelectorAll("input");
-    const ranges = [];
-    for (let i = 0; i < inputs.length; i += 2) {
-      ranges.push({
-        label: `${inputs[i].value}-${inputs[i+1].value}`,
-        from: +inputs[i].value,
-        to: +inputs[i+1].value
-      });
-    }
+    // Header
+    const headerRow = document.createElement("tr");
+    ranges.forEach(r => {
+        const th = document.createElement("th");
+        th.textContent = r.label;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
 
-    const data = await (await fetch(`/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subjectSelect.value}/${exam}`)).json();
+    // Body row
+    const bodyRow = document.createElement("tr");
+    ranges.forEach(r => {
+        const td = document.createElement("td");
 
-    const counts = ranges.map(r =>
-      data.filter(s => s.marks >= r.from && s.marks <= r.to).length
-    );
+        const matched = students.filter(
+            s => s.marks >= r.from && s.marks <= r.to
+        );
 
-    const box = document.createElement("div");
-    box.className = "chart-container";
-    box.innerHTML = "<canvas></canvas>";
-    chartsContainer.appendChild(box);
+        if (matched.length === 0) {
+            td.innerHTML = "<em>No students</em>";
+        } else {
+            matched.forEach(s => {
+                const div = document.createElement("div");
+                div.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+                td.appendChild(div);
+            });
+        }
 
-    const chart = new Chart(box.querySelector("canvas"), {
-      type: "bar",
-      data: {
-        labels: ranges.map(r => r.label),
-        datasets: [{
-          label: exam,
-          data: counts,
-          backgroundColor: "rgba(54,162,235,0.7)"
-        }]
-      },
-      options: {
-        plugins: { title: { display: true, text: `${subjectSelect.value} – ${exam}` } },
-        scales: { y: { beginAtZero: true } }
-      }
+        bodyRow.appendChild(td);
     });
 
-    marksChartInstances.push(chart);
-  }
+    table.appendChild(bodyRow);
+    wrapper.appendChild(table);
+    return wrapper;
+}
+
+generateBtn.onclick = async () => {
+    clearCharts();
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+    const subject = subjectSelect.value;
+
+    if (!year || !branch || !subject) {
+        alert("Please select Year, Section and Subject");
+        return;
+    }
+
+    const configs = document.querySelectorAll(".exam-config");
+
+    for (const cfg of configs) {
+        const exam = cfg.querySelector(".levelCount")?.dataset.exam;
+        if (!exam) continue;
+
+        // 🔹 Collect ranges
+        const inputs = cfg.querySelectorAll("input");
+        const ranges = [];
+
+        for (let i = 0; i < inputs.length; i += 2) {
+            if (!inputs[i].value || !inputs[i + 1].value) continue;
+
+            ranges.push({
+                label: `${inputs[i].value}-${inputs[i + 1].value}`,
+                from: parseInt(inputs[i].value),
+                to: parseInt(inputs[i + 1].value)
+            });
+        }
+
+        if (ranges.length === 0) continue;
+
+        // 🔹 Fetch students
+        const res = await fetch(
+            `/getStudentReports/${year}/${branch}/${subject}/${exam}`
+        );
+        const students = await res.json();
+
+        // 🔹 Count students per range
+        const counts = ranges.map(r =>
+            students.filter(s => s.marks >= r.from && s.marks <= r.to).length
+        );
+
+        // 🔹 Chart box
+        const chartBox = document.createElement("div");
+        chartBox.className = "chart-container";
+
+        chartBox.innerHTML = `
+            <canvas></canvas>
+            <button class="view-students-btn">View Students</button>
+            <div class="students-container" style="display:none;"></div>
+        `;
+
+        chartsContainer.appendChild(chartBox);
+
+        // 🔹 Draw chart
+        const chart = new Chart(chartBox.querySelector("canvas"), {
+            type: "bar",
+            data: {
+                labels: ranges.map(r => r.label),
+                datasets: [{
+                    label: `${exam} Performance Distribution`,
+                    data: counts,
+                    backgroundColor: "rgba(54,162,235,0.7)"
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `${subject} – ${exam} Performance Distribution`
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Number of Students"
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Marks Range"
+                        }
+                    }
+                }
+            }
+        });
+
+        marksChartInstances.push(chart);
+
+        // 🔹 View Students toggle
+        const viewBtn = chartBox.querySelector(".view-students-btn");
+        const studentsDiv = chartBox.querySelector(".students-container");
+
+        viewBtn.onclick = () => {
+            if (studentsDiv.innerHTML === "") {
+                const table = createStudentRangeTable(exam, ranges, students);
+                studentsDiv.appendChild(table);
+            }
+
+            studentsDiv.style.display =
+                studentsDiv.style.display === "none" ? "block" : "none";
+        };
+    }
 };
 
-/*************************************************
- * STUDENT PERFORMANCE & COMPARATIVE
- *************************************************/
-// function showStudentPerformanceControls() {
-//   resetAnalysisUI();
-//   studentControls.style.display = "flex";
-// }
-
-// async function loadComparativeInsightChart() {
-//   resetAnalysisUI();
-//   alert("Comparative Insights already works – unchanged.");
-// }
 /*************************************************
  * SHOW STUDENT PERFORMANCE
  *************************************************/
