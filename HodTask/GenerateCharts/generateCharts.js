@@ -375,101 +375,6 @@ generateBtn.onclick = async () => {
 };
 
 /*************************************************
- * SHOW STUDENT PERFORMANCE
- *************************************************/
-async function showStudentPerformanceControls() {
-  // Reset everything else
-  resetAnalysisUI();
-
-  if (!yearSelect.value || !branchSelect.value) {
-    alert("Please select Year and Section first");
-    return;
-  }
-
-  studentControls.style.display = "flex";
-
-  try {
-    const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
-    const students = await res.json();
-
-    const studentSelect = document.getElementById("studentHtno");
-    studentSelect.innerHTML = `<option value="">Select Student</option>`;
-
-    students.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s.htno;
-      opt.textContent = `${s.htno} - ${s.name}`;
-      studentSelect.appendChild(opt);
-    });
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load students");
-  }
-}
-
-/*************************************************
- * LOAD INDIVIDUAL STUDENT PERFORMANCE CHART
- *************************************************/
-async function loadStudentPerformanceChart() {
-  const htno = document.getElementById("studentHtno").value;
-  if (!htno) {
-    alert("Please select a student");
-    return;
-  }
-
-  clearCharts();
-  chartsContainer.innerHTML = "<p>Loading student performance...</p>";
-
-  try {
-    const res = await fetch(
-      `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
-    );
-    const result = await res.json();
-
-    if (!result.data || result.data.length === 0) {
-      chartsContainer.innerHTML = "<p>No data found</p>";
-      return;
-    }
-
-    const exams = result.exams;
-    const data = result.data;
-
-    const subjects = data.map(d => d.subject);
-
-    const datasets = exams.map((exam, i) => ({
-      label: `${exam}`,
-      data: data.map(d => d[exam] ?? 0),
-      backgroundColor: `hsl(${i * 60}, 70%, 60%)`
-    }));
-
-    chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
-
-    const ctx = document.getElementById("studentChart").getContext("2d");
-    const chart = new Chart(ctx, {
-      type: "bar",
-      data: { labels: subjects, datasets },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: `Student Performance – ${data[0].name} (${htno})`
-          }
-        },
-        scales: {
-          y: { beginAtZero: true, title: { display: true, text: "Marks" } },
-          x: { title: { display: true, text: "Subjects" } }
-        }
-      }
-    });
-
-    marksChartInstances.push(chart);
-  } catch (err) {
-    console.error(err);
-    chartsContainer.innerHTML = "<p>Error loading student performance</p>";
-  }
-}
-/*************************************************
  * COMPARATIVE INSIGHTS
  *************************************************/
 function createCommonStudentTable(subjects, subjectData) {
@@ -932,3 +837,98 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
 
 };
 
+/*************************************************
+ * SHOW STUDENT PERFORMANCE
+ *************************************************/
+async function showStudentPerformanceControls() {
+  // Reset everything else
+  resetAnalysisUI();
+
+  if (!yearSelect.value || !branchSelect.value) {
+    alert("Please select Year and Section first");
+    return;
+  }
+
+  studentControls.style.display = "flex";
+
+  try {
+    const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
+    const students = await res.json();
+
+    const studentSelect = document.getElementById("studentHtno");
+    studentSelect.innerHTML = `<option value="">Select Student</option>`;
+
+    students.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.htno;
+      opt.textContent = `${s.htno} - ${s.name}`;
+      studentSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load students");
+  }
+}
+
+/*************************************************
+ * LOAD INDIVIDUAL STUDENT PERFORMANCE CHART
+ *************************************************/
+async function loadStudentPerformanceChart() {
+  const htno = document.getElementById("studentHtno").value;
+  if (!htno) {
+    alert("Please select a student");
+    return;
+  }
+
+  clearCharts();
+  chartsContainer.innerHTML = "<p>Loading student performance...</p>";
+
+  try {
+    const res = await fetch(
+      `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
+    );
+    const result = await res.json();
+
+    if (!result.data || result.data.length === 0) {
+      chartsContainer.innerHTML = "<p>No data found</p>";
+      return;
+    }
+
+    const exams = result.exams;
+    const data = result.data;
+
+    const subjects = data.map(d => d.subject);
+
+    const datasets = exams.map((exam, i) => ({
+      label: `${exam}`,
+      data: data.map(d => d[exam] ?? 0),
+      backgroundColor: `hsl(${i * 60}, 70%, 60%)`
+    }));
+
+    chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
+
+    const ctx = document.getElementById("studentChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: { labels: subjects, datasets },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: `Student Performance – ${data[0].name} (${htno})`
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+          x: { title: { display: true, text: "Subjects" } }
+        }
+      }
+    });
+
+    marksChartInstances.push(chart);
+  } catch (err) {
+    console.error(err);
+    chartsContainer.innerHTML = "<p>Error loading student performance</p>";
+  }
+}
