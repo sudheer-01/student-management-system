@@ -1015,7 +1015,11 @@ document.addEventListener("click", e => {
     return;
   }
 
-  const table = document.createElement("table"); 
+     const heading = document.createElement("h5");
+    heading.textContent = `${exam} → Subjects with marks ${criteria} ${value}: ${rows.length}`;
+    resultDiv.appendChild(heading);
+
+    const table = document.createElement("table");
   table.className = "student-range-table";
   table.innerHTML = `<tr><th>Subject</th><th>Marks</th></tr>`;
 
