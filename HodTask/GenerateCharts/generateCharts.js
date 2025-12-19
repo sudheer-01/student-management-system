@@ -48,13 +48,32 @@ function clearCharts() {
 }
 
 function resetAnalysisUI() {
+  // Subject Exam Analysis
   performanceConfig.style.display = "none";
   performanceConfig.innerHTML = "";
   generateBtn.style.display = "none";
   subjectWrapper.style.display = "none";
+
+  // Student Performance
   studentControls.style.display = "none";
+
+  // 🔥 Comparative Insights (MISSING PART – VERY IMPORTANT)
+  const comparativeConfig = document.getElementById("comparativeConfig");
+  const generateComparativeBtn = document.getElementById("generateComparativeBtn");
+
+  if (comparativeConfig) {
+    comparativeConfig.style.display = "none";
+    comparativeConfig.innerHTML = "";
+  }
+
+  if (generateComparativeBtn) {
+    generateComparativeBtn.style.display = "none";
+  }
+
+  // Charts
   clearCharts();
 }
+
 
 async function populateDropdown(select, url, valueKey, textKey) {
   const res = await fetch(url);
