@@ -284,13 +284,20 @@ generateBtn.onclick = async () => {
 
         // 🔹 Chart box
         const chartBox = document.createElement("div");
-        chartBox.className = "chart-container";
+        chartBox.className = "analysis-block";
 
         chartBox.innerHTML = `
-            <canvas></canvas>
-            <button class="view-students-btn">View Students</button>
+            <div class="chart-container">
+                <canvas></canvas>
+            </div>
+
+            <button class="view-students-btn">
+                View Students in Each Performance Level
+            </button>
+
             <div class="students-container" style="display:none;"></div>
         `;
+
 
         chartsContainer.appendChild(chartBox);
 
