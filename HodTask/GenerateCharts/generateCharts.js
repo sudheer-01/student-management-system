@@ -645,156 +645,164 @@ document.addEventListener("change", e => {
     }
 });
 document.getElementById("generateComparativeBtn").onclick = async () => {
-    clearCharts();
+  clearCharts();
 
-    const subjects = [...document.querySelectorAll("#ciSubjects input:checked")]
-        .map(i => i.value);
+  const year = yearSelect.value;
+  const branch = branchSelect.value;
 
-    const exams = [...document.querySelectorAll(".ciExamCheck:checked")]
-        .map(i => i.value);
+  const subjects = [...document.querySelectorAll("#ciSubjects input:checked")]
+    .map(i => i.value);
 
-    if (!subjects.length || !exams.length) {
-        alert("Please select subjects and exams");
-        return;
+  const exams = [...document.querySelectorAll(".ciExamCheck:checked")]
+    .map(i => i.value);
+
+  if (!subjects.length || !exams.length) {
+    alert("Please select subjects and exams");
+    return;
+  }
+
+  for (const exam of exams) {
+
+    // 🔹 Collect ranges defined for THIS exam
+    const rangeInputs = document.querySelectorAll(`#ranges-${exam} input`);
+    const ranges = [];
+
+    for (let i = 0; i < rangeInputs.length; i += 2) {
+      ranges.push({
+        label: `${rangeInputs[i].value}-${rangeInputs[i+1].value}`,
+        from: +rangeInputs[i].value,
+        to: +rangeInputs[i+1].value
+      });
     }
 
-    for (const exam of exams) {
+    /* ================= SUBJECT-WISE GRAPHS ================= */
+    const subjectDataMap = {};
 
-        /* ---------- READ EXAM-SPECIFIC RANGES ---------- */
-        const rangeInputs = document.querySelectorAll(`#ranges-${exam} input`);
-        const ranges = [];
+    for (const subject of subjects) {
+      subjectDataMap[subject] = await (await fetch(
+        `/getStudentReports/${year}/${branch}/${subject}/${exam}`
+      )).json();
 
-        for (let i = 0; i < rangeInputs.length; i += 2) {
-            if (!rangeInputs[i].value || !rangeInputs[i + 1].value) continue;
+      const counts = ranges.map(r =>
+        subjectDataMap[subject]
+          .filter(s => s.marks >= r.from && s.marks <= r.to).length
+      );
 
-            ranges.push({
-                label: `${rangeInputs[i].value}-${rangeInputs[i + 1].value}`,
-                from: +rangeInputs[i].value,
-                to: +rangeInputs[i + 1].value
-            });
+      const block = document.createElement("div");
+      block.className = "analysis-block";
+
+      block.innerHTML = `
+        <div class="chart-container"><canvas></canvas></div>
+        <button class="view-students-btn">View Students</button>
+        <div class="students-container" style="display:none;"></div>
+      `;
+
+      chartsContainer.appendChild(block);
+
+      const chart = new Chart(block.querySelector("canvas"), {
+        type: "bar",
+        data: {
+          labels: ranges.map(r => r.label),
+          datasets: [{
+            label: `${subject} – ${exam}`,
+            data: counts,
+            backgroundColor: "rgba(37,99,235,0.7)"
+          }]
+        },
+        options: {
+          plugins: {
+            title: { display: true, text: `${subject} – ${exam}` }
+          },
+          scales: { y: { beginAtZero: true } }
         }
+      });
 
-        if (!ranges.length) continue;
+      marksChartInstances.push(chart);
 
-        /* ---------- FETCH DATA SUBJECT-WISE ---------- */
-        const subjectData = {};
-        for (const subject of subjects) {
-            subjectData[subject] = await (await fetch(
-                `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject}/${exam}`
-            )).json();
+      block.querySelector(".view-students-btn").onclick = () => {
+        const box = block.querySelector(".students-container");
+        if (!box.innerHTML) {
+          box.appendChild(
+            createStudentRangeTable(`${subject} – ${exam}`, ranges, subjectDataMap[subject])
+          );
         }
-
-        /* =====================================================
-           1️⃣ SUBJECT-WISE PERFORMANCE DISTRIBUTION
-        ===================================================== */
-        const subjectCounts = subjects.map(subject =>
-            ranges.map(r =>
-                subjectData[subject].filter(
-                    s => s.marks >= r.from && s.marks <= r.to
-                ).length
-            )
-        );
-
-        ranges.forEach((range, idx) => {
-            const box = document.createElement("div");
-            box.className = "analysis-block";
-            chartsContainer.appendChild(box);
-
-            const canvas = document.createElement("canvas");
-            box.appendChild(canvas);
-
-            new Chart(canvas, {
-                type: "bar",
-                data: {
-                    labels: subjects,
-                    datasets: [{
-                        label: `${exam} – ${range.label}`,
-                        data: subjectCounts.map(sc => sc[idx]),
-                        backgroundColor: "rgba(54,162,235,0.7)"
-                    }]
-                },
-                options: {
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `Subject-wise Performance (${exam}: ${range.label})`
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: "Students" } }
-                    }
-                }
-            });
-        });
-
-        /* =====================================================
-           2️⃣ COMMON STUDENTS ANALYSIS
-        ===================================================== */
-        const commonBox = document.createElement("div");
-        commonBox.className = "analysis-block";
-        chartsContainer.appendChild(commonBox);
-
-        const commonCounts = [];
-        const commonStudentsByRange = [];
-
-        ranges.forEach(range => {
-            let common = subjectData[subjects[0]]
-                .filter(s => s.marks >= range.from && s.marks <= range.to);
-
-            subjects.slice(1).forEach(sub => {
-                const set = subjectData[sub]
-                    .filter(s => s.marks >= range.from && s.marks <= range.to)
-                    .map(s => s.htno);
-
-                common = common.filter(s => set.includes(s.htno));
-            });
-
-            commonCounts.push(common.length);
-            commonStudentsByRange.push(common);
-        });
-
-        const commonCanvas = document.createElement("canvas");
-        commonBox.appendChild(commonCanvas);
-
-        new Chart(commonCanvas, {
-            type: "bar",
-            data: {
-                labels: ranges.map(r => r.label),
-                datasets: [{
-                    label: `Common Students – ${exam}`,
-                    data: commonCounts,
-                    backgroundColor: "rgba(220,38,38,0.7)"
-                }]
-            },
-            options: {
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Common Weak Students (${exam})`
-                    }
-                }
-            }
-        });
-
-        /* ---------- VIEW COMMON STUDENTS ---------- */
-        const btn = document.createElement("button");
-        btn.className = "view-students-btn";
-        btn.textContent = "View Common Students";
-        commonBox.appendChild(btn);
-
-        const studentsDiv = document.createElement("div");
-        studentsDiv.style.display = "none";
-        commonBox.appendChild(studentsDiv);
-
-        btn.onclick = () => {
-            studentsDiv.innerHTML = "";
-            commonStudentsByRange.forEach((students, idx) => {
-                studentsDiv.appendChild(
-                    createCommonStudentTable(exam, ranges[idx], students)
-                );
-            });
-            studentsDiv.style.display =
-                studentsDiv.style.display === "none" ? "block" : "none";
-        };
+        box.style.display = box.style.display === "none" ? "block" : "none";
+      };
     }
+
+    /* ================= COMMON STUDENTS GRAPH ================= */
+    const commonCounts = ranges.map(r => {
+      let common = subjectDataMap[subjects[0]]
+        .filter(s => s.marks >= r.from && s.marks <= r.to)
+        .map(s => s.htno);
+
+      subjects.slice(1).forEach(sub => {
+        const set = subjectDataMap[sub]
+          .filter(s => s.marks >= r.from && s.marks <= r.to)
+          .map(s => s.htno);
+        common = common.filter(h => set.includes(h));
+      });
+
+      return common.length;
+    });
+
+    const commonBlock = document.createElement("div");
+    commonBlock.className = "analysis-block";
+
+    commonBlock.innerHTML = `
+      <div class="chart-container"><canvas></canvas></div>
+      <button class="view-students-btn">View Common Students</button>
+      <div class="students-container" style="display:none;"></div>
+    `;
+
+    chartsContainer.appendChild(commonBlock);
+
+    new Chart(commonBlock.querySelector("canvas"), {
+      type: "bar",
+      data: {
+        labels: ranges.map(r => r.label),
+        datasets: [{
+          label: `Common Students – ${exam}`,
+          data: commonCounts,
+          backgroundColor: "rgba(220,38,38,0.7)"
+        }]
+      }
+    });
+
+    commonBlock.querySelector(".view-students-btn").onclick = () => {
+      const box = commonBlock.querySelector(".students-container");
+      box.innerHTML = "";
+
+      ranges.forEach(r => {
+        const table = document.createElement("table");
+        table.className = "student-range-table";
+
+        table.innerHTML = `
+          <tr>
+            <th>HTNO</th><th>Name</th><th>Subject</th><th>Marks</th>
+          </tr>
+        `;
+
+        subjects.forEach(sub => {
+          subjectDataMap[sub]
+            .filter(s => s.marks >= r.from && s.marks <= r.to)
+            .forEach(s => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${s.htno}</td>
+                <td>${s.name}</td>
+                <td>${sub}</td>
+                <td>${s.marks}</td>
+              `;
+              table.appendChild(row);
+            });
+        });
+
+        box.appendChild(table);
+      });
+
+      box.style.display = "block";
+    };
+  }
 };
+
