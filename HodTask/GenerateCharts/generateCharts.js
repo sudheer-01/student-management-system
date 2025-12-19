@@ -1038,7 +1038,7 @@ function renderExamSelectionUI(exams) {
   container.className = "analysis-block";
 
   container.innerHTML = `
-    <h3>Step 1️⃣ Select Exam(s)</h3>
+    <h3>Select Exam(s)</h3>
     <div id="studentExamChecks" class="checkbox-group"></div>
     <div id="examCriteriaContainer"></div>
   `;
