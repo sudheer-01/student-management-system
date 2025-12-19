@@ -840,8 +840,42 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
 /*************************************************
  * SHOW STUDENT PERFORMANCE
  *************************************************/
+// async function showStudentPerformanceControls() {
+//   // Reset everything else
+//   resetAnalysisUI();
+
+//   if (!yearSelect.value || !branchSelect.value) {
+//     alert("Please select Year and Section first");
+//     return;
+//   }
+
+//   studentControls.style.display = "flex";
+
+//   try {
+//     const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
+//     const students = await res.json();
+
+//     const studentSelect = document.getElementById("studentHtno");
+//     studentSelect.innerHTML = `<option value="">Select Student</option>`;
+
+//     students.forEach(s => {
+//       const opt = document.createElement("option");
+//       opt.value = s.htno;
+//       opt.textContent = `${s.htno} - ${s.name}`;
+//       studentSelect.appendChild(opt);
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     alert("Failed to load students");
+//   }
+// }
+/*************************************************
+ * SHOW STUDENT PERFORMANCE
+ *************************************************/
+let currentData = [];
+let currentExams = [];
+
 async function showStudentPerformanceControls() {
-  // Reset everything else
   resetAnalysisUI();
 
   if (!yearSelect.value || !branchSelect.value) {
@@ -851,166 +885,165 @@ async function showStudentPerformanceControls() {
 
   studentControls.style.display = "flex";
 
-  try {
-    const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
-    const students = await res.json();
+  const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
+  const students = await res.json();
 
-    const studentSelect = document.getElementById("studentHtno");
-    studentSelect.innerHTML = `<option value="">Select Student</option>`;
+  const studentSelect = document.getElementById("studentHtno");
+  studentSelect.innerHTML = `<option value="">Select Student</option>`;
 
-    students.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s.htno;
-      opt.textContent = `${s.htno} - ${s.name}`;
-      studentSelect.appendChild(opt);
-    });
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load students");
-  }
+  students.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.htno;
+    opt.textContent = `${s.htno} - ${s.name}`;
+    studentSelect.appendChild(opt);
+  });
 }
 
 /*************************************************
- * LOAD INDIVIDUAL STUDENT PERFORMANCE CHART
+ * LOAD STUDENT GRAPH + EXAM SELECTION
  *************************************************/
 async function loadStudentPerformanceChart() {
   const htno = document.getElementById("studentHtno").value;
   if (!htno) {
-    alert("Please select a student");
+    alert("Select a student");
     return;
   }
 
   clearCharts();
-  chartsContainer.innerHTML = "<p>Loading student performance...</p>";
+  chartsContainer.innerHTML = "<p>Loading...</p>";
 
-  try {
-    const res = await fetch(
-      `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
-    );
-    const result = await res.json();
+  const res = await fetch(
+    `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
+  );
+  const result = await res.json();
 
-    if (!result.data || result.data.length === 0) {
-      chartsContainer.innerHTML = "<p>No data found</p>";
-      return;
-    }
+  currentData = result.data;
+  currentExams = result.exams;
 
-    const exams = result.exams;
-    const data = result.data;
-    currentData = data;
-
-    const subjects = data.map(d => d.subject);
-
-    const datasets = exams.map((exam, i) => ({
-      label: `${exam}`,
-      data: data.map(d => d[exam] ?? 0),
-      backgroundColor: `hsl(${i * 60}, 70%, 60%)`
-    }));
-
-    chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
-
-    const ctx = document.getElementById("studentChart").getContext("2d");
-    const maxMarksRes = await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`);
-    const maxMarksMap = await maxMarksRes.json();
-
-    // Find highest max among selected exams
-    const maxY = Math.max(...exams.map(e => maxMarksMap[e] || 0));
-
-    const chart = new Chart(ctx, {
-      type: "bar",
-      data: { labels: subjects, datasets },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: `Student Performance – ${data[0].name} (${htno})`
-          }
-        },
-        scales: {
-        y: {
-                beginAtZero: true,
-                max: maxY,
-                ticks: {
-                stepSize: Math.ceil(maxY / 5)
-                },
-                title: {
-                display: true,
-                text: "Marks"
-                }
-            },
-        x: {
-                title: {
-                display: true,
-                text: "Subjects"
-                }
-            }
-        }
-
-      }
-    });
-
-    marksChartInstances.push(chart);
-  } catch (err) {
-    console.error(err);
-    chartsContainer.innerHTML = "<p>Error loading student performance</p>";
+  if (!currentData.length) {
+    chartsContainer.innerHTML = "<p>No data found</p>";
+    return;
   }
-  renderExamCriteriaUI(exams);
+
+  /* ===== GRAPH ===== */
+  const subjects = currentData.map(d => d.subject);
+
+  const datasets = currentExams.map((exam, i) => ({
+    label: exam,
+    data: currentData.map(d => d[exam] ?? 0),
+    backgroundColor: `hsl(${i * 60}, 70%, 60%)`
+  }));
+
+  chartsContainer.innerHTML = `
+    <div class="chart-container">
+      <canvas id="studentChart"></canvas>
+    </div>
+    <div id="examSelection"></div>
+    <div id="criteriaContainer"></div>
+  `;
+
+  const maxRes = await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`);
+  const maxMap = await maxRes.json();
+  const maxY = Math.max(...currentExams.map(e => maxMap[e] || 0));
+
+  new Chart(document.getElementById("studentChart"), {
+    type: "bar",
+    data: { labels: subjects, datasets },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: maxY, title: { display: true, text: "Marks" } }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: `Student Performance – ${currentData[0].name} (${htno})`
+        }
+      }
+    }
+  });
+
+  renderExamSelection();
 }
-function renderExamCriteriaUI(exams) {
-  const container = document.createElement("div");
-  container.className = "analysis-block";
 
-  container.innerHTML = `<h3>Exam-wise Subject Analysis</h3>`;
+/*************************************************
+ * STEP 1️⃣ SELECT EXAMS
+ *************************************************/
+function renderExamSelection() {
+  const div = document.getElementById("examSelection");
 
-  exams.forEach(exam => {
+  div.innerHTML = `
+    <h3>Select Exam(s)</h3>
+    ${currentExams.map(e => `
+      <label>
+        <input type="checkbox" class="exam-check" value="${e}">
+        ${e}
+      </label>
+    `).join("<br>")}
+  `;
+
+  document.querySelectorAll(".exam-check").forEach(cb => {
+    cb.addEventListener("change", renderCriteriaBlocks);
+  });
+}
+
+/*************************************************
+ * STEP 2️⃣ CRITERIA PER EXAM
+ *************************************************/
+function renderCriteriaBlocks() {
+  const selectedExams = [...document.querySelectorAll(".exam-check:checked")]
+    .map(e => e.value);
+
+  const container = document.getElementById("criteriaContainer");
+  container.innerHTML = "";
+
+  selectedExams.forEach(exam => {
     const block = document.createElement("div");
     block.className = "exam-config";
 
     block.innerHTML = `
       <h4>${exam}</h4>
-      <select class="criteria" data-exam="${exam}">
+      <select class="criteria">
         <option value="below">Below Marks</option>
         <option value="above">Above Marks</option>
         <option value="equal">Equal To Marks</option>
       </select>
       <input type="number" class="criteria-marks" placeholder="Enter Marks">
-      <button class="analyze-btn" data-exam="${exam}">Analyze</button>
+      <button onclick="analyzeStudentExam('${exam}', this)">Analyze</button>
       <div class="criteria-result"></div>
     `;
 
     container.appendChild(block);
   });
-
-  chartsContainer.appendChild(container);
 }
-document.addEventListener("click", e => {
-  if (!e.target.classList.contains("analyze-btn")) return;
 
-  const exam = e.target.dataset.exam;
-  const criteria = e.target.parentElement.querySelector(".criteria").value;
-  const value = parseInt(
-    e.target.parentElement.querySelector(".criteria-marks").value
-  );
+/*************************************************
+ * STEP 3️⃣ RESULT TABLE (FINAL FORMAT)
+ *************************************************/
+function analyzeStudentExam(exam, btn) {
+  const block = btn.parentElement;
+  const criteria = block.querySelector(".criteria").value;
+  const value = Number(block.querySelector(".criteria-marks").value);
+  const resultDiv = block.querySelector(".criteria-result");
 
   if (isNaN(value)) {
     alert("Enter marks");
     return;
   }
 
-  const resultDiv = e.target.parentElement.querySelector(".criteria-result");
-  resultDiv.innerHTML = "";
-
-  const rows = currentData.filter(sub => {
-    const mark = sub[exam];
-    if (mark == null) return false;
-
-    if (criteria === "below") return mark < value;
-    if (criteria === "above") return mark > value;
-    if (criteria === "equal") return mark === value;
+  const rows = currentData.filter(r => {
+    const m = r[exam];
+    if (m == null) return false;
+    if (criteria === "below") return m < value;
+    if (criteria === "above") return m > value;
+    return m === value;
   });
 
+  resultDiv.innerHTML = `
+    <h4>${exam} → Subjects with marks ${criteria} ${value}: ${rows.length}</h4>
+  `;
+
   if (!rows.length) {
-    resultDiv.innerHTML = "<em>No subjects match this criteria</em>";
+    resultDiv.innerHTML += `<em>No subjects found</em>`;
     return;
   }
 
@@ -1028,4 +1061,164 @@ document.addEventListener("click", e => {
   });
 
   resultDiv.appendChild(table);
-});
+}
+
+/*************************************************
+ * LOAD INDIVIDUAL STUDENT PERFORMANCE CHART
+ *************************************************/
+// async function loadStudentPerformanceChart() {
+//   const htno = document.getElementById("studentHtno").value;
+//   if (!htno) {
+//     alert("Please select a student");
+//     return;
+//   }
+
+//   clearCharts();
+//   chartsContainer.innerHTML = "<p>Loading student performance...</p>";
+
+//   try {
+//     const res = await fetch(
+//       `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
+//     );
+//     const result = await res.json();
+
+//     if (!result.data || result.data.length === 0) {
+//       chartsContainer.innerHTML = "<p>No data found</p>";
+//       return;
+//     }
+
+//     const exams = result.exams;
+//     const data = result.data;
+//     currentData = data;
+
+//     const subjects = data.map(d => d.subject);
+
+//     const datasets = exams.map((exam, i) => ({
+//       label: `${exam}`,
+//       data: data.map(d => d[exam] ?? 0),
+//       backgroundColor: `hsl(${i * 60}, 70%, 60%)`
+//     }));
+
+//     chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
+
+//     const ctx = document.getElementById("studentChart").getContext("2d");
+//     const maxMarksRes = await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`);
+//     const maxMarksMap = await maxMarksRes.json();
+
+//     // Find highest max among selected exams
+//     const maxY = Math.max(...exams.map(e => maxMarksMap[e] || 0));
+
+//     const chart = new Chart(ctx, {
+//       type: "bar",
+//       data: { labels: subjects, datasets },
+//       options: {
+//         responsive: true,
+//         plugins: {
+//           title: {
+//             display: true,
+//             text: `Student Performance – ${data[0].name} (${htno})`
+//           }
+//         },
+//         scales: {
+//         y: {
+//                 beginAtZero: true,
+//                 max: maxY,
+//                 ticks: {
+//                 stepSize: Math.ceil(maxY / 5)
+//                 },
+//                 title: {
+//                 display: true,
+//                 text: "Marks"
+//                 }
+//             },
+//         x: {
+//                 title: {
+//                 display: true,
+//                 text: "Subjects"
+//                 }
+//             }
+//         }
+
+//       }
+//     });
+
+//     marksChartInstances.push(chart);
+//   } catch (err) {
+//     console.error(err);
+//     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
+//   }
+//   renderExamCriteriaUI(exams);
+// }
+// function renderExamCriteriaUI(exams) {
+//   const container = document.createElement("div");
+//   container.className = "analysis-block";
+
+//   container.innerHTML = `<h3>Exam-wise Subject Analysis</h3>`;
+
+//   exams.forEach(exam => {
+//     const block = document.createElement("div");
+//     block.className = "exam-config";
+
+//     block.innerHTML = `
+//       <h4>${exam}</h4>
+//       <select class="criteria" data-exam="${exam}">
+//         <option value="below">Below Marks</option>
+//         <option value="above">Above Marks</option>
+//         <option value="equal">Equal To Marks</option>
+//       </select>
+//       <input type="number" class="criteria-marks" placeholder="Enter Marks">
+//       <button class="analyze-btn" data-exam="${exam}">Analyze</button>
+//       <div class="criteria-result"></div>
+//     `;
+
+//     container.appendChild(block);
+//   });
+
+//   chartsContainer.appendChild(container);
+// }
+// document.addEventListener("click", e => {
+//   if (!e.target.classList.contains("analyze-btn")) return;
+
+//   const exam = e.target.dataset.exam;
+//   const criteria = e.target.parentElement.querySelector(".criteria").value;
+//   const value = parseInt(
+//     e.target.parentElement.querySelector(".criteria-marks").value
+//   );
+
+//   if (isNaN(value)) {
+//     alert("Enter marks");
+//     return;
+//   }
+
+//   const resultDiv = e.target.parentElement.querySelector(".criteria-result");
+//   resultDiv.innerHTML = "";
+
+//   const rows = currentData.filter(sub => {
+//     const mark = sub[exam];
+//     if (mark == null) return false;
+
+//     if (criteria === "below") return mark < value;
+//     if (criteria === "above") return mark > value;
+//     if (criteria === "equal") return mark === value;
+//   });
+
+//   if (!rows.length) {
+//     resultDiv.innerHTML = "<em>No subjects match this criteria</em>";
+//     return;
+//   }
+
+//   const table = document.createElement("table");
+//   table.className = "student-range-table";
+//   table.innerHTML = `<tr><th>Subject</th><th>Marks</th></tr>`;
+
+//   rows.forEach(r => {
+//     table.innerHTML += `
+//       <tr>
+//         <td>${r.subject}</td>
+//         <td>${r[exam]}</td>
+//       </tr>
+//     `;
+//   });
+
+//   resultDiv.appendChild(table);
+// });
