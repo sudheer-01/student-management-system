@@ -453,6 +453,53 @@ async function loadStudentPerformanceChart() {
 /*************************************************
  * COMPARATIVE INSIGHTS
  *************************************************/
+function createStudentRangeTable(title, ranges, students) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "student-range-wrapper";
+
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+    wrapper.appendChild(heading);
+
+    const table = document.createElement("table");
+    table.className = "student-range-table";
+
+    // Header
+    const headerRow = document.createElement("tr");
+    ranges.forEach(r => {
+        const th = document.createElement("th");
+        th.textContent = r.label;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    // Body
+    const bodyRow = document.createElement("tr");
+    ranges.forEach(r => {
+        const td = document.createElement("td");
+
+        const matched = students.filter(
+            s => s.marks >= r.from && s.marks <= r.to
+        );
+
+        if (!matched.length) {
+            td.innerHTML = "<em>No students</em>";
+        } else {
+            matched.forEach(s => {
+                const div = document.createElement("div");
+                div.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+                td.appendChild(div);
+            });
+        }
+
+        bodyRow.appendChild(td);
+    });
+
+    table.appendChild(bodyRow);
+    wrapper.appendChild(table);
+
+    return wrapper;
+}
 async function loadComparativeInsightChart() {
     resetAnalysisUI();
 
@@ -487,13 +534,15 @@ async function loadComparativeInsightChart() {
 
         <h4>Select Exams</h4>
         <div class="checkbox-group" id="ciExams">
-            ${exams.map(e => `
-                <label>
-                    <input type="checkbox" value="${e}">
-                    ${e}
-                </label>
-            `).join("")}
+        ${exams.map(e => `
+            <label>
+            <input type="checkbox" class="ciExamCheck" value="${e}">
+            ${e}
+            </label>
+        `).join("")}
         </div>
+
+        <div id="ciExamConfigs"></div>
 
         <h4>Define Performance Levels</h4>
         <select id="ciLevelCount">
@@ -506,6 +555,55 @@ async function loadComparativeInsightChart() {
 
     document.getElementById("generateComparativeBtn").style.display = "inline-block";
 }
+document.addEventListener("change", async e => {
+    if (!e.target.classList.contains("ciExamCheck")) return;
+
+    const exam = e.target.value;
+    const container = document.getElementById("ciExamConfigs");
+
+    // remove if unchecked
+    if (!e.target.checked) {
+        document.getElementById(`ci-${exam}`)?.remove();
+        return;
+    }
+
+    const maxRes = await fetch(`/getExamMaxMarks/${yearSelect.value}/${branchSelect.value}/${exam}`);
+    const { maxMarks } = await maxRes.json();
+
+    const block = document.createElement("div");
+    block.className = "exam-config";
+    block.id = `ci-${exam}`;
+    block.innerHTML = `
+        <h4>${exam} (Max: ${maxMarks})</h4>
+        <label>Performance Levels</label>
+        <select class="ciLevelCount" data-exam="${exam}">
+            <option value="">Select</option>
+            ${[2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join("")}
+        </select>
+        <div class="ciRanges" id="ranges-${exam}"></div>
+        <hr/>
+    `;
+    container.appendChild(block);
+});
+document.addEventListener("change", e => {
+    if (!e.target.classList.contains("ciLevelCount")) return;
+
+    const exam = e.target.dataset.exam;
+    const levels = +e.target.value;
+    const box = document.getElementById(`ranges-${exam}`);
+    box.innerHTML = "";
+
+    for (let i = 1; i <= levels; i++) {
+        box.innerHTML += `
+            <div>
+              <label>Level ${i}</label>
+              <input type="number" placeholder="From">
+              <input type="number" placeholder="To">
+            </div>
+        `;
+    }
+});
+
 document.addEventListener("change", e => {
     if (e.target.id !== "ciLevelCount") return;
 
@@ -526,107 +624,80 @@ document.addEventListener("change", e => {
 document.getElementById("generateComparativeBtn").onclick = async () => {
     clearCharts();
 
-    const selectedSubjects = [...document.querySelectorAll("#ciSubjects input:checked")]
-        .map(cb => cb.value);
+    const subjects = [...document.querySelectorAll("#ciSubjects input:checked")]
+        .map(i => i.value);
 
-    const selectedExams = [...document.querySelectorAll("#ciExams input:checked")]
-        .map(cb => cb.value);
+    const exams = [...document.querySelectorAll(".ciExamCheck:checked")]
+        .map(i => i.value);
 
-    const rangeInputs = document.querySelectorAll("#ciRanges input");
+    for (const exam of exams) {
+        const rangeInputs = document.querySelectorAll(`#ranges-${exam} input`);
+        const ranges = [];
 
-    if (!selectedSubjects.length || !selectedExams.length) {
-        alert("Select subjects and exams");
-        return;
-    }
-
-    const ranges = [];
-    for (let i = 0; i < rangeInputs.length; i += 2) {
-        ranges.push({
-            label: `${rangeInputs[i].value}-${rangeInputs[i+1].value}`,
-            from: +rangeInputs[i].value,
-            to: +rangeInputs[i+1].value
-        });
-    }
-
-    for (const exam of selectedExams) {
-        const subjectWiseCounts = {};
-        const subjectWiseStudents = {};
-
-        for (const subject of selectedSubjects) {
-            const data = await (await fetch(
-                `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject}/${exam}`
-            )).json();
-
-            subjectWiseCounts[subject] = ranges.map(r =>
-                data.filter(s => s.marks >= r.from && s.marks <= r.to).length
-            );
-
-            subjectWiseStudents[subject] = ranges.map(r =>
-                data.filter(s => s.marks >= r.from && s.marks <= r.to)
-                    .map(s => s.htno)
-            );
+        for (let i = 0; i < rangeInputs.length; i += 2) {
+            ranges.push({
+                label: `${rangeInputs[i].value}-${rangeInputs[i+1].value}`,
+                from: +rangeInputs[i].value,
+                to: +rangeInputs[i+1].value
+            });
         }
 
-        /* ---------- CHART 1: SUBJECT-WISE PERFORMANCE ---------- */
-        const chartBox = document.createElement("div");
-        chartBox.className = "chart-container";
-        chartsContainer.appendChild(chartBox);
+        const subjectData = {};
+        for (const subject of subjects) {
+            subjectData[subject] = await (await fetch(
+                `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject}/${exam}`
+            )).json();
+        }
 
-        new Chart(chartBox.appendChild(document.createElement("canvas")), {
-            type: "bar",
-            data: {
-                labels: ranges.map(r => r.label),
-                datasets: selectedSubjects.map((sub, i) => ({
-                    label: sub,
-                    data: subjectWiseCounts[sub],
-                    backgroundColor: `hsl(${i * 60},70%,60%)`
-                }))
-            },
-            options: {
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Subject-wise Performance – ${exam}`
-                    }
-                },
-                scales: { y: { beginAtZero: true } }
-            }
-        });
+        /* ---------- COMMON STUDENTS ---------- */
+        const commonCounts = ranges.map(r => {
+            let common = subjectData[subjects[0]]
+                .filter(s => s.marks >= r.from && s.marks <= r.to)
+                .map(s => s.htno);
 
-        /* ---------- CHART 2: COMMON WEAK STUDENTS ---------- */
-        const commonCounts = ranges.map((_, idx) => {
-            let common = subjectWiseStudents[selectedSubjects[0]][idx];
-            selectedSubjects.slice(1).forEach(sub => {
-                common = common.filter(htno =>
-                    subjectWiseStudents[sub][idx].includes(htno)
-                );
+            subjects.slice(1).forEach(sub => {
+                const set = subjectData[sub]
+                    .filter(s => s.marks >= r.from && s.marks <= r.to)
+                    .map(s => s.htno);
+                common = common.filter(h => set.includes(h));
             });
             return common.length;
         });
 
-        const commonBox = document.createElement("div");
-        commonBox.className = "chart-container";
-        chartsContainer.appendChild(commonBox);
+        const box = document.createElement("div");
+        box.className = "chart-container";
+        chartsContainer.appendChild(box);
 
-        new Chart(commonBox.appendChild(document.createElement("canvas")), {
+        new Chart(box.appendChild(document.createElement("canvas")), {
             type: "bar",
             data: {
                 labels: ranges.map(r => r.label),
                 datasets: [{
-                    label: "Common Students",
+                    label: `Common Students – ${exam}`,
                     data: commonCounts,
                     backgroundColor: "rgba(220,38,38,0.7)"
                 }]
-            },
-            options: {
-                plugins: {
-                    title: {
-                        display: true,
-                        text: `Common Weak Students Across Subjects – ${exam}`
-                    }
-                },
-                scales: { y: { beginAtZero: true } }
             }
         });
+
+        /* ---------- VIEW STUDENTS ---------- */
+        const btn = document.createElement("button");
+        btn.textContent = "View Students";
+        btn.className = "btn";
+        btn.style.marginTop = "10px";
+
+        btn.onclick = () => {
+            subjects.forEach(subject => {
+                box.appendChild(
+                    createStudentRangeTable(
+                        `${subject} – ${exam}`,
+                        ranges,
+                        subjectData[subject]
+                    )
+                );
+            });
+        };
+
+        box.appendChild(btn);
     }
 };
