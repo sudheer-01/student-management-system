@@ -692,43 +692,60 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             )).json();
         }
 
-        /* ===== SUBJECT-WISE GRAPHS ===== */
-        subjects.forEach(subject => {
-            const counts = ranges.map(r =>
-                subjectData[subject].filter(s => s.marks >= r.from && s.marks <= r.to).length
-            );
+        /* ===== GROUPED SUBJECT COMPARISON GRAPH ===== */
 
-            const block = document.createElement("div");
-            block.className = "analysis-block";
-            block.innerHTML = `
-                <div class="chart-container"><canvas></canvas></div>
-                <button class="view-students-btn">View Students</button>
-                <div class="students-container" style="display:none;"></div>
-            `;
-            chartsContainer.appendChild(block);
+        // Prepare datasets (one dataset per subject)
+        const datasets = subjects.map((subject, idx) => ({
+            label: subject,
+            data: ranges.map(r =>
+                subjectData[subject].filter(
+                    s => s.marks >= r.from && s.marks <= r.to
+                ).length
+            ),
+            backgroundColor: `hsl(${idx * 70}, 70%, 60%)`
+        }));
 
-            const chart = new Chart(block.querySelector("canvas"), {
-                type: "bar",
-                data: {
-                    labels: ranges.map(r => r.label),
-                    datasets: [{
-                        label: `${subject} – ${exam}`,
-                        data: counts,
-                        backgroundColor: "rgba(54,162,235,0.7)"
-                    }]
+        const block = document.createElement("div");
+        block.className = "analysis-block";
+
+        block.innerHTML = `
+            <h4>${exam} – Subject Comparison</h4>
+            <div class="chart-container"><canvas></canvas></div>
+            <button class="view-students-btn">View Students</button>
+            <div class="students-container" style="display:none;"></div>
+        `;
+
+        chartsContainer.appendChild(block);
+
+        // Create grouped bar chart
+        const chart = new Chart(block.querySelector("canvas"), {
+            type: "bar",
+            data: {
+                labels: ranges.map(r => r.label),
+                datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `${exam} – Subject-wise Performance`
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: "Number of Students" }
+                    },
+                    x: {
+                        title: { display: true, text: "Performance Levels" }
+                    }
                 }
-            });
-            marksChartInstances.push(chart);
-
-            const btn = block.querySelector(".view-students-btn");
-            const box = block.querySelector(".students-container");
-
-            btn.onclick = () => {
-                box.innerHTML = "";
-                box.appendChild(createStudentRangeTable(subject, ranges, subjectData[subject]));
-                box.style.display = box.style.display === "none" ? "block" : "none";
-            };
+            }
         });
+
+        marksChartInstances.push(chart);
+
 
         /* ===== COMMON STUDENTS ===== */
         const commonCounts = ranges.map(r => {
@@ -768,18 +785,52 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             }
         });
 
-        const btn = commonBlock.querySelector(".view-students-btn");
-        const box = commonBlock.querySelector(".students-container");
+        const btn = block.querySelector(".view-students-btn");
+        const box = block.querySelector(".students-container");
 
         btn.onclick = () => {
-            if (box.innerHTML === "") {
-                box.appendChild(createCommonStudentTable(subjects, subjectData));
-                box.style.display = "block";
-            } else {
+            if (box.innerHTML !== "") {
                 box.innerHTML = "";
                 box.style.display = "none";
+                return;
             }
+
+            const table = document.createElement("table");
+            table.className = "student-range-table";
+
+            // Header
+            const header = document.createElement("tr");
+            header.innerHTML = `<th>HTNO</th><th>Name</th>`;
+            subjects.forEach(sub => header.innerHTML += `<th>${sub}</th>`);
+            table.appendChild(header);
+
+            // Collect all students involved
+            const studentMap = {};
+
+            subjects.forEach(sub => {
+                subjectData[sub].forEach(s => {
+                    if (!studentMap[s.htno]) {
+                        studentMap[s.htno] = { name: s.name, marks: {} };
+                    }
+                    studentMap[s.htno].marks[sub] = s.marks;
+                });
+            });
+
+            Object.entries(studentMap).forEach(([htno, info]) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${htno}</td><td>${info.name}</td>`;
+
+                subjects.forEach(sub => {
+                    row.innerHTML += `<td>${info.marks[sub] ?? "-"}</td>`;
+                });
+
+                table.appendChild(row);
+            });
+
+            box.appendChild(table);
+            box.style.display = "block";
         };
+
 
     }
 };
