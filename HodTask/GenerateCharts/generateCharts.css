@@ -250,3 +250,30 @@ canvas {
 #subjectExamAnalysisControls button:hover {
   background: #0056b3;
 }
+.exam-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 10px 0 20px;
+}
+
+.exam-checkboxes label {
+    background: #f1f5ff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.exam-config {
+    background: #f9fafc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.rangeInputs div {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}

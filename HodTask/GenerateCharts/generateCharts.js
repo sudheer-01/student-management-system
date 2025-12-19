@@ -1,3 +1,23 @@
+Chart.register({
+    id: 'valueOnBar',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+                const value = dataset.data[index];
+                if (value === 0) return;
+
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 12px Segoe UI";
+                ctx.textAlign = "center";
+                ctx.fillText(value, bar.x, bar.y - 5);
+            });
+        });
+    }
+});
+
+
 // Store chart instances to destroy them before creating new ones
 if (!window.marksChartInstances) {
     window.marksChartInstances = [];
@@ -45,28 +65,83 @@ function clearCharts() {
 
 // SUBJECT EXAM ANALYSIS
 async function loadSubjectExamAnalysis() {
-    const year = document.getElementById("year").value;
-    const branch = document.getElementById("branch").value;
+    resetAnalysisUI(); // 👈 ensures clean state
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
 
     if (!year || !branch) {
-        alert("Please select Year and Section first.");
+        alert("Please select Year and Section.");
         return;
     }
 
-    clearCharts();
-
-    // Show subject dropdown
-    const subjectWrapper = document.getElementById("subjectWrapper");
-    subjectWrapper.style.display = "flex";
-
-    // Populate subjects
+    document.getElementById("subjectWrapper").style.display = "block";
     await populateSubjects(year, branch);
-
-    // Hide previous configs
-    document.getElementById("performanceConfig").style.display = "none";
-    document.getElementById("generateAnalysisBtn").style.display = "none";
 }
+
 document.getElementById("subject").addEventListener("change", loadPerformanceConfig);
+subjectSelect.onchange = async () => {
+    const subject = subjectSelect.value;
+    if (!subject) return;
+
+    resetAnalysisUI();
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+
+    const examRes = await fetch(`/getExams?year=${year}&branch=${branch}`);
+    const exams = await examRes.json();
+
+    const maxMarksRes = await fetch(`/getExamMaxMarksAll/${year}/${branch}`);
+    const maxMarksMap = await maxMarksRes.json();
+
+    const configDiv = document.getElementById("performanceConfig");
+    configDiv.style.display = "block";
+
+    configDiv.innerHTML = `
+        <h3>Select Exams for Analysis</h3>
+        <div class="exam-checkboxes">
+            ${exams.map(exam => `
+                <label>
+                    <input type="checkbox" class="examCheck" data-exam="${exam}" data-max="${maxMarksMap[exam]}">
+                    ${exam} (Max: ${maxMarksMap[exam]})
+                </label>
+            `).join("")}
+        </div>
+        <div id="examConfigs"></div>
+    `;
+};
+
+document.addEventListener("change", e => {
+    if (!e.target.classList.contains("examCheck")) return;
+
+    const exam = e.target.dataset.exam;
+    const max = e.target.dataset.max;
+    const container = document.getElementById("examConfigs");
+
+    // Remove config if unchecked
+    if (!e.target.checked) {
+        document.getElementById(`config-${exam}`)?.remove();
+        return;
+    }
+
+    const block = document.createElement("div");
+    block.id = `config-${exam}`;
+    block.className = "exam-config";
+    block.innerHTML = `
+        <h4>${exam} (Max Marks: ${max})</h4>
+        <label>Performance Levels:</label>
+        <select class="levelCount" data-exam="${exam}">
+            <option value="">Select</option>
+            ${[2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join("")}
+        </select>
+        <div class="rangeInputs" id="ranges-${exam}"></div>
+        <hr/>
+    `;
+    container.appendChild(block);
+
+    document.getElementById("generateAnalysisBtn").style.display = "inline-block";
+});
 
 async function loadPerformanceConfig() {
     const year = document.getElementById("year").value;
@@ -109,6 +184,19 @@ async function loadPerformanceConfig() {
         `;
         configDiv.appendChild(block);
     });
+}
+
+function resetAnalysisUI() {
+    // Hide Subject Exam Analysis UI
+    document.getElementById("performanceConfig").style.display = "none";
+    document.getElementById("performanceConfig").innerHTML = "";
+    document.getElementById("generateAnalysisBtn").style.display = "none";
+
+    // Hide subject dropdown unless explicitly needed
+    document.getElementById("subjectWrapper").style.display = "none";
+
+    // Clear charts
+    clearCharts();
 }
 
 
@@ -206,9 +294,7 @@ document.getElementById("generateAnalysisBtn").onclick = async () => {
 
 // STUDENT PERFORMANCE (BAR CHART)
 function showStudentPerformanceControls() {
-    clearCharts();
-    const subjectWrapper = document.getElementById("subjectWrapper");
-    subjectWrapper.style.display = "none"; // hide subject dropdown
+    resetAnalysisUI(); //  THIS fixes your issue
     const studentControls = document.getElementById("studentPerformanceControls");
     studentControls.style.display = 'flex';
 
@@ -286,6 +372,7 @@ async function loadStudentPerformanceChart() {
 }
 // COMPARATIVE INSIGHT (BAR CHART)
 async function loadComparativeInsightChart() {
+     resetAnalysisUI();
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
 
