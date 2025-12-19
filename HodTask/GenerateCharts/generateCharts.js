@@ -950,11 +950,11 @@ async function loadStudentPerformanceChart() {
     });
 
     marksChartInstances.push(chart);
+    renderExamSelectionUI(exams);
   } catch (err) {
     console.error(err);
     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
   }
-  renderExamSelectionUI(exams);
 }
 function renderExamCriteriaUI(exams) {
   const container = document.createElement("div");
