@@ -45,111 +45,140 @@ function clearCharts() {
 
 // SUBJECT EXAM ANALYSIS
 async function loadSubjectExamAnalysis() {
-    const subjectWrapper = document.getElementById("subjectWrapper");
-    const subjectSelect = document.getElementById("subject");
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
+    const subject = document.getElementById("subject").value;
 
-    if (!year || !branch) {
-        alert("Please select Year and Branch first.");
+    if (!year || !branch || !subject) {
+        alert("Please select Year, Section and Subject.");
         return;
     }
 
-    // Show subject dropdown only here
-    subjectWrapper.style.display = "block";
-    await populateSubjects(year, branch);
+    clearCharts();
 
-    // Wait until user selects a subject
-    subjectSelect.onchange = async () => {
-        const subject = subjectSelect.value;
-        if (!subject) return;
+    const configDiv = document.getElementById("performanceConfig");
+    const generateBtn = document.getElementById("generateAnalysisBtn");
+    configDiv.innerHTML = "";
+    configDiv.style.display = "block";
+    generateBtn.style.display = "block";
 
-        clearCharts();
-        const chartsContainer = document.getElementById("chartsContainer");
-        const studentControls = document.getElementById("studentPerformanceControls");
-        studentControls.style.display = 'none';
+    // Fetch exams
+    const examRes = await fetch(`/getExams?year=${year}&branch=${branch}`);
+    const exams = await examRes.json();
 
-        // Fetch available exams
-        const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
-        const exams = await examsResponse.json();
+    // Fetch max marks
+    const maxMarksRes = await fetch(`/getExamMaxMarksAll/${year}/${branch}`);
+    const maxMarksMap = await maxMarksRes.json(); // { MID1: 30, QUIZ1: 10 }
 
-        if (!exams || exams.length === 0) {
-            chartsContainer.innerHTML = '<p>No exams found for the selected criteria.</p>';
-            return;
+    exams.forEach(exam => {
+        const max = maxMarksMap[exam];
+
+        const block = document.createElement("div");
+        block.className = "exam-config";
+        block.innerHTML = `
+            <h4>${exam} (Max Marks: ${max})</h4>
+            <label>Number of Performance Levels:</label>
+            <select data-exam="${exam}" data-max="${max}" class="levelCount">
+                <option value="">Select</option>
+                ${[2,3,4,5,6].map(n => `<option value="${n}">${n}</option>`).join("")}
+            </select>
+            <div class="rangeInputs" id="ranges-${exam}"></div>
+            <hr/>
+        `;
+        configDiv.appendChild(block);
+    });
+}
+document.addEventListener("change", e => {
+    if (!e.target.classList.contains("levelCount")) return;
+
+    const exam = e.target.dataset.exam;
+    const max = parseInt(e.target.dataset.max);
+    const levels = parseInt(e.target.value);
+
+    const container = document.getElementById(`ranges-${exam}`);
+    container.innerHTML = "";
+
+    for (let i = 1; i <= levels; i++) {
+        container.innerHTML += `
+            <div>
+                <label>Level ${i} Range:</label>
+                <input type="number" placeholder="From" class="from-${exam}">
+                <input type="number" placeholder="To" class="to-${exam}">
+            </div>
+        `;
+    }
+});
+document.getElementById("generateAnalysisBtn").onclick = async () => {
+    const year = document.getElementById("year").value;
+    const branch = document.getElementById("branch").value;
+    const subject = document.getElementById("subject").value;
+    const chartsContainer = document.getElementById("chartsContainer");
+
+    chartsContainer.innerHTML = "";
+
+    const examBlocks = document.querySelectorAll(".exam-config");
+
+    for (const block of examBlocks) {
+        const exam = block.querySelector(".levelCount")?.dataset.exam;
+        if (!exam) continue;
+
+        const fromInputs = block.querySelectorAll(`[class^="from-${exam}"]`);
+        const toInputs = block.querySelectorAll(`[class^="to-${exam}"]`);
+
+        const ranges = [];
+        for (let i = 0; i < fromInputs.length; i++) {
+            ranges.push({
+                label: `${fromInputs[i].value}-${toInputs[i].value}`,
+                from: parseInt(fromInputs[i].value),
+                to: parseInt(toInputs[i].value)
+            });
         }
 
-        // Fetch all student data to get all HTNOs
-        const allStudentDataResponse = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exams[0]}`);
-        const allStudentData = await allStudentDataResponse.json();
+        const res = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
+        const data = await res.json();
 
-        const allHtnos = [...new Set(allStudentData.map(s => s.htno))];
+        const counts = ranges.map(r =>
+            data.filter(s => s.marks >= r.from && s.marks <= r.to).length
+        );
 
-        for (const exam of exams) {
-            const response = await fetch(`/getStudentReports/${year}/${branch}/${subject}/${exam}`);
-            const examData = await response.json();
+        const chartBox = document.createElement("div");
+        chartBox.className = "chart-container";
+        chartBox.innerHTML = `<canvas></canvas>`;
+        chartsContainer.appendChild(chartBox);
 
-            if (examData.length === 0) {
-                chartsContainer.innerHTML += `<p>No data found for ${exam}.</p>`;
-                continue;
-            }
-
-            const labels = allHtnos;
-            const marksData = labels.map(htno => {
-                const student = examData.find(s => s.htno === htno);
-                return student ? student.marks : null;
-            });
-
-            const maxMarksRes = await fetch(`/getExamMaxMarks/${year}/${branch}/${exam}`);
-            const { maxMark } = await maxMarksRes.json();
-
-
-            const chartContainer = document.createElement('div');
-            chartContainer.className = 'chart-container';
-            const canvas = document.createElement('canvas');
-
-            chartContainer.appendChild(canvas);
-            chartsContainer.appendChild(chartContainer);
-
-            const ctx = canvas.getContext("2d");
-            const chartInstance = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Marks',
-                        data: marksData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false,
-                        tension: 0.1
-                    }]
+        new Chart(chartBox.querySelector("canvas"), {
+            type: "bar",
+            data: {
+                labels: ranges.map(r => r.label),
+                datasets: [{
+                    label: `${exam} Performance Distribution`,
+                    data: counts,
+                    backgroundColor: "rgba(54, 162, 235, 0.7)"
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `${subject} – ${exam} Performance Distribution`
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: Math.ceil((maxMark + 5) / 5) * 5,
-                            title: { display: true, text: 'Marks' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Hall Ticket Number' }
-                        }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: "Number of Students" }
                     },
-                    plugins: {
-                        legend: { display: false },
-                        title: {
-                            display: true,
-                            text: `Student Marks - ${subject} (${exam})`,
-                            font: { size: 16 }
-                        }
+                    x: {
+                        title: { display: true, text: "Marks Range" }
                     }
                 }
-            });
-            window.marksChartInstances.push(chartInstance);
-        }
-    };
-}
+            }
+        });
+    }
+};
+
+
 
 // STUDENT PERFORMANCE (BAR CHART)
 function showStudentPerformanceControls() {
