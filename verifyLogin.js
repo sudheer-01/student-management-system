@@ -1625,7 +1625,7 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
     let exams = [];
     try {
       const parsed = JSON.parse(examsData);
-    const exams = Object.keys(parsed); // ✅ FIX
+      exams = Object.keys(parsed); // ✅ FIX
     } catch (parseError) {
       console.error("Error parsing exams JSON:", parseError);
       return res.status(500).json({ error: "Invalid exams format in DB" });
