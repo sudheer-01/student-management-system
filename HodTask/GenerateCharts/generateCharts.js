@@ -453,376 +453,113 @@ async function loadStudentPerformanceChart() {
 /*************************************************
  * COMPARATIVE INSIGHTS
  *************************************************/
-// function createStudentRangeTable(title, ranges, students) {
-//     const wrapper = document.createElement("div");
-//     wrapper.className = "student-range-wrapper";
-
-//     const heading = document.createElement("h4");
-//     heading.textContent = title;
-//     wrapper.appendChild(heading);
-
-//     const table = document.createElement("table");
-//     table.className = "student-range-table";
-
-//     // Header
-//     const headerRow = document.createElement("tr");
-//     ranges.forEach(r => {
-//         const th = document.createElement("th");
-//         th.textContent = r.label;
-//         headerRow.appendChild(th);
-//     });
-//     table.appendChild(headerRow);
-
-//     // Body
-//     const bodyRow = document.createElement("tr");
-//     ranges.forEach(r => {
-//         const td = document.createElement("td");
-
-//         const matched = students.filter(
-//             s => s.marks >= r.from && s.marks <= r.to
-//         );
-
-//         if (!matched.length) {
-//             td.innerHTML = "<em>No students</em>";
-//         } else {
-//             matched.forEach(s => {
-//                 const div = document.createElement("div");
-//                 div.textContent = `${s.htno} - ${s.name} (${s.marks})`;
-//                 td.appendChild(div);
-//             });
-//         }
-
-//         bodyRow.appendChild(td);
-//     });
-
-//     table.appendChild(bodyRow);
-//     wrapper.appendChild(table);
-
-//     return wrapper;
-// }
-// function createCommonStudentTable(exam, range, students) {
-//     const div = document.createElement("div");
-//     div.className = "student-range-wrapper";
-
-//     div.innerHTML = `
-//         <h4>Common Students (${exam}) – ${range.label}</h4>
-//     `;
-
-//     if (!students.length) {
-//         div.innerHTML += "<em>No common students</em>";
-//         return div;
-//     }
-
-//     const ul = document.createElement("ul");
-//     students.forEach(s => {
-//         const li = document.createElement("li");
-//         li.textContent = `${s.htno} - ${s.name} (${s.marks})`;
-//         ul.appendChild(li);
-//     });
-
-//     div.appendChild(ul);
-//     return div;
-// }
-// async function loadComparativeInsightChart() {
-//     resetAnalysisUI();
-
-//     const year = yearSelect.value;
-//     const branch = branchSelect.value;
-
-//     if (!year || !branch) {
-//         alert("Please select Year and Section");
-//         return;
-//     }
-
-//     const config = document.getElementById("comparativeConfig");
-//     config.style.display = "block";
-//     config.innerHTML = "<h3>Comparative Insights Configuration</h3>";
-
-//     // Fetch subjects
-//     const subjects = await (await fetch(`/getSubjects/${year}/${branch}`)).json();
-
-//     // Fetch exams
-//     const exams = await (await fetch(`/getExams?year=${year}&branch=${branch}`)).json();
-
-//     config.innerHTML += `
-//         <h4>Select Subjects</h4>
-//         <div class="checkbox-group" id="ciSubjects">
-//             ${subjects.map(s => `
-//                 <label>
-//                     <input type="checkbox" value="${s.subject_name}">
-//                     ${s.subject_name}
-//                 </label>
-//             `).join("")}
-//         </div>
-
-//         <h4>Select Exams</h4>
-//         <div class="checkbox-group" id="ciExams">
-//         ${exams.map(e => `
-//             <label>
-//             <input type="checkbox" class="ciExamCheck" value="${e}">
-//             ${e}
-//             </label>
-//         `).join("")}
-//         </div>
-
-//         <div id="ciExamConfigs"></div>
-
-        
-//     `;
-
-//     document.getElementById("generateComparativeBtn").style.display = "inline-block";
-// }
-// document.addEventListener("change", async e => {
-//     if (!e.target.classList.contains("ciExamCheck")) return;
-
-//     const exam = e.target.value;
-//     const container = document.getElementById("ciExamConfigs");
-
-//     // remove if unchecked
-//     if (!e.target.checked) {
-//         document.getElementById(`ci-${exam}`)?.remove();
-//         return;
-//     }
-
-//     const maxRes = await fetch(`/getExamMaxMarks/${yearSelect.value}/${branchSelect.value}/${exam}`);
-//     const { maxMarks } = await maxRes.json();
-
-//     const block = document.createElement("div");
-//     block.className = "exam-config";
-//     block.id = `ci-${exam}`;
-//     block.innerHTML = `
-//         <h4>${exam} (Max: ${maxMarks})</h4>
-//         <label>Performance Levels</label>
-//         <select class="ciLevelCount" data-exam="${exam}">
-//             <option value="">Select</option>
-//             ${[2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join("")}
-//         </select>
-//         <div class="ciRanges" id="ranges-${exam}"></div>
-//         <hr/>
-//     `;
-//     container.appendChild(block);
-// });
-// document.addEventListener("change", e => {
-//     if (!e.target.classList.contains("ciLevelCount")) return;
-
-//     const exam = e.target.dataset.exam;
-//     const levels = +e.target.value;
-//     const box = document.getElementById(`ranges-${exam}`);
-//     box.innerHTML = "";
-
-//     for (let i = 1; i <= levels; i++) {
-//         box.innerHTML += `
-//             <div>
-//               <label>Level ${i}</label>
-//               <input type="number" placeholder="From">
-//               <input type="number" placeholder="To">
-//             </div>
-//         `;
-//     }
-// });
-
-// document.addEventListener("change", e => {
-//     if (e.target.id !== "ciLevelCount") return;
-
-//     const levels = parseInt(e.target.value);
-//     const container = document.getElementById("ciRanges");
-//     container.innerHTML = "";
-
-//     for (let i = 1; i <= levels; i++) {
-//         container.innerHTML += `
-//             <div>
-//                 <label>Level ${i}:</label>
-//                 <input type="number" placeholder="From">
-//                 <input type="number" placeholder="To">
-//             </div>
-//         `;
-//     }
-// });
-// document.getElementById("generateComparativeBtn").onclick = async () => {
-//   clearCharts();
-
-//   const year = yearSelect.value;
-//   const branch = branchSelect.value;
-
-//   const subjects = [...document.querySelectorAll("#ciSubjects input:checked")]
-//     .map(i => i.value);
-
-//   const exams = [...document.querySelectorAll(".ciExamCheck:checked")]
-//     .map(i => i.value);
-
-//   if (!subjects.length || !exams.length) {
-//     alert("Please select subjects and exams");
-//     return;
-//   }
-
-//   for (const exam of exams) {
-
-//     // 🔹 Collect ranges defined for THIS exam
-//     const rangeInputs = document.querySelectorAll(`#ranges-${exam} input`);
-//     const ranges = [];
-
-//     for (let i = 0; i < rangeInputs.length; i += 2) {
-//       ranges.push({
-//         label: `${rangeInputs[i].value}-${rangeInputs[i+1].value}`,
-//         from: +rangeInputs[i].value,
-//         to: +rangeInputs[i+1].value
-//       });
-//     }
-
-//     /* ================= SUBJECT-WISE GRAPHS ================= */
-//     const subjectDataMap = {};
-
-//     for (const subject of subjects) {
-//       subjectDataMap[subject] = await (await fetch(
-//         `/getStudentReports/${year}/${branch}/${subject}/${exam}`
-//       )).json();
-
-//       const counts = ranges.map(r =>
-//         subjectDataMap[subject]
-//           .filter(s => s.marks >= r.from && s.marks <= r.to).length
-//       );
-
-//       const block = document.createElement("div");
-//       block.className = "analysis-block";
-
-//       block.innerHTML = `
-//         <div class="chart-container"><canvas></canvas></div>
-//         <button class="view-students-btn">View Students</button>
-//         <div class="students-container" style="display:none;"></div>
-//       `;
-
-//       chartsContainer.appendChild(block);
-
-//       const chart = new Chart(block.querySelector("canvas"), {
-//         type: "bar",
-//         data: {
-//           labels: ranges.map(r => r.label),
-//           datasets: [{
-//             label: `${subject} – ${exam}`,
-//             data: counts,
-//             backgroundColor: "rgba(37,99,235,0.7)"
-//           }]
-//         },
-//         options: {
-//           plugins: {
-//             title: { display: true, text: `${subject} – ${exam}` }
-//           },
-//           scales: { y: { beginAtZero: true } }
-//         }
-//       });
-
-//       marksChartInstances.push(chart);
-
-//       block.querySelector(".view-students-btn").onclick = () => {
-//         const box = block.querySelector(".students-container");
-//         if (!box.innerHTML) {
-//           box.appendChild(
-//             createStudentRangeTable(`${subject} – ${exam}`, ranges, subjectDataMap[subject])
-//           );
-//         }
-//         box.style.display = box.style.display === "none" ? "block" : "none";
-//       };
-//     }
-
-//     /* ================= COMMON STUDENTS GRAPH ================= */
-//     const commonCounts = ranges.map(r => {
-//       let common = subjectDataMap[subjects[0]]
-//         .filter(s => s.marks >= r.from && s.marks <= r.to)
-//         .map(s => s.htno);
-
-//       subjects.slice(1).forEach(sub => {
-//         const set = subjectDataMap[sub]
-//           .filter(s => s.marks >= r.from && s.marks <= r.to)
-//           .map(s => s.htno);
-//         common = common.filter(h => set.includes(h));
-//       });
-
-//       return common.length;
-//     });
-
-//     const commonBlock = document.createElement("div");
-//     commonBlock.className = "analysis-block";
-
-//     commonBlock.innerHTML = `
-//       <div class="chart-container"><canvas></canvas></div>
-//       <button class="view-students-btn">View Common Students</button>
-//       <div class="students-container" style="display:none;"></div>
-//     `;
-
-//     chartsContainer.appendChild(commonBlock);
-
-//     new Chart(commonBlock.querySelector("canvas"), {
-//       type: "bar",
-//       data: {
-//         labels: ranges.map(r => r.label),
-//         datasets: [{
-//           label: `Common Students – ${exam}`,
-//           data: commonCounts,
-//           backgroundColor: "rgba(220,38,38,0.7)"
-//         }]
-//       }
-//     });
-
-//     commonBlock.querySelector(".view-students-btn").onclick = () => {
-//       const box = commonBlock.querySelector(".students-container");
-//       box.innerHTML = "";
-
-//       ranges.forEach(r => {
-//         const table = document.createElement("table");
-//         table.className = "student-range-table";
-
-//         table.innerHTML = `
-//           <tr>
-//             <th>HTNO</th><th>Name</th><th>Subject</th><th>Marks</th>
-//           </tr>
-//         `;
-
-//         subjects.forEach(sub => {
-//           subjectDataMap[sub]
-//             .filter(s => s.marks >= r.from && s.marks <= r.to)
-//             .forEach(s => {
-//               const row = document.createElement("tr");
-//               row.innerHTML = `
-//                 <td>${s.htno}</td>
-//                 <td>${s.name}</td>
-//                 <td>${sub}</td>
-//                 <td>${s.marks}</td>
-//               `;
-//               table.appendChild(row);
-//             });
-//         });
-
-//         box.appendChild(table);
-//       });
-
-//       box.style.display = "block";
-//     };
-//   }
-// };
-
-function createCommonStudentTable(exam, range, students) {
-    const div = document.createElement("div");
-    div.className = "student-range-wrapper";
-
-    div.innerHTML = `
-        <h4>Common Students (${exam}) – ${range.label}</h4>
-    `;
-
-    if (!students.length) {
-        div.innerHTML += "<em>No common students</em>";
-        return div;
+function createCommonStudentTable(subjects, subjectData) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "student-range-wrapper";
+    const heading = document.createElement("h4");
+    heading.textContent = "Common Students (All Selected Subjects)";
+    wrapper.appendChild(heading);
+
+    const table = document.createElement("table");
+    table.className = "student-range-table";
+
+    /* ===== HEADER ===== */
+    const header = document.createElement("tr");
+    header.innerHTML = `<th>HTNO</th><th>Name</th>`;
+    subjects.forEach(sub => {
+        header.innerHTML += `<th>${sub}</th>`;
+    });
+    table.appendChild(header);
+
+    /* ===== FIND COMMON STUDENTS ===== */
+    if (!subjects.length || !subjectData[subjects[0]]?.length) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="${subjects.length + 2}">
+            <em>No data available</em>
+        </td>`;
+        table.appendChild(row);
+        wrapper.appendChild(table);
+        return wrapper;
     }
 
-    const ul = document.createElement("ul");
-    students.forEach(s => {
-        const li = document.createElement("li");
-        li.textContent = `${s.htno} - ${s.name} (${s.marks})`;
-        ul.appendChild(li);
+    let common = subjectData[subjects[0]].map(s => s.htno);
+
+
+    subjects.slice(1).forEach(sub => {
+        const set = subjectData[sub].map(s => s.htno);
+        common = common.filter(h => set.includes(h));
     });
 
-    div.appendChild(ul);
-    return div;
+    if (!common.length) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="${subjects.length + 2}">
+            <em>No common students</em>
+        </td>`;
+        table.appendChild(row);
+        wrapper.appendChild(table);
+        return wrapper;
+    }
+
+    /* ===== BODY ===== */
+    common.forEach(htno => {
+        const row = document.createElement("tr");
+        const student = subjectData[subjects[0]].find(s => s.htno === htno);
+
+        row.innerHTML = `<td>${htno}</td><td>${student.name}</td>`;
+
+        subjects.forEach(sub => {
+            const rec = subjectData[sub].find(s => s.htno === htno);
+            row.innerHTML += `<td>${rec ? rec.marks : "-"}</td>`;
+        });
+
+        table.appendChild(row);
+    });
+
+    wrapper.appendChild(table);
+    return wrapper;
 }
+
+function createStudentRangeTable(title, ranges, students) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "student-range-wrapper";
+
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+    wrapper.appendChild(heading);
+
+    const table = document.createElement("table");
+    table.className = "student-range-table";
+
+    const header = document.createElement("tr");
+    ranges.forEach(r => {
+        const th = document.createElement("th");
+        th.textContent = r.label;
+        header.appendChild(th);
+    });
+    table.appendChild(header);
+
+    const body = document.createElement("tr");
+    ranges.forEach(r => {
+        const td = document.createElement("td");
+        const matched = students.filter(s => s.marks >= r.from && s.marks <= r.to);
+
+        if (!matched.length) {
+            td.innerHTML = "<em>No students</em>";
+        } else {
+            matched.forEach(s => {
+                const div = document.createElement("div");
+                div.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+                td.appendChild(div);
+            });
+        }
+        body.appendChild(td);
+    });
+
+    table.appendChild(body);
+    wrapper.appendChild(table);
+    return wrapper;
+}
+
 /*************************************************
  * COMPARATIVE INSIGHTS (FIXED)
  *************************************************/
@@ -1035,9 +772,14 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
         const box = commonBlock.querySelector(".students-container");
 
         btn.onclick = () => {
-            box.innerHTML = "";
-            box.appendChild(createCommonStudentTable(subjects, subjectData));
-            box.style.display = box.style.display === "none" ? "block" : "none";
+            if (box.innerHTML === "") {
+                box.appendChild(createCommonStudentTable(subjects, subjectData));
+                box.style.display = "block";
+            } else {
+                box.innerHTML = "";
+                box.style.display = "none";
+            }
         };
+
     }
 };
