@@ -1546,6 +1546,42 @@ app.get("/marks", (req, res) => {
   });
 });
 
+// API to get max marks for all exams for a given year and branch
+app.get("/getExamMaxMarksAll/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+
+    const query = `
+        SELECT exams
+        FROM examsofspecificyearandbranch
+        WHERE year = ? AND branch = ?
+    `;
+
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Error fetching exam max marks:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (!result.length || !result[0].exams) {
+            return res.json({});
+        }
+
+        try {
+            const exams =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            // exams = { MID1: 30, QUIZ1: 10 }
+            res.json(exams);
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).json({ error: "Invalid exams format" });
+        }
+    });
+});
+
+
 // API to get marks for all subjects for a given year and branch
 // Fetch comparative marks for a year and branch (only exams from examsofspecificyearandbranch)
 app.get("/comparativemarks", (req, res) => {
