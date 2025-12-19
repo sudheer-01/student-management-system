@@ -246,12 +246,192 @@ generateBtn.onclick = async () => {
 /*************************************************
  * STUDENT PERFORMANCE & COMPARATIVE
  *************************************************/
-function showStudentPerformanceControls() {
+// function showStudentPerformanceControls() {
+//   resetAnalysisUI();
+//   studentControls.style.display = "flex";
+// }
+
+// async function loadComparativeInsightChart() {
+//   resetAnalysisUI();
+//   alert("Comparative Insights already works – unchanged.");
+// }
+/*************************************************
+ * SHOW STUDENT PERFORMANCE
+ *************************************************/
+async function showStudentPerformanceControls() {
+  // Reset everything else
   resetAnalysisUI();
+
+  if (!yearSelect.value || !branchSelect.value) {
+    alert("Please select Year and Section first");
+    return;
+  }
+
   studentControls.style.display = "flex";
+
+  try {
+    const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
+    const students = await res.json();
+
+    const studentSelect = document.getElementById("studentHtno");
+    studentSelect.innerHTML = `<option value="">Select Student</option>`;
+
+    students.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.htno;
+      opt.textContent = `${s.htno} - ${s.name}`;
+      studentSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load students");
+  }
 }
 
+/*************************************************
+ * LOAD INDIVIDUAL STUDENT PERFORMANCE CHART
+ *************************************************/
+async function loadStudentPerformanceChart() {
+  const htno = document.getElementById("studentHtno").value;
+  if (!htno) {
+    alert("Please select a student");
+    return;
+  }
+
+  clearCharts();
+  chartsContainer.innerHTML = "<p>Loading student performance...</p>";
+
+  try {
+    const res = await fetch(
+      `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
+    );
+    const result = await res.json();
+
+    if (!result.data || result.data.length === 0) {
+      chartsContainer.innerHTML = "<p>No data found</p>";
+      return;
+    }
+
+    const exams = result.exams;
+    const data = result.data;
+
+    const subjects = data.map(d => d.subject);
+
+    const datasets = exams.map((exam, i) => ({
+      label: `${exam}`,
+      data: data.map(d => d[exam] ?? 0),
+      backgroundColor: `hsl(${i * 60}, 70%, 60%)`
+    }));
+
+    chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
+
+    const ctx = document.getElementById("studentChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: { labels: subjects, datasets },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: `Student Performance – ${data[0].name} (${htno})`
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: "Marks" } },
+          x: { title: { display: true, text: "Subjects" } }
+        }
+      }
+    });
+
+    marksChartInstances.push(chart);
+  } catch (err) {
+    console.error(err);
+    chartsContainer.innerHTML = "<p>Error loading student performance</p>";
+  }
+}
+/*************************************************
+ * COMPARATIVE INSIGHTS
+ *************************************************/
 async function loadComparativeInsightChart() {
   resetAnalysisUI();
-  alert("Comparative Insights already works – unchanged.");
+
+  if (!yearSelect.value || !branchSelect.value) {
+    alert("Please select Year and Section");
+    return;
+  }
+
+  chartsContainer.innerHTML = "<p>Loading comparative insights...</p>";
+
+  try {
+    // Fetch exams
+    const examRes = await fetch(`/getExams?year=${yearSelect.value}&branch=${branchSelect.value}`);
+    const exams = await examRes.json();
+
+    if (!exams.length) {
+      chartsContainer.innerHTML = "<p>No exams found</p>";
+      return;
+    }
+
+    // Fetch marks
+    const res = await fetch(`/comparativemarks?year=${yearSelect.value}&branch=${branchSelect.value}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      chartsContainer.innerHTML = "<p>No data available</p>";
+      return;
+    }
+
+    chartsContainer.innerHTML = "";
+
+    exams.forEach((exam, idx) => {
+      const subjectMap = {};
+
+      data.forEach(row => {
+        if (!subjectMap[row.subject]) subjectMap[row.subject] = [];
+        if (row[exam] != null) subjectMap[row.subject].push(row[exam]);
+      });
+
+      const subjects = Object.keys(subjectMap);
+      const averages = subjects.map(s => {
+        const arr = subjectMap[s];
+        return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+      });
+
+      const box = document.createElement("div");
+      box.className = "chart-container";
+      box.innerHTML = "<canvas></canvas>";
+      chartsContainer.appendChild(box);
+
+      const ctx = box.querySelector("canvas").getContext("2d");
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: subjects,
+          datasets: [{
+            label: `Average Marks – ${exam}`,
+            data: averages,
+            backgroundColor: `rgba(${60 + idx*40}, ${120 + idx*30}, 200, 0.7)`
+          }]
+        },
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: `Comparative Subject Performance (${exam})`
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: "Average Marks" } },
+            x: { title: { display: true, text: "Subjects" } }
+          }
+        }
+      });
+
+      marksChartInstances.push(chart);
+    });
+  } catch (err) {
+    console.error(err);
+    chartsContainer.innerHTML = "<p>Error loading comparative insights</p>";
+  }
 }
