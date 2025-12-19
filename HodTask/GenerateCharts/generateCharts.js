@@ -954,6 +954,7 @@ async function loadStudentPerformanceChart() {
     console.error(err);
     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
   }
+  renderExamSelectionUI(exams);
   renderExamCriteriaUI(exams);
 }
 function renderExamCriteriaUI(exams) {
@@ -1014,7 +1015,7 @@ document.addEventListener("click", e => {
     return;
   }
 
-  const table = document.createElement("table");
+  const table = document.createElement("table"); 
   table.className = "student-range-table";
   table.innerHTML = `<tr><th>Subject</th><th>Marks</th></tr>`;
 
@@ -1028,4 +1029,57 @@ document.addEventListener("click", e => {
   });
 
   resultDiv.appendChild(table);
+});
+function renderExamSelectionUI(exams) {
+  const container = document.createElement("div");
+  container.className = "analysis-block";
+
+  container.innerHTML = `
+    <h3>Step 1️⃣ Select Exam(s)</h3>
+    <div id="studentExamChecks" class="checkbox-group"></div>
+    <div id="examCriteriaContainer"></div>
+  `;
+
+  const checkBoxDiv = container.querySelector("#studentExamChecks");
+
+  exams.forEach(exam => {
+    checkBoxDiv.innerHTML += `
+      <label>
+        <input type="checkbox" class="student-exam-check" value="${exam}">
+        ${exam}
+      </label>
+    `;
+  });
+
+  chartsContainer.appendChild(container);
+}
+document.addEventListener("change", e => {
+  if (!e.target.classList.contains("student-exam-check")) return;
+
+  const exam = e.target.value;
+  const container = document.getElementById("examCriteriaContainer");
+
+  // remove if unchecked
+  if (!e.target.checked) {
+    document.getElementById(`criteria-${exam}`)?.remove();
+    return;
+  }
+
+  const block = document.createElement("div");
+  block.className = "exam-config";
+  block.id = `criteria-${exam}`;
+
+  block.innerHTML = `
+    <h4>${exam}</h4>
+    <select class="criteria" data-exam="${exam}">
+      <option value="below">Below Marks</option>
+      <option value="above">Above Marks</option>
+      <option value="equal">Equal To Marks</option>
+    </select>
+    <input type="number" class="criteria-marks" placeholder="Enter Marks">
+    <button class="analyze-btn" data-exam="${exam}">Analyze</button>
+    <div class="criteria-result"></div>
+  `;
+
+  container.appendChild(block);
 });
