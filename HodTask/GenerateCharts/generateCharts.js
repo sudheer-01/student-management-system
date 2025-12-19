@@ -47,17 +47,39 @@ function clearCharts() {
 async function loadSubjectExamAnalysis() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
-    const subject = document.getElementById("subject").value;
 
-    if (!year || !branch || !subject) {
-        alert("Please select Year, Section and Subject.");
+    if (!year || !branch) {
+        alert("Please select Year and Section first.");
         return;
     }
 
     clearCharts();
 
+    // Show subject dropdown
+    const subjectWrapper = document.getElementById("subjectWrapper");
+    subjectWrapper.style.display = "flex";
+
+    // Populate subjects
+    await populateSubjects(year, branch);
+
+    // Hide previous configs
+    document.getElementById("performanceConfig").style.display = "none";
+    document.getElementById("generateAnalysisBtn").style.display = "none";
+}
+document.getElementById("subject").addEventListener("change", loadPerformanceConfig);
+
+async function loadPerformanceConfig() {
+    const year = document.getElementById("year").value;
+    const branch = document.getElementById("branch").value;
+    const subject = document.getElementById("subject").value;
+
+    if (!subject) return;
+
+    clearCharts();
+
     const configDiv = document.getElementById("performanceConfig");
     const generateBtn = document.getElementById("generateAnalysisBtn");
+
     configDiv.innerHTML = "";
     configDiv.style.display = "block";
     generateBtn.style.display = "block";
@@ -68,7 +90,7 @@ async function loadSubjectExamAnalysis() {
 
     // Fetch max marks
     const maxMarksRes = await fetch(`/getExamMaxMarksAll/${year}/${branch}`);
-    const maxMarksMap = await maxMarksRes.json(); // { MID1: 30, QUIZ1: 10 }
+    const maxMarksMap = await maxMarksRes.json();
 
     exams.forEach(exam => {
         const max = maxMarksMap[exam];
@@ -88,6 +110,8 @@ async function loadSubjectExamAnalysis() {
         configDiv.appendChild(block);
     });
 }
+
+
 document.addEventListener("change", e => {
     if (!e.target.classList.contains("levelCount")) return;
 
