@@ -800,6 +800,29 @@ async function loadStudentPerformanceChart() {
 //   }
 // };
 
+function createCommonStudentTable(exam, range, students) {
+    const div = document.createElement("div");
+    div.className = "student-range-wrapper";
+
+    div.innerHTML = `
+        <h4>Common Students (${exam}) – ${range.label}</h4>
+    `;
+
+    if (!students.length) {
+        div.innerHTML += "<em>No common students</em>";
+        return div;
+    }
+
+    const ul = document.createElement("ul");
+    students.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+        ul.appendChild(li);
+    });
+
+    div.appendChild(ul);
+    return div;
+}
 /*************************************************
  * COMPARATIVE INSIGHTS (FIXED)
  *************************************************/
