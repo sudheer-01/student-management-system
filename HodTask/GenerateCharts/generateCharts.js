@@ -785,52 +785,55 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             }
         });
 
-        const btn = block.querySelector(".view-students-btn");
+        const viewBtn = block.querySelector(".view-students-btn");
         const box = block.querySelector(".students-container");
 
-        btn.onclick = () => {
+        viewBtn.onclick = () => {
             if (box.innerHTML !== "") {
                 box.innerHTML = "";
                 box.style.display = "none";
                 return;
             }
 
-            const table = document.createElement("table");
-            table.className = "student-range-table";
+            ranges.forEach(range => {
+                const section = document.createElement("div");
+                section.style.marginBottom = "20px";
 
-            // Header
-            const header = document.createElement("tr");
-            header.innerHTML = `<th>HTNO</th><th>Name</th>`;
-            subjects.forEach(sub => header.innerHTML += `<th>${sub}</th>`);
-            table.appendChild(header);
+                const title = document.createElement("h4");
+                title.textContent = `Range ${range.label}`;
+                section.appendChild(title);
 
-            // Collect all students involved
-            const studentMap = {};
+                subjects.forEach(subject => {
+                    const subTitle = document.createElement("strong");
+                    subTitle.textContent = subject;
+                    section.appendChild(subTitle);
 
-            subjects.forEach(sub => {
-                subjectData[sub].forEach(s => {
-                    if (!studentMap[s.htno]) {
-                        studentMap[s.htno] = { name: s.name, marks: {} };
+                    const list = document.createElement("div");
+
+                    const matched = subjectData[subject].filter(
+                        s => s.marks >= range.from && s.marks <= range.to
+                    );
+
+                    if (!matched.length) {
+                        list.innerHTML = `<div><em>No students</em></div>`;
+                    } else {
+                        matched.forEach(s => {
+                            const row = document.createElement("div");
+                            row.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+                            list.appendChild(row);
+                        });
                     }
-                    studentMap[s.htno].marks[sub] = s.marks;
-                });
-            });
 
-            Object.entries(studentMap).forEach(([htno, info]) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${htno}</td><td>${info.name}</td>`;
-
-                subjects.forEach(sub => {
-                    row.innerHTML += `<td>${info.marks[sub] ?? "-"}</td>`;
+                    section.appendChild(list);
                 });
 
-                table.appendChild(row);
+                box.appendChild(section);
             });
 
-            box.appendChild(table);
             box.style.display = "block";
         };
 
+    };
 
-    }
 };
+
