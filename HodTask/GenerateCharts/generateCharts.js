@@ -896,6 +896,7 @@ async function loadStudentPerformanceChart() {
 
     const exams = result.exams;
     const data = result.data;
+    currentData = data;
 
     const subjects = data.map(d => d.subject);
 
@@ -908,6 +909,12 @@ async function loadStudentPerformanceChart() {
     chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
 
     const ctx = document.getElementById("studentChart").getContext("2d");
+    const maxMarksRes = await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`);
+    const maxMarksMap = await maxMarksRes.json();
+
+    // Find highest max among selected exams
+    const maxY = Math.max(...exams.map(e => maxMarksMap[e] || 0));
+
     const chart = new Chart(ctx, {
       type: "bar",
       data: { labels: subjects, datasets },
@@ -920,9 +927,25 @@ async function loadStudentPerformanceChart() {
           }
         },
         scales: {
-          y: { beginAtZero: true, title: { display: true, text: "Marks" } },
-          x: { title: { display: true, text: "Subjects" } }
+        y: {
+                beginAtZero: true,
+                max: maxY,
+                ticks: {
+                stepSize: Math.ceil(maxY / 5)
+                },
+                title: {
+                display: true,
+                text: "Marks"
+                }
+            },
+        x: {
+                title: {
+                display: true,
+                text: "Subjects"
+                }
+            }
         }
+
       }
     });
 
