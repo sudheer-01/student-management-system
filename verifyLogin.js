@@ -1165,48 +1165,22 @@ app.get("/getExams", (req, res) => {
 
        // console.log("Raw exam data from DB:", result[0].exams);
 
-        let examsData = result[0].exams;
-
-        // If examsData is an object instead of a JSON string, convert it to JSON string
-        if (typeof examsData === "object") {
-            examsData = JSON.stringify(examsData);
-        }
-
         try {
-            const examsJSON = JSON.parse(examsData);
-            const examList = Array.isArray(examsJSON) ? examsJSON : Object.values(examsJSON);
-            res.json(examList);
-        } catch (parseError) {
-            console.error("Error parsing exams JSON:", parseError);
-            res.status(500).json({ error: "Error processing exam data" });
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            const maxMarks = examsJSON[exam] ?? null;
+
+            res.json({ maxMarks });
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).send("Invalid exams data");
         }
     });
 });
 
-//studentMarks
-// var stuYear = 0;
-// var stuHtno = "";
-// app.post("/studentCheckin", (req, res) => {
-//     stuYear = req.body.year;
-//     stuHtno = req.body.htno;
-//     con.query(
-//         "SELECT * FROM studentmarks WHERE year=? AND htno=?",
-//         [stuYear, stuHtno],
-//         (err, result) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.status(500).send("Server error. Try again later.");
-//             }
-//             if (result.length > 0) {
-//                 return res.sendFile(path.join(baseDir, "studentsMarks","studentsMarks.html"));
-//             } else {
-//                 return res.send(
-//                     `<script>alert('Invalid HTNO or Year'); window.location.href='/';</script>`
-//                 );
-//             }
-//         }
-//     );
-// });
 // studentMarks
 app.post("/studentCheckin", (req, res) => {
     const stuYear = req.body.year;

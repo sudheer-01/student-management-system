@@ -170,78 +170,6 @@ function showStudentPerformanceControls() {
         .catch(error => console.error("Error fetching student data:", error));
 }
 
-// async function loadStudentPerformanceChart() {
-//     const selectedHtno = document.getElementById("studentHtno").value;
-//     const year = document.getElementById("year").value;
-//     const branch = document.getElementById("branch").value;
-
-//     if (!selectedHtno || !year || !branch) return;
-//     try {
-//         // ✅ Retrieve data from the API
-//         const response = await fetch(`/getIndividualStudentData/${selectedHtno}/${year}/${branch}`);
-//         const studentData = await response.json();
-
-//         if (!studentData || studentData.length === 0) return;
-
-//         clearCharts();
-//         const chartsContainer = document.getElementById("chartsContainer");
-
-//         // Subjects = labels
-//         const subjects = studentData.map(s => s.subject);
-
-//         // Exams = Unit_test_1, Mid_1, Unit_test_2
-//         async function loadExams(year, branch) {
-//             const response = await fetch(`/getExams?year=${year}&branch=${branch}`);
-//             const data = await response.json();
-//             return data; // already ["Unit_test_1", "Mid_1", "Unit_test_2"]
-//         }
-
-//         const examKeys = await loadExams(year, branch);
-
-//         // Build datasets (one per exam)
-//         const datasets = examKeys.map((exam, idx) => ({
-//             label: exam.replace(/_/g, " "),
-//             data: studentData.map(s => s[exam]),
-//             backgroundColor: `rgba(${idx * 60}, ${idx * 80}, ${idx * 40}, 0.7)`
-//         }));
-
-//         const chartContainer = document.createElement("div");
-//         chartContainer.className = "chart-container";
-//         const canvas = document.createElement("canvas");
-//         chartContainer.appendChild(canvas);
-//         chartsContainer.appendChild(chartContainer);
-
-//         const ctx = canvas.getContext("2d");
-//         const chartInstance = new Chart(ctx, {
-//             type: "bar",
-//             data: { labels: subjects, datasets: datasets },
-//             options: {
-//                 responsive: true,
-//                 maintainAspectRatio: false,
-//                 scales: {
-//                     y: { beginAtZero: true, title: { display: true, text: "Marks" } },
-//                     x: { title: { display: true, text: "Subjects" } }
-//                 },
-//                 plugins: {
-//                     title: {
-//                         display: true,
-//                         text: `Performance for ${studentData[0].name} (${studentData[0].htno})`,
-//                         font: { size: 18 }
-//                     },
-//                     legend: { display: true }
-//                 }
-//             }
-//         });
-
-//         window.marksChartInstances.push(chartInstance);
-
-//     } catch (error) {
-//         console.error("Error fetching student data:", error);
-//     }
-// }
-
-// COMPARATIVE SUBJECT INSIGHT
-
 async function loadStudentPerformanceChart() {
     const htno = document.getElementById("studentHtno").value;
     const year = document.getElementById("year").value;
@@ -300,97 +228,7 @@ async function loadStudentPerformanceChart() {
     chartsContainer.innerHTML = "<p>Error loading chart.</p>";
   }
 }
-
-
-// async function loadComparativeInsightChart() {
-//     const year = document.getElementById("year").value;
-//     const branch = document.getElementById("branch").value;
-
-//     if (!year || !branch) return;
-
-//     // Fetch exams dynamically
-//     const examsResponse = await fetch(`/getExams?year=${year}&branch=${branch}`);
-//     const examKeys = await examsResponse.json(); // ["Unit_test_1", "Mid_1", "Unit_test_2"]
-
-//     // Fetch student marks
-//     const response = await fetch(`/comparativemarks?year=${year}&branch=${branch}`);
-//     const data = await response.json();
-
-//     clearCharts();
-//     document.getElementById("studentPerformanceControls").style.display = 'none';
-//     document.getElementById("subjectWrapper").style.display = "none"; // hide subject dropdown
-//     const chartsContainer = document.getElementById("chartsContainer");
-
-//     if (!data.length) {
-//         chartsContainer.innerHTML = '<p>No data found for comparative analysis.</p>';
-//         return;
-//     }
-
-//     // Calculate average marks per subject per exam
-//     const subjectMarks = {}; // { subject: { exam1: [marks], ... } }
-
-//     data.forEach(item => {
-//         const subject = item.subject;
-//         if (!subjectMarks[subject]) {
-//             subjectMarks[subject] = {};
-//             examKeys.forEach(exam => subjectMarks[subject][exam] = []);
-//         }
-//         examKeys.forEach(exam => {
-//             if (item[exam] != null) subjectMarks[subject][exam].push(item[exam]);
-//         });
-//     });
-
-//     const subjects = Object.keys(subjectMarks); // all subjects
-
-//     // Create one chart per exam
-//     examKeys.forEach((exam, idx) => {
-//         const examData = subjects.map(subject => {
-//             const marksArray = subjectMarks[subject][exam];
-//             const total = marksArray.reduce((sum, val) => sum + val, 0);
-//             return marksArray.length ? total / marksArray.length : 0;
-//         });
-
-//         const chartContainer = document.createElement('div');
-//         chartContainer.className = 'chart-container';
-//         const canvas = document.createElement('canvas');
-//         chartContainer.appendChild(canvas);
-//         chartsContainer.appendChild(chartContainer);
-
-//         const ctx = canvas.getContext("2d");
-//         const chartInstance = new Chart(ctx, {
-//             type: 'bar',
-//             data: {
-//                 labels: subjects,
-//                 datasets: [{
-//                     label: exam.replace(/_/g, " "),
-//                     data: examData,
-//                     backgroundColor: `rgba(${50 + idx*60}, ${100 + idx*40}, ${150 + idx*30}, 0.7)`
-//                 }]
-//             },
-//             options: {
-//                 responsive: true,
-//                 maintainAspectRatio: false,
-//                 scales: {
-//                     y: { beginAtZero: true, title: { display: true, text: 'Average Marks' } },
-//                     x: { title: { display: true, text: 'Subjects' } }
-//                 },
-//                 plugins: {
-//                     title: {
-//                         display: true,
-//                         text: `Average Marks per Subject - ${exam.replace(/_/g, " ")}`,
-//                         font: { size: 16 }
-//                     },
-//                     legend: { display: false }
-//                 }
-//             }
-//         });
-
-//         window.marksChartInstances.push(chartInstance);
-//     });
-// }
-
-// INITIAL LOAD
-
+// COMPARATIVE INSIGHT (BAR CHART)
 async function loadComparativeInsightChart() {
     const year = document.getElementById("year").value;
     const branch = document.getElementById("branch").value;
@@ -490,7 +328,6 @@ async function loadComparativeInsightChart() {
         chartsContainer.innerHTML = "<p>Error loading comparative analysis.</p>";
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     const yearSelect = document.getElementById("year");
