@@ -785,7 +785,7 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             ranges.forEach(range => {
                 // ===== HEADING FOR RANGE =====
                 const heading = document.createElement("h4");
-                heading.textContent = `Level: ${range.label}`;
+                heading.textContent = `Marks: ${range.label}`;
                 commonBox.appendChild(heading);
 
                 // ===== FIND COMMON STUDENTS IN THIS RANGE =====
