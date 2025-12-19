@@ -188,13 +188,15 @@ h2 {
 
 .chart-container {
   position: relative;
-  height: 500px;
+  min-height: 420px;   /* keeps chart visible */
+  height: auto;        /* 🔥 CRITICAL */
   width: 100%;
   background: #fff;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
 
 canvas {
   margin-top: 20px;
@@ -326,13 +328,6 @@ canvas {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 35px;
-}
-
-/* Keep chart height fixed */
-.chart-container {
-    height: 420px;
-    width: 100%;
-    position: relative;
 }
 
 /* View students button */

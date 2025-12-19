@@ -955,7 +955,6 @@ async function loadStudentPerformanceChart() {
     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
   }
   renderExamSelectionUI(exams);
-  renderExamCriteriaUI(exams);
 }
 function renderExamCriteriaUI(exams) {
   const container = document.createElement("div");
