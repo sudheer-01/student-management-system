@@ -931,4 +931,78 @@ async function loadStudentPerformanceChart() {
     console.error(err);
     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
   }
+  renderExamCriteriaUI(exams);
 }
+function renderExamCriteriaUI(exams) {
+  const container = document.createElement("div");
+  container.className = "analysis-block";
+
+  container.innerHTML = `<h3>Exam-wise Subject Analysis</h3>`;
+
+  exams.forEach(exam => {
+    const block = document.createElement("div");
+    block.className = "exam-config";
+
+    block.innerHTML = `
+      <h4>${exam}</h4>
+      <select class="criteria" data-exam="${exam}">
+        <option value="below">Below Marks</option>
+        <option value="above">Above Marks</option>
+        <option value="equal">Equal To Marks</option>
+      </select>
+      <input type="number" class="criteria-marks" placeholder="Enter Marks">
+      <button class="analyze-btn" data-exam="${exam}">Analyze</button>
+      <div class="criteria-result"></div>
+    `;
+
+    container.appendChild(block);
+  });
+
+  chartsContainer.appendChild(container);
+}
+document.addEventListener("click", e => {
+  if (!e.target.classList.contains("analyze-btn")) return;
+
+  const exam = e.target.dataset.exam;
+  const criteria = e.target.parentElement.querySelector(".criteria").value;
+  const value = parseInt(
+    e.target.parentElement.querySelector(".criteria-marks").value
+  );
+
+  if (isNaN(value)) {
+    alert("Enter marks");
+    return;
+  }
+
+  const resultDiv = e.target.parentElement.querySelector(".criteria-result");
+  resultDiv.innerHTML = "";
+
+  const rows = currentData.filter(sub => {
+    const mark = sub[exam];
+    if (mark == null) return false;
+
+    if (criteria === "below") return mark < value;
+    if (criteria === "above") return mark > value;
+    if (criteria === "equal") return mark === value;
+  });
+
+  if (!rows.length) {
+    resultDiv.innerHTML = "<em>No subjects match this criteria</em>";
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "student-range-table";
+  table.innerHTML = `<tr><th>Subject</th><th>Marks</th></tr>`;
+
+  rows.forEach(r => {
+    table.innerHTML += `
+      <tr>
+        <td>${r.subject}</td>
+        <td>${r[exam]}</td>
+      </tr>
+    `;
+  });
+
+  resultDiv.appendChild(table);
+});
