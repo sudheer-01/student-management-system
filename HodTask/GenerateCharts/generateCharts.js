@@ -772,6 +772,22 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             <div class="students-container" style="display:none;"></div>
         `;
         chartsContainer.appendChild(commonBlock);
+        const commonBtn = commonBlock.querySelector(".view-students-btn");
+        const commonBox = commonBlock.querySelector(".students-container");
+
+        commonBtn.onclick = () => {
+            if (commonBox.innerHTML !== "") {
+                commonBox.innerHTML = "";
+                commonBox.style.display = "none";
+                return;
+            }
+
+            commonBox.appendChild(
+                createCommonStudentTable(subjects, subjectData)
+            );
+            commonBox.style.display = "block";
+        };
+
 
         new Chart(commonBlock.querySelector("canvas"), {
             type: "bar",
@@ -795,43 +811,54 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
                 return;
             }
 
-            ranges.forEach(range => {
-                const section = document.createElement("div");
-                section.style.marginBottom = "20px";
+            const table = document.createElement("table");
+            table.className = "student-range-table";
 
-                const title = document.createElement("h4");
-                title.textContent = `Range ${range.label}`;
-                section.appendChild(title);
+            /* ===== HEADER: RANGES ===== */
+            const header = document.createElement("tr");
+            ranges.forEach(r => {
+                header.innerHTML += `<th>${r.label}</th>`;
+            });
+            table.appendChild(header);
+
+            /* ===== BODY: ONE CELL PER RANGE ===== */
+            const body = document.createElement("tr");
+
+            ranges.forEach(range => {
+                const td = document.createElement("td");
 
                 subjects.forEach(subject => {
-                    const subTitle = document.createElement("strong");
-                    subTitle.textContent = subject;
-                    section.appendChild(subTitle);
-
-                    const list = document.createElement("div");
+                    const title = document.createElement("strong");
+                    title.textContent = subject;
+                    td.appendChild(title);
 
                     const matched = subjectData[subject].filter(
                         s => s.marks >= range.from && s.marks <= range.to
                     );
 
                     if (!matched.length) {
-                        list.innerHTML = `<div><em>No students</em></div>`;
+                        const em = document.createElement("div");
+                        em.innerHTML = "<em>No students</em>";
+                        td.appendChild(em);
                     } else {
                         matched.forEach(s => {
-                            const row = document.createElement("div");
-                            row.textContent = `${s.htno} - ${s.name} (${s.marks})`;
-                            list.appendChild(row);
+                            const div = document.createElement("div");
+                            div.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+                            td.appendChild(div);
                         });
                     }
 
-                    section.appendChild(list);
+                    td.appendChild(document.createElement("hr"));
                 });
 
-                box.appendChild(section);
+                body.appendChild(td);
             });
 
+            table.appendChild(body);
+            box.appendChild(table);
             box.style.display = "block";
         };
+
 
     };
 
