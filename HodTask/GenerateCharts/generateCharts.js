@@ -500,6 +500,29 @@ function createStudentRangeTable(title, ranges, students) {
 
     return wrapper;
 }
+function createCommonStudentTable(exam, range, students) {
+    const div = document.createElement("div");
+    div.className = "student-range-wrapper";
+
+    div.innerHTML = `
+        <h4>Common Students (${exam}) – ${range.label}</h4>
+    `;
+
+    if (!students.length) {
+        div.innerHTML += "<em>No common students</em>";
+        return div;
+    }
+
+    const ul = document.createElement("ul");
+    students.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.htno} - ${s.name} (${s.marks})`;
+        ul.appendChild(li);
+    });
+
+    div.appendChild(ul);
+    return div;
+}
 async function loadComparativeInsightChart() {
     resetAnalysisUI();
 
@@ -630,18 +653,30 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
     const exams = [...document.querySelectorAll(".ciExamCheck:checked")]
         .map(i => i.value);
 
+    if (!subjects.length || !exams.length) {
+        alert("Please select subjects and exams");
+        return;
+    }
+
     for (const exam of exams) {
+
+        /* ---------- READ EXAM-SPECIFIC RANGES ---------- */
         const rangeInputs = document.querySelectorAll(`#ranges-${exam} input`);
         const ranges = [];
 
         for (let i = 0; i < rangeInputs.length; i += 2) {
+            if (!rangeInputs[i].value || !rangeInputs[i + 1].value) continue;
+
             ranges.push({
-                label: `${rangeInputs[i].value}-${rangeInputs[i+1].value}`,
+                label: `${rangeInputs[i].value}-${rangeInputs[i + 1].value}`,
                 from: +rangeInputs[i].value,
-                to: +rangeInputs[i+1].value
+                to: +rangeInputs[i + 1].value
             });
         }
 
+        if (!ranges.length) continue;
+
+        /* ---------- FETCH DATA SUBJECT-WISE ---------- */
         const subjectData = {};
         for (const subject of subjects) {
             subjectData[subject] = await (await fetch(
@@ -649,26 +684,79 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
             )).json();
         }
 
-        /* ---------- COMMON STUDENTS ---------- */
-        const commonCounts = ranges.map(r => {
+        /* =====================================================
+           1️⃣ SUBJECT-WISE PERFORMANCE DISTRIBUTION
+        ===================================================== */
+        const subjectCounts = subjects.map(subject =>
+            ranges.map(r =>
+                subjectData[subject].filter(
+                    s => s.marks >= r.from && s.marks <= r.to
+                ).length
+            )
+        );
+
+        ranges.forEach((range, idx) => {
+            const box = document.createElement("div");
+            box.className = "analysis-block";
+            chartsContainer.appendChild(box);
+
+            const canvas = document.createElement("canvas");
+            box.appendChild(canvas);
+
+            new Chart(canvas, {
+                type: "bar",
+                data: {
+                    labels: subjects,
+                    datasets: [{
+                        label: `${exam} – ${range.label}`,
+                        data: subjectCounts.map(sc => sc[idx]),
+                        backgroundColor: "rgba(54,162,235,0.7)"
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Subject-wise Performance (${exam}: ${range.label})`
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: "Students" } }
+                    }
+                }
+            });
+        });
+
+        /* =====================================================
+           2️⃣ COMMON STUDENTS ANALYSIS
+        ===================================================== */
+        const commonBox = document.createElement("div");
+        commonBox.className = "analysis-block";
+        chartsContainer.appendChild(commonBox);
+
+        const commonCounts = [];
+        const commonStudentsByRange = [];
+
+        ranges.forEach(range => {
             let common = subjectData[subjects[0]]
-                .filter(s => s.marks >= r.from && s.marks <= r.to)
-                .map(s => s.htno);
+                .filter(s => s.marks >= range.from && s.marks <= range.to);
 
             subjects.slice(1).forEach(sub => {
                 const set = subjectData[sub]
-                    .filter(s => s.marks >= r.from && s.marks <= r.to)
+                    .filter(s => s.marks >= range.from && s.marks <= range.to)
                     .map(s => s.htno);
-                common = common.filter(h => set.includes(h));
+
+                common = common.filter(s => set.includes(s.htno));
             });
-            return common.length;
+
+            commonCounts.push(common.length);
+            commonStudentsByRange.push(common);
         });
 
-        const box = document.createElement("div");
-        box.className = "chart-container";
-        chartsContainer.appendChild(box);
+        const commonCanvas = document.createElement("canvas");
+        commonBox.appendChild(commonCanvas);
 
-        new Chart(box.appendChild(document.createElement("canvas")), {
+        new Chart(commonCanvas, {
             type: "bar",
             data: {
                 labels: ranges.map(r => r.label),
@@ -677,27 +765,36 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
                     data: commonCounts,
                     backgroundColor: "rgba(220,38,38,0.7)"
                 }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Common Weak Students (${exam})`
+                    }
+                }
             }
         });
 
-        /* ---------- VIEW STUDENTS ---------- */
+        /* ---------- VIEW COMMON STUDENTS ---------- */
         const btn = document.createElement("button");
-        btn.textContent = "View Students";
-        btn.className = "btn";
-        btn.style.marginTop = "10px";
+        btn.className = "view-students-btn";
+        btn.textContent = "View Common Students";
+        commonBox.appendChild(btn);
+
+        const studentsDiv = document.createElement("div");
+        studentsDiv.style.display = "none";
+        commonBox.appendChild(studentsDiv);
 
         btn.onclick = () => {
-            subjects.forEach(subject => {
-                box.appendChild(
-                    createStudentRangeTable(
-                        `${subject} – ${exam}`,
-                        ranges,
-                        subjectData[subject]
-                    )
+            studentsDiv.innerHTML = "";
+            commonStudentsByRange.forEach((students, idx) => {
+                studentsDiv.appendChild(
+                    createCommonStudentTable(exam, ranges[idx], students)
                 );
             });
+            studentsDiv.style.display =
+                studentsDiv.style.display === "none" ? "block" : "none";
         };
-
-        box.appendChild(btn);
     }
 };
