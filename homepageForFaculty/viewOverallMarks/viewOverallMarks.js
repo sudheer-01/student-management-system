@@ -4,51 +4,45 @@ let examNameMap = {};   // 🔥 KEY FIX
 
 // Fetch data and render
 document.getElementById("getStudentMarks").addEventListener("click", async () => {
-    const selectedYear = localStorage.getItem("selectedYear");
-    const selectedBranch = localStorage.getItem("selectedBranch");
-    const selectedSubject = localStorage.getItem("selectedSubject");
+    const year = localStorage.getItem("selectedYear");
+    const branch = localStorage.getItem("selectedBranch");
+    const subject = localStorage.getItem("selectedSubject");
 
-    /* 1️⃣ Fetch exam names */
-    const examRes = await fetch(
-        `/getExams?year=${selectedYear}&branch=${selectedBranch}`
-    );
-    const examNames = await examRes.json(); 
-    // e.g. ["MID-1", "UNIT TEST"]
+    // 1️⃣ Fetch exam names (TRUE exam names)
+    const examRes = await fetch(`/getExams?year=${year}&branch=${branch}`);
+    const examNames = await examRes.json(); // ["MID-1", "UNIT TEST"]
 
-    /* 2️⃣ Fetch overall marks */
+    // 2️⃣ Fetch overall marks (ARRAY OF STUDENTS)
     const marksRes = await fetch(
-        `/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`
+        `/getOverallMarks?year=${year}&branch=${branch}&subject=${subject}`
     );
-    const students = await marksRes.json(); // ✅ READ ONCE
+    const data = await marksRes.json(); // ✅ THIS IS THE ARRAY
 
-    /* 3️⃣ Build examNameMap from column names */
-    examNameMap = {};
-
-    if (students.length > 0) {
-        Object.keys(students[0]).forEach(col => {
-            if (col !== "htno" && col !== "name") {
-
-                const matchedExam = examNames.find(exam =>
-                    col.toUpperCase().includes(
-                        exam.replace(/-/g, "_").toUpperCase()
-                    )
-                );
-
-                // ✅ column key → exam name
-                examNameMap[col] = matchedExam || col;
-            }
-        });
+    if (!Array.isArray(data) || data.length === 0) {
+        alert("No student data found");
+        return;
     }
 
-    /* 4️⃣ Render */
-    renderTable(students);
+    // 3️⃣ Build exam key → exam name map
+    examNameMap = {};
+    Object.keys(data[0]).forEach(key => {
+        if (key !== "htno" && key !== "name") {
+            const match = examNames.find(e =>
+                key.replace(/_/g, "-").toUpperCase() === e.toUpperCase()
+            );
+            examNameMap[key] = match || key;
+        }
+    });
 
-    originalData = JSON.parse(JSON.stringify(students));
-    currentData  = JSON.parse(JSON.stringify(students));
+    renderTable(data);
+
+    originalData = JSON.parse(JSON.stringify(data));
+    currentData = JSON.parse(JSON.stringify(data));
 
     document.getElementById("addColumnSection").style.display = "block";
     document.getElementById("filterSection").style.display = "block";
 });
+
 
 // 🔁 Render Table Function
 function renderTable(data) {
@@ -59,31 +53,28 @@ function renderTable(data) {
     tbody.innerHTML = "";
     thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
 
-    if (data.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
-        return;
-    }
+    if (!Array.isArray(data) || data.length === 0) return;
 
-      const examColumns = Object.keys(data[0])
-        .filter(col => col !== "htno" && col !== "name");
+    const examColumns = Object.keys(data[0]).filter(
+        k => k !== "htno" && k !== "name"
+    );
 
-        examColumns.forEach(col => {
-            const th = document.createElement("th");
-           const examName = Object.keys(examNameMap)
-                .find(k => examNameMap[k] === col) || col;
+    examColumns.forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = examNameMap[key]; // ✅ REAL EXAM NAME
+        th.dataset.key = key;
+        thead.appendChild(th);
+    });
 
-            th.textContent = examName.replace(/_/g, " ");
-            th.dataset.key = col;
-            // ✅ preserve original key
-            thead.appendChild(th);
-        });
-
-
-    data.forEach((student, index) => {
+    data.forEach((student, i) => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
-        examColumns.forEach(col => {
-            tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
+        tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${student.htno}</td>
+            <td>${student.name}</td>
+        `;
+        examColumns.forEach(key => {
+            tr.innerHTML += `<td>${student[key] ?? "-"}</td>`;
         });
         tbody.appendChild(tr);
     });
@@ -91,6 +82,7 @@ function renderTable(data) {
     updateExamCheckboxes();
     updateFilterCheckboxes();
 }
+
 
 // ✅ Update exam selection checkboxes dynamically
 function updateExamCheckboxes() {
