@@ -23,30 +23,39 @@ async function fetchStudentData() {
         alert("Please select an exam.");
         return;
     }
+
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
+    const selectedSubject = localStorage.getItem("selectedSubject");
 
     /* 🔹 Fetch max marks map */
     const maxRes = await fetch(
-    `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
+        `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
     );
     examMaxMarks = await maxRes.json();
 
-    const selectedSubject = localStorage.getItem("selectedSubject");
-    fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
-            tbody.innerHTML = ""; // Clear existing rows
-            data.forEach((student, index) => {
-                let row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${student.htno}</td>
-                    <td>${student.name}</td>
-                    <td>${student[selectedExam] || 'N/A'}</td> 
-                `;
-                tbody.appendChild(row);
-            });
-        })
-        .catch(error => console.error("Error fetching data:", error));
+    /* ✅ FIX: force heading update AFTER data arrives */
+    document.getElementById("examHeading").textContent =
+        `${selectedExam} Marks (Max: ${examMaxMarks[selectedExam]})`;
+
+    const response = await fetch(
+        `/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`
+    );
+
+    const data = await response.json();
+
+    tbody.innerHTML = "";
+
+    data.forEach((student, index) => {
+        let row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${student.htno}</td>
+            <td>${student.name}</td>
+            <td>${student[selectedExam] ?? 'N/A'}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
