@@ -183,12 +183,46 @@ document.getElementById("clearColumns").addEventListener("click", () => {
 });
 
 // 🔍 Apply Filter
+// document.getElementById("applyFilter").addEventListener("click", () => {
+//     const filterValue = parseFloat(document.getElementById("filterValue").value);
+//     const selectedColumns = Array.from(document.querySelectorAll("#filterColumnCheckboxes input:checked")).map(cb => cb.value);
+
+//     if (selectedColumns.length === 0 || isNaN(filterValue)) {
+//         alert("Please select at least one column and enter a valid number!");
+//         return;
+//     }
+
+//     const table = document.getElementById("studentsInformationTable");
+//     const thead = table.querySelector("thead tr");
+//     const tbody = table.querySelector("tbody");
+
+//     const colIndexes = selectedColumns.map(col =>
+//         [...thead.children].findIndex(th => th.textContent === col)
+//     );
+
+//     const rows = Array.from(tbody.children);
+//     rows.forEach(row => {
+//         const cells = row.children;
+//         const meetsCondition = colIndexes.every(i => {
+//             const val = parseFloat(cells[i]?.textContent) || 0;
+//             return val <= filterValue;
+//         });
+//         row.style.display = meetsCondition ? "" : "none";
+//     });
+
+//     alert(`✅ Filter applied: showing students with <= ${filterValue} in ${selectedColumns.join(", ")}.`);
+// });
+
 document.getElementById("applyFilter").addEventListener("click", () => {
+    const criteria = document.getElementById("filterCriteria").value;
     const filterValue = parseFloat(document.getElementById("filterValue").value);
-    const selectedColumns = Array.from(document.querySelectorAll("#filterColumnCheckboxes input:checked")).map(cb => cb.value);
+
+    const selectedColumns = Array.from(
+        document.querySelectorAll("#filterColumnCheckboxes input:checked")
+    ).map(cb => cb.value);
 
     if (selectedColumns.length === 0 || isNaN(filterValue)) {
-        alert("Please select at least one column and enter a valid number!");
+        alert("Please select exams and enter valid marks!");
         return;
     }
 
@@ -200,17 +234,23 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         [...thead.children].findIndex(th => th.textContent === col)
     );
 
-    const rows = Array.from(tbody.children);
-    rows.forEach(row => {
+    Array.from(tbody.children).forEach(row => {
         const cells = row.children;
-        const meetsCondition = colIndexes.every(i => {
+
+        const matches = colIndexes.every(i => {
             const val = parseFloat(cells[i]?.textContent) || 0;
-            return val <= filterValue;
+
+            if (criteria === "below") return val < filterValue;
+            if (criteria === "above") return val > filterValue;
+            if (criteria === "equal") return val === filterValue;
         });
-        row.style.display = meetsCondition ? "" : "none";
+
+        row.style.display = matches ? "" : "none";
     });
 
-    alert(`✅ Filter applied: showing students with <= ${filterValue} in ${selectedColumns.join(", ")}.`);
+    alert(
+        `Filter applied: ${criteria.toUpperCase()} ${filterValue} in ${selectedColumns.join(", ")}`
+    );
 });
 
 // ❌ Clear Filter
