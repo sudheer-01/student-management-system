@@ -8,39 +8,47 @@ document.getElementById("getStudentMarks").addEventListener("click", async () =>
     const selectedBranch = localStorage.getItem("selectedBranch");
     const selectedSubject = localStorage.getItem("selectedSubject");
 
-    // 🔹 1. Fetch exam names
-    const examRes = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
+    /* 1️⃣ Fetch exam names */
+    const examRes = await fetch(
+        `/getExams?year=${selectedYear}&branch=${selectedBranch}`
+    );
     const examNames = await examRes.json(); 
-    // example: ["MID-1", "UNIT TEST"]
+    // e.g. ["MID-1", "UNIT TEST"]
 
-    // 🔹 2. Fetch overall marks
+    /* 2️⃣ Fetch overall marks */
     const marksRes = await fetch(
         `/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`
     );
-    const data = await marksRes.json();
+    const students = await marksRes.json(); // ✅ READ ONCE
 
-    // 🔹 3. Build examNameMap
+    /* 3️⃣ Build examNameMap from column names */
     examNameMap = {};
-    if (data.length > 0) {
-        Object.keys(data[0]).forEach(key => {
-            if (key !== "htno" && key !== "name") {
-                const matchedExam = examNames.find(e =>
-                    key.toUpperCase().includes(e.replace(/-/g, "_").toUpperCase())
+
+    if (students.length > 0) {
+        Object.keys(students[0]).forEach(col => {
+            if (col !== "htno" && col !== "name") {
+
+                const matchedExam = examNames.find(exam =>
+                    col.toUpperCase().includes(
+                        exam.replace(/-/g, "_").toUpperCase()
+                    )
                 );
-                examNameMap[key] = matchedExam || key;
+
+                // ✅ column key → exam name
+                examNameMap[col] = matchedExam || col;
             }
         });
     }
 
-    renderTable(data);
+    /* 4️⃣ Render */
+    renderTable(students);
 
-    originalData = JSON.parse(JSON.stringify(data));
-    currentData = JSON.parse(JSON.stringify(data));
+    originalData = JSON.parse(JSON.stringify(students));
+    currentData  = JSON.parse(JSON.stringify(students));
 
     document.getElementById("addColumnSection").style.display = "block";
     document.getElementById("filterSection").style.display = "block";
 });
-
 
 // 🔁 Render Table Function
 function renderTable(data) {
@@ -61,8 +69,12 @@ function renderTable(data) {
 
         examColumns.forEach(col => {
             const th = document.createElement("th");
-            th.textContent = examNameMap[col]; // ✅ correct exam name
-            th.dataset.key = col;              // ✅ preserve original key
+           const examName = Object.keys(examNameMap)
+                .find(k => examNameMap[k] === col) || col;
+
+            th.textContent = examName.replace(/_/g, " ");
+            th.dataset.key = col;
+            // ✅ preserve original key
             thead.appendChild(th);
         });
 

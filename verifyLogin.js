@@ -525,7 +525,11 @@ app.get("/getOverallMarks", (req, res) => {
                 return res.status(500).json({ success: false, message: "Database error" });
             }
 
-            res.json(results);
+            res.json({
+                exams: examsObj,   // 🔥 SEND METADATA
+                students: results
+            });
+
         });
     });
 });
