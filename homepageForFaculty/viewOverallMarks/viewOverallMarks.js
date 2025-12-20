@@ -91,7 +91,7 @@ function updateFilterCheckboxes() {
             const label = document.createElement("label");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.value = th.textContent;
+            checkbox.value = th.dataset.key;
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(th.textContent));
             filterCheckboxes.appendChild(label);
@@ -129,7 +129,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
         const values = [];
 
         selectedExams.forEach(exam => {
-            const examIndex = [...thead.children].findIndex(th => th.textContent === exam);
+            const examIndex = [...thead.children].findIndex(th => th.dataset.key === exam);
             if (examIndex !== -1) {
                 const val = parseFloat(studentCells[examIndex]?.textContent) || 0;
                 values.push(val);
@@ -203,7 +203,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
     const tbody = table.querySelector("tbody");
 
     const colIndexes = selectedColumns.map(col =>
-        [...thead.children].findIndex(th => th.textContent === col)
+        [...thead.children].findIndex(th => th.dataset.key === col)
     );
 
     const rows = Array.from(tbody.children);
@@ -274,7 +274,7 @@ document.getElementById("printReport").addEventListener("click", function () {
         </head>
         <body>
 
-            <img src="biology.png" alt="College Logo"/>
+            <img src="balaji.png" alt="College Logo"/>
 
             <h2>Overall Marks Report</h2>
 
@@ -287,8 +287,8 @@ document.getElementById("printReport").addEventListener("click", function () {
             ${tableHTML}
 
             <div class="signatures">
-                <div>Faculty Signature</div>
-                <div>Editor</div>
+                <div>Faculty</div>
+                <div>HOD</div>
                 <div>Dean</div>
                 <div>Principal</div>
             </div>
