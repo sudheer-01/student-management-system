@@ -509,7 +509,7 @@ app.get("/getOverallMarks", (req, res) => {
             return res.status(500).json({ success: false, message: "Unexpected exams data format" });
         }
 
-        const examColumns = Object.values(examsObj);
+        const examColumns = Object.keys(examsObj);
 
         if (examColumns.length === 0) {
             return res.status(404).json({ success: false, message: "No exam columns found" });
