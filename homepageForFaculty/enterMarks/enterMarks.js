@@ -1,7 +1,14 @@
-document.getElementById("exam").addEventListener("change", function() {
-    let selectedExam = this.value;  // Get the selected exam
-    document.getElementById("examHeading").textContent = selectedExam + " Marks";  // Update heading
+let examMaxMarks = {};
+
+document.getElementById("exam").addEventListener("change", function () {
+    const exam = this.value;
+    if (!exam) return;
+
+    const max = examMaxMarks[exam];
+    document.getElementById("examHeading").textContent =
+        `${exam} Marks (Max: ${max})`;
 });
+
 
 document.getElementById("getDetailsToEnterMarks").addEventListener("click", getStudentDetailsToEnterMarks);
 
@@ -28,11 +35,26 @@ async function getStudentDetailsToEnterMarks() {
         students.forEach((student, index) => {
             const row = document.createElement("tr");
 
+            const max = examMaxMarks[exam];
+
             row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${student.htno}</td>
-                <td>${student.name}</td>
-                <td><input type="number" name="marks_${student.htno}" min="0" max="100" required></td>
+            <td>${index + 1}</td>
+            <td>${student.htno}</td>
+            <td>${student.name}</td>
+            <td>
+                <input 
+                type="number"
+                name="marks_${student.htno}"
+                min="0"
+                max="${max}"
+                data-max="${max}"
+                required
+                oninput="validateMarks(this)"
+                >
+                <div class="error-msg" style="color:red;font-size:12px;display:none;">
+                Marks must be between 0 and ${max}
+                </div>
+            </td>
             `;
 
             tbody.appendChild(row);
@@ -46,7 +68,12 @@ async function getStudentDetailsToEnterMarks() {
 
 document.getElementById("studentsForm").addEventListener("submit", async function(event) {
     event.preventDefault();
-
+    const invalid = document.querySelector("input:invalid");
+    if (invalid) {
+        alert("Please correct invalid marks before saving.");
+        invalid.focus();
+        return;
+    }
     const exam = document.getElementById("exam").value;
     if (!exam) {
         alert("Please select an exam.");
@@ -93,8 +120,12 @@ document.addEventListener("DOMContentLoaded", async function() {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
         // const response = await fetch("/getExams");
-        const response = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
-        const exams = await response.json();
+        const examsRes = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
+        const exams = await examsRes.json();
+
+        const maxRes = await fetch(`/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`);
+        examMaxMarks = await maxRes.json();
+
         
         const examDropdown = document.getElementById("exam");
         examDropdown.innerHTML = '<option value="">Select Exam</option>'; // Reset options
@@ -127,3 +158,18 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
     }
 });
+function validateMarks(input) {
+    const value = Number(input.value);
+    const max = Number(input.dataset.max);
+    const error = input.nextElementSibling;
+
+    if (value < 0 || value > max) {
+        input.style.border = "2px solid red";
+        error.style.display = "block";
+        input.setCustomValidity("Invalid marks");
+    } else {
+        input.style.border = "1px solid #ccc";
+        error.style.display = "none";
+        input.setCustomValidity("");
+    }
+}
