@@ -175,7 +175,15 @@ async function toggleStudentTable(button, faculty, subject, exam) {
         });
 
         // Insert the new table below the clicked row
-        button.closest("tr").after(table);
+       const wrapper = document.createElement("tr");
+        wrapper.innerHTML = `
+            <td colspan="7">
+                <div class="student-table-wrapper"></div>
+            </td>
+        `;
+
+        wrapper.querySelector(".student-table-wrapper").appendChild(table);
+        button.closest("tr").after(wrapper);
     } catch (error) {
         console.error("Error fetching update details:", error);
         alert("Error fetching details. Please try again.");

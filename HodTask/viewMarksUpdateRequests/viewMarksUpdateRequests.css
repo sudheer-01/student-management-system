@@ -214,3 +214,45 @@ th {
     font-weight: bold;
     cursor: pointer;
 }
+/* ===============================
+   Expanded View Table Fix
+=============================== */
+
+.student-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+
+/* Inner student table */
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+/* Table cells */
+.student-table th,
+.student-table td {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* Header style */
+.student-table th {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+}
+
+/* Reason column handling */
+.student-table td:last-child {
+    max-width: 220px;
+    white-space: normal;
+}
