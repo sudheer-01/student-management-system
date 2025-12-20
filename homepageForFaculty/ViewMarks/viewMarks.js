@@ -17,7 +17,7 @@ let table = document.getElementById('studentsInformationTable');
 // console.log(table.tBodies[0]);  // Correct way to access tbody
 let tbody = table.tBodies[0];
 document.getElementById("getStudentMarks").addEventListener("click", fetchStudentData);
-function fetchStudentData() {
+async function fetchStudentData() {
     let selectedExam = document.getElementById("exam").value;
     if (!selectedExam) {
         alert("Please select an exam.");
@@ -31,7 +31,7 @@ function fetchStudentData() {
     `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
     );
     examMaxMarks = await maxRes.json();
-    
+
     const selectedSubject = localStorage.getItem("selectedSubject");
     fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
             tbody.innerHTML = ""; // Clear existing rows
