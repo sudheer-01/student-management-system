@@ -171,18 +171,32 @@ if (profileBtn) {
     });
 }
 
+
 const saveBtn = document.querySelector("#studentProfile button");
 
 profileBtn.addEventListener("click", async () => {
+    // Toggle profile section
     profileSection.classList.toggle("hidden");
 
-    const htno = document.getElementById("profileHtno").value;
-    if (!htno) return;
+    // Auto-fill Name & HTNO from already loaded student info
+    const nameText = document.querySelector("#studentInfo p:nth-child(1)")?.textContent;
+    const htnoText = document.querySelector("#studentInfo p:nth-child(2)")?.textContent;
 
-    const res = await fetch(`/studentProfile/${htno}`);
-    const data = await res.json();
+    if (!nameText || !htnoText) return;
 
-    if (data.exists) {
+    const fullName = nameText.replace("Name:", "").trim();
+    const htno = htnoText.replace("HTNO:", "").trim();
+
+    document.getElementById("profileName").value = fullName;
+    document.getElementById("profileHtno").value = htno;
+
+    // Fetch profile from DB
+    try {
+        const res = await fetch(`/studentProfile/${htno}`);
+        const data = await res.json();
+
+        if (!data.exists) return;
+
         const p = data.profile;
 
         batch.value = p.batch || "";
@@ -207,8 +221,13 @@ profileBtn.addEventListener("click", async () => {
         bloodGroup.value = p.blood_group || "";
         nationality.value = p.nationality || "";
         religion.value = p.religion || "";
+
+    } catch (err) {
+        console.error("Profile fetch failed:", err);
+        alert("Failed to load profile");
     }
 });
+
 saveBtn.addEventListener("click", async () => {
     const payload = {
         htno: profileHtno.value,
@@ -249,3 +268,4 @@ saveBtn.addEventListener("click", async () => {
     const result = await res.json();
     alert(result.message || "Profile saved");
 });
+
