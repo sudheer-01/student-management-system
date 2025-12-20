@@ -28,92 +28,93 @@ document.getElementById("getStudentMarks").addEventListener("click", function() 
                 <td>${student.htno}</td>
                 <td>${student.name}</td>
                 <td>${oldMarks}</td>  
-                <td><input type="number" class="newMarksInput" data-htno="${student.htno}" value="${oldMarks}"></td>
+                <td>
+                    <input type="number"
+                        class="newMarksInput"
+                        data-htno="${student.htno}"
+                        value="${oldMarks}">
+                </td>
+                <td>
+                    <input type="text"
+                        class="reasonInput"
+                        placeholder="Enter reason"
+                        data-htno="${student.htno}">
+                </td>
             `;
         });
     })
     .catch(error => console.error("Error fetching student marks:", error));
 });
 
-// Save marks when button is clicked
-// document.getElementById("saveMarks").addEventListener("click", function() {
-//     let selectedExam = document.getElementById("exam").value;
-//     if (!selectedExam) {
-//         alert("Please select an exam.");
-//         return;
-//     }
-
-//     let updatedMarks = [];
-//     document.querySelectorAll(".newMarksInput").forEach(input => {
-//         let htno = input.dataset.htno;
-//         let newMarks = input.value;
-//         updatedMarks.push({ htno, exam: selectedExam, marks: newMarks });
-//     });
-
-//     fetch("/updateStudentMarks", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ marks: updatedMarks })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success) {
-//             alert("Marks updated successfully!");
-//         } else {
-//             alert("Error updating marks.");
-//         }
-//     })
-//     .catch(error => console.error("Error updating marks:", error));
-// });
 // Request HOD to update marks
-document.getElementById("requestHod").addEventListener("click", function() {
-    let selectedExam = document.getElementById("exam").value;
-    console.log("Selected Exam for Request:", selectedExam); // Debugging log
+document.getElementById("requestHod").addEventListener("click", function () {
+    const selectedExam = document.getElementById("exam").value;
     if (!selectedExam) {
         alert("Please select an exam.");
         return;
     }
 
     let updateRequests = [];
-    document.querySelectorAll("#studentsInformationTable tbody tr").forEach(row => {
-        let htno = row.cells[1].textContent.trim();
-        let name = row.cells[2].textContent.trim();
-        let oldMarks = row.cells[3].textContent.trim();
-        let newMarksInput = row.cells[4].querySelector("input");
-        let newMarks = newMarksInput ? newMarksInput.value.trim() : "";
 
-        // Ensure newMarks is a valid number
-        if (newMarks === "" || isNaN(newMarks)) {
-            alert(`Please enter valid new marks for HTNO: ${htno}`);
-            return;
+    document.querySelectorAll("#studentsInformationTable tbody tr").forEach(row => {
+        const htno = row.cells[1].textContent.trim();
+        const name = row.cells[2].textContent.trim();
+        const oldMarks = row.cells[3].textContent.trim();
+
+        const newMarksInput = row.querySelector(".newMarksInput");
+        const reasonInput = row.querySelector(".reasonInput");
+
+        if (!newMarksInput) return;
+
+        const newMarks = newMarksInput.value.trim();
+        const reason = reasonInput.value.trim();
+
+        // 🔥 KEY LOGIC: only changed marks
+        if (newMarks === "" || isNaN(newMarks)) return;
+        if (newMarks === oldMarks) return;
+
+        if (!reason) {
+            alert(`Please enter reason for HTNO: ${htno}`);
+            throw new Error("Reason missing");
         }
 
-        updateRequests.push({ htno, name, oldMarks, newMarks, exam: selectedExam });
+        updateRequests.push({
+            htno,
+            name,
+            exam: selectedExam,
+            oldMarks,
+            newMarks,
+            reason
+        });
     });
 
     if (updateRequests.length === 0) {
-        alert("No valid marks to update.");
+        alert("No marks were changed.");
         return;
     }
-    const selectedYear = localStorage.getItem("selectedYear");
-        const selectedBranch = localStorage.getItem("selectedBranch");
-        const selectedSubject = localStorage.getItem("selectedSubject");
-        const facultyId = localStorage.getItem("facultyId");
+
     fetch("/requestHodToUpdateMarks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requests: updateRequests, selectedBranch: selectedBranch, selectedYear: selectedYear, selectedSubject: selectedSubject, facultyId: facultyId })
+        body: JSON.stringify({
+            requests: updateRequests,
+            selectedYear: localStorage.getItem("selectedYear"),
+            selectedBranch: localStorage.getItem("selectedBranch"),
+            selectedSubject: localStorage.getItem("selectedSubject"),
+            facultyId: localStorage.getItem("facultyId")
+        })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         if (data.success) {
             alert("Request sent to HOD successfully!");
         } else {
-            alert("Error sending request.");
+            alert("Failed to send request.");
         }
     })
-    .catch(error => console.error("Error sending request:", error));
+    .catch(err => console.error(err));
 });
+
 
 
 

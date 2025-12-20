@@ -571,15 +571,26 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
     let subject = req.body.selectedSubject; 
     let facultyName = req.body.facultyId; //facultyId not name
 
-    let query = `INSERT INTO pending_marks_updates 
-        (htno, name, year, branch, subject, exam, old_marks, new_marks, requested_by, request_status) 
-        VALUES ?`;
+   let query = `
+    INSERT INTO pending_marks_updates
+    (htno, name, year, branch, subject, exam, old_marks, new_marks, reason, requested_by, request_status)
+    VALUES ?
+    `;
 
-    let values = updateRequests
-        .filter(({ newMarks }) => newMarks !== "" && newMarks !== null) 
-        .map(({ htno, exam, newMarks, name, oldMarks }) => [
-            htno, name, year, branch, subject, exam, oldMarks, newMarks, facultyName, 'Pending'
-        ]);
+    let values = updateRequests.map(r => [
+        r.htno,
+        r.name,
+        year,
+        branch,
+        subject,
+        r.exam,
+        r.oldMarks,
+        r.newMarks,
+        r.reason,
+        facultyName,
+        'Pending'
+    ]);
+
 
     if (values.length === 0) {
         return res.status(400).json({ success: false, message: "No valid marks provided." });
