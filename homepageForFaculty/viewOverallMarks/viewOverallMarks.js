@@ -1,48 +1,23 @@
 let originalData = null;
 let currentData = null; // store current filtered/modified data
-let examNameMap = {};   // 🔥 KEY FIX
 
 // Fetch data and render
-document.getElementById("getStudentMarks").addEventListener("click", async () => {
-    const year = localStorage.getItem("selectedYear");
-    const branch = localStorage.getItem("selectedBranch");
-    const subject = localStorage.getItem("selectedSubject");
+document.getElementById("getStudentMarks").addEventListener("click", () => {
+    const selectedYear = localStorage.getItem("selectedYear");
+    const selectedBranch = localStorage.getItem("selectedBranch");
+    const selectedSubject = localStorage.getItem("selectedSubject");
 
-    // 1️⃣ Fetch exam names (TRUE exam names)
-    const examRes = await fetch(`/getExams?year=${year}&branch=${branch}`);
-    const examNames = await examRes.json(); // ["MID-1", "UNIT TEST"]
-
-    // 2️⃣ Fetch overall marks (ARRAY OF STUDENTS)
-    const marksRes = await fetch(
-        `/getOverallMarks?year=${year}&branch=${branch}&subject=${subject}`
-    );
-    const data = await marksRes.json(); // ✅ THIS IS THE ARRAY
-
-    if (!Array.isArray(data) || data.length === 0) {
-        alert("No student data found");
-        return;
-    }
-
-    // 3️⃣ Build exam key → exam name map
-    examNameMap = {};
-    Object.keys(data[0]).forEach(key => {
-        if (key !== "htno" && key !== "name") {
-            const match = examNames.find(e =>
-                key.replace(/_/g, "-").toUpperCase() === e.toUpperCase()
-            );
-            examNameMap[key] = match || key;
-        }
-    });
-
-    renderTable(data);
-
-    originalData = JSON.parse(JSON.stringify(data));
-    currentData = JSON.parse(JSON.stringify(data));
-
-    document.getElementById("addColumnSection").style.display = "block";
-    document.getElementById("filterSection").style.display = "block";
+    fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
+        .then(response => response.json())
+        .then(data => {
+            renderTable(data);
+            originalData = JSON.parse(JSON.stringify(data));
+            currentData = JSON.parse(JSON.stringify(data));
+            document.getElementById("addColumnSection").style.display = "block";
+            document.getElementById("filterSection").style.display = "block";
+        })
+        .catch(error => console.error("Error fetching student marks:", error));
 });
-
 
 // 🔁 Render Table Function
 function renderTable(data) {
@@ -53,28 +28,24 @@ function renderTable(data) {
     tbody.innerHTML = "";
     thead.innerHTML = "<th>S.NO</th><th>HallTicket Number</th><th>Student Name</th>";
 
-    if (!Array.isArray(data) || data.length === 0) return;
+    if (data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='99'>No data found</td></tr>";
+        return;
+    }
 
-    const examColumns = Object.keys(data[0]).filter(
-        k => k !== "htno" && k !== "name"
-    );
+    const examColumns = Object.keys(data[0]).filter(col => col !== "htno" && col !== "name");
 
-    examColumns.forEach(key => {
+    examColumns.forEach(col => {
         const th = document.createElement("th");
-        th.textContent = examNameMap[key]; // ✅ REAL EXAM NAME
-        th.dataset.key = key;
+        th.textContent = col.replace(/_/g, " ");
         thead.appendChild(th);
     });
 
-    data.forEach((student, i) => {
+    data.forEach((student, index) => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${student.htno}</td>
-            <td>${student.name}</td>
-        `;
-        examColumns.forEach(key => {
-            tr.innerHTML += `<td>${student[key] ?? "-"}</td>`;
+        tr.innerHTML = `<td>${index + 1}</td><td>${student.htno}</td><td>${student.name}</td>`;
+        examColumns.forEach(col => {
+            tr.innerHTML += `<td>${student[col] ?? "-"}</td>`;
         });
         tbody.appendChild(tr);
     });
@@ -82,7 +53,6 @@ function renderTable(data) {
     updateExamCheckboxes();
     updateFilterCheckboxes();
 }
-
 
 // ✅ Update exam selection checkboxes dynamically
 function updateExamCheckboxes() {
@@ -96,7 +66,7 @@ function updateExamCheckboxes() {
             const label = document.createElement("label");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.value = th.dataset.key; // actual exam key
+            checkbox.value = th.textContent;
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(th.textContent));
             examCheckboxes.appendChild(label);
@@ -115,7 +85,7 @@ function updateFilterCheckboxes() {
             const label = document.createElement("label");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.value = th.dataset.key;
+            checkbox.value = th.textContent;
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(th.textContent));
             filterCheckboxes.appendChild(label);
@@ -153,7 +123,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
         const values = [];
 
         selectedExams.forEach(exam => {
-            const examIndex = [...thead.children].findIndex(th => th.dataset.key === exam);
+            const examIndex = [...thead.children].findIndex(th => th.textContent === exam);
             if (examIndex !== -1) {
                 const val = parseFloat(studentCells[examIndex]?.textContent) || 0;
                 values.push(val);
@@ -227,7 +197,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
     const tbody = table.querySelector("tbody");
 
     const colIndexes = selectedColumns.map(col =>
-        [...thead.children].findIndex(th => th.dataset.key === col)
+        [...thead.children].findIndex(th => th.textContent === col)
     );
 
     const rows = Array.from(tbody.children);
@@ -271,60 +241,42 @@ const logoutBtn = document.getElementById("logoutBtn");
         });
     }
 document.getElementById("printReport").addEventListener("click", function () {
-    const year = localStorage.getItem("selectedYear");
-    const branch = localStorage.getItem("selectedBranch");
-    const subject = localStorage.getItem("selectedSubject");
 
-    const tableHTML = document.getElementById("studentsInformationTable").outerHTML;
-    const win = window.open("", "_blank");
+            const year = localStorage.getItem("selectedYear");
+            const branch = localStorage.getItem("selectedBranch");
+            const subject = localStorage.getItem("selectedSubject");
+            
+            const printContent = document.getElementById("studentsInformationTable").outerHTML;
+            const newWindow = window.open("", "_blank");
 
-    win.document.write(`
-        <html>
-        <head>
-            <title>Overall Marks Report</title>
-            <style>
-                body { font-family: Arial; text-align: center; }
-                img { width: 120px; margin-bottom: 10px; }
-                h2 { margin: 10px 0; }
-                .meta { font-weight: bold; margin-bottom: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #000; padding: 8px; }
-                .signatures {
-                    margin-top: 50px;
-                    display: flex;
-                    justify-content: space-between;
-                }
-            </style>
-        </head>
-        <body>
+            newWindow.document.write(`
+                <html>
+                <head>
+                    <title>Student Overall Marks Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+                        th { background-color: #f2f2f2; }
+                        .report-details { margin-top: 20px; font-size: 18px; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Overall Marks Report</h2>
+                    <div class="report-details">
+                        <span>Branch: ${branch} | </span>
+                        <span>Year: ${year} | </span>
+                        <span>Subject: ${subject}</span>
+                    </div>
+                    ${printContent}
+                </body>
+                </html>
+            `);
 
-            <img src="balaji.png" alt="College Logo"/>
-
-            <h2>Overall Marks Report</h2>
-
-            <div class="meta">
-                Branch: ${branch} &nbsp; | &nbsp;
-                Year: ${year} &nbsp; | &nbsp;
-                Subject: ${subject}
-            </div>
-
-            ${tableHTML}
-
-            <div class="signatures">
-                <div>Faculty</div>
-                <div>HOD</div>
-                <div>Dean</div>
-                <div>Principal</div>
-            </div>
-
-        </body>
-        </html>
-    `);
-
-    win.document.close();
-    win.print();
+            newWindow.document.close();
+            newWindow.print();
+        
 });
-
 // 🔽 EXPORT TABLE TO CSV FUNCTIONALITY
 // 🔽 EXPORT ONLY VISIBLE TABLE DATA TO CSV
 document.getElementById("exportCSV").addEventListener("click", function () {
