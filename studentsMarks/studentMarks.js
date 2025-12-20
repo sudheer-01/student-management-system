@@ -152,3 +152,171 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+const profileBtn = document.getElementById("profileBtn");
+const profileSection = document.getElementById("studentProfile");
+
+if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+        profileSection.classList.toggle("hidden");
+
+        // Auto-fill from already loaded student info
+        const nameText = document.querySelector("#studentInfo p:nth-child(1)")?.textContent;
+        const htnoText = document.querySelector("#studentInfo p:nth-child(2)")?.textContent;
+
+        if (nameText && htnoText) {
+            document.getElementById("profileName").value = nameText.replace("Name:", "").trim();
+            document.getElementById("profileHtno").value = htnoText.replace("HTNO:", "").trim();
+        }
+    });
+}
+
+app.post("/studentProfile/save", (req, res) => {
+    const p = req.body;
+
+    const checkQuery = `SELECT id FROM student_profiles WHERE htno = ?`;
+
+    con.query(checkQuery, [p.htno], (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false });
+        }
+
+        if (rows.length > 0) {
+            // 🔁 UPDATE
+            const updateQuery = `
+                UPDATE student_profiles SET
+                    full_name=?, branch=?, year=?, batch=?, dob=?, gender=?,
+                    admission_type=?, current_status=?,
+                    student_mobile=?, email=?, current_address=?, permanent_address=?,
+                    father_name=?, mother_name=?, parent_mobile=?,
+                    guardian_name=?, guardian_relation=?, guardian_mobile=?,
+                    blood_group=?, nationality=?, religion=?
+                WHERE htno=?
+            `;
+
+            con.query(updateQuery, [
+                p.full_name, p.branch, p.year, p.batch, p.dob, p.gender,
+                p.admission_type, p.current_status,
+                p.student_mobile, p.email, p.current_address, p.permanent_address,
+                p.father_name, p.mother_name, p.parent_mobile,
+                p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                p.blood_group, p.nationality, p.religion,
+                p.htno
+            ], err => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false });
+                }
+                res.json({ success: true, message: "Profile updated successfully" });
+            });
+
+        } else {
+            // ➕ INSERT
+            const insertQuery = `
+                INSERT INTO student_profiles (
+                    htno, full_name, branch, year, batch, dob, gender,
+                    admission_type, current_status,
+                    student_mobile, email, current_address, permanent_address,
+                    father_name, mother_name, parent_mobile,
+                    guardian_name, guardian_relation, guardian_mobile,
+                    blood_group, nationality, religion
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            `;
+
+            con.query(insertQuery, [
+                p.htno, p.full_name, p.branch, p.year, p.batch, p.dob, p.gender,
+                p.admission_type, p.current_status,
+                p.student_mobile, p.email, p.current_address, p.permanent_address,
+                p.father_name, p.mother_name, p.parent_mobile,
+                p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                p.blood_group, p.nationality, p.religion
+            ], err => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false });
+                }
+                res.json({ success: true, message: "Profile saved successfully" });
+            });
+        }
+    });
+});
+
+const saveBtn = document.querySelector("#studentProfile button");
+
+profileBtn.addEventListener("click", async () => {
+    profileSection.classList.toggle("hidden");
+
+    const htno = document.getElementById("profileHtno").value;
+    if (!htno) return;
+
+    const res = await fetch(`/studentProfile/${htno}`);
+    const data = await res.json();
+
+    if (data.exists) {
+        const p = data.profile;
+
+        batch.value = p.batch || "";
+        dob.value = p.dob || "";
+        gender.value = p.gender || "";
+        admissionType.value = p.admission_type || "";
+        status.value = p.current_status || "Active";
+
+        studentMobile.value = p.student_mobile || "";
+        email.value = p.email || "";
+        currentAddress.value = p.current_address || "";
+        permanentAddress.value = p.permanent_address || "";
+
+        fatherName.value = p.father_name || "";
+        motherName.value = p.mother_name || "";
+        parentMobile.value = p.parent_mobile || "";
+
+        guardianName.value = p.guardian_name || "";
+        guardianRelation.value = p.guardian_relation || "";
+        guardianMobile.value = p.guardian_mobile || "";
+
+        bloodGroup.value = p.blood_group || "";
+        nationality.value = p.nationality || "";
+        religion.value = p.religion || "";
+    }
+});
+saveBtn.addEventListener("click", async () => {
+    const payload = {
+        htno: profileHtno.value,
+        full_name: profileName.value,
+        branch: document.querySelector("#studentInfo p:nth-child(3)")?.textContent.replace("Branch:", "").trim(),
+        year: document.querySelector("#studentInfo p:nth-child(4)")?.textContent.replace("Year:", "").trim(),
+
+        batch: batch.value,
+        dob: dob.value,
+        gender: gender.value,
+        admission_type: admissionType.value,
+        current_status: status.value,
+
+        student_mobile: studentMobile.value,
+        email: email.value,
+        current_address: currentAddress.value,
+        permanent_address: permanentAddress.value,
+
+        father_name: fatherName.value,
+        mother_name: motherName.value,
+        parent_mobile: parentMobile.value,
+
+        guardian_name: guardianName.value,
+        guardian_relation: guardianRelation.value,
+        guardian_mobile: guardianMobile.value,
+
+        blood_group: bloodGroup.value,
+        nationality: nationality.value,
+        religion: religion.value
+    };
+
+    const res = await fetch("/studentProfile/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+    alert(result.message || "Profile saved");
+});

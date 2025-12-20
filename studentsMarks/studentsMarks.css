@@ -185,3 +185,31 @@ td.subject {
     color: #475569;
     font-size: 12px;
 }
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.profile-grid label {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.profile-grid input,
+.profile-grid select,
+.profile-grid textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+.profile-grid textarea {
+    resize: vertical;
+    min-height: 60px;
+}

@@ -19,6 +19,7 @@
                 </div>
                 <div class="actions-right">
                     <div id="loadingSpinner" class="spinner hidden" aria-hidden="true"></div>
+                     <button id="profileBtn" class="btn ghost">Student Profile</button>
                     <button id="exportCsvBtn" class="btn secondary" aria-label="Export table to CSV">Export CSV</button>
                     <button id="printBtn" class="btn ghost" aria-label="Print marks">Print</button>
                     <button id="logoutBtn" class="btn danger" aria-label="Log out">Log out</button>
@@ -37,6 +38,96 @@
                     <tbody id="marksBody"></tbody>
                 </table>
             </div>
+            
+            <section id="studentProfile" class="card hidden">
+
+                <h2 style="margin-bottom:16px;">Student Profile</h2>
+
+                <!-- ===== SECTION 1 ===== -->
+                <h3>Personal & Academic Information</h3>
+
+                <div class="profile-grid">
+                    <div>
+                        <label>Full Name</label>
+                        <input type="text" id="profileName" readonly>
+                    </div>
+
+                    <div>
+                        <label>Hall Ticket Number</label>
+                        <input type="text" id="profileHtno" readonly>
+                    </div>
+
+                    <div>
+                        <label>Batch</label>
+                        <input type="text" id="batch">
+                    </div>
+
+                    <div>
+                        <label>Date of Birth</label>
+                        <input type="date" id="dob">
+                    </div>
+
+                    <div>
+                        <label>Gender</label>
+                        <select id="gender">
+                            <option value="">Select</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Admission Type</label>
+                        <select id="admissionType">
+                            <option value="">Select</option>
+                            <option>Convener</option>
+                            <option>Management</option>
+                            <option>Lateral Entry</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Current Status</label>
+                        <select id="status">
+                            <option>Active</option>
+                            <option>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ===== SECTION 2 ===== -->
+                <h3>Contact Information</h3>
+
+                <div class="profile-grid">
+                    <div><label>Student Mobile</label><input type="text" id="studentMobile"></div>
+                    <div><label>Email</label><input type="email" id="email"></div>
+                    <div><label>Current Address</label><textarea id="currentAddress"></textarea></div>
+                    <div><label>Permanent Address</label><textarea id="permanentAddress"></textarea></div>
+                </div>
+
+                <!-- ===== SECTION 3 ===== -->
+                <h3>Family & Additional Information</h3>
+
+                <div class="profile-grid">
+                    <div><label>Father’s Name</label><input type="text" id="fatherName"></div>
+                    <div><label>Mother’s Name</label><input type="text" id="motherName"></div>
+                    <div><label>Parent Mobile</label><input type="text" id="parentMobile"></div>
+
+                    <div><label>Guardian Name (Optional)</label><input type="text" id="guardianName"></div>
+                    <div><label>Relationship</label><input type="text" id="guardianRelation"></div>
+                    <div><label>Guardian Mobile</label><input type="text" id="guardianMobile"></div>
+
+                    <div><label>Blood Group</label><input type="text" id="bloodGroup"></div>
+                    <div><label>Nationality</label><input type="text" id="nationality"></div>
+                    <div><label>Religion</label><input type="text" id="religion"></div>
+                </div>
+
+                <button class="btn primary" style="margin-top:16px;">
+                    Save Profile
+                </button>
+            </section>
+
         </div>
     </div>
     <script src="studentMarks.js"></script>

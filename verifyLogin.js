@@ -1280,6 +1280,30 @@ try {
     });
 });
 
+// Fetch student profile
+app.get("/studentProfile/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const query = `SELECT * FROM student_profiles WHERE htno = ? LIMIT 1`;
+
+    con.query(query, [htno], (err, results) => {
+        if (err) {
+            console.error("Profile fetch error:", err);
+            return res.status(500).json({ success: false });
+        }
+
+        if (results.length === 0) {
+            return res.json({ success: true, exists: false });
+        }
+
+        res.json({
+            success: true,
+            exists: true,
+            profile: results[0]
+        });
+    });
+});
+
 
 //admin login
 app.post("/adminLogin", (req, res) => {
