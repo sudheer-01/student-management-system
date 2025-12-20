@@ -241,42 +241,60 @@ const logoutBtn = document.getElementById("logoutBtn");
         });
     }
 document.getElementById("printReport").addEventListener("click", function () {
+    const year = localStorage.getItem("selectedYear");
+    const branch = localStorage.getItem("selectedBranch");
+    const subject = localStorage.getItem("selectedSubject");
 
-            const year = localStorage.getItem("selectedYear");
-            const branch = localStorage.getItem("selectedBranch");
-            const subject = localStorage.getItem("selectedSubject");
-            
-            const printContent = document.getElementById("studentsInformationTable").outerHTML;
-            const newWindow = window.open("", "_blank");
+    const tableHTML = document.getElementById("studentsInformationTable").outerHTML;
+    const win = window.open("", "_blank");
 
-            newWindow.document.write(`
-                <html>
-                <head>
-                    <title>Student Overall Marks Report</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; text-align: center; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid black; padding: 8px; text-align: center; }
-                        th { background-color: #f2f2f2; }
-                        .report-details { margin-top: 20px; font-size: 18px; font-weight: bold; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Overall Marks Report</h2>
-                    <div class="report-details">
-                        <span>Branch: ${branch} | </span>
-                        <span>Year: ${year} | </span>
-                        <span>Subject: ${subject}</span>
-                    </div>
-                    ${printContent}
-                </body>
-                </html>
-            `);
+    win.document.write(`
+        <html>
+        <head>
+            <title>Overall Marks Report</title>
+            <style>
+                body { font-family: Arial; text-align: center; }
+                img { width: 120px; margin-bottom: 10px; }
+                h2 { margin: 10px 0; }
+                .meta { font-weight: bold; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 8px; }
+                .signatures {
+                    margin-top: 50px;
+                    display: flex;
+                    justify-content: space-between;
+                }
+            </style>
+        </head>
+        <body>
 
-            newWindow.document.close();
-            newWindow.print();
-        
+            <img src="balaji.png" alt="College Logo"/>
+
+            <h2>Overall Marks Report</h2>
+
+            <div class="meta">
+                Branch: ${branch} &nbsp; | &nbsp;
+                Year: ${year} &nbsp; | &nbsp;
+                Subject: ${subject}
+            </div>
+
+            ${tableHTML}
+
+            <div class="signatures">
+                <div>Faculty</div>
+                <div>HOD</div>
+                <div>Dean</div>
+                <div>Principal</div>
+            </div>
+
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.print();
 });
+
 // 🔽 EXPORT TABLE TO CSV FUNCTIONALITY
 // 🔽 EXPORT ONLY VISIBLE TABLE DATA TO CSV
 document.getElementById("exportCSV").addEventListener("click", function () {
