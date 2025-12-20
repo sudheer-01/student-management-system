@@ -1237,7 +1237,7 @@ try {
 
 
             // Extract exam columns (["Unit_test_1", "Mid_1", ...])
-            const examColumns = Object.values(examsJson).map(col => `\`${col}\``);
+            const examColumns = Object.keys(examsJson).map(exam => `\`${exam}\``);
 
             if (examColumns.length === 0) {
                 return res.status(404).json({ error: "No exam columns found for this branch/year." });
@@ -1267,8 +1267,8 @@ try {
                     name: results[0].name,
                     subjects: results.map(row => {
                         let marks = {};
-                        Object.values(examsJson).forEach(col => {
-                            marks[col] = row[col] !== null ? row[col] : "N/A";
+                        Object.keys(examsJson).forEach(exam => {
+                            marks[exam] = row[exam] !== null ? row[exam] : "N/A";
                         });
                         return { subject: row.subject, marks };
                     }),
