@@ -1,7 +1,17 @@
-document.getElementById("exam").addEventListener("change", function() {
-    let selectedExam = this.value;  // Get the selected exam
-    document.getElementById("examHeading").textContent = selectedExam + " Marks";  // Update heading
+let examMaxMarks = {};
+
+document.getElementById("exam").addEventListener("change", function () {
+    const exam = this.value;
+
+    if (!exam || !examMaxMarks[exam]) {
+        document.getElementById("examHeading").textContent = "Marks";
+        return;
+    }
+
+    document.getElementById("examHeading").textContent =
+        `${exam} Marks (Max: ${examMaxMarks[exam]})`;
 });
+
 
 let table = document.getElementById('studentsInformationTable');
 // console.log(table.tBodies[0]);  // Correct way to access tbody
@@ -13,9 +23,17 @@ function fetchStudentData() {
         alert("Please select an exam.");
         return;
     }
-       const selectedYear = localStorage.getItem("selectedYear");
+    const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
-        const selectedSubject = localStorage.getItem("selectedSubject");
+    const selectedYear = localStorage.getItem("selectedYear");
+    const selectedBranch = localStorage.getItem("selectedBranch");
+
+    /* 🔹 Fetch max marks map */
+    const maxRes = await fetch(
+    `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
+    );
+    examMaxMarks = await maxRes.json();
+    const selectedSubject = localStorage.getItem("selectedSubject");
     fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
             tbody.innerHTML = ""; // Clear existing rows
             data.forEach((student, index) => {
