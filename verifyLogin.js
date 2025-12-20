@@ -798,36 +798,6 @@ app.get("/getRequests", (req, res) => {
     });
 });
 
-//HodTask:::viewFacultyRequests
-// app.get("/getYears", (req, res) => {
-//     res.json(hodYears.map(year => ({ year })));
-// });
-// app.get("/getBranches/:year", (req, res) => {
-//     const { year,branch } = req.params;
-
-//     let query;
-//     let params;
-
-//     if (year === "1") {
-//         // Fetch only 1st-year branches
-//         year = parseInt(year);
-//         query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
-//         params = [1];
-//     } else {
-//         // Fetch only HOD-related branches for other years
-//         year = parseInt(year);
-//         query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
-//         params = [year, `%${branch}%`];
-//     }
-
-//     con.query(query, params, (err, result) => {
-//         if (err) {
-//             console.error("Database error:", err);
-//             return res.status(500).send(err);
-//         }
-//         res.json(result);
-//     });
-// });
 
 app.get("/getbranches/:year/:branch", (req, res) => {
     const { year,branch } = req.params;
@@ -1463,7 +1433,15 @@ app.get("/getExamMaxMarks/:year/:branch/:exam", (req, res) => {
 
 //HodTask:::viewMarksUpdateRequests
 app.get("/getRequests/:year/:branch", (req, res) => {
-    const query = `SELECT DISTINCT requested_by, subject, exam, requested_at, request_status FROM pending_marks_updates WHERE year = ? AND branch = ? AND request_status = 'Pending'`;
+    const query = `SELECT DISTINCT 
+        requested_by,
+        subject,
+        exam,
+        DATE(requested_at) AS requested_date,
+        request_status
+    FROM pending_marks_updates
+    WHERE year = ? AND branch = ? AND request_status = 'Pending'
+    `;
     con.query(query, [req.params.year, req.params.branch], (err, results) => {
         if (err) return res.status(500).json({ error: "Database error" });
         res.json(results);
@@ -1471,7 +1449,17 @@ app.get("/getRequests/:year/:branch", (req, res) => {
 });
 
 app.get("/getUpdate/:faculty/:subject/:exam", (req, res) => {
-    const query = `SELECT htno, name, old_marks, new_marks FROM pending_marks_updates WHERE requested_by = ? AND subject = ? AND exam = ? AND request_status='Pending'`;
+    const query = `SELECT 
+        htno,
+        name,
+        old_marks,
+        new_marks,
+        reason
+    FROM pending_marks_updates
+    WHERE requested_by = ?
+    AND subject = ?
+    AND exam = ?
+    `;
     con.query(query, [req.params.faculty, req.params.subject, req.params.exam], (err, results) => {
         if (err) return res.status(500).json({ error: "Database error" });
         res.json(results);

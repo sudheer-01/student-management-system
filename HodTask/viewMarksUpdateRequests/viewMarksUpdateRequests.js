@@ -98,7 +98,7 @@ function populateTable(requests) {
             <td>${req.requested_by}</td>
             <td>${req.subject}</td>
             <td>${req.exam}</td>
-            <td>${req.requested_at}</td>
+            <td>${req.requested_date}</td>
             <td>${req.request_status}</td>
             <td>
                 <button class="approve-btn" onclick="updateStatus('${req.requested_by}', '${req.subject}', '${req.exam}', 'Approved')">Approve</button>
@@ -150,22 +150,25 @@ async function toggleStudentTable(button, faculty, subject, exam) {
         // Build the filtered table
         let table = document.createElement("table");
         table.classList.add("student-table");
-        table.innerHTML = `
-            <tr>
-                <th>HTNO</th>
-                <th>Name</th>
-                <th>Old Marks</th>
-                <th>New Marks</th>
-            </tr>
-        `;
+      table.innerHTML = `
+        <tr>
+            <th>HTNO</th>
+            <th>Name</th>
+            <th>Old Marks</th>
+            <th>New Marks</th>
+            <th>Reason</th>
+        </tr>
+    `;
+
 
         changedStudents.forEach(student => {
             let row = `
-                <tr>
+               <tr>
                     <td>${student.htno}</td>
                     <td>${student.name}</td>
                     <td>${student.old_marks}</td>
                     <td>${student.new_marks}</td>
+                    <td>${student.reason}</td>
                 </tr>
             `;
             table.innerHTML += row;
