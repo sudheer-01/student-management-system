@@ -25,14 +25,13 @@ function fetchStudentData() {
     }
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
-    const selectedYear = localStorage.getItem("selectedYear");
-    const selectedBranch = localStorage.getItem("selectedBranch");
 
     /* 🔹 Fetch max marks map */
     const maxRes = await fetch(
     `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
     );
     examMaxMarks = await maxRes.json();
+    
     const selectedSubject = localStorage.getItem("selectedSubject");
     fetch(`/getStudentMarks?exam=${selectedExam}&year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`).then(response => response.json()).then(data => {
             tbody.innerHTML = ""; // Clear existing rows
