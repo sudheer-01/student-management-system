@@ -2,12 +2,23 @@ let examMaxMarks = {};
 
 document.getElementById("exam").addEventListener("change", function () {
     const exam = this.value;
-    if (!exam) return;
 
-    const max = examMaxMarks[exam];
-    document.getElementById("examHeading").textContent =
-        `${exam} Marks (Max: ${max})`;
+    // Update heading only if exam exists
+    if (exam && examMaxMarks[exam]) {
+        document.getElementById("examHeading").textContent =
+            `${exam} Marks (Max: ${examMaxMarks[exam]})`;
+    } else {
+        document.getElementById("examHeading").textContent = "Marks";
+    }
+
+    // 🔥 IMPORTANT FIX: clear table when exam changes
+    const tbody = document.querySelector("#studentsInformationTable tbody");
+    tbody.innerHTML = "";
+
+    // Optional UX message
+    // alert("Exam changed. Please click 'Get student details' again.");
 });
+
 
 
 document.getElementById("getDetailsToEnterMarks").addEventListener("click", getStudentDetailsToEnterMarks);
