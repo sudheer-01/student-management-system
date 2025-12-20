@@ -234,6 +234,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         [...thead.children].findIndex(th => th.textContent === col)
     );
 
+    /* 🔍 FILTER ROWS */
     Array.from(tbody.children).forEach(row => {
         const cells = row.children;
 
@@ -248,10 +249,19 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         row.style.display = matches ? "" : "none";
     });
 
+    /* 🔢 RECALCULATE SERIAL NUMBERS (ONCE) */
+    let serial = 1;
+    Array.from(tbody.children).forEach(row => {
+        if (row.style.display !== "none") {
+            row.children[0].textContent = serial++;
+        }
+    });
+
     alert(
         `Filter applied: ${criteria.toUpperCase()} ${filterValue} in ${selectedColumns.join(", ")}`
     );
 });
+
 
 // ❌ Clear Filter
 document.getElementById("clearFilter").addEventListener("click", () => {
@@ -260,6 +270,13 @@ document.getElementById("clearFilter").addEventListener("click", () => {
     });
     document.getElementById("filterValue").value = "";
     document.querySelectorAll("#filterColumnCheckboxes input").forEach(cb => (cb.checked = false));
+
+    // 🔢 Restore serial numbers
+    Array.from(document.querySelectorAll("#studentsInformationTable tbody tr"))
+        .forEach((row, index) => {
+            row.children[0].textContent = index + 1;
+        });
+
     alert("✅ All filters cleared!");
 });
 
@@ -294,7 +311,13 @@ document.getElementById("printReport").addEventListener("click", function () {
             <title>Overall Marks Report</title>
             <style>
                 body { font-family: Arial; text-align: center; }
-                img { width: 120px; margin-bottom: 10px; }
+                img {
+                    width: 100%;
+                    height: auto;
+                    max-height: 180px;
+                    object-fit: contain;
+                    margin-bottom: 20px;
+                }
                 h2 { margin: 10px 0; }
                 .meta { font-weight: bold; margin-bottom: 20px; }
                 table { width: 100%; border-collapse: collapse; }
