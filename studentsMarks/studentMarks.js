@@ -167,31 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-app.get("/studentProfile/photo/:htno", (req, res) => {
 
-    const { htno } = req.params;
-
-    const query = `
-        SELECT profile_photo
-        FROM student_profiles
-        WHERE htno = ?
-        LIMIT 1
-    `;
-
-    con.query(query, [htno], (err, rows) => {
-        if (err) {
-            console.error("Image fetch error:", err);
-            return res.status(500).end();
-        }
-
-        if (!rows.length || !rows[0].profile_photo) {
-            return res.status(204).end(); // No image
-        }
-
-        res.setHeader("Content-Type", "image/jpeg");
-        res.send(rows[0].profile_photo);
-    });
-});
 
     /* =====================================================
        SAVE PROFILE
