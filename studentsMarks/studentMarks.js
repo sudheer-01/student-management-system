@@ -243,13 +243,17 @@ async function uploadProfilePhoto() {
     const fd = new FormData();
     fd.append("profile_photo", file);
 
-    const res = await fetch(
-        `/studentProfile/photo/${studentHtno}`,
-        {
-            method: "POST",
-            body: fd
-        }
-    );
+    const res = await fetch(`/studentProfile/photo/${studentHtno}`, {
+        method: "POST",
+        body: fd
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        console.error("Upload failed:", text);
+        alert("Image upload failed (check server)");
+        return;
+    }
 
     const result = await res.json();
     alert(result.message);

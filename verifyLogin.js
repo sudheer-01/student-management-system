@@ -1171,31 +1171,50 @@ const upload = multer({
 
 
 
-app.get("/studentProfile/photo/:htno", (req, res) => {
+app.post(
+    "/studentProfile/photo/:htno",
+    upload.single("profile_photo"),
+    (req, res) => {
 
-    const { htno } = req.params;
+        const { htno } = req.params;
 
-    const query = `
-        SELECT profile_photo
-        FROM student_profiles
-        WHERE htno = ?
-        LIMIT 1
-    `;
-
-    con.query(query, [htno], (err, rows) => {
-        if (err) {
-            console.error("Image fetch error:", err);
-            return res.status(500).end();
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image uploaded"
+            });
         }
 
-        if (!rows.length || !rows[0].profile_photo) {
-            return res.status(204).end(); // No image
+        if (req.file.size < 20 * 1024 || req.file.size > 100 * 1024) {
+            return res.status(400).json({
+                success: false,
+                message: "Image must be between 20 KB and 100 KB"
+            });
         }
 
-        res.setHeader("Content-Type", "image/jpeg");
-        res.send(rows[0].profile_photo);
-    });
-});
+        const query = `
+            UPDATE student_profiles
+            SET profile_photo = ?
+            WHERE htno = ?
+        `;
+
+        con.query(query, [req.file.buffer, htno], err => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to save image"
+                });
+            }
+
+            res.json({
+                success: true,
+                message: "Profile photo saved successfully"
+            });
+        });
+    }
+);
+
 
 // studentMarks
 app.post("/studentCheckin", (req, res) => {
