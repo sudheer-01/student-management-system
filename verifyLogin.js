@@ -1304,97 +1304,100 @@ try {
 // Fetch student profile
 
 app.get("/studentProfile/:htno", (req, res) => {
-    const { htno } = req.params;
+    const query = `SELECT * FROM student_profiles WHERE htno=? LIMIT 1`;
 
-    con.query(
-        "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
-        [htno],
-        (err, rows) => {
-            if (err) return res.status(500).json({ success: false });
+    con.query(query, [req.params.htno], (err, rows) => {
+        if (err) return res.status(500).json({ success: false });
+        if (!rows.length) return res.json({ exists: false });
 
-            if (rows.length === 0) {
-                return res.json({ exists: false });
-            }
+        const profile = rows[0];
 
-            const p = rows[0];
-
-            if (p.profile_photo) {
-                p.profile_photo = Buffer.from(p.profile_photo).toString("base64");
-            }
-
-            res.json({ exists: true, profile: p });
+        if (profile.profile_photo) {
+            profile.profile_photo = profile.profile_photo.toString("base64");
         }
-    );
+
+        res.json({ exists: true, profile });
+    });
 });
 
-app.post(
-    "/studentProfile/save",
-    upload.single("profile_photo"),
-    (req, res) => {
 
-        const p = req.body;
-        const photoBuffer = req.file ? req.file.buffer : null;
+app.post("/studentProfile/save", upload.single("profile_photo"), (req, res) => {
 
-        const checkQuery = `SELECT id FROM student_profiles WHERE htno = ?`;
+    const p = req.body;
+    const photoBuffer = req.file ? req.file.buffer : null;
 
-        con.query(checkQuery, [p.htno], (err, rows) => {
-            if (err) return res.status(500).json({ success: false });
+    const checkQuery = `SELECT id FROM student_profiles WHERE htno = ?`;
 
-            if (rows.length > 0) {
-                // UPDATE
-                const updateQuery = `
-                    UPDATE student_profiles SET
-                        full_name=?, batch=?, dob=?, gender=?,
-                        admission_type=?, current_status=?,
-                        student_mobile=?, email=?, current_address=?, permanent_address=?,
-                        father_name=?, mother_name=?, parent_mobile=?,
-                        guardian_name=?, guardian_relation=?, guardian_mobile=?,
-                        blood_group=?, nationality=?, religion=?,
-                        profile_photo=?
-                    WHERE htno=?
-                `;
+    con.query(checkQuery, [p.htno], (err, rows) => {
+        if (err) {
+            console.error("Check error:", err);
+            return res.status(500).json({ success: false });
+        }
 
-                con.query(updateQuery, [
-                    p.full_name, p.batch, p.dob, p.gender,
-                    p.admission_type, p.current_status,
-                    p.student_mobile, p.email, p.current_address, p.permanent_address,
-                    p.father_name, p.mother_name, p.parent_mobile,
-                    p.guardian_name, p.guardian_relation, p.guardian_mobile,
-                    p.blood_group, p.nationality, p.religion,
-                    photoBuffer,
-                    p.htno
-                ], () => {
-                    res.json({ success: true, message: "Profile updated successfully" });
-                });
+        if (rows.length > 0) {
 
-            } else {
-                // INSERT
-                const insertQuery = `
-                    INSERT INTO student_profiles (
-                        htno, full_name, batch, dob, gender,
-                        admission_type, current_status,
-                        student_mobile, email, current_address, permanent_address,
-                        father_name, mother_name, parent_mobile,
-                        guardian_name, guardian_relation, guardian_mobile,
-                        blood_group, nationality, religion, profile_photo
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                `;
+            // UPDATE
+            const updateQuery = `
+                UPDATE student_profiles SET
+                    full_name=?,
+                    batch=?, dob=?, gender=?, admission_type=?, current_status=?,
+                    student_mobile=?, email=?, current_address=?, permanent_address=?,
+                    father_name=?, mother_name=?, parent_mobile=?,
+                    guardian_name=?, guardian_relation=?, guardian_mobile=?,
+                    blood_group=?, nationality=?, religion=?,
+                    profile_photo=COALESCE(?, profile_photo)
+                WHERE htno=?
+            `;
 
-                con.query(insertQuery, [
-                    p.htno, p.full_name, p.batch, p.dob, p.gender,
-                    p.admission_type, p.current_status,
-                    p.student_mobile, p.email, p.current_address, p.permanent_address,
-                    p.father_name, p.mother_name, p.parent_mobile,
-                    p.guardian_name, p.guardian_relation, p.guardian_mobile,
-                    p.blood_group, p.nationality, p.religion,
-                    photoBuffer
-                ], () => {
-                    res.json({ success: true, message: "Profile saved successfully" });
-                });
-            }
-        });
-    }
-);
+            con.query(updateQuery, [
+                p.full_name,
+                p.batch, p.dob, p.gender, p.admission_type, p.current_status,
+                p.student_mobile, p.email, p.current_address, p.permanent_address,
+                p.father_name, p.mother_name, p.parent_mobile,
+                p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                p.blood_group, p.nationality, p.religion,
+                photoBuffer,
+                p.htno
+            ], err => {
+                if (err) {
+                    console.error("Update error:", err);
+                    return res.status(500).json({ success: false });
+                }
+                res.json({ success: true, message: "Profile updated successfully" });
+            });
+
+        } else {
+
+            // INSERT
+            const insertQuery = `
+                INSERT INTO student_profiles (
+                    htno, full_name, batch, dob, gender, admission_type, current_status,
+                    student_mobile, email, current_address, permanent_address,
+                    father_name, mother_name, parent_mobile,
+                    guardian_name, guardian_relation, guardian_mobile,
+                    blood_group, nationality, religion, profile_photo
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            `;
+
+            con.query(insertQuery, [
+                p.htno, p.full_name,
+                p.batch, p.dob, p.gender, p.admission_type, p.current_status,
+                p.student_mobile, p.email, p.current_address, p.permanent_address,
+                p.father_name, p.mother_name, p.parent_mobile,
+                p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                p.blood_group, p.nationality, p.religion,
+                photoBuffer
+            ], err => {
+                if (err) {
+                    console.error("Insert error:", err);
+                    return res.status(500).json({ success: false });
+                }
+                res.json({ success: true, message: "Profile saved successfully" });
+            });
+        }
+    });
+});
+
 
 app.get("/studentBasic/:htno", (req, res) => {
     const { htno } = req.params;
