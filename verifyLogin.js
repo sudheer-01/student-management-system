@@ -1158,7 +1158,7 @@ const multer = require("multer");
 const upload = multer({
     storage: multer.memoryStorage(), // store image in memory
     limits: {
-        fileSize: 500 * 1024 // max 500 KB
+        fileSize: 100 * 1024 // max 100 KB
     },
     fileFilter: (req, file, cb) => {
         if (!file.mimetype.startsWith("image/")) {
@@ -1304,99 +1304,108 @@ try {
 // Fetch student profile
 
 app.get("/studentProfile/:htno", (req, res) => {
-    const query = `SELECT * FROM student_profiles WHERE htno=? LIMIT 1`;
+    con.query(
+        "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
+        [req.params.htno],
+        (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false });
+            }
 
-    con.query(query, [req.params.htno], (err, rows) => {
-        if (err) return res.status(500).json({ success: false });
-        if (!rows.length) return res.json({ exists: false });
+            if (rows.length === 0) {
+                return res.json({ exists: false });
+            }
 
-        const profile = rows[0];
-
-        if (profile.profile_photo) {
-            profile.profile_photo = profile.profile_photo.toString("base64");
+            res.json({ exists: true, profile: rows[0] });
         }
-
-        res.json({ exists: true, profile });
-    });
+    );
 });
 
 
-app.post("/studentProfile/save", upload.single("profile_photo"), (req, res) => {
 
-    const p = req.body;
-    const photoBuffer = req.file ? req.file.buffer : null;
+app.post("/studentProfile/save", (req, res) => {
 
-    const checkQuery = `SELECT id FROM student_profiles WHERE htno = ?`;
+    const { htno } = req.body;
 
-    con.query(checkQuery, [p.htno], (err, rows) => {
-        if (err) {
-            console.error("Check error:", err);
-            return res.status(500).json({ success: false });
-        }
+    if (!htno) {
+        return res.status(400).json({ success: false, message: "HTNO missing" });
+    }
 
-        if (rows.length > 0) {
+    // 1️⃣ Remove empty / undefined fields
+    const allowedFields = [
+        "full_name", "batch", "dob", "gender", "admission_type", "current_status",
+        "student_mobile", "email", "current_address", "permanent_address",
+        "father_name", "mother_name", "parent_mobile",
+        "guardian_name", "guardian_relation", "guardian_mobile",
+        "blood_group", "nationality", "religion"
+    ];
 
-            // UPDATE
-            const updateQuery = `
-                UPDATE student_profiles SET
-                    full_name=?,
-                    batch=?, dob=?, gender=?, admission_type=?, current_status=?,
-                    student_mobile=?, email=?, current_address=?, permanent_address=?,
-                    father_name=?, mother_name=?, parent_mobile=?,
-                    guardian_name=?, guardian_relation=?, guardian_mobile=?,
-                    blood_group=?, nationality=?, religion=?,
-                    profile_photo=COALESCE(?, profile_photo)
-                WHERE htno=?
-            `;
-
-            con.query(updateQuery, [
-                p.full_name,
-                p.batch, p.dob, p.gender, p.admission_type, p.current_status,
-                p.student_mobile, p.email, p.current_address, p.permanent_address,
-                p.father_name, p.mother_name, p.parent_mobile,
-                p.guardian_name, p.guardian_relation, p.guardian_mobile,
-                p.blood_group, p.nationality, p.religion,
-                photoBuffer,
-                p.htno
-            ], err => {
-                if (err) {
-                    console.error("Update error:", err);
-                    return res.status(500).json({ success: false });
-                }
-                res.json({ success: true, message: "Profile updated successfully" });
-            });
-
-        } else {
-
-            // INSERT
-            const insertQuery = `
-                INSERT INTO student_profiles (
-                    htno, full_name, batch, dob, gender, admission_type, current_status,
-                    student_mobile, email, current_address, permanent_address,
-                    father_name, mother_name, parent_mobile,
-                    guardian_name, guardian_relation, guardian_mobile,
-                    blood_group, nationality, religion, profile_photo
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            `;
-
-            con.query(insertQuery, [
-                p.htno, p.full_name,
-                p.batch, p.dob, p.gender, p.admission_type, p.current_status,
-                p.student_mobile, p.email, p.current_address, p.permanent_address,
-                p.father_name, p.mother_name, p.parent_mobile,
-                p.guardian_name, p.guardian_relation, p.guardian_mobile,
-                p.blood_group, p.nationality, p.religion,
-                photoBuffer
-            ], err => {
-                if (err) {
-                    console.error("Insert error:", err);
-                    return res.status(500).json({ success: false });
-                }
-                res.json({ success: true, message: "Profile saved successfully" });
-            });
+    const data = {};
+    allowedFields.forEach(field => {
+        if (req.body[field] !== undefined && req.body[field] !== "") {
+            data[field] = req.body[field];
         }
     });
+
+    // If nothing to save
+    if (Object.keys(data).length === 0) {
+        return res.json({ success: true, message: "Nothing to update" });
+    }
+
+    // 2️⃣ Check if profile exists
+    con.query(
+        "SELECT id FROM student_profiles WHERE htno = ?",
+        [htno],
+        (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false });
+            }
+
+            if (rows.length === 0) {
+                // 3️⃣ INSERT (dynamic)
+                const columns = Object.keys(data).join(", ");
+                const placeholders = Object.keys(data).map(() => "?").join(", ");
+                const values = Object.values(data);
+
+                const insertQuery = `
+                    INSERT INTO student_profiles (htno, ${columns})
+                    VALUES (?, ${placeholders})
+                `;
+
+                con.query(insertQuery, [htno, ...values], err => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ success: false });
+                    }
+                    res.json({ success: true, message: "Profile saved successfully" });
+                });
+
+            } else {
+                // 4️⃣ UPDATE (dynamic)
+                const setClause = Object.keys(data)
+                    .map(field => `${field} = ?`)
+                    .join(", ");
+
+                const updateQuery = `
+                    UPDATE student_profiles
+                    SET ${setClause}
+                    WHERE htno = ?
+                `;
+
+                con.query(updateQuery, [...Object.values(data), htno], err => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ success: false });
+                    }
+                    res.json({ success: true, message: "Profile updated successfully" });
+                });
+            }
+        }
+    );
 });
+
 
 
 app.get("/studentBasic/:htno", (req, res) => {

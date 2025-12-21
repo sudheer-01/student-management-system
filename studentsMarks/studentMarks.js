@@ -183,42 +183,53 @@ document.addEventListener("DOMContentLoaded", () => {
        SAVE PROFILE
     ===================================================== */
 
-    saveProfileBtn.addEventListener("click", async () => {
+   saveProfileBtn.addEventListener("click", async () => {
 
-        const fd = new FormData();
-        fd.append("htno", studentHtno);
-        fd.append("full_name", profileName.value);
-        fd.append("batch", batch.value);
-        fd.append("dob", dob.value);
-        fd.append("gender", gender.value);
-        fd.append("admission_type", admissionType.value);
-        fd.append("current_status", status.value);
-        fd.append("student_mobile", studentMobile.value);
-        fd.append("email", email.value);
-        fd.append("current_address", currentAddress.value);
-        fd.append("permanent_address", permanentAddress.value);
-        fd.append("father_name", fatherName.value);
-        fd.append("mother_name", motherName.value);
-        fd.append("parent_mobile", parentMobile.value);
-        fd.append("guardian_name", guardianName.value);
-        fd.append("guardian_relation", guardianRelation.value);
-        fd.append("guardian_mobile", guardianMobile.value);
-        fd.append("blood_group", bloodGroup.value);
-        fd.append("nationality", nationality.value);
-        fd.append("religion", religion.value);
+    const payload = {
+        htno: studentHtno,
+        full_name: profileName.value,
+        batch: batch.value,
+        dob: dob.value,
+        gender: gender.value,
+        admission_type: admissionType.value,
+        current_status: status.value,
 
-        if (profilePhoto.files[0]) {
-            fd.append("profile_photo", profilePhoto.files[0]);
-        }
+        student_mobile: studentMobile.value,
+        email: email.value,
+        current_address: currentAddress.value,
+        permanent_address: permanentAddress.value,
 
+        father_name: fatherName.value,
+        mother_name: motherName.value,
+        parent_mobile: parentMobile.value,
+
+        guardian_name: guardianName.value,
+        guardian_relation: guardianRelation.value,
+        guardian_mobile: guardianMobile.value,
+
+        blood_group: bloodGroup.value,
+        nationality: nationality.value,
+        religion: religion.value
+    };
+
+    try {
         const res = await fetch("/studentProfile/save", {
             method: "POST",
-            body: fd
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
         });
 
         const result = await res.json();
-        alert(result.message || "Profile saved");
-    });
+        alert(result.message || "Profile saved successfully");
+
+    } catch (err) {
+        alert("Failed to save profile");
+        console.error(err);
+    }
+});
+
 
     /* =====================================================
        EXPORT CSV
