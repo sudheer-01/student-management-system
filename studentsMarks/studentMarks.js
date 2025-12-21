@@ -163,26 +163,35 @@ document.addEventListener("DOMContentLoaded", () => {
         religion.value = p.religion || "";
 
         if (p.profile_photo) {
-            profilePreview.src = `data:image/jpeg;base64,${p.profile_photo}`;
+            profilePreview.src = `/studentProfile/photo/${studentHtno}`;
         }
     });
 
-    /* =====================================================
-       PROFILE PHOTO VALIDATION (300–500 KB)
-    ===================================================== */
+app.get("/studentProfile/photo/:htno", (req, res) => {
 
-    profilePhoto.addEventListener("change", e => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const { htno } = req.params;
 
-        if (file.size < 300 * 1024 || file.size > 500 * 1024) {
-            alert("Image size must be between 300 KB and 500 KB");
-            e.target.value = "";
-            return;
+    const query = `
+        SELECT profile_photo
+        FROM student_profiles
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(query, [htno], (err, rows) => {
+        if (err) {
+            console.error("Image fetch error:", err);
+            return res.status(500).end();
         }
 
-        profilePreview.src = URL.createObjectURL(file);
+        if (!rows.length || !rows[0].profile_photo) {
+            return res.status(204).end(); // No image
+        }
+
+        res.setHeader("Content-Type", "image/jpeg");
+        res.send(rows[0].profile_photo);
     });
+});
 
     /* =====================================================
        SAVE PROFILE
@@ -227,6 +236,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const result = await res.json();
+        await uploadProfilePhoto();
+
         alert(result.message || "Profile saved successfully");
 
     } catch (err) {
@@ -235,6 +246,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+profilePhoto.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size < 20 * 1024 || file.size > 100 * 1024) {
+        alert("Image size must be between 20 KB and 100 KB");
+        e.target.value = "";
+        return;
+    }
+
+    profilePreview.src = URL.createObjectURL(file);
+});
+
+async function uploadProfilePhoto() {
+
+    const file = profilePhoto.files[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("profile_photo", file);
+
+    const res = await fetch(
+        `/studentProfile/photo/${studentHtno}`,
+        {
+            method: "POST",
+            body: fd
+        }
+    );
+
+    const result = await res.json();
+    alert(result.message);
+}
 
     /* =====================================================
        EXPORT CSV
