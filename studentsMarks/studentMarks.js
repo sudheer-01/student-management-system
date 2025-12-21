@@ -282,7 +282,93 @@ async function uploadProfilePhoto() {
        PRINT
     ===================================================== */
 
-    printBtn.addEventListener("click", () => window.print());
+    printBtn.addEventListener("click", function () {
+
+    // Collect student details
+    const info = document.getElementById("studentInfo").querySelectorAll("p");
+
+    const name   = info[0]?.innerText.replace("Name:", "").trim();
+    const htno   = info[1]?.innerText.replace("HTNO:", "").trim();
+    const branch = info[2]?.innerText.replace("Branch:", "").trim();
+    const year   = info[3]?.innerText.replace("Year:", "").trim();
+
+    // Marks table
+    const tableHTML = document.getElementById("marksTable").outerHTML;
+
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>Student Marks</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                }
+
+                img {
+                    width: 100%;
+                    height: auto;
+                    max-height: 150px;
+                    object-fit: contain;
+                    margin-bottom: 15px;
+                }
+
+                h2 {
+                    margin: 10px 0;
+                }
+
+                .meta {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 10px;
+                    font-weight: bold;
+                    margin-bottom: 20px;
+                    text-align: left;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                th {
+                    background: #f0f0f0;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <!-- OPTIONAL LOGO -->
+            <!-- <img src="balaji.png" alt="College Logo"> -->
+
+            <h2>Student Marks</h2>
+
+            <div class="meta">
+                <div>Name: ${name}</div>
+                <div>HTNO: ${htno}</div>
+                <div>Branch: ${branch}</div>
+                <div>Year: ${year}</div>
+            </div>
+
+            ${tableHTML}
+
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.print();
+});
+
 
     /* =====================================================
        LOGOUT
