@@ -1352,6 +1352,9 @@ app.post("/studentProfile/save", (req, res) => {
     if (Object.keys(data).length === 0) {
         return res.json({ success: true, message: "Nothing to update" });
     }
+    if (!data.current_status) {
+        data.current_status = "Active";
+    }
 
     // 2️⃣ Check if profile exists
     con.query(

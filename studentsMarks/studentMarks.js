@@ -135,7 +135,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const p = data.profile;
 
         batch.value = p.batch || "";
-        dob.value = p.dob || "";
+        if (p.dob) {
+            const d = new Date(p.dob);
+            dob.value = d.toISOString().split("T")[0]; // YYYY-MM-DD
+        } else {
+            dob.value = "";
+        }
         gender.value = p.gender || "";
         admissionType.value = p.admission_type || "";
         status.value = p.current_status || "Active";
@@ -184,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
    saveProfileBtn.addEventListener("click", async () => {
-
+    const currentStatus = status.value || "Active";
     const payload = {
         htno: studentHtno,
         full_name: profileName.value,
@@ -192,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dob: dob.value,
         gender: gender.value,
         admission_type: admissionType.value,
-        current_status: status.value,
+        current_status: currentStatus,
 
         student_mobile: studentMobile.value,
         email: email.value,
