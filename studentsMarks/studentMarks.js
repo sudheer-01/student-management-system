@@ -1,258 +1,258 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const fetchMarksBtn = document.getElementById("fetchMarksBtn");
-    const spinner = document.getElementById("loadingSpinner");
-    const statusMessage = document.getElementById("statusMessage");
-    const exportCsvBtn = document.getElementById("exportCsvBtn");
-    const printBtn = document.getElementById("printBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+document.addEventListener("DOMContentLoaded", () => {
 
-    if (!fetchMarksBtn) {
-        console.error("fetchMarksBtn not found!");
+    /* =====================================================
+       BASIC REFERENCES
+    ===================================================== */
+
+    const fetchMarksBtn = document.getElementById("fetchMarksBtn");
+    const profileBtn    = document.getElementById("profileBtn");
+    const exportCsvBtn  = document.getElementById("exportCsvBtn");
+    const printBtn      = document.getElementById("printBtn");
+    const logoutBtn     = document.getElementById("logoutBtn");
+
+    const spinner       = document.getElementById("loadingSpinner");
+    const statusMessage = document.getElementById("statusMessage");
+
+    const marksWrapper  = document.querySelector(".table-wrapper");
+    const marksTable    = document.getElementById("marksTable");
+    const studentInfo   = document.getElementById("studentInfo");
+
+    const profileSection = document.getElementById("studentProfile");
+    const saveProfileBtn = document.getElementById("saveProfile");
+
+    const studentYear = localStorage.getItem("studentYear");
+    const studentHtno = localStorage.getItem("studentHtno");
+
+    if (!studentHtno || !studentYear) {
+        alert("Session expired. Please login again.");
+        window.location.href = "/";
         return;
     }
 
-    fetchMarksBtn.addEventListener("click", function () {
-        if (spinner) spinner.classList.remove("hidden");
-        if (statusMessage) {
-            statusMessage.textContent = "Fetching your marks...";
-            statusMessage.classList.remove("hidden");
-        }
-        fetchMarksBtn.disabled = true;
-        const studentYear = localStorage.getItem("studentYear");
-        const studentHtno = localStorage.getItem("studentHtno");
-        fetch(`/studentDashboard/${studentYear}/${studentHtno}`, { method: "POST" })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data || !data.subjects || data.subjects.length === 0) {
-                    if (statusMessage) {
-                        statusMessage.textContent = "Invalid HTNO or Year. Redirecting...";
-                    } else {
-                        alert("Invalid HTNO or Year");
-                    }
-                    setTimeout(() => { window.location.href = "/"; }, 1200);
-                    return;
-                }
+    /* =====================================================
+       HELPER FUNCTIONS
+    ===================================================== */
 
-                // Update student information section
-                document.getElementById("studentInfo").innerHTML = `
-                    <p><strong>Name:</strong> ${data.name}</p>
-                    <p><strong>HTNO:</strong> ${data.htno}</p>
-                    <p><strong>Branch:</strong> ${data.branch}</p>
-                    <p><strong>Year:</strong> ${data.year}</p>
-                `;
+    function showMarksView() {
+        profileSection.classList.add("hidden");
+        marksWrapper.classList.remove("hidden");
+    }
 
-                // Extract exam names dynamically
-                let examSet = new Set();
-                data.subjects.forEach(subject => {
-                    Object.keys(subject.marks).forEach(exam => {
-                        let formattedExam = exam.replace(/_/g, " ");
-                        examSet.add(formattedExam);
-                    });
-                });
+    function showProfileView() {
+        marksWrapper.classList.add("hidden");
+        profileSection.classList.remove("hidden");
+    }
 
-                // Convert Set to an array and sort
-                let examList = Array.from(examSet).sort();
+    function setStatus(msg) {
+        statusMessage.textContent = msg;
+        statusMessage.classList.remove("hidden");
+        setTimeout(() => statusMessage.classList.add("hidden"), 1500);
+    }
 
-                // Generate header row dynamically
-                let headerRow = `<th class=\"col-subject\">Subject</th>`;
-                examList.forEach(exam => {
-                    headerRow += `<th>${exam}</th>`;
-                });
-                document.getElementById("examHeaders").innerHTML = headerRow;
+    /* =====================================================
+       GET YOUR MARKS
+    ===================================================== */
 
-                // Populate table body
-                const marksBody = document.getElementById("marksBody");
-                marksBody.innerHTML = "";
-                data.subjects.forEach(subject => {
-                    let row = `<tr><td class=\"subject\">${subject.subject}</td>`;
+    fetchMarksBtn.addEventListener("click", async () => {
 
-                    examList.forEach(exam => {
-                        let examKey = exam.replace(/ /g, "_");
-                        let raw = subject.marks[examKey];
-                        if (raw === undefined || raw === null || raw === "" || raw === "N/A") {
-                            row += `<td><span class="badge">N/A</span></td>`;
-                        } else if (!isNaN(parseFloat(raw))) {
-                            const value = parseFloat(raw);
-                            row += `<td class="num">${value}</td>`;
-                        } else {
-                            row += `<td>${raw}</td>`;
-                        }
-                    });
-                    row += "</tr>";
-                    marksBody.innerHTML += row;
-                });
+        showMarksView();
+        spinner.classList.remove("hidden");
+        setStatus("Fetching your marks...");
 
-                // Show the marks table
-                document.getElementById("marksTable").style.display = "table";
-                const wrapper = document.querySelector('.table-wrapper');
-                if (wrapper) wrapper.classList.remove('hidden');
-
-                if (statusMessage) {
-                    statusMessage.textContent = "Marks loaded successfully.";
-                    setTimeout(() => statusMessage.classList.add("hidden"), 1500);
-                }
-            })
-            .catch(error => {
-                if (statusMessage) {
-                    statusMessage.textContent = "Error retrieving data. Please try again later.";
-                    statusMessage.classList.remove("hidden");
-                } else {
-                    alert("Error retrieving data. Please try again later.");
-                }
-            })
-            .finally(() => {
-                if (spinner) spinner.classList.add("hidden");
-                fetchMarksBtn.disabled = false;
+        try {
+            const res = await fetch(`/studentDashboard/${studentYear}/${studentHtno}`, {
+                method: "POST"
             });
+            const data = await res.json();
+
+            if (!data || !data.subjects || data.subjects.length === 0) {
+                throw new Error("Invalid data");
+            }
+
+            studentInfo.innerHTML = `
+                <p><strong>Name:</strong> ${data.name}</p>
+                <p><strong>HTNO:</strong> ${data.htno}</p>
+                <p><strong>Branch:</strong> ${data.branch}</p>
+                <p><strong>Year:</strong> ${data.year}</p>
+            `;
+
+            // ---------- Build exam headers ----------
+            const examSet = new Set();
+            data.subjects.forEach(s =>
+                Object.keys(s.marks).forEach(e => examSet.add(e.replace(/_/g, " ")))
+            );
+            const exams = Array.from(examSet).sort();
+
+            document.getElementById("examHeaders").innerHTML =
+                `<th class="col-subject">Subject</th>` +
+                exams.map(e => `<th>${e}</th>`).join("");
+
+            // ---------- Table body ----------
+            const body = document.getElementById("marksBody");
+            body.innerHTML = "";
+
+            data.subjects.forEach(s => {
+                let row = `<tr><td class="subject">${s.subject}</td>`;
+                exams.forEach(ex => {
+                    const key = ex.replace(/ /g, "_");
+                    const v = s.marks[key];
+                    row += `<td>${v ?? `<span class="badge">N/A</span>`}</td>`;
+                });
+                row += "</tr>";
+                body.innerHTML += row;
+            });
+
+            marksTable.style.display = "table";
+            setStatus("Marks loaded successfully");
+
+        } catch (err) {
+            alert("Failed to load marks");
+        } finally {
+            spinner.classList.add("hidden");
+        }
     });
-    // Export CSV from current table
-    if (exportCsvBtn) {
-        exportCsvBtn.addEventListener("click", function () {
-            const table = document.getElementById("marksTable");
-            if (!table || table.style.display === "none") return;
-            const rows = Array.from(table.querySelectorAll("tr"));
-            const data = rows.map(tr => {
-                return Array.from(tr.querySelectorAll("th,td")).map(cell => {
-                    const text = cell.textContent.replace(/\s+/g, " ").trim();
-                    // Wrap in quotes and escape quotes
-                    return '"' + text.replace(/"/g, '""') + '"';
-                }).join(",");
-            }).join("\n");
 
-            const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "student-marks.csv";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-    }
-
-    // Print
-    if (printBtn) {
-        printBtn.addEventListener("click", function () {
-            window.print();
-        });
-    }
-    // logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out?")) return;
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
-    }
-
-    const profileBtn = document.getElementById("profileBtn");
-    const profileSection = document.getElementById("studentProfile");
-    const saveBtn = document.querySelector("#studentProfile button");
+    /* =====================================================
+       STUDENT PROFILE (NO DEPENDENCY ON MARKS)
+    ===================================================== */
 
     profileBtn.addEventListener("click", async () => {
 
-        // ✅ Ensure marks are loaded first
-        const nameP = document.querySelector("#studentInfo p:nth-child(1)");
-        const htnoP = document.querySelector("#studentInfo p:nth-child(2)");
+        showProfileView();
 
-        if (!nameP || !htnoP) {
-            alert("Please click 'Get Your Marks' first.");
+        // ----- BASIC INFO -----
+        const basic = await fetch(`/studentBasic/${studentHtno}`).then(r => r.json());
+
+        profileName.value = basic.name;
+        profileHtno.value = basic.htno;
+
+        // ----- PROFILE DATA -----
+        const res = await fetch(`/studentProfile/${studentHtno}`);
+        const data = await res.json();
+
+        if (!data.exists) return;
+
+        const p = data.profile;
+
+        batch.value = p.batch || "";
+        dob.value = p.dob || "";
+        gender.value = p.gender || "";
+        admissionType.value = p.admission_type || "";
+        status.value = p.current_status || "Active";
+
+        studentMobile.value = p.student_mobile || "";
+        email.value = p.email || "";
+        currentAddress.value = p.current_address || "";
+        permanentAddress.value = p.permanent_address || "";
+
+        fatherName.value = p.father_name || "";
+        motherName.value = p.mother_name || "";
+        parentMobile.value = p.parent_mobile || "";
+
+        guardianName.value = p.guardian_name || "";
+        guardianRelation.value = p.guardian_relation || "";
+        guardianMobile.value = p.guardian_mobile || "";
+
+        bloodGroup.value = p.blood_group || "";
+        nationality.value = p.nationality || "";
+        religion.value = p.religion || "";
+
+        if (p.profile_photo) {
+            profilePreview.src = `data:image/jpeg;base64,${p.profile_photo}`;
+        }
+    });
+
+    /* =====================================================
+       PROFILE PHOTO VALIDATION (300–500 KB)
+    ===================================================== */
+
+    profilePhoto.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size < 300 * 1024 || file.size > 500 * 1024) {
+            alert("Image size must be between 300 KB and 500 KB");
+            e.target.value = "";
             return;
         }
 
-        // Toggle profile section
-        profileSection.classList.toggle("hidden");
-
-        const fullName = nameP.textContent.replace("Name:", "").trim();
-        const htno = htnoP.textContent.replace("HTNO:", "").trim();
-
-        profileName.value = fullName;
-        profileHtno.value = htno;
-
-        try {
-            const res = await fetch(`/studentProfile/${htno}`);
-            const data = await res.json();
-
-            if (!data.exists) return;
-
-            const p = data.profile;
-
-            batch.value = p.batch || "";
-            dob.value = p.dob || "";
-            gender.value = p.gender || "";
-            admissionType.value = p.admission_type || "";
-            status.value = p.current_status || "Active";
-
-            studentMobile.value = p.student_mobile || "";
-            email.value = p.email || "";
-            currentAddress.value = p.current_address || "";
-            permanentAddress.value = p.permanent_address || "";
-
-            fatherName.value = p.father_name || "";
-            motherName.value = p.mother_name || "";
-            parentMobile.value = p.parent_mobile || "";
-
-            guardianName.value = p.guardian_name || "";
-            guardianRelation.value = p.guardian_relation || "";
-            guardianMobile.value = p.guardian_mobile || "";
-
-            bloodGroup.value = p.blood_group || "";
-            nationality.value = p.nationality || "";
-            religion.value = p.religion || "";
-
-        } catch (err) {
-            console.error(err);
-            alert("Failed to load profile");
-        }
+        profilePreview.src = URL.createObjectURL(file);
     });
-    saveBtn.addEventListener("click", async () => {
-            const payload = {
-                htno: profileHtno.value,
-                full_name: profileName.value,
-                branch: document.querySelector("#studentInfo p:nth-child(3)")?.textContent.replace("Branch:", "").trim(),
-                year: document.querySelector("#studentInfo p:nth-child(4)")?.textContent.replace("Year:", "").trim(),
 
-                batch: batch.value,
-                dob: dob.value,
-                gender: gender.value,
-                admission_type: admissionType.value,
-                current_status: status.value,
+    /* =====================================================
+       SAVE PROFILE
+    ===================================================== */
 
-                student_mobile: studentMobile.value,
-                email: email.value,
-                current_address: currentAddress.value,
-                permanent_address: permanentAddress.value,
+    saveProfileBtn.addEventListener("click", async () => {
 
-                father_name: fatherName.value,
-                mother_name: motherName.value,
-                parent_mobile: parentMobile.value,
+        const fd = new FormData();
+        fd.append("htno", studentHtno);
+        fd.append("full_name", profileName.value);
+        fd.append("batch", batch.value);
+        fd.append("dob", dob.value);
+        fd.append("gender", gender.value);
+        fd.append("admission_type", admissionType.value);
+        fd.append("current_status", status.value);
+        fd.append("student_mobile", studentMobile.value);
+        fd.append("email", email.value);
+        fd.append("current_address", currentAddress.value);
+        fd.append("permanent_address", permanentAddress.value);
+        fd.append("father_name", fatherName.value);
+        fd.append("mother_name", motherName.value);
+        fd.append("parent_mobile", parentMobile.value);
+        fd.append("guardian_name", guardianName.value);
+        fd.append("guardian_relation", guardianRelation.value);
+        fd.append("guardian_mobile", guardianMobile.value);
+        fd.append("blood_group", bloodGroup.value);
+        fd.append("nationality", nationality.value);
+        fd.append("religion", religion.value);
 
-                guardian_name: guardianName.value,
-                guardian_relation: guardianRelation.value,
-                guardian_mobile: guardianMobile.value,
+        if (profilePhoto.files[0]) {
+            fd.append("profile_photo", profilePhoto.files[0]);
+        }
 
-                blood_group: bloodGroup.value,
-                nationality: nationality.value,
-                religion: religion.value
-            };
-
-            const res = await fetch("/studentProfile/save", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await res.json();
-            alert(result.message || "Profile saved");
+        const res = await fetch("/studentProfile/save", {
+            method: "POST",
+            body: fd
         });
 
+        const result = await res.json();
+        alert(result.message || "Profile saved");
+    });
+
+    /* =====================================================
+       EXPORT CSV
+    ===================================================== */
+
+    exportCsvBtn.addEventListener("click", () => {
+        if (marksTable.style.display === "none") return;
+
+        const rows = [...marksTable.querySelectorAll("tr")];
+        const csv = rows.map(r =>
+            [...r.children].map(c => `"${c.innerText.trim()}"`).join(",")
+        ).join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "student-marks.csv";
+        a.click();
+    });
+
+    /* =====================================================
+       PRINT
+    ===================================================== */
+
+    printBtn.addEventListener("click", () => window.print());
+
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
+
+    logoutBtn.addEventListener("click", () => {
+        if (!confirm("Log out?")) return;
+        fetch("/logout", { method: "POST" })
+            .finally(() => window.location.href = "/");
+    });
+
 });
-
-

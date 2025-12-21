@@ -213,3 +213,6 @@ td.subject {
     resize: vertical;
     min-height: 60px;
 }
+#profilePhoto {
+    margin-top: 6px;
+}
