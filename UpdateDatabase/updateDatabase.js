@@ -124,7 +124,7 @@ function saveRow(table, tr, originalRow) {
     body: JSON.stringify({ row: updated })
   })
     .then(r => r.json())
-    .then(d => alert(d.message || "Updated successfully!"))
+    .then(d => alert("Updated successfully!")) //.then(d => alert(d.message || "Updated successfully!"))
     .catch(e => alert(e.message));
 }
 
@@ -134,7 +134,7 @@ function deleteRow(table, row) {
 
   fetch(`/api/delete-row/${table}/${row[idKey]}`, { method: "DELETE" })
     .then(r => r.json())
-    .then(d => alert(d.message || "Deleted successfully!"))
+    .then(d => alert("Deleted successfully!")) //.then(d => alert(d.message || "Deleted successfully!"))
     .catch(e => alert(e.message));
 }
 
