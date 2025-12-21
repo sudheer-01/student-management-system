@@ -138,17 +138,58 @@ function deleteRow(table, row) {
     .catch(e => alert(e.message));
 }
 
+// // EXPORT CSV
+// document.getElementById("exportBtn").addEventListener("click", () => {
+//   const tables = ["branches","examsofspecificyearandbranch","faculty_requests","pending_marks_updates","studentmarks","subjects","student_profiles"];
+//   dynamicContent.innerHTML = `
+//     <h3>Select Tables to Export:</h3>
+//     <div id="exportList" style="margin:10px 0;">
+//       ${tables.map(t => `<label><input type="checkbox" value="${t}"> ${t}</label><br>`).join("")}
+//     </div>
+//     <button id="downloadBtn" class="export-btn">Download Selected CSVs</button>
+//   `;
+//   document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
+// });
+
 // EXPORT CSV
 document.getElementById("exportBtn").addEventListener("click", () => {
-  const tables = ["branches","examsofspecificyearandbranch","faculty_requests","pending_marks_updates","studentmarks","subjects"];
-  dynamicContent.innerHTML = `
-    <h3>Select Tables to Export:</h3>
-    <div id="exportList" style="margin:10px 0;">
-      ${tables.map(t => `<label><input type="checkbox" value="${t}"> ${t}</label><br>`).join("")}
-    </div>
-    <button id="downloadBtn" class="export-btn">Download Selected CSVs</button>
-  `;
-  document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
+
+    // Table name → Display label mapping
+    const tableMap = {
+        branches: "Branches Master Data",
+        examsofspecificyearandbranch: "Exams Configuration (Year & Branch)",
+        faculty_requests: "Faculty Account Requests",
+        pending_marks_updates: "Pending Marks Update Requests",
+        studentmarks: "Student Marks Records",
+        subjects: "Subjects Master Data",
+        student_profiles: "Student Profile Information"
+    };
+
+    dynamicContent.innerHTML = `
+        <h3>Select Academic Data to Export</h3>
+        <p style="color:#64748b; margin-bottom:10px;">
+            Export CSV files for the selected academic year and branch
+        </p>
+
+        <div id="exportList" style="margin:10px 0;">
+            ${
+                Object.entries(tableMap)
+                .map(([table, label]) => `
+                    <label style="display:block; margin-bottom:6px;">
+                        <input type="checkbox" value="${table}">
+                        ${label}
+                    </label>
+                `)
+                .join("")
+            }
+        </div>
+
+        <button id="downloadBtn" class="export-btn">
+            Download Selected CSV Files
+        </button>
+    `;
+
+    document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
 });
 
 
