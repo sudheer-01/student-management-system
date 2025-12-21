@@ -151,121 +151,108 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(() => { window.location.href = "/"; });
         });
     }
-});
 
-const profileBtn = document.getElementById("profileBtn");
-const profileSection = document.getElementById("studentProfile");
+    const profileBtn = document.getElementById("profileBtn");
+    const profileSection = document.getElementById("studentProfile");
+    const saveBtn = document.querySelector("#studentProfile button");
 
-if (profileBtn) {
-    profileBtn.addEventListener("click", () => {
+    profileBtn.addEventListener("click", async () => {
+
+        // ✅ Ensure marks are loaded first
+        const nameP = document.querySelector("#studentInfo p:nth-child(1)");
+        const htnoP = document.querySelector("#studentInfo p:nth-child(2)");
+
+        if (!nameP || !htnoP) {
+            alert("Please click 'Get Your Marks' first.");
+            return;
+        }
+
+        // Toggle profile section
         profileSection.classList.toggle("hidden");
 
-        // Auto-fill from already loaded student info
-        const nameText = document.querySelector("#studentInfo p:nth-child(1)")?.textContent;
-        const htnoText = document.querySelector("#studentInfo p:nth-child(2)")?.textContent;
+        const fullName = nameP.textContent.replace("Name:", "").trim();
+        const htno = htnoP.textContent.replace("HTNO:", "").trim();
 
-        if (nameText && htnoText) {
-            document.getElementById("profileName").value = nameText.replace("Name:", "").trim();
-            document.getElementById("profileHtno").value = htnoText.replace("HTNO:", "").trim();
+        profileName.value = fullName;
+        profileHtno.value = htno;
+
+        try {
+            const res = await fetch(`/studentProfile/${htno}`);
+            const data = await res.json();
+
+            if (!data.exists) return;
+
+            const p = data.profile;
+
+            batch.value = p.batch || "";
+            dob.value = p.dob || "";
+            gender.value = p.gender || "";
+            admissionType.value = p.admission_type || "";
+            status.value = p.current_status || "Active";
+
+            studentMobile.value = p.student_mobile || "";
+            email.value = p.email || "";
+            currentAddress.value = p.current_address || "";
+            permanentAddress.value = p.permanent_address || "";
+
+            fatherName.value = p.father_name || "";
+            motherName.value = p.mother_name || "";
+            parentMobile.value = p.parent_mobile || "";
+
+            guardianName.value = p.guardian_name || "";
+            guardianRelation.value = p.guardian_relation || "";
+            guardianMobile.value = p.guardian_mobile || "";
+
+            bloodGroup.value = p.blood_group || "";
+            nationality.value = p.nationality || "";
+            religion.value = p.religion || "";
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load profile");
         }
     });
-}
+    saveBtn.addEventListener("click", async () => {
+            const payload = {
+                htno: profileHtno.value,
+                full_name: profileName.value,
+                branch: document.querySelector("#studentInfo p:nth-child(3)")?.textContent.replace("Branch:", "").trim(),
+                year: document.querySelector("#studentInfo p:nth-child(4)")?.textContent.replace("Year:", "").trim(),
 
+                batch: batch.value,
+                dob: dob.value,
+                gender: gender.value,
+                admission_type: admissionType.value,
+                current_status: status.value,
 
-const saveBtn = document.querySelector("#studentProfile button");
+                student_mobile: studentMobile.value,
+                email: email.value,
+                current_address: currentAddress.value,
+                permanent_address: permanentAddress.value,
 
-profileBtn.addEventListener("click", async () => {
-    // Toggle profile section
-    profileSection.classList.toggle("hidden");
+                father_name: fatherName.value,
+                mother_name: motherName.value,
+                parent_mobile: parentMobile.value,
 
-    // Auto-fill Name & HTNO from already loaded student info
-    const nameText = document.querySelector("#studentInfo p:nth-child(1)")?.textContent;
-    const htnoText = document.querySelector("#studentInfo p:nth-child(2)")?.textContent;
+                guardian_name: guardianName.value,
+                guardian_relation: guardianRelation.value,
+                guardian_mobile: guardianMobile.value,
 
-    if (!nameText || !htnoText) return;
+                blood_group: bloodGroup.value,
+                nationality: nationality.value,
+                religion: religion.value
+            };
 
-    const fullName = nameText.replace("Name:", "").trim();
-    const htno = htnoText.replace("HTNO:", "").trim();
+            const res = await fetch("/studentProfile/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
 
-    document.getElementById("profileName").value = fullName;
-    document.getElementById("profileHtno").value = htno;
+            const result = await res.json();
+            alert(result.message || "Profile saved");
+        });
 
-    // Fetch profile from DB
-    try {
-        const res = await fetch(`/studentProfile/${htno}`);
-        const data = await res.json();
-
-        if (!data.exists) return;
-
-        const p = data.profile;
-
-        batch.value = p.batch || "";
-        dob.value = p.dob || "";
-        gender.value = p.gender || "";
-        admissionType.value = p.admission_type || "";
-        status.value = p.current_status || "Active";
-
-        studentMobile.value = p.student_mobile || "";
-        email.value = p.email || "";
-        currentAddress.value = p.current_address || "";
-        permanentAddress.value = p.permanent_address || "";
-
-        fatherName.value = p.father_name || "";
-        motherName.value = p.mother_name || "";
-        parentMobile.value = p.parent_mobile || "";
-
-        guardianName.value = p.guardian_name || "";
-        guardianRelation.value = p.guardian_relation || "";
-        guardianMobile.value = p.guardian_mobile || "";
-
-        bloodGroup.value = p.blood_group || "";
-        nationality.value = p.nationality || "";
-        religion.value = p.religion || "";
-
-    } catch (err) {
-        console.error("Profile fetch failed:", err);
-        alert("Failed to load profile");
-    }
 });
 
-saveBtn.addEventListener("click", async () => {
-    const payload = {
-        htno: profileHtno.value,
-        full_name: profileName.value,
-        branch: document.querySelector("#studentInfo p:nth-child(3)")?.textContent.replace("Branch:", "").trim(),
-        year: document.querySelector("#studentInfo p:nth-child(4)")?.textContent.replace("Year:", "").trim(),
-
-        batch: batch.value,
-        dob: dob.value,
-        gender: gender.value,
-        admission_type: admissionType.value,
-        current_status: status.value,
-
-        student_mobile: studentMobile.value,
-        email: email.value,
-        current_address: currentAddress.value,
-        permanent_address: permanentAddress.value,
-
-        father_name: fatherName.value,
-        mother_name: motherName.value,
-        parent_mobile: parentMobile.value,
-
-        guardian_name: guardianName.value,
-        guardian_relation: guardianRelation.value,
-        guardian_mobile: guardianMobile.value,
-
-        blood_group: bloodGroup.value,
-        nationality: nationality.value,
-        religion: religion.value
-    };
-
-    const res = await fetch("/studentProfile/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-    alert(result.message || "Profile saved");
-});
 
