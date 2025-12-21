@@ -10,13 +10,13 @@
   <div class="page">
     <div class="container">
       <header class="page-header">
-        <h1>Admin Panel – Database Management</h1>
+        <h1>Admin Panel – Academic Data Management</h1>
         <p class="subtitle">Perform secure administrative actions on semester data</p>
       </header>
 
       <div class="top-nav">
         <a href="admin.html">← Back to Admin Dashboard</a>
-        <button id="updateBtnAlways" class="update-btn">✏️ Update Faculty / HOD</button>
+        <button id="updateBtnAlways" class="update-btn">Update Faculty / HOD Details</button>
       </div>
 
       <div class="content">
@@ -43,8 +43,8 @@
 
         <!-- Step 2: Action Buttons -->
         <div id="actionButtons" style="display:none; margin-top:25px;">
-          <button id="deleteBtn" class="delete-btn">🗑️ Delete Semester Data</button>
-          <button id="exportBtn" class="export-btn">⬇️ Export CSV</button>
+          <button id="deleteBtn" class="delete-btn">Delete Semester Data</button>
+          <button id="exportBtn" class="export-btn">Export CSV</button>
         </div>
 
         <p id="message"></p>
@@ -59,8 +59,8 @@
       const dynamicContent = document.getElementById("dynamicContent");
       dynamicContent.innerHTML = `
         <h3>Select Table to Update</h3>
-        <button class="update-btn" onclick="loadTable('faculty')">Faculty Table</button>
-        <button class="update-btn" onclick="loadTable('hod_details')">HOD Table</button>
+        <button class="update-btn" onclick="loadTable('faculty')">Faculty Details</button>
+        <button class="update-btn" onclick="loadTable('hod_details')">HOD Details</button>
         <div id="tableArea"></div>
       `;
     });
