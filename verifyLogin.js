@@ -1149,6 +1149,27 @@ app.get("/getExams", (req, res) => {
 });
 
 
+const multer = require("multer");
+
+/* =====================================================
+   MULTER CONFIG (IMAGE STORED IN MYSQL AS BLOB)
+===================================================== */
+
+const upload = multer({
+    storage: multer.memoryStorage(), // store image in memory
+    limits: {
+        fileSize: 500 * 1024 // max 500 KB
+    },
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            cb(new Error("Only image files are allowed"), false);
+        } else {
+            cb(null, true);
+        }
+    }
+});
+
+
 // studentMarks
 app.post("/studentCheckin", (req, res) => {
     const stuYear = req.body.year;
@@ -1306,84 +1327,74 @@ app.get("/studentProfile/:htno", (req, res) => {
     );
 });
 
+app.post(
+    "/studentProfile/save",
+    upload.single("profile_photo"),
+    (req, res) => {
 
-app.post("/studentProfile/save", upload.single("profile_photo"), (req, res) => {
+        const p = req.body;
+        const photoBuffer = req.file ? req.file.buffer : null;
 
-    const p = req.body;
-    const photo = req.file ? req.file.buffer : null;
+        const checkQuery = `SELECT id FROM student_profiles WHERE htno = ?`;
 
-    // Enforce minimum image size (300 KB)
-    if (req.file && req.file.size < 300 * 1024) {
-        return res.status(400).json({ message: "Image must be at least 300 KB" });
+        con.query(checkQuery, [p.htno], (err, rows) => {
+            if (err) return res.status(500).json({ success: false });
+
+            if (rows.length > 0) {
+                // UPDATE
+                const updateQuery = `
+                    UPDATE student_profiles SET
+                        full_name=?, batch=?, dob=?, gender=?,
+                        admission_type=?, current_status=?,
+                        student_mobile=?, email=?, current_address=?, permanent_address=?,
+                        father_name=?, mother_name=?, parent_mobile=?,
+                        guardian_name=?, guardian_relation=?, guardian_mobile=?,
+                        blood_group=?, nationality=?, religion=?,
+                        profile_photo=?
+                    WHERE htno=?
+                `;
+
+                con.query(updateQuery, [
+                    p.full_name, p.batch, p.dob, p.gender,
+                    p.admission_type, p.current_status,
+                    p.student_mobile, p.email, p.current_address, p.permanent_address,
+                    p.father_name, p.mother_name, p.parent_mobile,
+                    p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                    p.blood_group, p.nationality, p.religion,
+                    photoBuffer,
+                    p.htno
+                ], () => {
+                    res.json({ success: true, message: "Profile updated successfully" });
+                });
+
+            } else {
+                // INSERT
+                const insertQuery = `
+                    INSERT INTO student_profiles (
+                        htno, full_name, batch, dob, gender,
+                        admission_type, current_status,
+                        student_mobile, email, current_address, permanent_address,
+                        father_name, mother_name, parent_mobile,
+                        guardian_name, guardian_relation, guardian_mobile,
+                        blood_group, nationality, religion, profile_photo
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                `;
+
+                con.query(insertQuery, [
+                    p.htno, p.full_name, p.batch, p.dob, p.gender,
+                    p.admission_type, p.current_status,
+                    p.student_mobile, p.email, p.current_address, p.permanent_address,
+                    p.father_name, p.mother_name, p.parent_mobile,
+                    p.guardian_name, p.guardian_relation, p.guardian_mobile,
+                    p.blood_group, p.nationality, p.religion,
+                    photoBuffer
+                ], () => {
+                    res.json({ success: true, message: "Profile saved successfully" });
+                });
+            }
+        });
     }
-
-    const checkQ = "SELECT id FROM student_profiles WHERE htno = ?";
-    con.query(checkQ, [p.htno], (err, rows) => {
-
-        const fields = [
-            p.full_name, p.branch, p.year, p.batch, p.dob, p.gender,
-            p.admission_type, p.current_status,
-            p.student_mobile, p.email, p.current_address, p.permanent_address,
-            p.father_name, p.mother_name, p.parent_mobile,
-            p.guardian_name, p.guardian_relation, p.guardian_mobile,
-            p.blood_group, p.nationality, p.religion
-        ];
-
-        if (rows.length > 0) {
-
-            let q = `
-                UPDATE student_profiles SET
-                full_name=?, branch=?, year=?, batch=?, dob=?, gender=?,
-                admission_type=?, current_status=?,
-                student_mobile=?, email=?, current_address=?, permanent_address=?,
-                father_name=?, mother_name=?, parent_mobile=?,
-                guardian_name=?, guardian_relation=?, guardian_mobile=?,
-                blood_group=?, nationality=?, religion=?
-                ${photo ? ", profile_photo=?" : ""}
-                WHERE htno=?
-            `;
-
-            if (photo) fields.push(photo);
-            fields.push(p.htno);
-
-            con.query(q, fields, () =>
-                res.json({ message: "Profile updated successfully" })
-            );
-
-        } else {
-
-            let q = `
-                INSERT INTO student_profiles (
-                    htno, full_name, branch, year, batch, dob, gender,
-                    admission_type, current_status,
-                    student_mobile, email, current_address, permanent_address,
-                    father_name, mother_name, parent_mobile,
-                    guardian_name, guardian_relation, guardian_mobile,
-                    blood_group, nationality, religion, profile_photo
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            `;
-
-            con.query(q, [...fields, photo], () =>
-                res.json({ message: "Profile saved successfully" })
-            );
-        }
-    });
-});
-
-
-const multer = require("multer");
-
-const upload = multer({
-    limits: {
-        fileSize: 500 * 1024   // ⛔ Max 500 KB
-    },
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("image/")) {
-            return cb(new Error("Only image files allowed"));
-        }
-        cb(null, true);
-    }
-});
+);
 
 app.get("/studentBasic/:htno", (req, res) => {
     const { htno } = req.params;
