@@ -2265,14 +2265,44 @@ app.post("/api/update-row", (req, res) => {
 
 // ✅ Fetch all faculty or hod data (no year/branch filter)
 app.get("/api/get-table-data-simple", (req, res) => {
-  const { table } = req.query;
-  if (!["faculty", "hod_details"].includes(table))
-    return res.status(400).json({ error: "Invalid table" });
+    const { table } = req.query;
 
-  con.query(`SELECT * FROM ${table}`, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
+    if (!["faculty", "hod_details"].includes(table)) {
+        return res.status(400).json({ error: "Invalid table" });
+    }
+
+    let query = "";
+
+    if (table === "faculty") {
+        query = `
+            SELECT
+                facultyId,
+                name,
+                email
+            FROM faculty
+        `;
+    }
+
+    if (table === "hod_details") {
+        query = `
+            SELECT
+                hod_id,
+                name,
+                email,
+                year,
+                branch,
+                status
+            FROM hod_details
+        `;
+    }
+
+    con.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
 });
 
 // ✅ Update specific record (faculty or HOD)

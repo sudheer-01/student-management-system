@@ -151,15 +151,6 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
 });
 
-// function downloadSelectedCSVs() {
-//   const selected = Array.from(document.querySelectorAll("#exportList input:checked")).map(i => i.value);
-//   if (!selected.length) return alert("Select at least one table!");
-
-//   const year = yearSelect.value, branch = branchSelect.value;
-//   selected.forEach(t => {
-//     window.open(`/api/export-csv?table=${t}&year=${year}&branch=${branch}`, "_blank");
-//   });
-// }
 
 function downloadSelectedCSVs() {
   const selected = Array.from(document.querySelectorAll("#exportList input:checked"))
