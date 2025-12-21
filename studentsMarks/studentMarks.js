@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         gender.value = p.gender || "";
         admissionType.value = p.admission_type || "";
-        status.value = p.current_status || "Active";
+        cstatus.value = p.current_status || "Active";
 
         studentMobile.value = p.student_mobile || "";
         email.value = p.email || "";
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
    saveProfileBtn.addEventListener("click", async () => {
-    const currentStatus = status.value || "Active";
+    const currentStatus = cstatus.value || "Active";
     const payload = {
         htno: studentHtno,
         full_name: profileName.value,
