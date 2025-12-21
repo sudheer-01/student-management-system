@@ -1214,6 +1214,34 @@ app.post(
         });
     }
 );
+app.get("/studentProfile/photo/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const query = `
+        SELECT profile_photo
+        FROM student_profiles
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(query, [htno], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).end();
+        }
+
+        if (!results.length || !results[0].profile_photo) {
+            // No image → return 404 so frontend can fallback
+            return res.status(404).end();
+        }
+
+        const imageBuffer = results[0].profile_photo;
+
+        res.setHeader("Content-Type", "image/jpeg");
+        res.setHeader("Cache-Control", "no-store");
+        res.send(imageBuffer);
+    });
+});
 
 
 // studentMarks
