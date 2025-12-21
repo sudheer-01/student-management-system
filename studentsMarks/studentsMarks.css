@@ -216,3 +216,72 @@ td.subject {
 #profilePhoto {
     margin-top: 6px;
 }
+/* ================= PRINT STYLES ================= */
+@media print {
+
+    /* Hide everything by default */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Show only print area */
+    #printArea,
+    #printArea * {
+        visibility: visible;
+    }
+
+    /* Position print area */
+    #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Hide buttons & UI */
+    .actions,
+    .spinner,
+    .status,
+    #studentProfile,
+    #exportCsvBtn,
+    #logoutBtn,
+    #fetchMarksBtn,
+    #profileBtn,
+    #printBtn {
+        display: none !important;
+    }
+
+    /* Print heading */
+    .print-title {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    /* Student details row */
+    .print-student-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+        font-size: 14px;
+    }
+
+    /* Table formatting */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #000;
+        padding: 6px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    th {
+        background: #f0f0f0;
+    }
+}
