@@ -75,12 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p><strong>Branch:</strong> ${data.branch}</p>
                 <p><strong>Year:</strong> ${data.year}</p>
             `;
-            document.getElementById("printStudentInfo").innerHTML = `
-                <div><strong>Name:</strong> ${data.name}</div>
-                <div><strong>HTNO:</strong> ${data.htno}</div>
-                <div><strong>Branch:</strong> ${data.branch}</div>
-                <div><strong>Year:</strong> ${data.year}</div>
-            `;
 
             // ---------- Build exam headers ----------
             const examSet = new Set();
