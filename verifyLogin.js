@@ -34,6 +34,7 @@ app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
 app.use(express.static(path.join(baseDir,"UpdateDatabase")));
+app.use(express.static(path.join(baseDir,"adminOperations")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
 
