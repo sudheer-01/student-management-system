@@ -3,17 +3,37 @@ const branchSelect = document.getElementById("branchSelect");
 const loadBtn = document.getElementById("loadStudentsBtn");
 const tableBody = document.querySelector("#studentsTable tbody");
 
-// Load branches dynamically
-fetch("/api/branches")
-    .then(r => r.json())
-    .then(branches => {
-        branches.forEach(b => {
+yearSelect.addEventListener("change", async () => {
+
+    const year = yearSelect.value;
+
+    // Clear existing branches
+    branchSelect.innerHTML = `<option value="">Select Branch</option>`;
+
+    if (!year) return;
+
+    try {
+        const res = await fetch(`/api/branches/${year}`);
+        const data = await res.json();
+
+        if (!data.branches || data.branches.length === 0) {
+            alert("No branches found for selected year");
+            return;
+        }
+
+        data.branches.forEach(branch => {
             const opt = document.createElement("option");
-            opt.value = b;
-            opt.textContent = b;
+            opt.value = branch;
+            opt.textContent = branch;
             branchSelect.appendChild(opt);
         });
-    });
+
+    } catch (err) {
+        console.error("Failed to load branches:", err);
+        alert("Error loading branches");
+    }
+});
+
 
 // Load students
 loadBtn.addEventListener("click", async () => {
