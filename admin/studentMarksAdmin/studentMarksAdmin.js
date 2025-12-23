@@ -115,29 +115,92 @@ function renderTable(rows) {
    EXPORT CSV
 ============================ */
 function exportCSV() {
-    const table = container.querySelector("table");
+
+    const table = document.getElementById("marksTable");
     if (!table) {
         alert("No data to export");
         return;
     }
 
     let csv = [];
-    [...table.rows].forEach(row => {
-        csv.push(
-            [...row.cells].map(c => `"${c.innerText}"`).join(",")
+
+    for (let row of table.rows) {
+        const cells = Array.from(row.cells).map(cell =>
+            `"${cell.innerText.replace(/"/g, '""')}"`
         );
-    });
+        csv.push(cells.join(","));
+    }
+
+    if (csv.length === 0) {
+        alert("No data to export");
+        return;
+    }
 
     const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "student-marks.csv";
+    a.href = url;
+    a.download = "student_marks.csv";
+    document.body.appendChild(a);
     a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
+
 
 /* ============================
    PRINT
 ============================ */
 function printTable() {
-    window.print();
+
+    const table = document.getElementById("marksTable");
+    if (!table || table.rows.length === 0) {
+        alert("No data to print");
+        return;
+    }
+
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>Student Marks</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                h2 {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: center;
+                }
+                th {
+                    background-color: #f0f0f0;
+                }
+            </style>
+        </head>
+        <body>
+
+            <h2>Student Marks</h2>
+            ${table.outerHTML}
+
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.focus();
+    win.print();
 }
+
