@@ -1552,46 +1552,63 @@ app.post("/updateHodStatus", (req, res) => {
 });
 
 app.post("/admin/student-marks", async (req, res) => {
-    const { year, branches } = req.body;
-    if (!year || !branches?.length) {
-        return res.status(400).json({ error: "Year and branches required" });
-    }
 
-    const result = {};
+    try {
+        const { year, branches } = req.body;
 
-    for (const branch of branches) {
+        if (!year || !Array.isArray(branches) || branches.length === 0) {
+            return res.status(400).json({ error: "Invalid input" });
+        }
 
-        // 1️⃣ Get exams for branch
-        const [examRow] = await query(
-            "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
-            [year, branch]
-        );
+        const result = {
+            year,
+            branches: {}
+        };
 
-        if (!examRow) continue;
-        const exams = JSON.parse(examRow.exams);
+        for (const branch of branches) {
 
-        // 2️⃣ Get student marks
-        const marks = await query(
-            "SELECT * FROM studentmarks WHERE year=? AND branch=?",
-            [year, branch]
-        );
+            /* 1️⃣ Get exams for this year + branch */
+            const [examRows] = await con.promise().query(
+                "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?",
+                [year, branch]
+            );
 
-        // 3️⃣ Normalize marks
-        const students = marks.map(row => {
-            const obj = {
-                htno: row.htno,
-                name: row.name,
-                subject: row.subject,
-                marks: {}
+            if (!examRows.length) continue;
+
+            const exams = JSON.parse(examRows[0].exams);
+
+            /* 2️⃣ Get student marks */
+            const [students] = await con.promise().query(
+                "SELECT * FROM studentmarks WHERE year = ? AND branch = ?",
+                [year, branch]
+            );
+
+            const formattedStudents = students.map(row => {
+                const marks = {};
+                exams.forEach(exam => {
+                    marks[exam] = row[exam] ?? "";
+                });
+
+                return {
+                    htno: row.htno,
+                    name: row.name,
+                    subject: row.subject,
+                    marks
+                };
+            });
+
+            result.branches[branch] = {
+                exams,
+                students: formattedStudents
             };
-            exams.forEach(ex => obj.marks[ex] = row[ex] ?? "");
-            return obj;
-        });
+        }
 
-        result[branch] = { exams, students };
+        res.json(result);
+
+    } catch (err) {
+        console.error("ADMIN STUDENT MARKS ERROR:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-
-    res.json({ year, branches: result });
 });
 
 
