@@ -36,6 +36,7 @@ app.use(express.static(path.join(baseDir,"admin")));
 app.use(express.static(path.join(baseDir,"admin","UpdateDatabase")));
 app.use(express.static(path.join(baseDir,"admin","academicDataManagement")));
 app.use(express.static(path.join(baseDir,"admin","studentMarksAdmin")));
+app.use(express.static(path.join(baseDir,"admin","studentProfilesAdmin")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
 
@@ -1551,6 +1552,7 @@ app.post("/updateHodStatus", (req, res) => {
     });
 });
 
+// Fetch student marks based on year and branch
 app.post("/admin/student-marks", async (req, res) => {
     const { branch, year} = req.query;
 
@@ -1604,53 +1606,49 @@ app.post("/admin/student-marks", async (req, res) => {
     });
 });
 
+app.get("/admin/student-profiles", async (req, res) => {
+    try {
+        const { year, branch } = req.query;
 
+        if (!year || !branch) {
+            return res.status(400).json({ error: "Year and branch required" });
+        }
 
+        // 1️⃣ Get unique HTNOs from studentmarks
+        const [htnos] = await con.promise().query(
+            `
+            SELECT DISTINCT htno
+            FROM studentmarks
+            WHERE year = ? AND branch = ?
+            `,
+            [year, branch]
+        );
 
+        if (htnos.length === 0) {
+            return res.json([]);
+        }
 
-// app.get("/admin/students", (req, res) => {
-//     const { year, branch } = req.query;
+        const htnoList = htnos.map(r => r.htno);
+        const placeholders = htnoList.map(() => "?").join(",");
 
-//     const sql = `
-//         SELECT 
-//             sm.id,
-//             sm.htno,
-//             sp.full_name AS name,
-//             sm.branch,
-//             sm.year,
-//             sm.subject,
-//             sm.marks
-//         FROM studentmarks sm
-//         JOIN student_profiles sp ON sm.htno = sp.htno
-//         WHERE sm.year = ? AND sm.branch = ?
-//     `;
+        // 2️⃣ Fetch student profiles using HTNOs
+        const [profiles] = await con.promise().query(
+            `
+            SELECT *
+            FROM student_profiles
+            WHERE htno IN (${placeholders})
+            ORDER BY htno
+            `,
+            htnoList
+        );
 
-//     con.query(sql, [year, branch], (err, rows) => {
-//         if (err) return res.status(500).json(err);
-//         res.json(rows);
-//     });
-// });
-// app.put("/admin/studentmarks/:id", (req, res) => {
-//     const { marks } = req.body;
-//     con.query(
-//         "UPDATE studentmarks SET marks=? WHERE id=?",
-//         [marks, req.params.id],
-//         () => res.json({ success: true })
-//     );
-// });
-// app.delete("/admin/studentmarks/:id", (req, res) => {
-//     con.query(
-//         "DELETE FROM studentmarks WHERE id=?",
-//         [req.params.id],
-//         () => res.json({ success: true })
-//     );
-// });
+        res.json(profiles);
 
-
-
-//HodTask:::generateStudentReports
-// Fetch subjects based on year & branch
-
+    } catch (err) {
+        console.error("STUDENT PROFILES ERROR:", err);
+        res.status(500).json({ error: "Failed to fetch student profiles" });
+    }
+});
 
 
 app.get("/getSubjects/:year/:branch", (req, res) => {
