@@ -1,177 +1,82 @@
 const yearSelect = document.getElementById("yearSelect");
-const loadBtn = document.getElementById("loadStudentsBtn");
-const branchBox = document.getElementById("branchCheckboxes");
-const tablesContainer = document.getElementById("tablesContainer");
+const branchSelect = document.getElementById("branchSelect");
+const loadBtn = document.getElementById("loadBtn");
+const container = document.getElementById("tableContainer");
 
-/* =====================================================
-   LOAD BRANCHES AS CHECKBOXES (BASED ON YEAR)
-===================================================== */
+/* Load branches */
 yearSelect.addEventListener("change", async () => {
-    const year = yearSelect.value;
-    branchBox.innerHTML = "";
+    branchSelect.innerHTML = `<option value="">Select Branch</option>`;
+    if (!yearSelect.value) return;
 
-    if (!year) return;
+    const res = await fetch(`/api/branches/${yearSelect.value}`);
+    const data = await res.json();
 
-    try {
-        const res = await fetch(`/api/branches/${year}`);
-        const data = await res.json();
-
-        if (!data.branches || data.branches.length === 0) {
-            branchBox.innerHTML = "<p>No branches found</p>";
-            return;
-        }
-
-        data.branches.forEach(branch => {
-            const label = document.createElement("label");
-            label.className = "branch-checkbox";
-            label.innerHTML = `
-                <input type="checkbox" value="${branch}">
-                ${branch}
-            `;
-            branchBox.appendChild(label);
-        });
-
-    } catch (err) {
-        console.error(err);
-        alert("Failed to load branches");
-    }
+    data.branches.forEach(b => {
+        branchSelect.innerHTML += `<option value="${b}">${b}</option>`;
+    });
 });
 
-/* =====================================================
-   LOAD STUDENT MARKS (MULTI-BRANCH)
-===================================================== */
+/* Load student marks */
 loadBtn.addEventListener("click", async () => {
-
     const year = yearSelect.value;
-    const branches = Array
-        .from(branchBox.querySelectorAll("input:checked"))
-        .map(cb => cb.value);
+    const branch = branchSelect.value;
 
-    if (!year || branches.length === 0) {
-        alert("Select year and at least one branch");
+    if (!year || !branch) {
+        alert("Select year and branch");
         return;
     }
 
     const [marksRes, examsRes] = await Promise.all([
-        fetch("/admin/student-marks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ year, branches })
-        }),
-        fetch(`/admin/exams/${year}`)
+        fetch(`/admin/student-marks?year=${year}&branch=${branch}`),
+        fetch(`/admin/exams?year=${year}&branch=${branch}`)
     ]);
 
     const marksData = await marksRes.json();
-    const examsByBranch = await examsRes.json();
+    const examsData = await examsRes.json();
 
-    renderBranchTables(marksData.students, examsByBranch);
+    renderTable(marksData.students, examsData.exams);
 });
 
-
-/* =====================================================
-   RENDER ONE TABLE PER BRANCH
-===================================================== */
-function renderBranchTables(students, examsByBranch) {
-
-    const container = document.getElementById("tablesContainer");
-    container.innerHTML = "";
-
-    if (!students || students.length === 0) {
-        container.innerHTML = "<p>No student data found.</p>";
+/* Render table */
+function renderTable(rows, exams) {
+    if (!rows.length) {
+        container.innerHTML = "<p>No data found</p>";
         return;
     }
 
-    // group students by branch
-    const grouped = {};
-    students.forEach(s => {
-        if (!grouped[s.branch]) grouped[s.branch] = [];
-        grouped[s.branch].push(s);
+    let html = `<table><thead><tr>
+        <th>HTNO</th>
+        <th>Name</th>
+        <th>Subject</th>
+        ${exams.map(e => `<th>${e.toUpperCase()}</th>`).join("")}
+    </tr></thead><tbody>`;
+
+    rows.forEach(r => {
+        html += `<tr>
+            <td>${r.htno}</td>
+            <td>${r.name}</td>
+            <td>${r.subject}</td>
+            ${exams.map(e => `<td>${r[e] ?? ""}</td>`).join("")}
+        </tr>`;
     });
 
-    Object.entries(grouped).forEach(([branch, rows]) => {
-
-        const exams = examsByBranch[branch] || [];
-
-        let html = `
-            <h3>Branch: ${branch} (${rows[0].year} Year)</h3>
-            <table class="branch-table">
-                <thead>
-                    <tr>
-                        <th>HTNO</th>
-                        <th>Name</th>
-                        <th>Subject</th>
-                        ${exams.map(e => `<th>${e.replace(/_/g, " ").toUpperCase()}</th>`).join("")}
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        rows.forEach(r => {
-
-            const examCells = exams.map(e => {
-                const col = normalizeExamKey(e);   // 🔥 FIX
-                return `
-                    <td contenteditable="true"
-                        data-exam="${col}">
-                        ${r[col] ?? ""}
-                    </td>
-                `;
-            }).join("");
-
-            html += `
-                <tr data-htno="${r.htno}"
-                    data-subject="${r.subject}"
-                    data-branch="${branch}">
-                    <td>${r.htno}</td>
-                    <td>${r.name}</td>
-                    <td>${r.subject}</td>
-                    ${examCells}
-                    <td>
-                        <button class="btn secondary" onclick="saveMarks(this)">
-                            Save
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `</tbody></table>`;
-        container.insertAdjacentHTML("beforeend", html);
-    });
+    html += "</tbody></table>";
+    container.innerHTML = html;
 }
 
+/* Export CSV */
+function exportCSV() {
+    const table = document.querySelector("table");
+    if (!table) return alert("No data");
 
-/* =====================================================
-   SAVE MARKS (PER ROW)
-===================================================== */
-function saveMarks(btn) {
-
-    const row = btn.closest("tr");
-
-    const payload = {
-        year: yearSelect.value,
-        branch: row.dataset.branch,
-        htno: row.dataset.htno,
-        subject: row.dataset.subject,
-        updates: {}
-    };
-
-    row.querySelectorAll("[data-exam]").forEach(td => {
-        payload.updates[td.dataset.exam] = td.innerText.trim();
+    let csv = [];
+    [...table.rows].forEach(row => {
+        csv.push([...row.cells].map(c => `"${c.innerText}"`).join(","));
     });
 
-    fetch("/admin/update-marks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(result => {
-        alert(result.message || "Marks updated successfully");
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Failed to update marks");
-    });
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "student-marks.csv";
+    a.click();
 }
