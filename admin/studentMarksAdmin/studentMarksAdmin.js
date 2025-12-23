@@ -61,47 +61,54 @@ loadBtn.addEventListener("click", async () => {
 ============================ */
 function renderTable(rows) {
 
-    container.innerHTML = "";
+    const table = document.getElementById("marksTable");
+    const thead = table.querySelector("thead");
+    const tbody = table.querySelector("tbody");
+
+    // Clear previous table content
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
 
     if (!rows || rows.length === 0) {
-        container.innerHTML = "<p>No student data found.</p>";
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10">No student data found.</td>
+            </tr>
+        `;
         return;
     }
 
-    // Static columns
+    // Fixed columns
     const fixedCols = ["htno", "name", "subject"];
 
-    // Dynamic exam columns (derived from first row)
+    // Exam columns (from backend-selected columns)
     const examCols = Object.keys(rows[0]).filter(
         col => !fixedCols.includes(col)
     );
 
-    let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>HTNO</th>
-                    <th>Name</th>
-                    <th>Subject</th>
-                    ${examCols.map(e => `<th>${e}</th>`).join("")}
-                </tr>
-            </thead>
-            <tbody>
+    /* ===== TABLE HEADER ===== */
+    thead.innerHTML = `
+        <tr>
+            <th>HTNO</th>
+            <th>Name</th>
+            <th>Subject</th>
+            ${examCols.map(e => `<th>${e}</th>`).join("")}
+        </tr>
     `;
 
+    /* ===== TABLE BODY ===== */
     rows.forEach(r => {
-        html += `
-            <tr>
-                <td>${r.htno}</td>
-                <td>${r.name}</td>
-                <td>${r.subject}</td>
-                ${examCols.map(e => `<td>${r[e] ?? ""}</td>`).join("")}
-            </tr>
-        `;
-    });
+        const tr = document.createElement("tr");
 
-    html += "</tbody></table>";
-    container.innerHTML = html;
+        tr.innerHTML = `
+            <td>${r.htno}</td>
+            <td>${r.name}</td>
+            <td>${r.subject}</td>
+            ${examCols.map(e => `<td>${r[e] ?? ""}</td>`).join("")}
+        `;
+
+        tbody.appendChild(tr);
+    });
 }
 
 /* ============================
