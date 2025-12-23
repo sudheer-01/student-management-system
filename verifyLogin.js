@@ -1564,16 +1564,46 @@ app.get("/admin/student-marks", async (req, res) => {
 
 
 app.get("/admin/exams", async (req, res) => {
-    const { year, branch } = req.query;
+    try {
+        const { year, branch } = req.query;
 
-    const [rows] = await con.promise().query(
-        "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
-        [year, branch]
-    );
+        if (!year || !branch) {
+            return res.status(400).json({ exams: [] });
+        }
 
-    const exams = rows.length ? JSON.parse(rows[0].exams) : [];
-    res.json({ exams });
+        const [rows] = await con.promise().query(
+            `
+            SELECT exams
+            FROM examsofspecificyearandbranch
+            WHERE year = ? AND branch = ?
+            `,
+            [year, branch]
+        );
+
+        if (!rows.length || !rows[0].exams) {
+            return res.json({ exams: [] });
+        }
+
+        let exams = rows[0].exams;
+
+        // ✅ IMPORTANT: mysql2 may already parse JSON
+        if (typeof exams === "string") {
+            exams = JSON.parse(exams);
+        }
+
+        // Ensure array
+        if (!Array.isArray(exams)) {
+            exams = [];
+        }
+
+        res.json({ exams });
+
+    } catch (err) {
+        console.error("ADMIN EXAMS API ERROR:", err);
+        res.status(500).json({ exams: [] });
+    }
 });
+
 
 
 

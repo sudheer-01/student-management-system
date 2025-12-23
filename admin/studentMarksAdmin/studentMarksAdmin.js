@@ -39,7 +39,9 @@ loadBtn.addEventListener("click", async () => {
     const examsRes = await fetch(`/admin/exams?year=${year}&branch=${branch}`);
     const examsData = await examsRes.json();
 
-    renderTable(marksData.students, examsData.exams);
+    const exams = Array.isArray(examsData.exams) ? examsData.exams : [];
+renderTable(marksData.students, exams);
+
 });
 
 /* ============================
@@ -50,12 +52,13 @@ function renderTable(students, exams) {
     thead.innerHTML = "";
     tbody.innerHTML = "";
 
-    if (!students.length) {
+    if (!students || students.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10">No data</td></tr>`;
         return;
     }
 
-    // Header
+    exams = Array.isArray(exams) ? exams : [];
+
     thead.innerHTML = `
         <tr>
             <th>HTNO</th>
@@ -65,17 +68,15 @@ function renderTable(students, exams) {
         </tr>
     `;
 
-    // Rows
     students.forEach(s => {
-        const row = `
+        tbody.insertAdjacentHTML("beforeend", `
             <tr>
                 <td>${s.htno}</td>
                 <td>${s.name}</td>
                 <td>${s.subject}</td>
                 ${exams.map(e => `<td>${s[e] ?? ""}</td>`).join("")}
             </tr>
-        `;
-        tbody.insertAdjacentHTML("beforeend", row);
+        `);
     });
 }
 
