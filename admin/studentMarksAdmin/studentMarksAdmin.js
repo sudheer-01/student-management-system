@@ -43,103 +43,82 @@ yearSelect.addEventListener("change", async () => {
 loadBtn.addEventListener("click", async () => {
 
     const year = yearSelect.value;
-    const selectedBranches = Array
+    const branches = Array
         .from(branchBox.querySelectorAll("input:checked"))
         .map(cb => cb.value);
 
-    if (!year || selectedBranches.length === 0) {
+    if (!year || branches.length === 0) {
         alert("Select year and at least one branch");
         return;
     }
 
-    try {
-        const res = await fetch("/admin/student-marks", {
+    const [marksRes, examsRes] = await Promise.all([
+        fetch("/admin/student-marks", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                year,
-                branches: selectedBranches
-            })
-        });
+            body: JSON.stringify({ year, branches })
+        }),
+        fetch(`/admin/exams/${year}`)
+    ]);
 
-        const data = await res.json();
+    const marksData = await marksRes.json();
+    const examsByBranch = await examsRes.json();
 
-        if (!data.branches || Object.keys(data.branches).length === 0) {
-            tablesContainer.innerHTML = "<p>No data found</p>";
-            return;
-        }
-
-        renderBranchTables(data);
-
-    } catch (err) {
-        console.error(err);
-        alert("Failed to load student marks");
-    }
+    renderBranchTables(marksData.students, examsByBranch);
 });
+
 
 /* =====================================================
    RENDER ONE TABLE PER BRANCH
 ===================================================== */
-function renderBranchTables(data) {
+function renderBranchTables(students, examsByBranch) {
 
-    tablesContainer.innerHTML = "";
+    const container = document.getElementById("tablesContainer");
+    container.innerHTML = "";
 
-    Object.entries(data.branches).forEach(([branch, info]) => {
+    const grouped = {};
 
-        const { exams, students } = info;
+    students.forEach(s => {
+        if (!grouped[s.branch]) grouped[s.branch] = [];
+        grouped[s.branch].push(s);
+    });
+
+    Object.entries(grouped).forEach(([branch, rows]) => {
+
+        const exams = examsByBranch[branch] || [];
 
         let html = `
-            <div class="branch-section">
-                <h3>Branch: ${branch} (${data.year} Year)</h3>
-
-                <div class="table-wrapper">
-                <table class="branch-table">
-                    <thead>
-                        <tr>
-                            <th>HTNO</th>
-                            <th>Name</th>
-                            <th>Subject</th>
-                            ${exams.map(e => `<th>${e.replace(/_/g, " ").toUpperCase()}</th>`).join("")}
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <h3>Branch: ${branch}</h3>
+            <table class="branch-table">
+                <thead>
+                    <tr>
+                        <th>HTNO</th>
+                        <th>Name</th>
+                        <th>Subject</th>
+                        ${exams.map(e => `<th>${e.replace(/_/g," ")}</th>`).join("")}
+                    </tr>
+                </thead>
+                <tbody>
         `;
 
-        students.forEach(s => {
+        rows.forEach(r => {
             html += `
-                <tr data-htno="${s.htno}" data-subject="${s.subject}" data-branch="${branch}">
-                    <td>${s.htno}</td>
-                    <td>${s.name}</td>
-                    <td>${s.subject}</td>
-
+                <tr data-htno="${r.htno}" data-subject="${r.subject}">
+                    <td>${r.htno}</td>
+                    <td>${r.name}</td>
+                    <td>${r.subject}</td>
                     ${exams.map(e => `
-                        <td contenteditable="true"
-                            data-exam="${e}">
-                            ${s.marks[e] ?? ""}
-                        </td>
+                        <td contenteditable="true">${r[e] ?? ""}</td>
                     `).join("")}
-
-                    <td>
-                        <button class="btn secondary"
-                            onclick="saveMarks(this)">
-                            Save
-                        </button>
-                    </td>
                 </tr>
             `;
         });
 
-        html += `
-                    </tbody>
-                </table>
-                </div>
-            </div>
-        `;
-
-        tablesContainer.insertAdjacentHTML("beforeend", html);
+        html += `</tbody></table>`;
+        container.innerHTML += html;
     });
 }
+
 
 /* =====================================================
    SAVE MARKS (PER ROW)

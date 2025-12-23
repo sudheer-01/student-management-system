@@ -1559,67 +1559,56 @@ app.post("/admin/student-marks", async (req, res) => {
             return res.status(400).json({ error: "Invalid input" });
         }
 
-        const response = {
-            year,
-            branches: {}
-        };
+        const placeholders = branches.map(() => "?").join(",");
 
-        for (const branch of branches) {
+        const [rows] = await con.promise().query(
+            `
+            SELECT *
+            FROM studentmarks
+            WHERE year = ?
+              AND branch IN (${placeholders})
+            ORDER BY branch, htno, subject
+            `,
+            [year, ...branches]
+        );
 
-            // 1️⃣ Fetch exams
-            const [examRows] = await con.promise().query(
-                "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
-                [year, branch]
-            );
-
-            if (!examRows.length) {
-                console.warn(`No exams found for ${year}-${branch}`);
-                continue;
-            }
-
-            let exams;
-            try {
-                exams = JSON.parse(examRows[0].exams);
-            } catch (e) {
-                console.error("Invalid exams JSON:", examRows[0].exams);
-                continue;
-            }
-
-            // 2️⃣ Fetch student marks
-            const [marksRows] = await con.promise().query(
-                "SELECT * FROM studentmarks WHERE year=? AND branch=?",
-                [year, branch]
-            );
-
-            const students = marksRows.map(row => {
-                const marks = {};
-                exams.forEach(exam => {
-                    marks[exam] = row[exam] ?? "";
-                });
-
-                return {
-                    htno: row.htno,
-                    name: row.name,
-                    subject: row.subject,
-                    marks
-                };
-            });
-
-            response.branches[branch] = {
-                exams,
-                students
-            };
-        }
-
-        return res.json(response);
+        res.json({ year, students: rows });
 
     } catch (err) {
-        console.error("ADMIN STUDENT MARKS ERROR:", err);
-        return res.status(500).json({
-            error: "Failed to load student marks"
-        });
+        console.error("STUDENT MARKS ERROR:", err);
+        res.status(500).json({ error: "Failed to fetch student marks" });
     }
 });
+app.get("/admin/exams/:year", async (req, res) => {
+    try {
+        const year = req.params.year;
+
+        const [rows] = await con.promise().query(
+            `
+            SELECT branch, exams
+            FROM examsofspecificyearandbranch
+            WHERE year = ?
+            `,
+            [year]
+        );
+
+        const result = {};
+        rows.forEach(r => {
+            try {
+                result[r.branch] = JSON.parse(r.exams);
+            } catch {
+                result[r.branch] = [];
+            }
+        });
+
+        res.json(result);
+
+    } catch (err) {
+        console.error("EXAMS ERROR:", err);
+        res.status(500).json({ error: "Failed to fetch exams" });
+    }
+});
+
 
 
 // app.get("/admin/students", (req, res) => {
