@@ -47,6 +47,7 @@ loadBtn.addEventListener("click", async () => {
         );
 
         const rows = await res.json();
+        console.log(rows);
         renderTable(rows);
 
     } catch (err) {
