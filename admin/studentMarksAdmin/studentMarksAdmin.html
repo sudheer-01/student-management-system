@@ -25,7 +25,6 @@
   </div>
 </nav>
 <div class="container">
-    <h1>Student Academic Records</h1>
 
     <div class="filters">
         <select id="yearSelect">
@@ -40,7 +39,7 @@
             <option value="">Select Branch</option>
         </select>
 
-        <button id="loadBtn">Load Students</button>
+        <button id="loadBtn">Load Marks</button>
     </div>
 
     <div class="actions">
@@ -48,7 +47,14 @@
         <button onclick="window.print()">Print</button>
     </div>
 
-    <div id="tableContainer"></div>
+    <!-- SINGLE, FIXED TABLE -->
+    <div class="table-wrapper">
+        <table id="marksTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
 </div>
 
 <script src="studentMarksAdmin.js"></script>

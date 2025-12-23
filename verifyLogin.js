@@ -1552,49 +1552,29 @@ app.post("/updateHodStatus", (req, res) => {
 });
 
 app.get("/admin/student-marks", async (req, res) => {
-    try {
-        const { year, branch } = req.query;
+    const { year, branch } = req.query;
 
-        const [rows] = await con.promise().query(
-            `SELECT *
-             FROM studentmarks
-             WHERE year = ? AND branch = ?
-             ORDER BY htno, subject`,
-            [year, branch]
-        );
+    const [rows] = await con.promise().query(
+        "SELECT * FROM studentmarks WHERE year=? AND branch=? ORDER BY htno, subject",
+        [year, branch]
+    );
 
-        res.json({ students: rows });
-
-    } catch (err) {
-        console.error("STUDENT MARKS ERROR:", err);
-        res.status(500).json({ error: "Failed to fetch student marks" });
-    }
+    res.json({ students: rows });
 });
 
 
 app.get("/admin/exams", async (req, res) => {
-    try {
-        const { year, branch } = req.query;
+    const { year, branch } = req.query;
 
-        const [rows] = await con.promise().query(
-            `SELECT exams
-             FROM examsofspecificyearandbranch
-             WHERE year = ? AND branch = ?`,
-            [year, branch]
-        );
+    const [rows] = await con.promise().query(
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
+        [year, branch]
+    );
 
-        if (!rows.length) {
-            return res.json({ exams: [] });
-        }
-
-        // exams is already JSON
-        res.json({ exams: rows[0].exams });
-
-    } catch (err) {
-        console.error("ADMIN EXAMS ERROR:", err);
-        res.status(500).json({ error: "Failed to fetch exams" });
-    }
+    const exams = rows.length ? JSON.parse(rows[0].exams) : [];
+    res.json({ exams });
 });
+
 
 
 
