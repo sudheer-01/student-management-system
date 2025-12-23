@@ -1704,7 +1704,7 @@ app.post("/admin/reset-password", async (req, res) => {
     }
 });
 
-
+//homepageForHod::: to get subjects based on year and branch
 app.get("/getSubjects/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
     //console.log("Received:", year, branch);
