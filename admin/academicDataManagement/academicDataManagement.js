@@ -4,194 +4,142 @@ const actionButtons = document.getElementById("actionButtons");
 const message = document.getElementById("message");
 const dynamicContent = document.getElementById("dynamicContent");
 
-// Load branches dynamically
+/* ===============================
+   LOAD BRANCHES BASED ON YEAR
+================================ */
 yearSelect.addEventListener("change", async () => {
   const year = yearSelect.value;
+
   branchSelect.innerHTML = '<option value="">--Select Branch--</option>';
   actionButtons.style.display = "none";
   dynamicContent.innerHTML = "";
+  message.textContent = "";
 
   if (!year) return;
 
-  const res = await fetch(`/api/branches/${year}`);
-  const data = await res.json();
-  data.branches.forEach(branch => {
-    const opt = document.createElement("option");
-    opt.value = branch;
-    opt.textContent = branch;
-    branchSelect.appendChild(opt);
-  });
-});
+  try {
+    const res = await fetch(`/api/branches/${year}`);
+    const data = await res.json();
 
-branchSelect.addEventListener("change", () => {
-  if (branchSelect.value && yearSelect.value) {
-    actionButtons.style.display = "block";
-    dynamicContent.innerHTML = "";
-    message.textContent = "";
+    data.branches.forEach(branch => {
+      const opt = document.createElement("option");
+      opt.value = branch;
+      opt.textContent = branch;
+      branchSelect.appendChild(opt);
+    });
+  } catch (err) {
+    alert("Failed to load branches");
   }
 });
 
-// DELETE Semester Data
+/* ===============================
+   SHOW ACTION BUTTONS
+================================ */
+branchSelect.addEventListener("change", () => {
+  if (yearSelect.value && branchSelect.value) {
+    actionButtons.style.display = "block";
+    message.textContent = "";
+    dynamicContent.innerHTML = "";
+  } else {
+    actionButtons.style.display = "none";
+  }
+});
+
+/* ===============================
+   DELETE SEMESTER DATA
+================================ */
 document.getElementById("deleteBtn").addEventListener("click", async () => {
-  const year = yearSelect.value, branch = branchSelect.value;
-  if (!confirm(`Are you sure you want to delete all data for ${year}-${branch}?`)) return;
+  const year = yearSelect.value;
+  const branch = branchSelect.value;
 
-  const res = await fetch("/api/delete-semester-data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ year, branch })
-  });
-  const result = await res.json();
-  message.textContent = result.message || result.error;
-  message.className = result.error ? "error" : "success";
-});
-
-// UPDATE Faculty / HOD Details
-document.getElementById("updateBtnAlways").addEventListener("click", async () => {
-  dynamicContent.innerHTML = `
-    <h3>Select Table to Update</h3>
-    <button class="update-btn" onclick="loadTable('faculty')">Faculty Table</button>
-    <button class="update-btn" onclick="loadTable('hod_details')">HOD Table</button>
-    <div id="tableArea"></div>
-  `;
-});
-
-async function loadTable(table) {
-  const res = await fetch(`/api/get-table-data-simple?table=${table}`);
-  const data = await res.json();
-  renderEditableTable(table, data);
-}
-
-function renderEditableTable(table, data) {
-  const container = document.getElementById("tableArea");
-  container.innerHTML = "";
-
-  if (!data.length) {
-    container.innerHTML = "<p>No records found.</p>";
+  if (!year || !branch) {
+    alert("Select year and branch first");
     return;
   }
 
-  const tableEl = document.createElement("table");
-  const header = document.createElement("tr");
-  Object.keys(data[0]).forEach(k => {
-    const th = document.createElement("th");
-    th.textContent = k;
-    header.appendChild(th);
-  });
-  header.appendChild(document.createElement("th")).textContent = "Actions";
-  tableEl.appendChild(header);
+  if (!confirm(`Are you sure you want to delete all semester data for ${year} - ${branch}?`)) {
+    return;
+  }
 
-  data.forEach(row => {
-    const tr = document.createElement("tr");
-    Object.entries(row).forEach(([k, v]) => {
-      const td = document.createElement("td");
-      td.textContent = v;
-      if (k !== "facultyId" && k !== "hod_id") td.contentEditable = true;
-      td.dataset.key = k;
-      tr.appendChild(td);
+  try {
+    const res = await fetch("/api/delete-semester-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year, branch })
     });
 
-    const actionTd = document.createElement("td");
-    const updateBtn = document.createElement("button");
-    updateBtn.textContent = "Update";
-    updateBtn.className = "action-pill update";
-    updateBtn.onclick = () => saveRow(table, tr, row);
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "Delete";
-    delBtn.className = "action-pill delete";
-    delBtn.onclick = () => deleteRow(table, row);
-    actionTd.append(updateBtn, delBtn);
-    tr.appendChild(actionTd);
-
-    tableEl.appendChild(tr);
-  });
-
-  container.appendChild(tableEl);
-}
-
-function saveRow(table, tr, originalRow) {
-  const updated = {};
-  tr.querySelectorAll("td[contenteditable=true]").forEach(td => {
-    updated[td.dataset.key] = td.textContent.trim();
-  });
-
-  const idKey = table === "faculty" ? "facultyId" : "hod_id";
-  updated[idKey] = originalRow[idKey];
-
-  fetch(`/api/update/${table}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ row: updated })
-  })
-    .then(r => r.json())
-    .then(d => alert("Updated successfully!")) //.then(d => alert(d.message || "Updated successfully!"))
-    .catch(e => alert(e.message));
-}
-
-function deleteRow(table, row) {
-  const idKey = table === "faculty" ? "facultyId" : "hod_id";
-  if (!confirm("Are you sure to delete this record?")) return;
-
-  fetch(`/api/delete-row/${table}/${row[idKey]}`, { method: "DELETE" })
-    .then(r => r.json())
-    .then(d => alert("Deleted successfully!")) //.then(d => alert(d.message || "Deleted successfully!"))
-    .catch(e => alert(e.message));
-}
-
-
-
-// EXPORT CSV
-document.getElementById("exportBtn").addEventListener("click", () => {
-
-    // Table name → Display label mapping
-    const tableMap = {
-        branches: "Branches Master Data",
-        examsofspecificyearandbranch: "Exams Configuration (Year & Branch)",
-        faculty_requests: "Faculty Account Requests",
-        pending_marks_updates: "Pending Marks Update Requests",
-        studentmarks: "Student Marks Records",
-        subjects: "Subjects Master Data",
-        student_profiles: "Student Profile Information"
-    };
-
-    dynamicContent.innerHTML = `
-        <h3>Select Academic Data to Export</h3>
-        <p style="color:#64748b; margin-bottom:10px;">
-            Export CSV files for the selected academic year and branch
-        </p>
-
-        <div id="exportList" style="margin:10px 0;">
-            ${
-                Object.entries(tableMap)
-                .map(([table, label]) => `
-                    <label style="display:block; margin-bottom:6px;">
-                        <input type="checkbox" value="${table}">
-                        ${label}
-                    </label>
-                `)
-                .join("")
-            }
-        </div>
-
-        <button id="downloadBtn" class="export-btn">
-            Download Selected CSV Files
-        </button>
-    `;
-
-    document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
+    const result = await res.json();
+    message.textContent = result.message || result.error;
+    message.className = result.error ? "error" : "success";
+  } catch (err) {
+    message.textContent = "Failed to delete semester data";
+    message.className = "error";
+  }
 });
 
+/* ===============================
+   EXPORT CSV
+================================ */
+document.getElementById("exportBtn").addEventListener("click", () => {
 
+  const tableMap = {
+    branches: "Branches Master Data",
+    examsofspecificyearandbranch: "Exams Configuration",
+    faculty_requests: "Faculty Account Requests",
+    pending_marks_updates: "Pending Marks Update Requests",
+    studentmarks: "Student Marks Records",
+    subjects: "Subjects Master Data",
+    student_profiles: "Student Profile Information"
+  };
+
+  dynamicContent.innerHTML = `
+    <h3>Select Academic Data to Export</h3>
+    <p style="color:#64748b; margin-bottom:10px;">
+      Export CSV files for the selected academic year and branch
+    </p>
+
+    <div id="exportList" style="margin:10px 0;">
+      ${
+        Object.entries(tableMap)
+          .map(([table, label]) => `
+            <label style="display:block; margin-bottom:6px;">
+              <input type="checkbox" value="${table}">
+              ${label}
+            </label>
+          `)
+          .join("")
+      }
+    </div>
+
+    <button id="downloadBtn" class="export-btn">
+      Download Selected CSV Files
+    </button>
+  `;
+
+  document.getElementById("downloadBtn").onclick = downloadSelectedCSVs;
+});
+
+/* ===============================
+   DOWNLOAD SELECTED CSV FILES
+================================ */
 function downloadSelectedCSVs() {
-  const selected = Array.from(document.querySelectorAll("#exportList input:checked"))
-    .map(i => i.value);
-  if (!selected.length) return alert("Select at least one table!");
+  const selectedTables = Array.from(
+    document.querySelectorAll("#exportList input:checked")
+  ).map(cb => cb.value);
 
   const year = yearSelect.value;
   const branch = branchSelect.value;
-  if (!year || !branch) return alert("Select year and branch first!");
 
-  // Create one request for all tables
-  const url = `/api/export-csv?tables=${selected.join(",")}&year=${year}&branch=${branch}`;
+  if (!selectedTables.length) {
+    alert("Select at least one table to export");
+    return;
+  }
+
+  if (!year || !branch) {
+    alert("Select year and branch first");
+    return;
+  }
+
+  const url = `/api/export-csv?tables=${selectedTables.join(",")}&year=${year}&branch=${branch}`;
   window.open(url, "_blank");
 }
