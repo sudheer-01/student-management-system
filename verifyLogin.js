@@ -1673,6 +1673,36 @@ app.get("/admin/reset-requests", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch reset requests" });
     }
 });
+// Reset password for faculty or HOD
+app.post("/admin/reset-password", async (req, res) => {
+
+    const { role, id, newPassword } = req.body;
+
+    try {
+
+        if (role === "faculty") {
+            await con.promise().query(`
+                UPDATE faculty
+                SET password = ?, reset_password = 'reset_password'
+                WHERE facultyId = ?
+            `, [newPassword, id]);
+        }
+
+        if (role === "hod") {
+            await con.promise().query(`
+                UPDATE hod_details
+                SET password = ?, reset_password = 'reset_password'
+                WHERE hod_id = ?
+            `, [newPassword, id]);
+        }
+
+        res.json({ message: "Password reset enabled successfully" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Reset failed" });
+    }
+});
 
 
 app.get("/getSubjects/:year/:branch", (req, res) => {
