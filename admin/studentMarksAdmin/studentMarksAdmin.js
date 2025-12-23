@@ -49,35 +49,47 @@ renderTable(marksData.students, exams);
 ============================ */
 function renderTable(students, exams) {
 
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
+    const container = document.getElementById("tablesContainer");
+    container.innerHTML = "";
 
     if (!students || students.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10">No data</td></tr>`;
+        container.innerHTML = "<p>No student records found</p>";
         return;
     }
 
-    exams = Array.isArray(exams) ? exams : [];
+    // exams MUST be array of exact column names
+    if (!Array.isArray(exams)) exams = [];
 
-    thead.innerHTML = `
-        <tr>
-            <th>HTNO</th>
-            <th>Name</th>
-            <th>Subject</th>
-             ${exams.map(e => `<th>${e}</th>`).join("")}
-        </tr>
+    let html = `
+        <table class="marks-table">
+            <thead>
+                <tr>
+                    <th>HTNO</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    ${exams.map(e => `<th>${e}</th>`).join("")}
+                </tr>
+            </thead>
+            <tbody>
     `;
-    
+
     students.forEach(s => {
-        tbody.insertAdjacentHTML("beforeend", `
+        html += `
             <tr>
                 <td>${s.htno}</td>
                 <td>${s.name}</td>
                 <td>${s.subject}</td>
                 ${exams.map(e => `<td>${s[e] ?? ""}</td>`).join("")}
             </tr>
-        `);
+        `;
     });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    container.innerHTML = html;
 }
 
 /* ============================
