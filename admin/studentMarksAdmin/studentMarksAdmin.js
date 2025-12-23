@@ -64,10 +64,10 @@ function renderTable(students, exams) {
             <th>HTNO</th>
             <th>Name</th>
             <th>Subject</th>
-            ${exams.map(e => `<th>${e.replace(/_/g," ")}</th>`).join("")}
+             ${exams.map(e => `<th>${e}</th>`).join("")}
         </tr>
     `;
-
+    
     students.forEach(s => {
         tbody.insertAdjacentHTML("beforeend", `
             <tr>
