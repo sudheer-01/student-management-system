@@ -143,3 +143,13 @@ function downloadSelectedCSVs() {
   const url = `/api/export-csv?tables=${selectedTables.join(",")}&year=${year}&branch=${branch}`;
   window.open(url, "_blank");
 }
+ const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            if (!confirm("Log out of the admin panel?")) return;
+            fetch("/logout", { method: "POST" })
+                .then(() => { window.location.href = "/"; })
+                .catch(() => { window.location.href = "/"; });
+        });
+    }
