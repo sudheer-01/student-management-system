@@ -43,7 +43,6 @@ loadBtn.addEventListener("click", async () => {
 /* Render table */
 function renderTable(students, exams) {
 
-    container.innerHTML = "";
 
     if (!students.length) {
         container.innerHTML = "<p>No records found</p>";
