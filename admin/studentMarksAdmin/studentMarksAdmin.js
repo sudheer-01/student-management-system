@@ -1,7 +1,8 @@
 const yearSelect = document.getElementById("yearSelect");
 const branchSelect = document.getElementById("branchSelect");
 const loadBtn = document.getElementById("loadBtn");
-const container = document.getElementById("tableContainer");
+const container = document.getElementById("tablesContainer");
+
 
 /* Load branches */
 yearSelect.addEventListener("change", async () => {
@@ -42,7 +43,6 @@ loadBtn.addEventListener("click", async () => {
 /* Render table */
 function renderTable(students, exams) {
 
-    const container = document.getElementById("tablesContainer");
     container.innerHTML = "";
 
     if (!students.length) {
@@ -50,7 +50,7 @@ function renderTable(students, exams) {
         return;
     }
 
-    const examList = Object.keys(exams); // ✅ FIX HERE
+    const examList = Object.keys(exams);
 
     let html = `
         <table>
@@ -79,6 +79,7 @@ function renderTable(students, exams) {
     html += "</tbody></table>";
     container.innerHTML = html;
 }
+
 
 
 /* Export CSV */
