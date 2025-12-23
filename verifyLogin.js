@@ -1552,71 +1552,57 @@ app.post("/updateHodStatus", (req, res) => {
 });
 
 app.post("/admin/student-marks", async (req, res) => {
-    try {
-        const { year, branch, exams } = req.body;
+    const { branch, year} = req.query;
 
-        if (!year || !branch || !Array.isArray(exams)) {
-            return res.status(400).json({ error: "Invalid input" });
+    const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(examQuery, [year, branch], (err, examResult) => {
+        if (err) {
+            console.error("Error fetching exams:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
         }
 
-        // Fixed columns
-        const baseCols = ["htno", "name", "subject"];
+        if (examResult.length === 0) {
+            return res.status(404).json({ success: false, message: "No exams found for this year and branch" });
+        }
 
-        // Build dynamic SELECT
-        const columns = [...baseCols, ...exams]
-            .map(c => `\`${c}\``)
-            .join(",");
+        // ✅ Handle both string and object cases
+        let examsData = examResult[0].exams;
+        let examsObj;
 
-        const [rows] = await con.promise().query(
-            `
-            SELECT ${columns}
-            FROM studentmarks
-            WHERE year = ? AND branch = ?
-            ORDER BY htno, subject
-            `,
-            [year, branch]
-        );
+        if (typeof examsData === "string") {
+            try {
+                examsObj = JSON.parse(examsData);
+            } catch (parseError) {
+                console.error("Error parsing exams JSON string:", parseError);
+                return res.status(500).json({ success: false, message: "Invalid exams JSON format" });
+            }
+        } else if (typeof examsData === "object" && examsData !== null) {
+            examsObj = examsData;
+        } else {
+            return res.status(500).json({ success: false, message: "Unexpected exams data format" });
+        }
 
-        res.json({ students: rows });
+        const examColumns = Object.keys(examsObj);
 
-    } catch (err) {
-        console.error("STUDENT MARKS API ERROR:", err);
-        res.status(500).json({ error: "Failed to fetch student marks" });
-    }
+        if (examColumns.length === 0) {
+            return res.status(404).json({ success: false, message: "No exam columns found" });
+        }
+
+        // Build SQL dynamically
+        const selectedColumns = ["htno", "name","subject", ...examColumns].join(", ");
+        const sqlQuery = `SELECT ${selectedColumns} FROM studentmarks WHERE branch = ? AND year = ?`;
+
+        con.query(sqlQuery, [branch, year], (err, results) => {
+            if (err) {
+                console.error("Error fetching student marks:", err);
+                return res.status(500).json({ success: false, message: "Database error" });
+            }
+
+            res.json(results);
+        });
+    });
 });
-
-
-app.get("/admin/exams", async (req, res) => {
-    try {
-        const { year, branch } = req.query;
-
-        if (!year || !branch) {
-            return res.status(400).json({ error: "Year and branch required" });
-        }
-
-        const [rows] = await con.promise().query(
-            `
-            SELECT exams
-            FROM examsofspecificyearandbranch
-            WHERE year = ? AND branch = ?
-            `,
-            [year, branch]
-        );
-
-        if (!rows.length) {
-            return res.json({ exams: [] });
-        }
-
-        const exams = JSON.parse(rows[0].exams); // array of column names
-        res.json({ exams });
-
-    } catch (err) {
-        console.error("EXAMS API ERROR:", err);
-        res.status(500).json({ error: "Failed to fetch exams" });
-    }
-});
-
-
 
 
 

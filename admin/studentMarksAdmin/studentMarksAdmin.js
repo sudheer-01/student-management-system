@@ -3,20 +3,34 @@ const branchSelect = document.getElementById("branchSelect");
 const loadBtn = document.getElementById("loadBtn");
 const container = document.getElementById("tablesContainer");
 
-/* Load branches */
+/* ============================
+   LOAD BRANCHES BASED ON YEAR
+============================ */
 yearSelect.addEventListener("change", async () => {
     branchSelect.innerHTML = `<option value="">Select Branch</option>`;
+
     if (!yearSelect.value) return;
 
-    const res = await fetch(`/api/branches/${yearSelect.value}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`/api/branches/${yearSelect.value}`);
+        const data = await res.json();
 
-    data.branches.forEach(b => {
-        branchSelect.innerHTML += `<option value="${b}">${b}</option>`;
-    });
+        data.branches.forEach(branch => {
+            const opt = document.createElement("option");
+            opt.value = branch;
+            opt.textContent = branch;
+            branchSelect.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load branches");
+    }
 });
 
-/* Load student marks */
+/* ============================
+   LOAD STUDENT MARKS
+============================ */
 loadBtn.addEventListener("click", async () => {
     const year = yearSelect.value;
     const branch = branchSelect.value;
@@ -26,37 +40,40 @@ loadBtn.addEventListener("click", async () => {
         return;
     }
 
-    // 1️⃣ Get exams first
-    const examsRes = await fetch(
-        `/admin/exams?year=${year}&branch=${branch}`
-    );
-    const examsData = await examsRes.json();
+    try {
+        const res = await fetch(
+            `/admin/student-marks?year=${year}&branch=${branch}`,
+            { method: "POST" }
+        );
 
-    // 2️⃣ Get marks using exams
-    const marksRes = await fetch("/admin/student-marks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            year,
-            branch,
-            exams: examsData.exams
-        })
-    });
+        const rows = await res.json();
+        renderTable(rows);
 
-    const marksData = await marksRes.json();
-
-    renderTable(marksData.students, examsData.exams);
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load student marks");
+    }
 });
 
-/* Render table */
-function renderTable(students, exams) {
+/* ============================
+   RENDER TABLE
+============================ */
+function renderTable(rows) {
 
     container.innerHTML = "";
 
-    if (!students.length) {
-        container.innerHTML = "<p>No records found</p>";
+    if (!rows || rows.length === 0) {
+        container.innerHTML = "<p>No student data found.</p>";
         return;
     }
+
+    // Static columns
+    const fixedCols = ["htno", "name", "subject"];
+
+    // Dynamic exam columns (derived from first row)
+    const examCols = Object.keys(rows[0]).filter(
+        col => !fixedCols.includes(col)
+    );
 
     let html = `
         <table>
@@ -65,23 +82,54 @@ function renderTable(students, exams) {
                     <th>HTNO</th>
                     <th>Name</th>
                     <th>Subject</th>
-                    ${exams.map(e => `<th>${e}</th>`).join("")}
+                    ${examCols.map(e => `<th>${e}</th>`).join("")}
                 </tr>
             </thead>
             <tbody>
     `;
 
-    students.forEach(s => {
+    rows.forEach(r => {
         html += `
             <tr>
-                <td>${s.htno}</td>
-                <td>${s.name}</td>
-                <td>${s.subject}</td>
-                ${exams.map(e => `<td>${s[e] ?? ""}</td>`).join("")}
+                <td>${r.htno}</td>
+                <td>${r.name}</td>
+                <td>${r.subject}</td>
+                ${examCols.map(e => `<td>${r[e] ?? ""}</td>`).join("")}
             </tr>
         `;
     });
 
     html += "</tbody></table>";
     container.innerHTML = html;
+}
+
+/* ============================
+   EXPORT CSV
+============================ */
+function exportCSV() {
+    const table = container.querySelector("table");
+    if (!table) {
+        alert("No data to export");
+        return;
+    }
+
+    let csv = [];
+    [...table.rows].forEach(row => {
+        csv.push(
+            [...row.cells].map(c => `"${c.innerText}"`).join(",")
+        );
+    });
+
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "student-marks.csv";
+    a.click();
+}
+
+/* ============================
+   PRINT
+============================ */
+function printTable() {
+    window.print();
 }
