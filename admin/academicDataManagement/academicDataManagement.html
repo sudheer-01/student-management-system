@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – Academic Data Management</title>
+  <link rel="stylesheet" href="updateDatabase.css">
+</head>
+<body>
+
+<div class="page">
+  <div class="container">
+
+    <!-- NAVBAR -->
+    <nav class="admin-navbar">
+  <div class="nav-left">
+    <span class="logo">SIMS Admin</span>
+  </div>
+
+  <div class="nav-right">
+    <a href="updateDatabase.html" class="nav-btn">Faculty & HOD Management</a>
+    <a href="academicDataManagement.html" class="nav-btn">Academic Data Management</a>
+    <a href="studentMarksAdmin.html" class="nav-btn">Student Marks</a>
+    <a href="studentProfilesAdmin.html" class="nav-btn">Student Personal Data</a>
+    <a href="unfreeze.html" class="nav-btn">Unfreeze Operations</a>
+    <a href="resetPassword.html" class="nav-btn">Reset Password</a>
+    <a href="/logout" class="nav-btn logout">Logout</a>
+  </div>
+</nav>
+
+
+    <!-- HEADER -->
+    <header class="page-header">
+      <h1>Academic Data Management</h1>
+      <p class="subtitle">
+        Export or delete semester data based on year and branch
+      </p>
+    </header>
+
+    <!-- YEAR / BRANCH -->
+    <div class="form-row">
+      <div class="form-group">
+        <label>Select Year</label>
+        <select id="year">
+          <option value="">--Select Year--</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Select Branch</label>
+        <select id="branch">
+          <option value="">--Select Branch--</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div id="actionButtons" style="display:none; margin-top:25px;">
+      <button id="deleteBtn" class="delete-btn">Delete Semester Data</button>
+      <button id="exportBtn" class="export-btn">Export CSV</button>
+    </div>
+
+    <p id="message"></p>
+    <div id="dynamicContent"></div>
+
+  </div>
+</div>
+
+<script src="updateDatabase.js"></script>
+</body>
+</html>

@@ -2,68 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Update Database</title>
+  <title>Admin – Faculty & HOD Management</title>
   <link rel="stylesheet" href="updateDatabase.css">
 </head>
 <body>
-  <div class="page">
-    <div class="container">
-      <header class="page-header">
-        <h1>Admin Panel – Academic Data Management</h1>
-        <p class="subtitle">Perform secure administrative actions on semester data</p>
-      </header>
 
-      <div class="top-nav">
-        <a href="admin.html">← Back to Admin Dashboard</a>
-        <button id="updateBtnAlways" class="update-btn">Update Faculty / HOD Details</button>
-      </div>
+<div class="page">
+  <div class="container">
 
-      <div class="content">
-        <!-- Step 1: Year and Branch Selection -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="year">Select Year:</label>
-            <select id="year">
-              <option value="">--Select Year--</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="branch">Select Branch:</label>
-            <select id="branch">
-              <option value="">--Select Branch--</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Step 2: Action Buttons -->
-        <div id="actionButtons" style="display:none; margin-top:25px;">
-          <button id="deleteBtn" class="delete-btn">Delete Semester Data</button>
-          <button id="exportBtn" class="export-btn">Export CSV</button>
-        </div>
-
-        <p id="message"></p>
-        <div id="dynamicContent"></div>
-      </div>
-    </div>
+    <!-- NAVBAR -->
+    <nav class="admin-navbar">
+  <div class="nav-left">
+    <span class="logo">SIMS Admin</span>
   </div>
-  <script src="updateDatabase.js"></script>
-  <script>
-    // Always-visible update button logic
-    document.getElementById("updateBtnAlways").addEventListener("click", () => {
-      const dynamicContent = document.getElementById("dynamicContent");
-      dynamicContent.innerHTML = `
-        <h3>Select Table to Update</h3>
-        <button class="update-btn" onclick="loadTable('faculty')">Faculty Details</button>
-        <button class="update-btn" onclick="loadTable('hod_details')">HOD Details</button>
-        <div id="tableArea"></div>
-      `;
-    });
-  </script>
+
+  <div class="nav-right">
+    <a href="updateDatabase.html" class="nav-btn">Faculty & HOD Management</a>
+    <a href="academicDataManagement.html" class="nav-btn">Academic Data Management</a>
+    <a href="studentMarksAdmin.html" class="nav-btn">Student Marks</a>
+    <a href="studentProfilesAdmin.html" class="nav-btn">Student Personal Data</a>
+    <a href="unfreeze.html" class="nav-btn">Unfreeze Operations</a>
+    <a href="resetPassword.html" class="nav-btn">Reset Password</a>
+    <a href="/logout" class="nav-btn logout">Logout</a>
+  </div>
+</nav>
+
+
+    <!-- HEADER -->
+    <header class="page-header">
+      <h1>Faculty & HOD Management</h1>
+      <p class="subtitle">Update faculty and HOD details securely</p>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <button id="updateBtnAlways" class="update-btn">
+        Update Faculty / HOD Details
+      </button>
+
+      <div id="dynamicContent"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="updateDatabase.js"></script>
 </body>
 </html>
