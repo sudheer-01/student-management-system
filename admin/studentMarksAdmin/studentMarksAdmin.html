@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Academic Management</title>
+    <link rel="stylesheet" href="studentMarksAdmin.css">
+</head>
+<body>
+<nav class="admin-navbar">
+  <div class="admin-navbar-inner">
+
+    <div class="nav-left">
+      <span class="logo">SIMS<br>Admin</span>
+    </div>
+
+    <div class="nav-right">
+      <a href="updateDatabase.html" class="nav-btn">Faculty & HOD Management</a>
+      <a href="academicDataManagement.html" class="nav-btn">Academic Data Management</a>
+      <a href="studentMarksAdmin.html" class="nav-btn">Student Marks</a>
+      <a href="studentProfilesAdmin.html" class="nav-btn">Student Personal Data</a>
+      <a href="unfreeze.html" class="nav-btn">Unfreeze Operations</a>
+      <a href="resetPassword.html" class="nav-btn">Reset Password</a>
+      <a href="/logout" class="nav-btn logout">Logout</a>
+    </div>
+
+  </div>
+</nav>
+<div class="container">
+
+    <h1>Student Academic Management</h1>
+    <p class="subtitle">
+        View, manage, export, and print student profiles and academic records
+    </p>
+
+    <!-- FILTERS -->
+    <div class="filters">
+    <select id="yearSelect">
+        <option value="">Select Year</option>
+        <option value="1">1st Year</option>
+        <option value="2">2nd Year</option>
+        <option value="3">3rd Year</option>
+        <option value="4">4th Year</option>
+    </select>
+
+    <div id="branchCheckboxes" class="branch-box"></div>
+
+    <button id="loadStudentsBtn" class="btn primary">
+        Load Students
+    </button>
+</div>
+
+
+    <!-- ACTIONS -->
+    <div class="actions">
+        <button id="exportBtn" class="btn secondary">Export CSV</button>
+        <button id="printBtn" class="btn ghost">Print</button>
+    </div>
+
+    <!-- STUDENT TABLE -->
+    <div class="table-wrapper">
+        <table id="studentsTable">
+            <thead>
+                <tr>
+                    <th>HTNO</th>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="studentMarksAdmin.js"></script>
+</body>
+</html>
