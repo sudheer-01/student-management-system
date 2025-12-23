@@ -1551,29 +1551,47 @@ app.post("/updateHodStatus", (req, res) => {
     });
 });
 
-app.post("/admin/student-marks", (req, res) => {
-
+app.post("/admin/student-marks", async (req, res) => {
     const { year, branches } = req.body;
-
-    if (!year || !branches || branches.length === 0) {
+    if (!year || !branches?.length) {
         return res.status(400).json({ error: "Year and branches required" });
     }
 
-    const sql = `
-        SELECT *
-        FROM studentmarks
-        WHERE year = ?
-        AND branch IN (?)
-        ORDER BY htno, subject
-    `;
+    const result = {};
 
-    con.query(sql, [year, branches], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json(results);
-    });
+    for (const branch of branches) {
+
+        // 1️⃣ Get exams for branch
+        const [examRow] = await query(
+            "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
+            [year, branch]
+        );
+
+        if (!examRow) continue;
+        const exams = JSON.parse(examRow.exams);
+
+        // 2️⃣ Get student marks
+        const marks = await query(
+            "SELECT * FROM studentmarks WHERE year=? AND branch=?",
+            [year, branch]
+        );
+
+        // 3️⃣ Normalize marks
+        const students = marks.map(row => {
+            const obj = {
+                htno: row.htno,
+                name: row.name,
+                subject: row.subject,
+                marks: {}
+            };
+            exams.forEach(ex => obj.marks[ex] = row[ex] ?? "");
+            return obj;
+        });
+
+        result[branch] = { exams, students };
+    }
+
+    res.json({ year, branches: result });
 });
 
 

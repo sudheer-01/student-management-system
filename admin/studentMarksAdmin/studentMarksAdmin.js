@@ -1,33 +1,45 @@
 const yearSelect = document.getElementById("yearSelect");
 const loadBtn = document.getElementById("loadStudentsBtn");
-const tableBody = document.querySelector("#studentsTable tbody");
 const branchBox = document.getElementById("branchCheckboxes");
+const tablesContainer = document.getElementById("tablesContainer");
 
-/* =========================
-   LOAD BRANCHES AS CHECKBOX
-========================= */
+/* =====================================================
+   LOAD BRANCHES AS CHECKBOXES (BASED ON YEAR)
+===================================================== */
 yearSelect.addEventListener("change", async () => {
     const year = yearSelect.value;
     branchBox.innerHTML = "";
 
     if (!year) return;
 
-    const res = await fetch(`/api/branches/${year}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`/api/branches/${year}`);
+        const data = await res.json();
 
-    data.branches.forEach(branch => {
-        const label = document.createElement("label");
-        label.innerHTML = `
-            <input type="checkbox" value="${branch}">
-            ${branch}
-        `;
-        branchBox.appendChild(label);
-    });
+        if (!data.branches || data.branches.length === 0) {
+            branchBox.innerHTML = "<p>No branches found</p>";
+            return;
+        }
+
+        data.branches.forEach(branch => {
+            const label = document.createElement("label");
+            label.className = "branch-checkbox";
+            label.innerHTML = `
+                <input type="checkbox" value="${branch}">
+                ${branch}
+            `;
+            branchBox.appendChild(label);
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load branches");
+    }
 });
 
-/* =========================
-   LOAD STUDENT MARKS
-========================= */
+/* =====================================================
+   LOAD STUDENT MARKS (MULTI-BRANCH)
+===================================================== */
 loadBtn.addEventListener("click", async () => {
 
     const year = yearSelect.value;
@@ -40,69 +52,105 @@ loadBtn.addEventListener("click", async () => {
         return;
     }
 
-    const res = await fetch("/admin/student-marks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year, branches: selectedBranches })
-    });
+    try {
+        const res = await fetch("/admin/student-marks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                year,
+                branches: selectedBranches
+            })
+        });
 
-    const data = await res.json();
-    renderTable(data);
+        const data = await res.json();
+
+        if (!data.branches || Object.keys(data.branches).length === 0) {
+            tablesContainer.innerHTML = "<p>No data found</p>";
+            return;
+        }
+
+        renderBranchTables(data);
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load student marks");
+    }
 });
 
-/* =========================
-   DYNAMIC TABLE RENDERING
-========================= */
-function renderTable(rows) {
+/* =====================================================
+   RENDER ONE TABLE PER BRANCH
+===================================================== */
+function renderBranchTables(data) {
 
-    tableBody.innerHTML = "";
-    if (!rows.length) return;
+    tablesContainer.innerHTML = "";
 
-    // Detect exam columns dynamically
-    const staticCols = ["year", "branch", "htno", "name", "subject"];
-    const examCols = Object.keys(rows[0]).filter(
-        k => !staticCols.includes(k)
-    );
+    Object.entries(data.branches).forEach(([branch, info]) => {
 
-    // Build table header
-    const thead = document.querySelector("#studentsTable thead tr");
-    thead.innerHTML = `
-        <th>HTNO</th>
-        <th>Name</th>
-        <th>Branch</th>
-        <th>Year</th>
-        <th>Subject</th>
-        ${examCols.map(e => `<th>${e.replace(/_/g," ")}</th>`).join("")}
-        <th>Actions</th>
-    `;
+        const { exams, students } = info;
 
-    rows.forEach(r => {
-        let examCells = examCols.map(
-            e => `<td contenteditable="true" data-exam="${e}">${r[e] ?? ""}</td>`
-        ).join("");
+        let html = `
+            <div class="branch-section">
+                <h3>Branch: ${branch} (${data.year} Year)</h3>
 
-        tableBody.innerHTML += `
-            <tr data-htno="${r.htno}" data-subject="${r.subject}">
-                <td>${r.htno}</td>
-                <td>${r.name}</td>
-                <td>${r.branch}</td>
-                <td>${r.year}</td>
-                <td>${r.subject}</td>
-                ${examCells}
-                <td>
-                    <button class="btn secondary" onclick="saveMarks(this)">Save</button>
-                </td>
-            </tr>
+                <div class="table-wrapper">
+                <table class="branch-table">
+                    <thead>
+                        <tr>
+                            <th>HTNO</th>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            ${exams.map(e => `<th>${e.replace(/_/g, " ").toUpperCase()}</th>`).join("")}
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
         `;
+
+        students.forEach(s => {
+            html += `
+                <tr data-htno="${s.htno}" data-subject="${s.subject}" data-branch="${branch}">
+                    <td>${s.htno}</td>
+                    <td>${s.name}</td>
+                    <td>${s.subject}</td>
+
+                    ${exams.map(e => `
+                        <td contenteditable="true"
+                            data-exam="${e}">
+                            ${s.marks[e] ?? ""}
+                        </td>
+                    `).join("")}
+
+                    <td>
+                        <button class="btn secondary"
+                            onclick="saveMarks(this)">
+                            Save
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        `;
+
+        tablesContainer.insertAdjacentHTML("beforeend", html);
     });
 }
 
-/* =========================
-   UPDATE MARKS
-========================= */
+/* =====================================================
+   SAVE MARKS (PER ROW)
+===================================================== */
 function saveMarks(btn) {
+
     const row = btn.closest("tr");
+
     const payload = {
+        year: yearSelect.value,
+        branch: row.dataset.branch,
         htno: row.dataset.htno,
         subject: row.dataset.subject,
         updates: {}
@@ -117,6 +165,12 @@ function saveMarks(btn) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     })
-    .then(r => r.json())
-    .then(d => alert("Marks updated successfully"));
+    .then(res => res.json())
+    .then(result => {
+        alert(result.message || "Marks updated successfully");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Failed to update marks");
+    });
 }
