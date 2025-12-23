@@ -1,13 +1,9 @@
 const yearSelect = document.getElementById("yearSelect");
 const branchSelect = document.getElementById("branchSelect");
 const loadBtn = document.getElementById("loadBtn");
+const container = document.getElementById("tablesContainer");
 
-const thead = document.querySelector("#marksTable thead");
-const tbody = document.querySelector("#marksTable tbody");
-
-/* ============================
-   LOAD BRANCHES
-============================ */
+/* Load branches */
 yearSelect.addEventListener("change", async () => {
     branchSelect.innerHTML = `<option value="">Select Branch</option>`;
     if (!yearSelect.value) return;
@@ -20,11 +16,8 @@ yearSelect.addEventListener("change", async () => {
     });
 });
 
-/* ============================
-   LOAD STUDENT MARKS
-============================ */
+/* Load student marks */
 loadBtn.addEventListener("click", async () => {
-
     const year = yearSelect.value;
     const branch = branchSelect.value;
 
@@ -33,35 +26,40 @@ loadBtn.addEventListener("click", async () => {
         return;
     }
 
-    const marksRes = await fetch(`/admin/student-marks?year=${year}&branch=${branch}`);
-    const marksData = await marksRes.json();
-
-    const examsRes = await fetch(`/admin/exams?year=${year}&branch=${branch}`);
+    // 1️⃣ Get exams first
+    const examsRes = await fetch(
+        `/admin/exams?year=${year}&branch=${branch}`
+    );
     const examsData = await examsRes.json();
 
-    const exams = Array.isArray(examsData.exams) ? examsData.exams : [];
-renderTable(marksData.students, exams);
+    // 2️⃣ Get marks using exams
+    const marksRes = await fetch("/admin/student-marks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            year,
+            branch,
+            exams: examsData.exams
+        })
+    });
 
+    const marksData = await marksRes.json();
+
+    renderTable(marksData.students, examsData.exams);
 });
 
-/* ============================
-   RENDER TABLE (NO DOM ISSUES)
-============================ */
+/* Render table */
 function renderTable(students, exams) {
 
-    const container = document.getElementById("tablesContainer");
     container.innerHTML = "";
 
-    if (!students || students.length === 0) {
-        container.innerHTML = "<p>No student records found</p>";
+    if (!students.length) {
+        container.innerHTML = "<p>No records found</p>";
         return;
     }
 
-    // exams MUST be array of exact column names
-    if (!Array.isArray(exams)) exams = [];
-
     let html = `
-        <table class="marks-table">
+        <table>
             <thead>
                 <tr>
                     <th>HTNO</th>
@@ -84,26 +82,6 @@ function renderTable(students, exams) {
         `;
     });
 
-    html += `
-            </tbody>
-        </table>
-    `;
-
+    html += "</tbody></table>";
     container.innerHTML = html;
-}
-
-/* ============================
-   EXPORT CSV
-============================ */
-function exportCSV() {
-    const rows = [...document.querySelectorAll("#marksTable tr")];
-    const csv = rows.map(r =>
-        [...r.children].map(c => `"${c.innerText}"`).join(",")
-    ).join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "student-marks.csv";
-    a.click();
 }

@@ -1551,15 +1551,38 @@ app.post("/updateHodStatus", (req, res) => {
     });
 });
 
-app.get("/admin/student-marks", async (req, res) => {
-    const { year, branch } = req.query;
+app.post("/admin/student-marks", async (req, res) => {
+    try {
+        const { year, branch, exams } = req.body;
 
-    const [rows] = await con.promise().query(
-        "SELECT * FROM studentmarks WHERE year=? AND branch=? ORDER BY htno, subject",
-        [year, branch]
-    );
+        if (!year || !branch || !Array.isArray(exams)) {
+            return res.status(400).json({ error: "Invalid input" });
+        }
 
-    res.json({ students: rows });
+        // Fixed columns
+        const baseCols = ["htno", "name", "subject"];
+
+        // Build dynamic SELECT
+        const columns = [...baseCols, ...exams]
+            .map(c => `\`${c}\``)
+            .join(",");
+
+        const [rows] = await con.promise().query(
+            `
+            SELECT ${columns}
+            FROM studentmarks
+            WHERE year = ? AND branch = ?
+            ORDER BY htno, subject
+            `,
+            [year, branch]
+        );
+
+        res.json({ students: rows });
+
+    } catch (err) {
+        console.error("STUDENT MARKS API ERROR:", err);
+        res.status(500).json({ error: "Failed to fetch student marks" });
+    }
 });
 
 
@@ -1568,7 +1591,7 @@ app.get("/admin/exams", async (req, res) => {
         const { year, branch } = req.query;
 
         if (!year || !branch) {
-            return res.status(400).json({ exams: [] });
+            return res.status(400).json({ error: "Year and branch required" });
         }
 
         const [rows] = await con.promise().query(
@@ -1580,27 +1603,16 @@ app.get("/admin/exams", async (req, res) => {
             [year, branch]
         );
 
-        if (!rows.length || !rows[0].exams) {
+        if (!rows.length) {
             return res.json({ exams: [] });
         }
 
-        let exams = rows[0].exams;
-
-        // ✅ IMPORTANT: mysql2 may already parse JSON
-        if (typeof exams === "string") {
-            exams = JSON.parse(exams);
-        }
-
-        // Ensure array
-        if (!Array.isArray(exams)) {
-            exams = [];
-        }
-
+        const exams = JSON.parse(rows[0].exams); // array of column names
         res.json({ exams });
 
     } catch (err) {
-        console.error("ADMIN EXAMS API ERROR:", err);
-        res.status(500).json({ exams: [] });
+        console.error("EXAMS API ERROR:", err);
+        res.status(500).json({ error: "Failed to fetch exams" });
     }
 });
 
