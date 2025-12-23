@@ -74,7 +74,18 @@ loadBtn.addEventListener("click", async () => {
 function renderBranchTables(students, examsByBranch) {
 
     const container = document.getElementById("tablesContainer");
+
+    if (!container) {
+        console.error("tablesContainer not found in HTML");
+        return;
+    }
+
     container.innerHTML = "";
+
+    if (!students || students.length === 0) {
+        container.innerHTML = "<p>No student data found.</p>";
+        return;
+    }
 
     const grouped = {};
 
@@ -115,7 +126,7 @@ function renderBranchTables(students, examsByBranch) {
         });
 
         html += `</tbody></table>`;
-        container.innerHTML += html;
+        container.insertAdjacentHTML("beforeend", html);
     });
 }
 
