@@ -187,3 +187,20 @@ td[contenteditable="true"] {
 .nav-btn.logout:hover {
   background: #b91c1c;
 }
+h3 {
+  color: #1e293b;
+  font-size: 18px;
+}
+
+.update-btn {
+  background: #2563eb;
+}
+
+.update-btn:hover {
+  background: #1d4ed8;
+}
+
+table th {
+  text-transform: uppercase;
+  font-size: 12px;
+}
