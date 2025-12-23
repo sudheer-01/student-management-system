@@ -2491,22 +2491,22 @@ app.delete("/api/delete-row/:table/:id", (req, res) => {
 
 //------------------
 
-app.post("/logout", (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).json({ error: "Logout failed" });
-        }
+// app.post("/logout", (req, res) => {
+//     req.session.destroy(err => {
+//         if (err) {
+//             return res.status(500).json({ error: "Logout failed" });
+//         }
 
-        res.clearCookie("connect.sid"); // session cookie
-        res.json({ success: true });
-    });
-});
-app.use((req, res, next) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-    next();
-});
+//         res.clearCookie("connect.sid"); // session cookie
+//         res.json({ success: true });
+//     });
+// });
+// app.use((req, res, next) => {
+//     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+//     res.setHeader("Pragma", "no-cache");
+//     res.setHeader("Expires", "0");
+//     next();
+// });
 
 
 
