@@ -33,8 +33,8 @@ app.use('/studentsMarks', express.static(path.join(baseDir, 'studentsMarks')));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
 //admin
 app.use(express.static(path.join(baseDir,"admin")));
-app.use(express.static(path.join(baseDir,"UpdateDatabase")));
-app.use(express.static(path.join(baseDir,"adminOperations")));
+app.use(express.static(path.join(baseDir,"admin","UpdateDatabase")));
+app.use(express.static(path.join(baseDir,"admin","adminOperations")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
 
