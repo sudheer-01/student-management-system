@@ -1551,48 +1551,77 @@ app.post("/updateHodStatus", (req, res) => {
     });
 });
 
-app.get("/admin/students", (req, res) => {
-    const { year, branch } = req.query;
+app.post("/admin/student-marks", (req, res) => {
+
+    const { year, branches } = req.body;
+
+    if (!year || !branches || branches.length === 0) {
+        return res.status(400).json({ error: "Year and branches required" });
+    }
 
     const sql = `
-        SELECT 
-            sm.id,
-            sm.htno,
-            sp.full_name AS name,
-            sm.branch,
-            sm.year,
-            sm.subject,
-            sm.marks
-        FROM studentmarks sm
-        JOIN student_profiles sp ON sm.htno = sp.htno
-        WHERE sm.year = ? AND sm.branch = ?
+        SELECT *
+        FROM studentmarks
+        WHERE year = ?
+        AND branch IN (?)
+        ORDER BY htno, subject
     `;
 
-    con.query(sql, [year, branch], (err, rows) => {
-        if (err) return res.status(500).json(err);
-        res.json(rows);
+    con.query(sql, [year, branches], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.json(results);
     });
 });
-app.put("/admin/studentmarks/:id", (req, res) => {
-    const { marks } = req.body;
-    con.query(
-        "UPDATE studentmarks SET marks=? WHERE id=?",
-        [marks, req.params.id],
-        () => res.json({ success: true })
-    );
-});
-app.delete("/admin/studentmarks/:id", (req, res) => {
-    con.query(
-        "DELETE FROM studentmarks WHERE id=?",
-        [req.params.id],
-        () => res.json({ success: true })
-    );
-});
+
+
+// app.get("/admin/students", (req, res) => {
+//     const { year, branch } = req.query;
+
+//     const sql = `
+//         SELECT 
+//             sm.id,
+//             sm.htno,
+//             sp.full_name AS name,
+//             sm.branch,
+//             sm.year,
+//             sm.subject,
+//             sm.marks
+//         FROM studentmarks sm
+//         JOIN student_profiles sp ON sm.htno = sp.htno
+//         WHERE sm.year = ? AND sm.branch = ?
+//     `;
+
+//     con.query(sql, [year, branch], (err, rows) => {
+//         if (err) return res.status(500).json(err);
+//         res.json(rows);
+//     });
+// });
+// app.put("/admin/studentmarks/:id", (req, res) => {
+//     const { marks } = req.body;
+//     con.query(
+//         "UPDATE studentmarks SET marks=? WHERE id=?",
+//         [marks, req.params.id],
+//         () => res.json({ success: true })
+//     );
+// });
+// app.delete("/admin/studentmarks/:id", (req, res) => {
+//     con.query(
+//         "DELETE FROM studentmarks WHERE id=?",
+//         [req.params.id],
+//         () => res.json({ success: true })
+//     );
+// });
 
 
 
 //HodTask:::generateStudentReports
 // Fetch subjects based on year & branch
+
+
+
 app.get("/getSubjects/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
     //console.log("Received:", year, branch);
