@@ -48,18 +48,46 @@ function renderTable(rows) {
 
     const columns = Object.keys(rows[0]);
 
+    /* ===== TABLE HEADER ===== */
     thead.innerHTML = `
         <tr>
-            ${columns.map(c => `<th>${c.replace(/_/g," ")}</th>`).join("")}
+            ${columns.map(c => `<th>${c.replace(/_/g, " ")}</th>`).join("")}
         </tr>
     `;
 
+    /* ===== TABLE BODY ===== */
     rows.forEach(r => {
-        tbody.innerHTML += `
-            <tr>
-                ${columns.map(c => `<td>${r[c] ?? ""}</td>`).join("")}
-            </tr>
-        `;
+        let rowHtml = "<tr>";
+
+        columns.forEach(col => {
+
+            /* ✅ PROFILE PHOTO */
+            if (col === "profile_photo") {
+                rowHtml += `
+                    <td>
+                        <img 
+                            src="/studentProfile/photo/${r.htno}" 
+                            alt="Profile"
+                            style="width:60px;height:60px;border-radius:50%;object-fit:cover"
+                            onerror="this.src='/images/default-avatar.png'"
+                        >
+                    </td>
+                `;
+            }
+
+            /* ✅ DATE FIELDS (DOB etc.) */
+            else if (r[col] instanceof Date) {
+                rowHtml += `<td>${r[col].toISOString().split("T")[0]}</td>`;
+            }
+
+            /* ✅ NULL SAFE */
+            else {
+                rowHtml += `<td>${r[col] ?? ""}</td>`;
+            }
+        });
+
+        rowHtml += "</tr>";
+        tbody.innerHTML += rowHtml;
     });
 }
 
