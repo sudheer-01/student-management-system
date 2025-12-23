@@ -74,12 +74,6 @@ loadBtn.addEventListener("click", async () => {
 function renderBranchTables(students, examsByBranch) {
 
     const container = document.getElementById("tablesContainer");
-
-    if (!container) {
-        console.error("tablesContainer not found in HTML");
-        return;
-    }
-
     container.innerHTML = "";
 
     if (!students || students.length === 0) {
@@ -87,8 +81,8 @@ function renderBranchTables(students, examsByBranch) {
         return;
     }
 
+    // group students by branch
     const grouped = {};
-
     students.forEach(s => {
         if (!grouped[s.branch]) grouped[s.branch] = [];
         grouped[s.branch].push(s);
@@ -99,28 +93,45 @@ function renderBranchTables(students, examsByBranch) {
         const exams = examsByBranch[branch] || [];
 
         let html = `
-            <h3>Branch: ${branch}</h3>
+            <h3>Branch: ${branch} (${rows[0].year} Year)</h3>
             <table class="branch-table">
                 <thead>
                     <tr>
                         <th>HTNO</th>
                         <th>Name</th>
                         <th>Subject</th>
-                        ${exams.map(e => `<th>${e.replace(/_/g," ")}</th>`).join("")}
+                        ${exams.map(e => `<th>${e.replace(/_/g, " ").toUpperCase()}</th>`).join("")}
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
 
         rows.forEach(r => {
+
+            const examCells = exams.map(e => {
+                const col = normalizeExamKey(e);   // 🔥 FIX
+                return `
+                    <td contenteditable="true"
+                        data-exam="${col}">
+                        ${r[col] ?? ""}
+                    </td>
+                `;
+            }).join("");
+
             html += `
-                <tr data-htno="${r.htno}" data-subject="${r.subject}">
+                <tr data-htno="${r.htno}"
+                    data-subject="${r.subject}"
+                    data-branch="${branch}">
                     <td>${r.htno}</td>
                     <td>${r.name}</td>
                     <td>${r.subject}</td>
-                    ${exams.map(e => `
-                        <td contenteditable="true">${r[e] ?? ""}</td>
-                    `).join("")}
+                    ${examCells}
+                    <td>
+                        <button class="btn secondary" onclick="saveMarks(this)">
+                            Save
+                        </button>
+                    </td>
                 </tr>
             `;
         });
