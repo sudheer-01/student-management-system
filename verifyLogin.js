@@ -1605,7 +1605,7 @@ app.post("/admin/student-marks", async (req, res) => {
         });
     });
 });
-
+// Fetch student profiles based on year and branch
 app.get("/admin/student-profiles", async (req, res) => {
     try {
         const { year, branch } = req.query;
@@ -1647,6 +1647,29 @@ app.get("/admin/student-profiles", async (req, res) => {
     } catch (err) {
         console.error("STUDENT PROFILES ERROR:", err);
         res.status(500).json({ error: "Failed to fetch student profiles" });
+    }
+});
+// Fetch password reset requests from faculty and HODs
+app.get("/admin/reset-requests", async (req, res) => {
+    try {
+
+        const [faculty] = await con.promise().query(`
+            SELECT facultyId AS id, name, email, 'faculty' AS role
+            FROM faculty
+            WHERE reset_password = 'yes'
+        `);
+
+        const [hods] = await con.promise().query(`
+            SELECT hod_id AS id, name, email, 'hod' AS role
+            FROM hod_details
+            WHERE reset_password = 'yes'
+        `);
+
+        res.json([...faculty, ...hods]);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch reset requests" });
     }
 });
 
