@@ -26,43 +26,60 @@ loadBtn.addEventListener("click", async () => {
         return;
     }
 
-    const [marksRes, examsRes] = await Promise.all([
-        fetch(`/admin/student-marks?year=${year}&branch=${branch}`),
-        fetch(`/admin/exams?year=${year}&branch=${branch}`)
-    ]);
-
+    const marksRes = await fetch(
+        `/admin/student-marks?year=${year}&branch=${branch}`
+    );
     const marksData = await marksRes.json();
+
+    const examsRes = await fetch(
+        `/admin/exams?year=${year}&branch=${branch}`
+    );
     const examsData = await examsRes.json();
 
     renderTable(marksData.students, examsData.exams);
 });
 
 /* Render table */
-function renderTable(rows, exams) {
-    if (!rows.length) {
-        container.innerHTML = "<p>No data found</p>";
+function renderTable(students, exams) {
+
+    const container = document.getElementById("tablesContainer");
+    container.innerHTML = "";
+
+    if (!students.length) {
+        container.innerHTML = "<p>No records found</p>";
         return;
     }
 
-    let html = `<table><thead><tr>
-        <th>HTNO</th>
-        <th>Name</th>
-        <th>Subject</th>
-        ${exams.map(e => `<th>${e.toUpperCase()}</th>`).join("")}
-    </tr></thead><tbody>`;
+    const examList = Object.keys(exams); // ✅ FIX HERE
 
-    rows.forEach(r => {
-        html += `<tr>
-            <td>${r.htno}</td>
-            <td>${r.name}</td>
-            <td>${r.subject}</td>
-            ${exams.map(e => `<td>${r[e] ?? ""}</td>`).join("")}
-        </tr>`;
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>HTNO</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    ${examList.map(e => `<th>${e}</th>`).join("")}
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    students.forEach(s => {
+        html += `
+            <tr>
+                <td>${s.htno}</td>
+                <td>${s.name}</td>
+                <td>${s.subject}</td>
+                ${examList.map(e => `<td>${s[e] ?? ""}</td>`).join("")}
+            </tr>
+        `;
     });
 
     html += "</tbody></table>";
     container.innerHTML = html;
 }
+
 
 /* Export CSV */
 function exportCSV() {
