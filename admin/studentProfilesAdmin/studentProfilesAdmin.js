@@ -76,7 +76,7 @@ function renderTable(rows) {
             }
 
             /* ✅ DATE FIELDS (DOB etc.) */
-            if (r[col] instanceof Date) {
+            else if (r[col] instanceof Date) {
                 rowHtml += `<td>${r[col].toISOString().split("T")[0]}</td>`;
             }
 
