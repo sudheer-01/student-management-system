@@ -1598,7 +1598,7 @@ app.post("/admin/student-marks", async (req, res) => {
                 console.error("Error fetching student marks:", err);
                 return res.status(500).json({ success: false, message: "Database error" });
             }
-
+            console.log(results);
             res.json(results);
         });
     });
