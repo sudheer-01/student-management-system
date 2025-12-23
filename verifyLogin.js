@@ -1552,7 +1552,6 @@ app.post("/updateHodStatus", (req, res) => {
 });
 
 app.post("/admin/student-marks", async (req, res) => {
-
     try {
         const { year, branches } = req.body;
 
@@ -1560,30 +1559,39 @@ app.post("/admin/student-marks", async (req, res) => {
             return res.status(400).json({ error: "Invalid input" });
         }
 
-        const result = {
+        const response = {
             year,
             branches: {}
         };
 
         for (const branch of branches) {
 
-            /* 1️⃣ Get exams for this year + branch */
+            // 1️⃣ Fetch exams
             const [examRows] = await con.promise().query(
-                "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?",
+                "SELECT exams FROM examsofspecificyearandbranch WHERE year=? AND branch=?",
                 [year, branch]
             );
 
-            if (!examRows.length) continue;
+            if (!examRows.length) {
+                console.warn(`No exams found for ${year}-${branch}`);
+                continue;
+            }
 
-            const exams = JSON.parse(examRows[0].exams);
+            let exams;
+            try {
+                exams = JSON.parse(examRows[0].exams);
+            } catch (e) {
+                console.error("Invalid exams JSON:", examRows[0].exams);
+                continue;
+            }
 
-            /* 2️⃣ Get student marks */
-            const [students] = await con.promise().query(
-                "SELECT * FROM studentmarks WHERE year = ? AND branch = ?",
+            // 2️⃣ Fetch student marks
+            const [marksRows] = await con.promise().query(
+                "SELECT * FROM studentmarks WHERE year=? AND branch=?",
                 [year, branch]
             );
 
-            const formattedStudents = students.map(row => {
+            const students = marksRows.map(row => {
                 const marks = {};
                 exams.forEach(exam => {
                     marks[exam] = row[exam] ?? "";
@@ -1597,17 +1605,19 @@ app.post("/admin/student-marks", async (req, res) => {
                 };
             });
 
-            result.branches[branch] = {
+            response.branches[branch] = {
                 exams,
-                students: formattedStudents
+                students
             };
         }
 
-        res.json(result);
+        return res.json(response);
 
     } catch (err) {
         console.error("ADMIN STUDENT MARKS ERROR:", err);
-        res.status(500).json({ error: "Internal server error" });
+        return res.status(500).json({
+            error: "Failed to load student marks"
+        });
     }
 });
 
