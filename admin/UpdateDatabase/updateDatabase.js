@@ -151,13 +151,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
- const logoutBtn = document.getElementById("logoutBtn");
-    // logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out of the admin panel?")) return;
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
-    }
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+        if (!confirm("Log out of the admin panel?")) return;
+
+        try {
+            await fetch("/logout", { method: "POST" });
+        } finally {
+            // Clear history & redirect
+            window.location.replace("/");
+        }
+    });
+}
+
+// Prevent back navigation after logout
+window.history.pushState(null, null, window.location.href);
+window.addEventListener("popstate", function () {
+    window.location.href = "/";
+});
