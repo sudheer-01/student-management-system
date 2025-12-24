@@ -1,91 +1,58 @@
-document.getElementById("forgotForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
+const roleSelect = document.getElementById("roleSelect");
+const userIdInput = document.getElementById("userId");
+const verifyBtn = document.getElementById("verifyBtn");
+const requestBtn = document.getElementById("requestBtn");
 
-  const role = document.getElementById("role").value;
-  const userId = document.getElementById("userId").value;
-  const newPassword = document.getElementById("newPassword").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
+let verified = false;
 
-  if (newPassword !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
+verifyBtn.addEventListener("click", async () => {
 
-  try {
-    const response = await fetch("/resetPassword", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, userId, newPassword })
-    });
-    const data = await response.json();
-    if (data.success) {
-      alert("Password updated successfully!");
-      window.location.href = "/login.html";
-    } else {
-      alert(data.message);
+    const role = roleSelect.value;
+    const id = userIdInput.value.trim();
+
+    if (!role || !id) {
+        alert("Select role and enter ID");
+        return;
     }
-  } catch (error) {
-    console.error(error);
-    alert("Error updating password");
-  }
-});
 
-document.getElementById("sendOtpBtn").addEventListener("click", async function () {
-  const role = document.getElementById("role").value;
-  const userId = document.getElementById("userId").value;
-
-  if (!role || !userId) {
-    alert("Please select role and enter ID first!");
-    return;
-  }
-
- try {
-  const response = await fetch("/forgotpassword", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, userId })
-  });
-
-  const data = await response.json();
-if (data.success) {
-  alert("OTP sent to " + data.email);
-
-  // Show OTP section when OTP is sent
-  document.getElementById("otpSection").style.display = "block";
-
-  document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
-    const otp = document.getElementById("otp").value;
-    const userId = document.getElementById("userId").value;
-
-    try {
-      const response = await fetch("/verifyOtp", {
+    const res = await fetch("/auth/verify-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp, userId })
-      });
-      const data = await response.json();
+        body: JSON.stringify({ role, id })
+    });
 
-      if (data.success) {
-        alert("OTP verified successfully!");
-        document.getElementById("passwordSection").style.display = "block";
-      } else {
-        alert(data.message || "Invalid OTP");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error verifying OTP");
+    const data = await res.json();
+
+    if (!data.success) {
+        alert("Invalid ID");
+        requestBtn.disabled = true;
+        verified = false;
+    } else {
+        alert("Verified successfully. You can send reset request.");
+        requestBtn.disabled = false;
+        verified = true;
     }
-  });
-}
- else {
-    alert("Error: " + data.message);
-  }
-} catch (err) {
-  console.error("Fetch error:", err);
-  alert("Server error. Check logs.");
-}
-
 });
 
+requestBtn.addEventListener("click", async () => {
 
+    if (!verified) return;
 
+    const role = roleSelect.value;
+    const id = userIdInput.value.trim();
+
+    const res = await fetch("/auth/request-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, id })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Reset request sent to admin");
+        requestBtn.disabled = true;
+    } else {
+        alert("Failed to send request");
+    }
+});
