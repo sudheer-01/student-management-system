@@ -2062,30 +2062,39 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 
 //forgot password
 app.post("/auth/verify-user", (req, res) => {
-    const { role, id } = req.body;
+    const { role, id, year, branch } = req.body;
 
     let sql, params;
 
     if (role === "faculty") {
         sql = "SELECT facultyId FROM faculty WHERE facultyId = ?";
         params = [id];
-    } else if (role === "hod") {
+    }
+    else if (role === "hod") {
         sql = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
         params = [id];
-    } else {
+    }
+    else if (role === "student") {
+        sql = `
+            SELECT htno
+            FROM student_profiles
+            WHERE htno = ? AND year = ? AND branch = ?
+        `;
+        params = [id, year, branch];
+    }
+    else {
         return res.json({ success: false });
     }
 
     con.query(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ success: false });
-        if (rows.length === 0) {
-            return res.json({ success: false });
-        }
+        if (!rows.length) return res.json({ success: false });
         res.json({ success: true });
     });
 });
+
 app.post("/auth/request-reset", (req, res) => {
-    const { role, id } = req.body;
+    const { role, id, year, branch } = req.body;
 
     let sql, params;
 
@@ -2096,30 +2105,34 @@ app.post("/auth/request-reset", (req, res) => {
             WHERE facultyId = ?
         `;
         params = [id];
-    } else if (role === "hod") {
+    }
+    else if (role === "hod") {
         sql = `
             UPDATE hod_details
             SET reset_password = 'yes'
             WHERE hod_id = ?
         `;
         params = [id];
-    } else {
+    }
+    else if (role === "student") {
+        sql = `
+            UPDATE student_profiles
+            SET reset_password = 'yes'
+            WHERE htno = ? AND year = ? AND branch = ?
+        `;
+        params = [id, year, branch];
+    }
+    else {
         return res.json({ success: false });
     }
 
     con.query(sql, params, (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false });
-        }
-
-        if (result.affectedRows === 0) {
-            return res.json({ success: false });
-        }
-
+        if (err) return res.status(500).json({ success: false });
+        if (!result.affectedRows) return res.json({ success: false });
         res.json({ success: true });
     });
 });
+
 
 
 //------------------------------------------------------
