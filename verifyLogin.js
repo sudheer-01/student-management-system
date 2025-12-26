@@ -58,14 +58,7 @@ app.get("/",(req,res) =>
     res.sendFile(path.join(baseDir,"Home","index.html"));
 }
 );
-//---------------------------------------------------------------
-// app.get("/login",(req,res) =>
-// {
-//     res.sendFile(path.join(baseDir,"loginpage","login.html"));
-// }
-// );  
-// IDHI LEKUNNA LOGIN.HTML VASTHUNDHI GA
-//---------------------------------------------------------------
+
 
 // entering teacher details into database
 app.post("/createTeacherAccount", (req, res) => {
@@ -114,29 +107,53 @@ app.post("/createTeacherAccount", (req, res) => {
 });
 //checking teacher credentials to login to faculty dashboard
 
+// app.post("/TeacherLogin", (req, res) => {
+//     const facultyId = req.body.facultyId;
+//     const passwordOfTeacher = req.body.passwordOfTeacher;
+//     console.log(facultyId,passwordOfTeacher);
+//     con.query(
+//         "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+//         [facultyId, passwordOfTeacher],
+//         (err, result) => {
+//             if (err) {
+//                 console.error(err);
+//                 return res.status(500).json({ success: false, message: "Server error. Try again later." });
+//             }
+//             if (result.length > 0) {
+//                 // ✅ Send facultyId to frontend
+//                 console.log("Login successful for facultyId:", facultyId);
+//                 return res.json({
+//                     success: true,
+//                     facultyId: facultyId,
+//                     redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
+//                 });
+//             } else {
+//                 return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+//             }
+//         }
+//     );
+// });
+
 app.post("/TeacherLogin", (req, res) => {
-    const facultyId = req.body.facultyId;
-    const passwordOfTeacher = req.body.passwordOfTeacher;
-    console.log(facultyId,passwordOfTeacher);
+    const { facultyId, passwordOfTeacher } = req.body;
+
     con.query(
-        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+        "SELECT facultyId, reset_password FROM faculty WHERE facultyId=? AND password=?",
         [facultyId, passwordOfTeacher],
         (err, result) => {
             if (err) {
-                console.error(err);
-                return res.status(500).json({ success: false, message: "Server error. Try again later." });
+                return res.status(500).json({ success: false, message: "Server error" });
             }
-            if (result.length > 0) {
-                // ✅ Send facultyId to frontend
-                console.log("Login successful for facultyId:", facultyId);
-                return res.json({
-                    success: true,
-                    facultyId: facultyId,
-                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
-                });
-            } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+
+            if (result.length === 0) {
+                return res.json({ success: false, message: "Invalid Faculty ID or Password" });
             }
+
+            return res.json({
+                success: true,
+                resetRequired: result[0].reset_password === "reset password",
+                redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
+            });
         }
     );
 });
@@ -198,62 +215,74 @@ app.post("/createHodAccount", (req, res) => {
 
 //checking hod credentials to login into hod dashboard
 
+// app.post("/loginToHodDashBoard", (req, res) => {
+//     const hodId = req.body.HodId;
+//     const passwordOfHod = req.body.passwordOfHod;
+
+//     con.query(
+//         "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
+//         [hodId, passwordOfHod],
+//         (err, result) => {
+//             if (err) {
+//                 console.error(err);
+//                 return res.send(
+//                     `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
+//                 );
+//             }
+//             if (result.length > 0) {
+//                 // ✅ Send HOD details to the client
+//                 const hodDetails = {
+//                     hodName: result[0].name,
+//                     hodBranch: result[0].branch,
+//                     hodYears: result[0].year.split(",")
+//                 };
+//                 console.log("Hod Details:", hodDetails);
+//                 return res.json({
+//                     success: true,
+//                     hodDetails: hodDetails,
+//                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+//                 });
+//                 // Store HOD details in global variables
+//                 /*hodName = result[0].name;
+//                 hodBranch = result[0].branch;
+                
+//                 // Convert ENUM year value to an array
+//                 hodYears = result[0].year.split(","); 
+
+//                 res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
+//             } else {
+//                 return res.send(
+//                     `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
+//                 );
+//             }
+//         }
+//     );
+// });
 app.post("/loginToHodDashBoard", (req, res) => {
-    const hodId = req.body.HodId;
-    const passwordOfHod = req.body.passwordOfHod;
+    const { HodId, passwordOfHod } = req.body;
 
     con.query(
-        "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
-        [hodId, passwordOfHod],
+        "SELECT name, branch, year, reset_password FROM hod_details WHERE hod_id=? AND password=? AND status='Approved'",
+        [HodId, passwordOfHod],
         (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
-                );
+            if (err || result.length === 0) {
+                return res.json({ success: false, message: "Invalid HOD credentials" });
             }
-            if (result.length > 0) {
-                // ✅ Send HOD details to the client
-                const hodDetails = {
+
+            res.json({
+                success: true,
+                resetRequired: result[0].reset_password === "reset password",
+                hodDetails: {
                     hodName: result[0].name,
                     hodBranch: result[0].branch,
                     hodYears: result[0].year.split(",")
-                };
-                console.log("Hod Details:", hodDetails);
-                return res.json({
-                    success: true,
-                    hodDetails: hodDetails,
-                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
-                });
-                // Store HOD details in global variables
-                /*hodName = result[0].name;
-                hodBranch = result[0].branch;
-                
-                // Convert ENUM year value to an array
-                hodYears = result[0].year.split(","); 
-
-                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
-            } else {
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
-                );
-            }
+                },
+                redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+            });
         }
     );
 });
-//this to display hod details like name, years, branch dynmically when the dom content loaded
-//this is for above code
-/*app.get("/getHodDetails", (req, res) => {
-    if (hodName && hodBranch && hodYears) {
-        res.json({
-            hodName,
-            hodBranch,
-            hodYears
-        });
-    } else {
-        res.status(400).json({ error: "HOD details not found. Please log in again." });
-    }
-});*/
+
 
 //Entering sutdent details such as htno and name by hod 
 app.post("/saveData", (req, res) => {
@@ -1249,38 +1278,57 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
 
 
 // studentMarks
+// app.post("/studentCheckin", (req, res) => {
+//     const stuYear = req.body.year;
+//     const stuHtno = req.body.htno;
+
+//     con.query(
+//         "SELECT * FROM studentmarks WHERE year=? AND htno=?",
+//         [stuYear, stuHtno],
+//         (err, result) => {
+//             if (err) {
+//                 console.error(err);
+//                 return res.status(500).json({
+//                     success: false,
+//                     message: "Server error. Try again later."
+//                 });
+//             }
+
+//             if (result.length > 0) {
+//                 // ✅ If valid, send success + redirect URL
+//                 return res.json({
+//                     success: true,
+//                     redirectUrl: "/studentsMarks/studentsMarks.html",
+//                     studentDetails: {
+//                         year: stuYear,
+//                         htno: stuHtno
+//                     }
+//                 });
+//             } else {
+//                 return res.json({
+//                     success: false,
+//                     message: "Invalid HTNO or Year"
+//                 });
+//             }
+//         }
+//     );
+// });
 app.post("/studentCheckin", (req, res) => {
-    const stuYear = req.body.year;
-    const stuHtno = req.body.htno;
+    const { year, htno, password } = req.body;
 
     con.query(
-        "SELECT * FROM studentmarks WHERE year=? AND htno=?",
-        [stuYear, stuHtno],
+        "SELECT reset_password FROM student_profiles WHERE year=? AND htno=? AND password=?",
+        [year, htno, password],
         (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Server error. Try again later."
-                });
+            if (err || result.length === 0) {
+                return res.json({ success: false, message: "Invalid student details" });
             }
 
-            if (result.length > 0) {
-                // ✅ If valid, send success + redirect URL
-                return res.json({
-                    success: true,
-                    redirectUrl: "/studentsMarks/studentsMarks.html",
-                    studentDetails: {
-                        year: stuYear,
-                        htno: stuHtno
-                    }
-                });
-            } else {
-                return res.json({
-                    success: false,
-                    message: "Invalid HTNO or Year"
-                });
-            }
+            res.json({
+                success: true,
+                resetRequired: result[0].reset_password === "reset password",
+                redirectUrl: "/studentsMarks/studentsMarks.html"
+            });
         }
     );
 });
@@ -2133,7 +2181,36 @@ app.post("/auth/request-reset", (req, res) => {
     });
 });
 
+app.post("/reset-password-at-login", (req, res) => {
+    const { role, id, newPassword } = req.body;
 
+    let sql;
+
+    if (role === "hod") {
+        sql = `
+          UPDATE hod_details
+          SET password=?, reset_password='no'
+          WHERE hod_id=?
+        `;
+    } else if (role === "faculty") {
+        sql = `
+          UPDATE faculty
+          SET password=?, reset_password='no'
+          WHERE facultyId=?
+        `;
+    } else if (role === "student") {
+        sql = `
+          UPDATE student_profiles
+          SET password=?, reset_password='no'
+          WHERE htno=?
+        `;
+    }
+
+    con.query(sql, [newPassword, id], err => {
+        if (err) return res.status(500).json({ success: false });
+        res.json({ success: true });
+    });
+});
 
 //------------------------------------------------------
 

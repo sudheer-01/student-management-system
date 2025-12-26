@@ -31,6 +31,13 @@
           <input type="password" id="passwordOfHod" name="passwordOfHod" placeholder="Enter your Password" autocomplete="current-password" required />
           <button type="button" class="toggle-password" aria-label="Show password" data-target="passwordOfHod"><i class="fa-regular fa-eye"></i></button>
         </div>
+        <div id="hodResetBox" style="display:none;">
+          <label>New Password</label>
+          <input type="password" id="hodNewPassword">
+
+          <label>Confirm Password</label>
+          <input type="password" id="hodConfirmPassword">
+        </div>
 
         <div class="form-row">
           <label class="checkbox"><input type="checkbox" id="hodRemember" /> <span>Remember me</span></label>
@@ -54,6 +61,14 @@
               <input type="password" id="passwordOfTeacher" name="passwordOfTeacher" placeholder="Enter Your Password" autocomplete="current-password" required />
               <button type="button" class="toggle-password" aria-label="Show password" data-target="passwordOfTeacher"><i class="fa-regular fa-eye"></i></button>
             </div>
+            <div id="facultyResetBox" style="display:none;">
+              <label>New Password</label>
+              <input type="password" id="facultyNewPassword">
+
+              <label>Confirm Password</label>
+              <input type="password" id="facultyConfirmPassword">
+            </div>
+
             <div class="form-row">
               <label class="checkbox"><input type="checkbox" id="teacherRemember" /> <span>Remember me</span></label>
               <a href="forgotpassword.html" class="link">Forgot password?</a>
@@ -63,18 +78,22 @@
 
         <!-- student details  -->
         <form id="studentForm" class="allDetails allDetailsOfStudent"  aria-labelledby="student">
-            <label for="year">Year:</label>
-            <select name="year" id="year" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
             <label for="htno">HTNO:</label>
             <div class="input-group">
               <i class="fa-solid fa-id-badge input-icon" aria-hidden="true"></i>
               <input type="text" id="htno" name="htno" placeholder="Enter Hallticket Number" required/>
             </div>
+            <label>Password</label>
+            <input type="password" id="studentPassword" required>
+
+            <div id="studentResetBox" style="display:none;">
+              <label>New Password</label>
+              <input type="password" id="studentNewPassword">
+
+              <label>Confirm Password</label>
+              <input type="password" id="studentConfirmPassword">
+            </div>
+            
             <input type="submit" value="Login" />
         </form>
 
