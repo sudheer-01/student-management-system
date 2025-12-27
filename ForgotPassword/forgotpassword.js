@@ -1,7 +1,4 @@
 const roleSelect = document.getElementById("roleSelect");
-const studentFields = document.getElementById("studentFields");
-const yearSelect = document.getElementById("yearSelect");
-const branchSelect = document.getElementById("branchSelect");
 const userIdInput = document.getElementById("userId");
 const verifyBtn = document.getElementById("verifyBtn");
 const requestBtn = document.getElementById("requestBtn");
@@ -12,25 +9,6 @@ let verified = false;
 roleSelect.addEventListener("change", () => {
     verified = false;
     requestBtn.disabled = true;
-
-    if (roleSelect.value === "student") {
-        studentFields.style.display = "block";
-    } else {
-        studentFields.style.display = "none";
-    }
-});
-
-/* LOAD BRANCHES FOR STUDENT */
-yearSelect?.addEventListener("change", async () => {
-    branchSelect.innerHTML = `<option value="">Select Branch</option>`;
-    if (!yearSelect.value) return;
-
-    const res = await fetch(`/api/branches/${yearSelect.value}`);
-    const data = await res.json();
-
-    data.branches.forEach(b => {
-        branchSelect.innerHTML += `<option value="${b}">${b}</option>`;
-    });
 });
 
 /* VERIFY USER */
@@ -46,9 +24,7 @@ verifyBtn.addEventListener("click", async () => {
 
     const payload = {
         role,
-        id,
-        year: yearSelect?.value,
-        branch: branchSelect?.value
+        id
     };
 
     const res = await fetch("/auth/verify-user", {
@@ -77,9 +53,7 @@ requestBtn.addEventListener("click", async () => {
 
     const payload = {
         role: roleSelect.value,
-        id: userIdInput.value.trim(),
-        year: yearSelect?.value,
-        branch: branchSelect?.value
+        id: userIdInput.value.trim()
     };
 
     const res = await fetch("/auth/request-reset", {

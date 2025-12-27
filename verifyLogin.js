@@ -40,6 +40,7 @@ app.use(express.static(path.join(baseDir,"admin","studentProfilesAdmin")));
 app.use(express.static(path.join(baseDir,"admin","resetPassword")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
+app.use(express.static(path.join(baseDir,"ForgotPassword","resetPassword")));
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
@@ -2074,7 +2075,7 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
 
 //forgot password
 app.post("/auth/verify-user", (req, res) => {
-    const { role, id, year, branch } = req.body;
+    const { role, id } = req.body;
 
     let sql, params;
 
@@ -2090,9 +2091,9 @@ app.post("/auth/verify-user", (req, res) => {
         sql = `
             SELECT htno
             FROM student_profiles
-            WHERE htno = ? AND year = ? AND branch = ?
+            WHERE htno = ?
         `;
-        params = [id, year, branch];
+        params = [id];
     }
     else {
         return res.json({ success: false });
@@ -2106,7 +2107,7 @@ app.post("/auth/verify-user", (req, res) => {
 });
 
 app.post("/auth/request-reset", (req, res) => {
-    const { role, id, year, branch } = req.body;
+    const { role, id } = req.body;
 
     let sql, params;
 
@@ -2130,9 +2131,9 @@ app.post("/auth/request-reset", (req, res) => {
         sql = `
             UPDATE student_profiles
             SET reset_password = 'yes'
-            WHERE htno = ? AND year = ? AND branch = ?
+            WHERE htno = ?
         `;
-        params = [id, year, branch];
+        params = [id];
     }
     else {
         return res.json({ success: false });
