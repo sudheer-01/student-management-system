@@ -107,53 +107,29 @@ app.post("/createTeacherAccount", (req, res) => {
 });
 //checking teacher credentials to login to faculty dashboard
 
-// app.post("/TeacherLogin", (req, res) => {
-//     const facultyId = req.body.facultyId;
-//     const passwordOfTeacher = req.body.passwordOfTeacher;
-//     console.log(facultyId,passwordOfTeacher);
-//     con.query(
-//         "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-//         [facultyId, passwordOfTeacher],
-//         (err, result) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.status(500).json({ success: false, message: "Server error. Try again later." });
-//             }
-//             if (result.length > 0) {
-//                 // ✅ Send facultyId to frontend
-//                 console.log("Login successful for facultyId:", facultyId);
-//                 return res.json({
-//                     success: true,
-//                     facultyId: facultyId,
-//                     redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
-//                 });
-//             } else {
-//                 return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
-//             }
-//         }
-//     );
-// });
-
 app.post("/TeacherLogin", (req, res) => {
-    const { facultyId, passwordOfTeacher } = req.body;
-
+    const facultyId = req.body.facultyId;
+    const passwordOfTeacher = req.body.passwordOfTeacher;
+    console.log(facultyId,passwordOfTeacher);
     con.query(
-        "SELECT facultyId, reset_password FROM faculty WHERE facultyId=? AND password=?",
+        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
         [facultyId, passwordOfTeacher],
         (err, result) => {
             if (err) {
-                return res.status(500).json({ success: false, message: "Server error" });
+                console.error(err);
+                return res.status(500).json({ success: false, message: "Server error. Try again later." });
             }
-
-            if (result.length === 0) {
-                return res.json({ success: false, message: "Invalid Faculty ID or Password" });
+            if (result.length > 0) {
+                // ✅ Send facultyId to frontend
+                console.log("Login successful for facultyId:", facultyId);
+                return res.json({
+                    success: true,
+                    facultyId: facultyId,
+                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
+                });
+            } else {
+                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
             }
-
-            return res.json({
-                success: true,
-                resetRequired: result[0].reset_password === "reset password",
-                redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
-            });
         }
     );
 });
@@ -215,70 +191,46 @@ app.post("/createHodAccount", (req, res) => {
 
 //checking hod credentials to login into hod dashboard
 
-// app.post("/loginToHodDashBoard", (req, res) => {
-//     const hodId = req.body.HodId;
-//     const passwordOfHod = req.body.passwordOfHod;
-
-//     con.query(
-//         "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
-//         [hodId, passwordOfHod],
-//         (err, result) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.send(
-//                     `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
-//                 );
-//             }
-//             if (result.length > 0) {
-//                 // ✅ Send HOD details to the client
-//                 const hodDetails = {
-//                     hodName: result[0].name,
-//                     hodBranch: result[0].branch,
-//                     hodYears: result[0].year.split(",")
-//                 };
-//                 console.log("Hod Details:", hodDetails);
-//                 return res.json({
-//                     success: true,
-//                     hodDetails: hodDetails,
-//                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
-//                 });
-//                 // Store HOD details in global variables
-//                 /*hodName = result[0].name;
-//                 hodBranch = result[0].branch;
-                
-//                 // Convert ENUM year value to an array
-//                 hodYears = result[0].year.split(","); 
-
-//                 res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
-//             } else {
-//                 return res.send(
-//                     `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
-//                 );
-//             }
-//         }
-//     );
-// });
 app.post("/loginToHodDashBoard", (req, res) => {
-    const { HodId, passwordOfHod } = req.body;
+    const hodId = req.body.HodId;
+    const passwordOfHod = req.body.passwordOfHod;
 
     con.query(
-        "SELECT name, branch, year, reset_password FROM hod_details WHERE hod_id=? AND password=? AND status='Approved'",
-        [HodId, passwordOfHod],
+        "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
+        [hodId, passwordOfHod],
         (err, result) => {
-            if (err || result.length === 0) {
-                return res.json({ success: false, message: "Invalid HOD credentials" });
+            if (err) {
+                console.error(err);
+                return res.send(
+                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
+                );
             }
-
-            res.json({
-                success: true,
-                resetRequired: result[0].reset_password === "reset password",
-                hodDetails: {
+            if (result.length > 0) {
+                // ✅ Send HOD details to the client
+                const hodDetails = {
                     hodName: result[0].name,
                     hodBranch: result[0].branch,
                     hodYears: result[0].year.split(",")
-                },
-                redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
-            });
+                };
+                console.log("Hod Details:", hodDetails);
+                return res.json({
+                    success: true,
+                    hodDetails: hodDetails,
+                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+                });
+                // Store HOD details in global variables
+                /*hodName = result[0].name;
+                hodBranch = result[0].branch;
+                
+                // Convert ENUM year value to an array
+                hodYears = result[0].year.split(","); 
+
+                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
+            } else {
+                return res.send(
+                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
+                );
+            }
         }
     );
 });
@@ -1278,57 +1230,38 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
 
 
 // studentMarks
-// app.post("/studentCheckin", (req, res) => {
-//     const stuYear = req.body.year;
-//     const stuHtno = req.body.htno;
-
-//     con.query(
-//         "SELECT * FROM studentmarks WHERE year=? AND htno=?",
-//         [stuYear, stuHtno],
-//         (err, result) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.status(500).json({
-//                     success: false,
-//                     message: "Server error. Try again later."
-//                 });
-//             }
-
-//             if (result.length > 0) {
-//                 // ✅ If valid, send success + redirect URL
-//                 return res.json({
-//                     success: true,
-//                     redirectUrl: "/studentsMarks/studentsMarks.html",
-//                     studentDetails: {
-//                         year: stuYear,
-//                         htno: stuHtno
-//                     }
-//                 });
-//             } else {
-//                 return res.json({
-//                     success: false,
-//                     message: "Invalid HTNO or Year"
-//                 });
-//             }
-//         }
-//     );
-// });
 app.post("/studentCheckin", (req, res) => {
-    const { year, htno, password } = req.body;
+    const stuYear = req.body.year;
+    const stuHtno = req.body.htno;
 
     con.query(
-        "SELECT reset_password FROM student_profiles WHERE year=? AND htno=? AND password=?",
-        [year, htno, password],
+        "SELECT * FROM studentmarks WHERE year=? AND htno=?",
+        [stuYear, stuHtno],
         (err, result) => {
-            if (err || result.length === 0) {
-                return res.json({ success: false, message: "Invalid student details" });
+            if (err) {
+                console.error(err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Server error. Try again later."
+                });
             }
 
-            res.json({
-                success: true,
-                resetRequired: result[0].reset_password === "reset password",
-                redirectUrl: "/studentsMarks/studentsMarks.html"
-            });
+            if (result.length > 0) {
+                // ✅ If valid, send success + redirect URL
+                return res.json({
+                    success: true,
+                    redirectUrl: "/studentsMarks/studentsMarks.html",
+                    studentDetails: {
+                        year: stuYear,
+                        htno: stuHtno
+                    }
+                });
+            } else {
+                return res.json({
+                    success: false,
+                    message: "Invalid HTNO or Year"
+                });
+            }
         }
     );
 });
