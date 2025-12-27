@@ -2197,7 +2197,7 @@ app.post("/api/reset/verify-user", (req, res) => {
             if (err || !r.length)
                 return res.json({ success: false, message: "Invalid user" });
 
-            if (r[0].reset_password !== "reset password")
+            if (r[0].reset_password !== "reset_password")
                 return res.json({ success: false, message: "Reset not allowed" });
 
             res.json({ success: true });
