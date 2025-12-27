@@ -1252,7 +1252,6 @@ app.post("/studentCheckin", (req, res) => {
                     success: true,
                     redirectUrl: "/studentsMarks/studentsMarks.html",
                     studentDetails: {
-                        year: stuYear,
                         htno: stuHtno
                     }
                 });
