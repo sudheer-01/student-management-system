@@ -40,7 +40,7 @@ app.use(express.static(path.join(baseDir,"admin","studentProfilesAdmin")));
 app.use(express.static(path.join(baseDir,"admin","resetPassword")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
-app.use(express.static(path.join(baseDir,"ForgotPassword","resetPassword")));
+app.use(express.static(path.join(baseDir,"ForgotPassword","resetSTFPassword")));
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
