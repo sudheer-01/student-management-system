@@ -1235,7 +1235,7 @@ app.post("/studentCheckin", (req, res) => {
     const stuHtno = req.body.htno;
 
     con.query(
-        "SELECT * FROM studentmarks WHERE htno=? AND password=?",
+        "SELECT * FROM student_profiles WHERE htno=? AND password=?",
         [stuHtno, password],
         (err, result) => {
             if (err) {
