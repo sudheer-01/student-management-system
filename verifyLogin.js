@@ -2146,40 +2146,108 @@ app.post("/auth/request-reset", (req, res) => {
     });
 });
 
-app.post("/reset-password-at-login", (req, res) => {
-    const { role, id, newPassword } = req.body;
+// app.post("/reset-password-at-login", (req, res) => {
+//     const { role, id, newPassword } = req.body;
 
-    let sql;
+//     let sql;
 
-    if (role === "hod") {
-        sql = `
-          UPDATE hod_details
-          SET password=?, reset_password='no'
-          WHERE hod_id=?
-        `;
-    } else if (role === "faculty") {
-        sql = `
-          UPDATE faculty
-          SET password=?, reset_password='no'
-          WHERE facultyId=?
-        `;
-    } else if (role === "student") {
-        sql = `
-          UPDATE student_profiles
-          SET password=?, reset_password='no'
-          WHERE htno=?
-        `;
-    }
+//     if (role === "hod") {
+//         sql = `
+//           UPDATE hod_details
+//           SET password=?, reset_password='no'
+//           WHERE hod_id=?
+//         `;
+//     } else if (role === "faculty") {
+//         sql = `
+//           UPDATE faculty
+//           SET password=?, reset_password='no'
+//           WHERE facultyId=?
+//         `;
+//     } else if (role === "student") {
+//         sql = `
+//           UPDATE student_profiles
+//           SET password=?, reset_password='no'
+//           WHERE htno=?
+//         `;
+//     }
 
-    con.query(sql, [newPassword, id], err => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true });
-    });
-});
+//     con.query(sql, [newPassword, id], err => {
+//         if (err) return res.status(500).json({ success: false });
+//         res.json({ success: true });
+//     });
+// });
 
 //------------------------------------------------------
 
 //code for admin to delete all data of specific year and branch
+
+app.post("/api/reset/verify-user", (req, res) => {
+    const { role, userId } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else if (role === "student") { table = "student_profiles"; idCol = "htno"; }
+    else return res.json({ success: false });
+
+    con.query(
+        `SELECT reset_password FROM ${table} WHERE ${idCol}=?`,
+        [userId],
+        (err, r) => {
+            if (err || !r.length)
+                return res.json({ success: false, message: "Invalid user" });
+
+            if (r[0].reset_password !== "reset password")
+                return res.json({ success: false, message: "Reset not allowed" });
+
+            res.json({ success: true });
+        }
+    );
+});
+
+app.post("/api/reset/verify-temp-password", (req, res) => {
+    const { role, userId, tempPassword } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else { table = "student_profiles"; idCol = "htno"; }
+
+    con.query(
+        `SELECT password FROM ${table} WHERE ${idCol}=?`,
+        [userId],
+        (err, r) => {
+            if (err || !r.length || r[0].password !== tempPassword)
+                return res.json({ success: false, message: "Invalid temporary password" });
+
+            res.json({ success: true });
+        }
+    );
+});
+app.post("/api/reset/update-password", (req, res) => {
+    const { role, userId, newPassword } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else { table = "student_profiles"; idCol = "htno"; }
+
+    con.query(
+        `UPDATE ${table}
+         SET password=?, reset_password='no'
+         WHERE ${idCol}=?`,
+        [newPassword, userId],
+        err => {
+            if (err)
+                return res.json({ success: false, message: "Update failed" });
+
+            res.json({ success: true, message: "Password updated successfully" });
+        }
+    );
+});
+
+
+
 app.post("/api/delete-semester-data", (req, res) => {
   const { year, branch } = req.body;
 
