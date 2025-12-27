@@ -100,27 +100,27 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
 document.getElementById("studentForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const year = document.getElementById("year").value;
     const htno = document.getElementById("htno").value;
+    const password = document.getElementById("studentPassword").value;
 
     try {
         const response = await fetch("/studentCheckin", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ year: year, htno: htno })
+            body: JSON.stringify({ htno: htno, password: password })
         });
 
         const data = await response.json();
 
         if (data.success) {
             // ✅ Save student details in localStorage
-            localStorage.setItem("studentYear", data.studentDetails.year);
+            // localStorage.setItem("studentYear", data.studentDetails.year);
             localStorage.setItem("studentHtno", data.studentDetails.htno);
 
             // ✅ Redirect to marks page
             window.location.href = data.redirectUrl;
         } else {
-            alert(data.message || "Invalid HTNO or Year");
+            alert(data.message || "Invalid HTNO");
             window.location.href = "/";
         }
     } catch (error) {

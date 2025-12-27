@@ -1231,12 +1231,12 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
 
 // studentMarks
 app.post("/studentCheckin", (req, res) => {
-    const stuYear = req.body.year;
+    const password = req.body.password;
     const stuHtno = req.body.htno;
 
     con.query(
-        "SELECT * FROM studentmarks WHERE year=? AND htno=?",
-        [stuYear, stuHtno],
+        "SELECT * FROM studentmarks WHERE htno=? AND password=?",
+        [stuHtno, password],
         (err, result) => {
             if (err) {
                 console.error(err);
