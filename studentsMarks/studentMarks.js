@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileSection = document.getElementById("studentProfile");
     const saveProfileBtn = document.getElementById("saveProfile");
 
-    const studentYear = localStorage.getItem("studentYear");
+    // const studentYear = localStorage.getItem("studentYear");
     const studentHtno = localStorage.getItem("studentHtno");
 
-    if (!studentHtno || !studentYear) {
+    if (!studentHtno) {
         alert("Session expired. Please login again.");
         window.location.href = "/";
         return;
@@ -52,7 +52,29 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =====================================================
        GET YOUR MARKS
     ===================================================== */
+    //get student year from server
+    async function fetchAndStoreStudentYear(htno) {
+            try {
+                const res = await fetch(`/api/studentyear/${studentHtno}`);
+                const data = await res.json();
 
+                if (!data.success) {
+                    alert(data.message || "Failed to fetch student year");
+                    return;
+                }
+
+                // ✅ Store year in localStorage
+                localStorage.setItem("studentYear", data.year);
+
+                console.log("Student year stored:", data.year);
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Network error while fetching student year");
+            }
+        }
+
+    const studentYear = localStorage.getItem("studentYear");
     fetchMarksBtn.addEventListener("click", async () => {
 
         showMarksView();

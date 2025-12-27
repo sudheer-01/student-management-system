@@ -1359,6 +1359,38 @@ try {
     });
 });
 
+// Get student year using Hall Ticket Number
+app.get("/api/studentyear/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const sql = `
+        SELECT year
+        FROM studentmarks
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(sql, [htno], (err, results) => {
+        if (err) {
+            console.error("Error fetching student year:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No student found with this HTNO"
+            });
+        }
+
+        res.json({
+            success: true,
+            year: results[0].year
+        });
+    });
+});
+
+
 // Fetch student profile
 
 app.get("/studentProfile/:htno", (req, res) => {
