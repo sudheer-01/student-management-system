@@ -297,7 +297,7 @@ app.post("/saveData", (req, res) => {
                 s.branch,
                 s.year,
                 "12345",                // default password
-                "reset password"        // force reset
+                "reset_password"        // force reset
             ]);
 
             const profileQuery = `
