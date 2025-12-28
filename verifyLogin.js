@@ -2577,17 +2577,26 @@ app.get("/hod/branches", (req, res) => {
 app.get("/hod/student-profiles", (req, res) => {
     const { year, branch } = req.query;
 
-    con.query(
-        `SELECT htno, full_name, year, branch, email, student_mobile
-         FROM student_profiles
-         WHERE year=? AND branch=?`,
-        [year, branch],
-        (err, rows) => {
-            if (err) return res.status(500).json([]);
-            res.json(rows);
+    const sql = `
+        SELECT
+            htno, full_name, year, branch, batch, dob, gender,
+            admission_type, current_status, student_mobile, email,
+            current_address, permanent_address, father_name, mother_name,
+            parent_mobile, guardian_name, guardian_relation,
+            guardian_mobile, blood_group, nationality, religion
+        FROM student_profiles
+        WHERE year = ? AND branch = ?
+    `;
+
+    con.query(sql, [year, branch], (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json([]);
         }
-    );
+        res.json(rows);
+    });
 });
+
 app.get("/hod/reset-password-students", (req, res) => {
     con.query(
         `SELECT htno, full_name, year, branch
@@ -2600,6 +2609,35 @@ app.get("/hod/reset-password-students", (req, res) => {
     );
 });
 
+app.post("/hod/update-student-password", (req, res) => {
+    const { htno, tempPassword } = req.body;
+
+    if (!htno || !tempPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid input"
+        });
+    }
+
+    const sql = `
+        UPDATE student_profiles
+        SET password = ?,
+            reset_password = 'reset password'
+        WHERE htno = ?
+    `;
+
+    con.query(sql, [tempPassword, htno], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                success: false,
+                message: "Database error"
+            });
+        }
+
+        res.json({ success: true });
+    });
+});
 
 
 const PORT = process.env.PORT || 9812;
