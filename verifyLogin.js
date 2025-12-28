@@ -28,6 +28,7 @@ app.use(express.static(path.join(baseDir,"HodTask","addAndChangeExams")));
 app.use(express.static(path.join(baseDir,"HodTask","generateStudentReports")));
 app.use(express.static(path.join(baseDir,"HodTask","viewMarksUpdateRequests")));
 app.use(express.static(path.join(baseDir,"HodTask","GenerateCharts")));
+app.use(express.static(path.join(baseDir,"HodTask","studentsDataAndPwd")));
 //student
 app.use('/studentsMarks', express.static(path.join(baseDir, 'studentsMarks')));
 app.use(express.static(path.join(baseDir,"studentsMarks")));
@@ -2560,6 +2561,44 @@ app.delete("/api/delete-row/:table/:id", (req, res) => {
 //     res.setHeader("Expires", "0");
 //     next();
 // });
+
+app.get("/hod/branches", (req, res) => {
+    const { year, hodBranch } = req.query;
+
+    con.query(
+        "SELECT DISTINCT branch_name FROM branches WHERE year=? AND branch_name LIKE ?",
+        [year, `${hodBranch}%`],
+        (err, rows) => {
+            if (err) return res.status(500).json([]);
+            res.json({ branches: rows.map(r => r.branch_name) });
+        }
+    );
+});
+app.get("/hod/student-profiles", (req, res) => {
+    const { year, branch } = req.query;
+
+    con.query(
+        `SELECT htno, full_name, year, branch, email, student_mobile
+         FROM student_profiles
+         WHERE year=? AND branch=?`,
+        [year, branch],
+        (err, rows) => {
+            if (err) return res.status(500).json([]);
+            res.json(rows);
+        }
+    );
+});
+app.get("/hod/reset-password-students", (req, res) => {
+    con.query(
+        `SELECT htno, full_name, year, branch
+         FROM student_profiles
+         WHERE reset_password='yes'`,
+        (err, rows) => {
+            if (err) return res.status(500).json([]);
+            res.json(rows);
+        }
+    );
+});
 
 
 

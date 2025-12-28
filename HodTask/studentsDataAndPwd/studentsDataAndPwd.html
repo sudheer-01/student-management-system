@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Students Data & Password | HOD</title>
+    <link rel="stylesheet" href="studentsDataAndPwd.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Students Data & Password</h2>
+
+    <div class="action-buttons">
+        <button id="viewDataBtn">View Students Personal Data</button>
+        <button id="resetPwdBtn">Reset Student Password</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div id="filters" class="hidden">
+        <select id="yearSelect">
+            <option value="">Select Year</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+
+        <select id="branchSelect">
+            <option value="">Select Branch</option>
+        </select>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+        <table id="dataTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="studentsDataAndPwd.js"></script>
+</body>
+</html>
