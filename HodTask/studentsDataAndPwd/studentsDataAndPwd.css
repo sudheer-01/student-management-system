@@ -452,3 +452,35 @@ th {
     justify-content: flex-start;
   }
 }
+table thead th {
+    background-color: #e2e8f0;   /* slightly darker ash */
+    color: #1e293b;
+    font-weight: 600;
+    text-align: center;
+}
+
+table tbody td {
+    background-color: #ffffff;
+    color: #0f172a;
+}
+
+.profile-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.no-data {
+    padding: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #64748b;
+}
+/* ===== FINAL TABLE HEADER OVERRIDE ===== */
+table thead th {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+    font-weight: 600;
+    text-align: center;
+}

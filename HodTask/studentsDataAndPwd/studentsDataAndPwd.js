@@ -14,12 +14,32 @@ const hodYears = JSON.parse(localStorage.getItem("hodYears")); // ["3","4"]
 /* ===========================
    VIEW STUDENT DATA
 =========================== */
-viewDataBtn.onclick = () => {
+// viewDataBtn.onclick = () => {
+//     currentMode = "view";
+//     filters.classList.remove("hidden");
+//     table.querySelector("thead").innerHTML = "";
+//     table.querySelector("tbody").innerHTML = "";
+// };
+viewDataBtn.onclick = async () => {
     currentMode = "view";
     filters.classList.remove("hidden");
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
+
+    // 🔑 THIS IS THE MISSING PART
+    if (year && branch) {
+        const res = await fetch(
+            `/hod/student-profiles?year=${year}&branch=${branch}`
+        );
+        const data = await res.json();
+        renderStudentTable(data);
+    }
 };
+
 
 /* ===========================
    RESET PASSWORD VIEW
@@ -73,11 +93,13 @@ function renderStudentTable(rows) {
     const thead = table.querySelector("thead");
     const tbody = table.querySelector("tbody");
 
+    tbody.innerHTML = "";
+    thead.innerHTML = "";
+
     if (!rows || rows.length === 0) {
-        thead.innerHTML = "";
         tbody.innerHTML = `
             <tr>
-                <td colspan="20" style="text-align:center;">
+                <td colspan="22" class="no-data">
                     No students available
                 </td>
             </tr>
@@ -87,6 +109,7 @@ function renderStudentTable(rows) {
 
     thead.innerHTML = `
         <tr>
+            <th>Photo</th>
             <th>HTNO</th>
             <th>Full Name</th>
             <th>Year</th>
@@ -112,32 +135,41 @@ function renderStudentTable(rows) {
         </tr>
     `;
 
-    tbody.innerHTML = rows.map(r => `
-        <tr>
-            <td>${r.htno}</td>
-            <td>${r.full_name}</td>
-            <td>${r.year}</td>
-            <td>${r.branch}</td>
-            <td>${r.batch || ""}</td>
-            <td>${r.dob ? r.dob.split("T")[0] : ""}</td>
-            <td>${r.gender || ""}</td>
-            <td>${r.admission_type || ""}</td>
-            <td>${r.current_status || ""}</td>
-            <td>${r.student_mobile || ""}</td>
-            <td>${r.email || ""}</td>
-            <td>${r.current_address || ""}</td>
-            <td>${r.permanent_address || ""}</td>
-            <td>${r.father_name || ""}</td>
-            <td>${r.mother_name || ""}</td>
-            <td>${r.parent_mobile || ""}</td>
-            <td>${r.guardian_name || ""}</td>
-            <td>${r.guardian_relation || ""}</td>
-            <td>${r.guardian_mobile || ""}</td>
-            <td>${r.blood_group || ""}</td>
-            <td>${r.nationality || ""}</td>
-            <td>${r.religion || ""}</td>
-        </tr>
-    `).join("");
+    rows.forEach(r => {
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <img
+                        src="/studentProfile/photo/${r.htno}"
+                        class="profile-img"
+                        onerror="this.src='default-user.png'"
+                    />
+                </td>
+                <td>${r.htno}</td>
+                <td>${r.full_name}</td>
+                <td>${r.year}</td>
+                <td>${r.branch}</td>
+                <td>${r.batch || ""}</td>
+                <td>${r.dob ? r.dob.split("T")[0] : ""}</td>
+                <td>${r.gender || ""}</td>
+                <td>${r.admission_type || ""}</td>
+                <td>${r.current_status || ""}</td>
+                <td>${r.student_mobile || ""}</td>
+                <td>${r.email || ""}</td>
+                <td>${r.current_address || ""}</td>
+                <td>${r.permanent_address || ""}</td>
+                <td>${r.father_name || ""}</td>
+                <td>${r.mother_name || ""}</td>
+                <td>${r.parent_mobile || ""}</td>
+                <td>${r.guardian_name || ""}</td>
+                <td>${r.guardian_relation || ""}</td>
+                <td>${r.guardian_mobile || ""}</td>
+                <td>${r.blood_group || ""}</td>
+                <td>${r.nationality || ""}</td>
+                <td>${r.religion || ""}</td>
+            </tr>
+        `;
+    });
 }
 
 
@@ -222,6 +254,55 @@ async function updateStudentPassword(htno) {
     } else {
         alert(data.message || "Failed to update password");
     }
+}
+
+function exportStudentCSV() {
+    const table = document.querySelector("table");
+    if (!table) {
+        alert("No data to export");
+        return;
+    }
+
+    let csv = [];
+    for (const row of table.rows) {
+        let cols = [];
+        for (const cell of row.cells) {
+            if (cell.querySelector("img")) {
+                cols.push(""); // skip photo in CSV
+            } else {
+                cols.push(`"${cell.innerText.replace(/"/g, '""')}"`);
+            }
+        }
+        csv.push(cols.join(","));
+    }
+
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "student_personal_data.csv";
+    link.click();
+}
+
+function printStudentTable() {
+    const table = document.querySelector(".table-wrapper").innerHTML;
+
+    const printWindow = window.open("", "", "width=1200,height=700");
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Student Personal Data</title>
+            <style>
+                table { width:100%; border-collapse: collapse; }
+                th, td { border:1px solid #ccc; padding:6px; font-size:12px; }
+                th { background:#f1f5f9; }
+                img { width:40px; height:40px; border-radius:50%; }
+            </style>
+        </head>
+        <body>${table}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
 }
 
 
