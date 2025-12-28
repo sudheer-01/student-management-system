@@ -146,7 +146,7 @@ document.getElementById("loadRequests").addEventListener("click", async function
 });
 // Function to update request status
 async function updateStatus(facultyId, year, branch, subject, status) {
-    console.log("Sending request with:", facultyId, year, branch, subject, status); // Debugging log
+    //console.log("Sending request with:", facultyId, year, branch, subject, status); // Debugging log
 
     try {
         const response = await fetch(`/updateRequestStatus`, {
@@ -155,7 +155,7 @@ async function updateStatus(facultyId, year, branch, subject, status) {
             body: JSON.stringify({ facultyId, status, year, branch, subject })
         });
         const result = await response.json();
-        console.log("Server response:", result); // Debugging log
+        //console.log("Server response:", result); // Debugging log
 
         if (response.ok) {
             document.querySelector(`#status-${facultyId}-${year}-${branch}-${subject}`).textContent = status;
@@ -165,7 +165,7 @@ async function updateStatus(facultyId, year, branch, subject, status) {
         }
     } catch (error) {
         console.error("Error updating status:", error);
-        alert("Server error. Try again later.");
+        //alert("Server error. Try again later.");
     }
 }
 
