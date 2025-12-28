@@ -56,7 +56,6 @@ async function fetchBranches() {
     }
 }
 
-
 let table = document.getElementById('studentsInformationTable');
 let tbody = table.tBodies[0];
 let sno = 1;

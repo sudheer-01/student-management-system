@@ -239,28 +239,87 @@ app.post("/loginToHodDashBoard", (req, res) => {
 
 
 //Entering sutdent details such as htno and name by hod 
-app.post("/saveData", (req, res) => {
-    let students = req.body.students;
+// app.post("/saveData", (req, res) => {
+//     let students = req.body.students;
     
+//     if (!students || students.length === 0) {
+//         return res.status(400).send("No student data received.");
+//     }
+
+//     let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
+
+//     con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
+//         if (err) {
+//             console.error(err);
+//             return res.status(500).send("The student already exists with the same htno.");
+//         }
+//         // if (err) {
+//         // console.error("MySQL Error:", err);
+//         // return res.status(500).send(err.sqlMessage || "Error saving data."); 
+//         // }
+
+//         res.send("Data saved successfully!");
+//     });
+// });
+app.post("/saveData", (req, res) => {
+    const students = req.body.students;
+
     if (!students || students.length === 0) {
         return res.status(400).send("No student data received.");
     }
 
-    let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
+    /* ===============================
+       1️⃣ INSERT INTO studentmarks
+    =============================== */
+    const marksValues = students.map(s => [
+        s.htno,
+        s.name,
+        s.branch,
+        s.year
+    ]);
 
-    con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("The student already exists with the same htno.");
+    con.query(
+        "INSERT INTO studentmarks (htno, name, branch, year) VALUES ?",
+        [marksValues],
+        (err) => {
+            if (err) {
+                console.error("studentmarks error:", err);
+                return res.status(500).send("Error saving student marks data.");
+            }
+
+            /* ==================================
+               2️⃣ INSERT / UPDATE student_profiles
+            ================================== */
+
+            const profileValues = students.map(s => [
+                s.htno,
+                s.name,
+                s.branch,
+                s.year,
+                "12345",                // default password
+                "reset password"        // force reset
+            ]);
+
+            const profileQuery = `
+                INSERT INTO student_profiles
+                (htno, full_name, branch, year, password, reset_password)
+                VALUES ?
+                ON DUPLICATE KEY UPDATE
+                    year = VALUES(year)
+            `;
+
+            con.query(profileQuery, [profileValues], (err2) => {
+                if (err2) {
+                    console.error("student_profiles error:", err2);
+                    return res.status(500).send("Error saving student profile data.");
+                }
+
+                res.send("Student data saved in both tables successfully!");
+            });
         }
-        // if (err) {
-        // console.error("MySQL Error:", err);
-        // return res.status(500).send(err.sqlMessage || "Error saving data."); 
-        // }
-
-        res.send("Data saved successfully!");
-    });
+    );
 });
+
 //retriving student details such as htno and name by hod
 app.get("/getData", (req, res) => {
     let branch = req.query.branch;
