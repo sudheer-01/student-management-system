@@ -306,7 +306,7 @@ app.get("/getData", (req, res) => {
     }
 
     con.query(
-        "SELECT htno, name FROM student_profiles WHERE branch = ? AND year = ?",
+        "SELECT htno, full_name FROM student_profiles WHERE branch = ? AND year = ?",
         [branch, year],
         (err, results) => {
             if (err) {
