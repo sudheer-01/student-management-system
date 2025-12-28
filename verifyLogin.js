@@ -268,57 +268,33 @@ app.post("/saveData", (req, res) => {
         return res.status(400).send("No student data received.");
     }
 
-    /* ===============================
-       1️⃣ INSERT INTO studentmarks
-    =============================== */
-    const marksValues = students.map(s => [
+    const insertValues = students.map(s => [
         s.htno,
         s.name,
         s.branch,
-        s.year
+        s.year,
+        "12345",               // default password (first time only)
+        "reset_password"       // first login only
     ]);
 
-    con.query(
-        "INSERT INTO studentmarks (htno, name, branch, year) VALUES ?",
-        [marksValues],
-        (err) => {
-            if (err) {
-                console.error("studentmarks error:", err);
-                return res.status(500).send("Error saving student marks data.");
-            }
+    const query = `
+        INSERT INTO student_profiles
+        (htno, full_name, branch, year, password, reset_password)
+        VALUES ?
+        ON DUPLICATE KEY UPDATE
+            year = VALUES(year)
+    `;
 
-            /* ==================================
-               2️⃣ INSERT / UPDATE student_profiles
-            ================================== */
-
-            const profileValues = students.map(s => [
-                s.htno,
-                s.name,
-                s.branch,
-                s.year,
-                "12345",                // default password
-                "reset_password"        // force reset
-            ]);
-
-            const profileQuery = `
-                INSERT INTO student_profiles
-                (htno, full_name, branch, year, password, reset_password)
-                VALUES ?
-                ON DUPLICATE KEY UPDATE
-                    year = VALUES(year)
-            `;
-
-            con.query(profileQuery, [profileValues], (err2) => {
-                if (err2) {
-                    console.error("student_profiles error:", err2);
-                    return res.status(500).send("Error saving student profile data.");
-                }
-
-                res.send("Student data saved in both tables successfully!");
-            });
+    con.query(query, [insertValues], (err) => {
+        if (err) {
+            console.error("Student profile save error:", err);
+            return res.status(500).send("Failed to save student profiles.");
         }
-    );
+
+        res.send("Student profiles saved successfully.");
+    });
 });
+
 
 //retriving student details such as htno and name by hod
 app.get("/getData", (req, res) => {
