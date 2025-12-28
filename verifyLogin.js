@@ -2622,7 +2622,7 @@ app.post("/hod/update-student-password", (req, res) => {
     const sql = `
         UPDATE student_profiles
         SET password = ?,
-            reset_password = 'reset password'
+            reset_password = 'reset_password'
         WHERE htno = ?
     `;
 
