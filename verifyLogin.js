@@ -306,7 +306,7 @@ app.get("/getData", (req, res) => {
     }
 
     con.query(
-        "SELECT DISTINCT htno, name FROM studentmarks WHERE branch = ? AND year = ?",
+        "SELECT htno, name FROM student_profiles WHERE branch = ? AND year = ?",
         [branch, year],
         (err, results) => {
             if (err) {
