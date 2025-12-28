@@ -168,7 +168,7 @@ function fetchStudentData() {
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${student.htno}</td>
-                    <td>${student.name}</td>
+                    <td>${student.full_name}</td>
                 `;
                 tbody.appendChild(row);
             });
