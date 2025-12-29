@@ -644,88 +644,114 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
 //         res.status(500).json({ error: "Database error while saving subjects." });
 //     }
 // });
-app.get("/checkFreezeStatus/:year/:branch", async (req, res) => {
-    const { year, branch } = req.params;
-    const db = con.promise();
-
-    const [rows] = await db.query(
-        "SELECT is_frozen FROM branches WHERE year = ? AND branch_name LIKE ? LIMIT 1",
-        [year, `${branch}%`]
-    );
-
-    if (rows.length === 0) {
-        return res.json({ frozen: false });
-    }
-
-    res.json({ frozen: rows[0].is_frozen === 1 });
-});
-
-
-app.get("/getFrozenData/:year/:branch", async (req, res) => {
-    const { year, branch } = req.params;
-    const db = con.promise();
-
-    const [branches] = await db.query(
-        "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?",
-        [year, `${branch}%`]
-    );
-
-    const [subjects] = await db.query(
-        "SELECT DISTINCT subject_name FROM subjects WHERE year = ? AND branch_name LIKE ?",
-        [year, `${branch}%`]
-    );
-
-    res.json({ branches, subjects });
-});
 
 app.post("/saveSubjects", async (req, res) => {
-  const { year, newBranches, newSubjects } = req.body;
-  const db = con.promise();
+    const { year, branches, subjects } = req.body;
+    const db = con.promise();
 
-  try {
-    for (const b of newBranches) {
-      await db.query(
-        "INSERT IGNORE INTO branches (year, branch_name) VALUES (?, ?)",
-        [year, b]
-      );
+    if (!year || !branches?.length || !subjects?.length) {
+        return res.status(400).json({ error: "Invalid data" });
     }
 
-    for (const s of newSubjects) {
-      for (const sec of s.sections) {
-        await db.query(
-          "INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)",
-          [year, sec, s.subject]
+    try {
+        /* ===============================
+           1️⃣ EXISTING SECTIONS
+        =============================== */
+        const [existingBranches] = await db.query(
+            `SELECT branch_name 
+             FROM branches 
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${branches[0].split("-")[0]}%`]
         );
-      }
+
+        const existingBranchSet = new Set(
+            existingBranches.map(b => b.branch_name)
+        );
+
+        /* ===============================
+           2️⃣ INSERT ONLY NEW SECTIONS
+        =============================== */
+        const newBranches = branches.filter(
+            b => !existingBranchSet.has(b)
+        );
+
+        for (const branch of newBranches) {
+            await db.query(
+                `INSERT INTO branches (year, branch_name) VALUES (?, ?)`,
+                [year, branch]
+            );
+        }
+
+        /* ===============================
+           3️⃣ EXISTING SUBJECTS
+        =============================== */
+        const [existingSubjects] = await db.query(
+            `SELECT DISTINCT subject_name 
+             FROM subjects 
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${branches[0].split("-")[0]}%`]
+        );
+
+        const existingSubjectSet = new Set(
+            existingSubjects.map(s => s.subject_name)
+        );
+
+        /* ===============================
+           4️⃣ INSERT ONLY NEW SUBJECTS
+        =============================== */
+        const newSubjects = subjects.filter(
+            s => !existingSubjectSet.has(s)
+        );
+
+        for (const branch of newBranches.length ? newBranches : branches) {
+            for (const subject of newSubjects) {
+                await db.query(
+                    `INSERT INTO subjects (year, branch_name, subject_name)
+                     VALUES (?, ?, ?)`,
+                    [year, branch, subject]
+                );
+            }
+        }
+
+        res.json({
+            success: true,
+            message: "Sections and subjects saved without duplication"
+        });
+
+    } catch (err) {
+        console.error("SAVE SUBJECTS ERROR:", err);
+        res.status(500).json({ error: "Failed to save data" });
     }
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Save failed" });
-  }
 });
 
-
 app.get("/hod/branches-subjects", async (req, res) => {
-  const { year, hodBranch } = req.query;
-  const db = con.promise();
+    const { year, hodBranch } = req.query;
+    const db = con.promise();
 
-  const [branches] = await db.query(
-    "SELECT branch_name FROM branches WHERE year=? AND branch_name LIKE ?",
-    [year, `${hodBranch}%`]
-  );
+    try {
+        const [branches] = await db.query(
+            `SELECT branch_name
+             FROM branches
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${hodBranch}%`]
+        );
 
-  const [subjects] = await db.query(
-    "SELECT DISTINCT subject_name FROM subjects WHERE year=? AND branch_name LIKE ?",
-    [year, `${hodBranch}%`]
-  );
+        const [subjects] = await db.query(
+            `SELECT DISTINCT subject_name
+             FROM subjects
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${hodBranch}%`]
+        );
 
-  res.json({
-    branches: branches.map(b => b.branch_name),
-    subjects: subjects.map(s => s.subject_name)
-  });
+        res.json({
+            branches: branches.map(b => b.branch_name),
+            subjects: subjects.map(s => s.subject_name)
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load data" });
+    }
 });
 
 //homePageForFaculty:::requestForSubject
