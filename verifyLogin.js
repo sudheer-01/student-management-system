@@ -444,7 +444,6 @@ app.post("/saveMarks", async (req, res) => {
         });
     }
 
-    // Extract marks: marks_22C31A6601 → { htno, marks }
     const marksData = Object.keys(req.body)
         .filter(k => k.startsWith("marks_"))
         .map(k => ({
@@ -462,15 +461,13 @@ app.post("/saveMarks", async (req, res) => {
     try {
         for (const { htno, marks } of marksData) {
 
-            /* 1️⃣ Get student base info from student_profiles */
-            const [studentRows] = await con
-                .promise()
-                .query(
-                    `SELECT full_name, year, branch 
-                     FROM student_profiles 
-                     WHERE htno = ?`,
-                    [htno]
-                );
+            /* 1️⃣ Get student info from student_profiles */
+            const [studentRows] = await con.promise().query(
+                `SELECT full_name, year, branch
+                 FROM student_profiles
+                 WHERE htno = ?`,
+                [htno]
+            );
 
             if (studentRows.length === 0) {
                 throw new Error(`Student not found: ${htno}`);
@@ -478,35 +475,30 @@ app.post("/saveMarks", async (req, res) => {
 
             const { full_name, year, branch } = studentRows[0];
 
-            /* 2️⃣ Check if subject row already exists */
-            const [existing] = await con
-                .promise()
-                .query(
-                    `SELECT id FROM studentmarks
-                     WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
-                    [htno, year, branch, subject]
-                );
+            /* 2️⃣ Check if subject row exists */
+            const [existing] = await con.promise().query(
+                `SELECT 1 FROM studentmarks
+                 WHERE htno = ? AND year = ? AND branch = ? AND subject = ?
+                 LIMIT 1`,
+                [htno, year, branch, subject]
+            );
 
             if (existing.length > 0) {
-                /* 3️⃣ UPDATE marks (same subject, new exam) */
-                await con
-                    .promise()
-                    .query(
-                        `UPDATE studentmarks
-                         SET \`${exam}\` = ?
-                         WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
-                        [marks, htno, year, branch, subject]
-                    );
+                /* 3️⃣ Update exam marks */
+                await con.promise().query(
+                    `UPDATE studentmarks
+                     SET \`${exam}\` = ?
+                     WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
+                    [marks, htno, year, branch, subject]
+                );
             } else {
-                /* 4️⃣ INSERT new subject row */
-                await con
-                    .promise()
-                    .query(
-                        `INSERT INTO studentmarks
-                         (year, branch, htno, name, subject, \`${exam}\`)
-                         VALUES (?, ?, ?, ?, ?, ?)`,
-                        [year, branch, htno, full_name, subject, marks]
-                    );
+                /* 4️⃣ Insert new subject row */
+                await con.promise().query(
+                    `INSERT INTO studentmarks
+                     (year, branch, htno, name, subject, \`${exam}\`)
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [year, branch, htno, full_name, subject, marks]
+                );
             }
         }
 
