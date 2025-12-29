@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const subjectContainer = document.getElementById("subjectContainer");
     const addSubjectBtn = document.getElementById("addSubject");
     const saveBtn = document.getElementById("saveData");
+    const newSubjectsContainer = document.getElementById("newSubjectsContainer");
+
 
     let selectedYear = null;
     let branchCount = 0;
@@ -132,28 +134,35 @@ yearDropdown.addEventListener("change", async () => {
 
     // Add Subject Button Click
     addSubjectBtn.addEventListener("click", () => {
-        if (!selectedYear) {
-            alert("Please select a year first.");
-            return;
-        }
+    if (!selectedYear) {
+        alert("Please select a year first.");
+        return;
+    }
 
-        const div = document.createElement("div");
-        div.classList.add("subject-row");
-        div.innerHTML = `
-            <input type="text" class="subject-name" placeholder="Enter Subject Name" required>
-            <button type="button" class="remove-btn">Remove</button>
-        `;
-        subjectContainer.appendChild(div);
+    const div = document.createElement("div");
+    div.className = "subject-row";
+    div.innerHTML = `
+        <input type="text" class="new-subject-input" placeholder="Enter Subject Name" required>
+        <button type="button" class="remove-btn">Remove</button>
+    `;
 
-        div.querySelector(".remove-btn").addEventListener("click", () => {
-            div.remove();
-        });
-    });
+    div.querySelector(".remove-btn").onclick = () => div.remove();
+    newSubjectsContainer.appendChild(div);
+});
+
 
     // Save Data Button Click
 saveBtn.addEventListener("click", async () => {
-    const subject = document.querySelector(".new-subject").value.trim();
-    if (!subject) return alert("Enter subject");
+
+    const newSubjects = Array.from(
+        document.querySelectorAll(".new-subject-input")
+    )
+    .map(i => i.value.trim())
+    .filter(Boolean);
+
+    if (!newSubjects.length) {
+        return alert("Enter at least one subject");
+    }
 
     const selectedSections = Array.from(
         document.querySelectorAll(".section-check:checked")
@@ -169,14 +178,15 @@ saveBtn.addEventListener("click", async () => {
         body: JSON.stringify({
             year: selectedYear,
             newSections: [],
-            newSubjects: [subject],
+            newSubjects,
             selectedSections
         })
     });
 
-    document.querySelector(".new-subject").value = "";
+    newSubjectsContainer.innerHTML = "";
     loadExistingData();
 });
+
 
 
 });
