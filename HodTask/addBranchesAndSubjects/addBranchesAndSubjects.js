@@ -1,243 +1,369 @@
+// document.addEventListener("DOMContentLoaded", async () => {
+//     const yearDropdown = document.getElementById("year");
+//     const branchContainer = document.getElementById("branchContainer");
+//     const addBranchBtn = document.getElementById("addBranch");
+//     const subjectContainer = document.getElementById("subjectContainer");
+//     const addSubjectBtn = document.getElementById("addSubject");
+//     const saveBtn = document.getElementById("saveData");
+
+//     let selectedYear = null;
+//     let branchCount = 0;
+//     let hodBranch = localStorage.getItem("hodBranch");
+//     let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
+//     async function loadExistingBranchesAndSubjects() {
+//     try {
+//         const res = await fetch(
+//             `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
+//         );
+//         const data = await res.json();
+
+//         /* ===== SECTIONS ===== */
+//         if (!data.branches.length) {
+//             branchContainer.innerHTML =
+//                 `<p class="empty-msg">No sections assigned for this year</p>`;
+//         } else {
+//             data.branches.forEach(b => {
+//                 const div = document.createElement("div");
+//                 div.className = "branch-row";
+//                 div.innerHTML = `
+//                     <input type="text" class="branch-name" value="${b}" readonly>
+//                     <button type="button" class="remove-btn">Remove</button>
+//                 `;
+//                 div.querySelector(".remove-btn").onclick = () => div.remove();
+//                 branchContainer.appendChild(div);
+//                 branchCount++;
+//             });
+//         }
+
+//         /* ===== SUBJECTS ===== */
+//         if (!data.subjects.length) {
+//             subjectContainer.innerHTML =
+//                 `<p class="empty-msg">No subjects assigned for this year</p>`;
+//         } else {
+//             data.subjects.forEach(s => {
+//                 const div = document.createElement("div");
+//                 div.className = "subject-row";
+//                 div.innerHTML = `
+//                     <input type="text" class="subject-name" value="${s}" readonly>
+//                     <button type="button" class="remove-btn">Remove</button>
+//                 `;
+//                 div.querySelector(".remove-btn").onclick = () => div.remove();
+//                 subjectContainer.appendChild(div);
+//             });
+//         }
+
+//     } catch (err) {
+//         console.error("Load existing data error:", err);
+//         alert("Failed to load existing sections/subjects");
+//     }
+// }
+//     populateYearDropdown();
+//     // Populate the year dropdown dynamically
+//     function populateYearDropdown() {
+//         yearDropdown.innerHTML = ""; // Clear existing options
+
+//         // Add default option
+//         const defaultOption = document.createElement("option");
+//         defaultOption.value = "";
+//         defaultOption.textContent = "Choose Year";
+//         defaultOption.disabled = true;
+//         defaultOption.selected = true;
+//         yearDropdown.appendChild(defaultOption);
+
+//         if (hodYears.length === 0) {
+//             // If no specific years assigned, allow selecting all years
+//             [1, 2, 3, 4].forEach(year => {
+//                 const option = document.createElement("option");
+//                 option.value = year;
+//                 option.textContent = `${year} Year`;
+//                 yearDropdown.appendChild(option);
+//             });
+//         } else {
+//             // Only show assigned years for the HOD
+//             hodYears.forEach(year => {
+//                 const option = document.createElement("option");
+//                 option.value = year;
+//                 option.textContent = `${year} Year`;
+//                 yearDropdown.appendChild(option);
+//             });
+//         }
+//     }
+
+//    yearDropdown.addEventListener("change", async () => {
+//         selectedYear = yearDropdown.value;
+
+//         branchContainer.innerHTML = "";
+//         subjectContainer.innerHTML = "";
+//         branchCount = 0;
+
+//         if (!selectedYear) return;
+
+//         await loadExistingBranchesAndSubjects();
+//     });
+
+
+
+
+//     // Add Branch Button Click
+//     addBranchBtn.addEventListener("click", () => {
+//         if (!selectedYear) {
+//             alert("Please select a year first.");
+//             return;
+//         }
+
+//         let branchName = "";
+
+//         if (selectedYear === "1") {
+//             // First-year HOD should manually enter branches
+//             const div = document.createElement("div");
+//             div.classList.add("branch-row");
+//             div.innerHTML = `
+//                 <input type="text" class="branch-name" placeholder="Enter Branch Name" required>
+//                 <button type="button" class="remove-btn">Remove</button>
+//             `;
+//             branchContainer.appendChild(div);
+
+//             div.querySelector(".remove-btn").addEventListener("click", () => {
+//                 div.remove();
+//             });
+
+//         } else if (hodYears.includes(parseInt(selectedYear))) {
+//             // Other HODs get predefined branches
+//             if (branchCount === 0) {
+//                 branchName = hodBranch; // First branch is the main HOD branch
+//             } else {
+//                 branchName = `${hodBranch}-${String.fromCharCode(64 + branchCount)}`; // CSM-A, CSM-B...
+//             }
+
+//             const div = document.createElement("div");
+//             div.classList.add("branch-row");
+//             div.innerHTML = `
+//                 <input type="text" class="branch-name" value="${branchName}" readonly required>
+//                 <button type="button" class="remove-btn">Remove</button>
+//             `;
+//             branchContainer.appendChild(div);
+
+//             div.querySelector(".remove-btn").addEventListener("click", () => {
+//                 div.remove();
+//             });
+
+//             branchCount++;
+//         } else {
+//             alert("You can only add branches for your designated years.");
+//         }
+//     });
+
+//     // Add Subject Button Click
+//     addSubjectBtn.addEventListener("click", () => {
+//         if (!selectedYear) {
+//             alert("Please select a year first.");
+//             return;
+//         }
+
+//         const div = document.createElement("div");
+//         div.classList.add("subject-row");
+//         div.innerHTML = `
+//             <input type="text" class="subject-name" placeholder="Enter Subject Name" required>
+//             <button type="button" class="remove-btn">Remove</button>
+//         `;
+//         subjectContainer.appendChild(div);
+
+//         div.querySelector(".remove-btn").addEventListener("click", () => {
+//             div.remove();
+//         });
+//     });
+
+//     // Save Data Button Click
+//     saveBtn.addEventListener("click", async () => {
+//         if (!selectedYear) {
+//             alert("Please select a year first.");
+//             return;
+//         }
+
+//         const branchInputs = document.querySelectorAll("#branchContainer .branch-name");
+//         const subjectInputs = document.querySelectorAll("#subjectContainer .subject-name");
+
+//         if (branchInputs.length === 0) {
+//             alert("Please add at least one branch.");
+//             return;
+//         }
+
+//         if (subjectInputs.length === 0) {
+//             alert("Please add at least one subject.");
+//             return;
+//         }
+
+//         const branches = Array.from(branchInputs)
+//             .map(input => input.value.trim())
+//             .filter(Boolean); // Remove empty values
+
+//         const subjects = Array.from(subjectInputs)
+//             .map(input => input.value.trim())
+//             .filter(Boolean); // Remove empty values
+
+//         if (branches.length === 0) {
+//             alert("Please enter valid branch names.");
+//             return;
+//         }
+
+//         if (subjects.length === 0) {
+//             alert("Please enter valid subject names.");
+//             return;
+//         }
+
+//         try {
+//             const response = await fetch("/saveSubjects", {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 // body: JSON.stringify({ year: selectedYear, branches, subjects })
+//                 body: JSON.stringify({
+//                 year: selectedYear,
+//                 branches,
+//                 subjects
+//             })
+//             });
+
+//             const result = await response.json();
+//             if (result.error) {
+//                 alert(`Error: ${result.error}`);
+//             } else {
+//                 alert("Branches and subjects saved successfully!");
+//                 branchContainer.innerHTML = "";
+//                 subjectContainer.innerHTML = "";
+//                 branchCount = 0;
+//             }
+//         } catch (error) {
+//             console.error("Error saving data:", error);
+//             alert("Failed to save data. Try again.");
+//         }
+//     });
+// });
+
 document.addEventListener("DOMContentLoaded", async () => {
-    const yearDropdown = document.getElementById("year");
-    const branchContainer = document.getElementById("branchContainer");
-    const addBranchBtn = document.getElementById("addBranch");
-    const subjectContainer = document.getElementById("subjectContainer");
-    const addSubjectBtn = document.getElementById("addSubject");
-    const saveBtn = document.getElementById("saveData");
 
-    let selectedYear = null;
-    let branchCount = 0;
-    let hodBranch = localStorage.getItem("hodBranch");
-    let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
-    async function loadExistingBranchesAndSubjects() {
-    try {
-        const res = await fetch(
-            `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
-        );
-        const data = await res.json();
+  const yearSelect = document.getElementById("year");
+  const branchContainer = document.getElementById("branchContainer");
+  const subjectContainer = document.getElementById("subjectContainer");
+  const addBranchBtn = document.getElementById("addBranch");
+  const addSubjectBtn = document.getElementById("addSubject");
+  const saveBtn = document.getElementById("saveData");
 
-        /* ===== SECTIONS ===== */
-        if (!data.branches.length) {
-            branchContainer.innerHTML =
-                `<p class="empty-msg">No sections assigned for this year</p>`;
-        } else {
-            data.branches.forEach(b => {
-                const div = document.createElement("div");
-                div.className = "branch-row";
-                div.innerHTML = `
-                    <input type="text" class="branch-name" value="${b}" readonly>
-                    <button type="button" class="remove-btn">Remove</button>
-                `;
-                div.querySelector(".remove-btn").onclick = () => div.remove();
-                branchContainer.appendChild(div);
-                branchCount++;
-            });
-        }
+  const hodBranch = localStorage.getItem("hodBranch");
+  const hodYears = JSON.parse(localStorage.getItem("hodYears"));
 
-        /* ===== SUBJECTS ===== */
-        if (!data.subjects.length) {
-            subjectContainer.innerHTML =
-                `<p class="empty-msg">No subjects assigned for this year</p>`;
-        } else {
-            data.subjects.forEach(s => {
-                const div = document.createElement("div");
-                div.className = "subject-row";
-                div.innerHTML = `
-                    <input type="text" class="subject-name" value="${s}" readonly>
-                    <button type="button" class="remove-btn">Remove</button>
-                `;
-                div.querySelector(".remove-btn").onclick = () => div.remove();
-                subjectContainer.appendChild(div);
-            });
-        }
+  let newBranches = [];
+  let newSubjects = [];
 
-    } catch (err) {
-        console.error("Load existing data error:", err);
-        alert("Failed to load existing sections/subjects");
+  /* ---------------- YEAR DROPDOWN ---------------- */
+  hodYears.forEach(y => {
+    yearSelect.innerHTML += `<option value="${y}">${y} Year</option>`;
+  });
+
+  yearSelect.addEventListener("change", loadExistingData);
+
+  /* ---------------- LOAD EXISTING ---------------- */
+  async function loadExistingData() {
+    branchContainer.innerHTML = "";
+    subjectContainer.innerHTML = "";
+    newBranches = [];
+    newSubjects = [];
+
+    const year = yearSelect.value;
+    if (!year) return;
+
+    const res = await fetch(`/hod/branches-subjects?year=${year}&hodBranch=${hodBranch}`);
+    const data = await res.json();
+
+    /* Existing Sections */
+    data.branches.forEach(b => {
+      branchContainer.innerHTML += `
+        <div class="branch-row existing">
+          <input type="text" value="${b}" readonly>
+        </div>
+      `;
+    });
+
+    /* Existing Subjects (checkboxes) */
+    data.subjects.forEach(s => {
+      subjectContainer.innerHTML += `
+        <div class="subject-row existing">
+          <input type="checkbox" class="existing-subject" value="${s}" checked>
+          <span>${s}</span>
+        </div>
+      `;
+    });
+  }
+
+  /* ---------------- ADD SECTION ---------------- */
+  addBranchBtn.onclick = () => {
+    const name = `${hodBranch}-${String.fromCharCode(65 + newBranches.length)}`;
+    newBranches.push(name);
+
+    branchContainer.innerHTML += `
+      <div class="branch-row new">
+        <input type="text" value="${name}" readonly>
+        <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+      </div>
+    `;
+  };
+
+  /* ---------------- ADD SUBJECT ---------------- */
+  addSubjectBtn.onclick = () => {
+    const id = Date.now();
+
+    subjectContainer.innerHTML += `
+      <div class="subject-row new" data-id="${id}">
+        <input type="text" placeholder="Subject Name">
+        <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+      </div>
+    `;
+  };
+
+  /* ---------------- SAVE ---------------- */
+  saveBtn.onclick = async () => {
+
+    const year = yearSelect.value;
+    if (!year) return alert("Select year");
+
+    /* existing subject checkboxes */
+    const inheritedSubjects = [...document.querySelectorAll(".existing-subject:checked")]
+      .map(c => c.value);
+
+    /* new subject inputs */
+    document.querySelectorAll(".subject-row.new").forEach(row => {
+      const subject = row.querySelector("input").value.trim();
+      if (!subject) return;
+
+      newSubjects.push({
+        subject,
+        sections: [...newBranches, ...branchContainer.querySelectorAll(".existing input")]
+          .map(i => i.value)
+      });
+    });
+
+    /* inherit existing subjects to new sections */
+    inheritedSubjects.forEach(s => {
+      newSubjects.push({
+        subject: s,
+        sections: newBranches
+      });
+    });
+
+    const res = await fetch("/saveSubjects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year, newBranches, newSubjects })
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      alert("Saved successfully");
+      loadExistingData();
     }
-}
-    populateYearDropdown();
-    // Populate the year dropdown dynamically
-    function populateYearDropdown() {
-        yearDropdown.innerHTML = ""; // Clear existing options
-
-        // Add default option
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.textContent = "Choose Year";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        yearDropdown.appendChild(defaultOption);
-
-        if (hodYears.length === 0) {
-            // If no specific years assigned, allow selecting all years
-            [1, 2, 3, 4].forEach(year => {
-                const option = document.createElement("option");
-                option.value = year;
-                option.textContent = `${year} Year`;
-                yearDropdown.appendChild(option);
-            });
-        } else {
-            // Only show assigned years for the HOD
-            hodYears.forEach(year => {
-                const option = document.createElement("option");
-                option.value = year;
-                option.textContent = `${year} Year`;
-                yearDropdown.appendChild(option);
-            });
-        }
-    }
-
-   yearDropdown.addEventListener("change", async () => {
-        selectedYear = yearDropdown.value;
-
-        branchContainer.innerHTML = "";
-        subjectContainer.innerHTML = "";
-        branchCount = 0;
-
-        if (!selectedYear) return;
-
-        await loadExistingBranchesAndSubjects();
-    });
-
-
-
-
-    // Add Branch Button Click
-    addBranchBtn.addEventListener("click", () => {
-        if (!selectedYear) {
-            alert("Please select a year first.");
-            return;
-        }
-
-        let branchName = "";
-
-        if (selectedYear === "1") {
-            // First-year HOD should manually enter branches
-            const div = document.createElement("div");
-            div.classList.add("branch-row");
-            div.innerHTML = `
-                <input type="text" class="branch-name" placeholder="Enter Branch Name" required>
-                <button type="button" class="remove-btn">Remove</button>
-            `;
-            branchContainer.appendChild(div);
-
-            div.querySelector(".remove-btn").addEventListener("click", () => {
-                div.remove();
-            });
-
-        } else if (hodYears.includes(parseInt(selectedYear))) {
-            // Other HODs get predefined branches
-            if (branchCount === 0) {
-                branchName = hodBranch; // First branch is the main HOD branch
-            } else {
-                branchName = `${hodBranch}-${String.fromCharCode(64 + branchCount)}`; // CSM-A, CSM-B...
-            }
-
-            const div = document.createElement("div");
-            div.classList.add("branch-row");
-            div.innerHTML = `
-                <input type="text" class="branch-name" value="${branchName}" readonly required>
-                <button type="button" class="remove-btn">Remove</button>
-            `;
-            branchContainer.appendChild(div);
-
-            div.querySelector(".remove-btn").addEventListener("click", () => {
-                div.remove();
-            });
-
-            branchCount++;
-        } else {
-            alert("You can only add branches for your designated years.");
-        }
-    });
-
-    // Add Subject Button Click
-    addSubjectBtn.addEventListener("click", () => {
-        if (!selectedYear) {
-            alert("Please select a year first.");
-            return;
-        }
-
-        const div = document.createElement("div");
-        div.classList.add("subject-row");
-        div.innerHTML = `
-            <input type="text" class="subject-name" placeholder="Enter Subject Name" required>
-            <button type="button" class="remove-btn">Remove</button>
-        `;
-        subjectContainer.appendChild(div);
-
-        div.querySelector(".remove-btn").addEventListener("click", () => {
-            div.remove();
-        });
-    });
-
-    // Save Data Button Click
-    saveBtn.addEventListener("click", async () => {
-        if (!selectedYear) {
-            alert("Please select a year first.");
-            return;
-        }
-
-        const branchInputs = document.querySelectorAll("#branchContainer .branch-name");
-        const subjectInputs = document.querySelectorAll("#subjectContainer .subject-name");
-
-        if (branchInputs.length === 0) {
-            alert("Please add at least one branch.");
-            return;
-        }
-
-        if (subjectInputs.length === 0) {
-            alert("Please add at least one subject.");
-            return;
-        }
-
-        const branches = Array.from(branchInputs)
-            .map(input => input.value.trim())
-            .filter(Boolean); // Remove empty values
-
-        const subjects = Array.from(subjectInputs)
-            .map(input => input.value.trim())
-            .filter(Boolean); // Remove empty values
-
-        if (branches.length === 0) {
-            alert("Please enter valid branch names.");
-            return;
-        }
-
-        if (subjects.length === 0) {
-            alert("Please enter valid subject names.");
-            return;
-        }
-
-        try {
-            const response = await fetch("/saveSubjects", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                // body: JSON.stringify({ year: selectedYear, branches, subjects })
-                body: JSON.stringify({
-                year: selectedYear,
-                branches,
-                subjects
-            })
-            });
-
-            const result = await response.json();
-            if (result.error) {
-                alert(`Error: ${result.error}`);
-            } else {
-                alert("Branches and subjects saved successfully!");
-                branchContainer.innerHTML = "";
-                subjectContainer.innerHTML = "";
-                branchCount = 0;
-            }
-        } catch (error) {
-            console.error("Error saving data:", error);
-            alert("Failed to save data. Try again.");
-        }
-    });
+  };
 });
+
+
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
