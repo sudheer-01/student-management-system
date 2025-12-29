@@ -293,6 +293,21 @@ document.getElementById("backToSaveBtn").addEventListener("click", () => {
 
     loadExistingData();
 });
+function switchToSaveMode() {
+    deleteMode = false;
+
+    document.getElementById("newSectionInput").style.display = "";
+    addBranchBtn.style.display = "";
+    addSubjectBtn.style.display = "";
+    saveBtn.style.display = "";
+    deleteModeBtn.style.display = "";
+
+    document.getElementById("backToSaveBtn").style.display = "none";
+}
+document.getElementById("backToSaveBtn").addEventListener("click", () => {
+    switchToSaveMode();
+    loadExistingData();
+});
 
 
 });
