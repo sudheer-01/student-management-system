@@ -51,7 +51,7 @@ async function getStudentDetailsToEnterMarks() {
             row.innerHTML = `
             <td>${index + 1}</td>
             <td>${student.htno}</td>
-            <td>${student.name}</td>
+            <td>${student.full_name}</td>
             <td>
                 <input 
                 type="number"
@@ -98,7 +98,7 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
 
     formData["exam"] = exam; // Add exam field
 
-    console.log("Submitting marks data:", formData); // Debug log
+    //console.log("Submitting marks data:", formData); // Debug log
 
     try {
         const selectedSubject = localStorage.getItem("selectedSubject");
@@ -113,7 +113,7 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
         });
 
         const result = await response.json();
-        console.log("Server response:", result);
+        //console.log("Server response:", result);
 
         if (result.success) {
             alert("Marks saved successfully!");

@@ -325,7 +325,7 @@ app.get("/getData", (req, res) => {
 app.get("/getStudents", (req, res) => {
      const { year, branch } = req.query;
 
-    con.query("SELECT DISTINCT htno, name FROM studentmarks WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
+    con.query("SELECT htno, full_name FROM student_profiles WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
         if (err) {
             console.error("Error fetching student data:", err);
             res.status(500).json({ success: false, message: "Database error" });
