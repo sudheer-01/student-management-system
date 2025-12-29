@@ -239,7 +239,7 @@ function addDeleteHandlers() {
                 body: JSON.stringify({ year: selectedYear, section })
             });
 
-            deleteMode = false;
+            //deleteMode = false;
             resetUI();
         };
     });
@@ -270,29 +270,35 @@ function addDeleteHandlers() {
             body: JSON.stringify({ year: selectedYear, items: payload })
         });
 
-        deleteMode = false;
+        //deleteMode = false;
         resetUI();
     };
 }
+// function resetUI() {
+//     addBranchBtn.style.display = "";
+//     addSubjectBtn.style.display = "";
+//     saveBtn.style.display = "";
+//     loadExistingData();
+// }
+// document.getElementById("backToSaveBtn").addEventListener("click", () => {
+//     deleteMode = false;
+
+//     /* Restore normal UI */
+//     document.getElementById("newSectionInput").style.display = "";
+//     addBranchBtn.style.display = "";
+//     addSubjectBtn.style.display = "";
+//     saveBtn.style.display = "";
+//     deleteModeBtn.style.display = "";
+//     document.getElementById("backToSaveBtn").style.display = "none";
+
+//     loadExistingData();
+// });
+
 function resetUI() {
-    addBranchBtn.style.display = "";
-    addSubjectBtn.style.display = "";
-    saveBtn.style.display = "";
+    switchToSaveMode();
     loadExistingData();
 }
-document.getElementById("backToSaveBtn").addEventListener("click", () => {
-    deleteMode = false;
 
-    /* Restore normal UI */
-    document.getElementById("newSectionInput").style.display = "";
-    addBranchBtn.style.display = "";
-    addSubjectBtn.style.display = "";
-    saveBtn.style.display = "";
-    deleteModeBtn.style.display = "";
-    document.getElementById("backToSaveBtn").style.display = "none";
-
-    loadExistingData();
-});
 function switchToSaveMode() {
     deleteMode = false;
 
@@ -304,6 +310,7 @@ function switchToSaveMode() {
 
     document.getElementById("backToSaveBtn").style.display = "none";
 }
+
 document.getElementById("backToSaveBtn").addEventListener("click", () => {
     switchToSaveMode();
     loadExistingData();
