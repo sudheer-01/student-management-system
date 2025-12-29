@@ -104,6 +104,7 @@ function attachTableActions(wrapper, table, meta) {
  *************************************************/
 let marksChartInstances = [];
 let currentData = [];
+let potentialFailConfig = null;
 
 /*************************************************
  * DOM REFERENCES (VERY IMPORTANT)
@@ -1198,6 +1199,184 @@ document.addEventListener("change", e => {
 
   container.appendChild(block);
 });
+///*************************************************
+  //* POTENTIAL FAILED STUDENTS
+ // *************************************************/
+async function loadPotentialFailedStudents() {
+    resetAnalysisUI();
+
+    if (!yearSelect.value || !branchSelect.value) {
+        alert("Please select Year and Section");
+        return;
+    }
+
+    const config = document.createElement("div");
+    config.className = "analysis-block";
+
+    const exams = await (await fetch(
+        `/getExams?year=${yearSelect.value}&branch=${branchSelect.value}`
+    )).json();
+
+    config.innerHTML = `
+        <h3>Potential Failed Students</h3>
+
+        <label>Select Exam</label>
+        <select id="pfExam">
+            <option value="">Select Exam</option>
+            ${exams.map(e => `<option value="${e}">${e}</option>`).join("")}
+        </select>
+
+        <label>Condition</label>
+        <select id="pfCondition">
+            <option value="<">Less Than</option>
+            <option value="<=">Less Than or Equal</option>
+            <option value=">=">Greater Than or Equal</option>
+        </select>
+
+        <label>Marks</label>
+        <input type="number" id="pfMarks" placeholder="Enter marks">
+
+        <button id="pfGenerateBtn">Generate List</button>
+    `;
+
+    chartsContainer.appendChild(config);
+
+    document.getElementById("pfGenerateBtn").onclick = generatePotentialFailedStudents;
+}
+async function generatePotentialFailedStudents() {
+    clearCharts();
+
+    const exam = document.getElementById("pfExam").value;
+    const condition = document.getElementById("pfCondition").value;
+    const marks = parseInt(document.getElementById("pfMarks").value);
+
+    if (!exam || isNaN(marks)) {
+        alert("Select exam and enter marks");
+        return;
+    }
+
+    const subjects = await (await fetch(
+        `/getSubjects/${yearSelect.value}/${branchSelect.value}`
+    )).json();
+
+    const allSubjectStudents = {};
+    const conditionFn = {
+        "<": m => m < marks,
+        "<=": m => m <= marks,
+        ">=": m => m >= marks
+    }[condition];
+
+    for (const { subject_name } of subjects) {
+        const students = await (await fetch(
+            `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject_name}/${exam}`
+        )).json();
+
+        const filtered = students.filter(s => conditionFn(s.marks));
+        allSubjectStudents[subject_name] = filtered;
+
+        // 🔹 Build table per subject
+        const wrapper = document.createElement("div");
+        wrapper.className = "analysis-block";
+
+        const heading = document.createElement("h4");
+        heading.textContent =
+            `Subject: ${subject_name} | Exam: ${exam} | Marks ${condition} ${marks}`;
+
+        wrapper.appendChild(heading);
+
+        const table = document.createElement("table");
+        table.className = "student-range-table";
+        table.innerHTML = `
+            <tr>
+                <th>HTNO</th>
+                <th>Name</th>
+                <th>Marks</th>
+            </tr>
+        `;
+
+        if (!filtered.length) {
+            table.innerHTML += `
+                <tr>
+                    <td colspan="3"><em>No students found</em></td>
+                </tr>`;
+        } else {
+            filtered.forEach(s => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${s.htno}</td>
+                        <td>${s.name}</td>
+                        <td>${s.marks}</td>
+                    </tr>`;
+            });
+        }
+
+        wrapper.appendChild(table);
+
+        // ✅ Print & CSV support (already implemented earlier)
+        attachTableActions(wrapper, table, {
+            year: yearSelect.value,
+            branch: branchSelect.value,
+            title: `${subject_name}_${exam}_Marks_${condition}_${marks}`
+        });
+
+        chartsContainer.appendChild(wrapper);
+    }
+
+    // 🔹 COMMON STUDENTS
+    generateCommonPotentialFailed(allSubjectStudents, exam, condition, marks);
+}
+function generateCommonPotentialFailed(subjectMap, exam, condition, marks) {
+    const subjects = Object.keys(subjectMap);
+    if (!subjects.length) return;
+
+    let common = subjectMap[subjects[0]].map(s => s.htno);
+
+    subjects.slice(1).forEach(sub => {
+        const set = subjectMap[sub].map(s => s.htno);
+        common = common.filter(h => set.includes(h));
+    });
+
+    if (!common.length) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "analysis-block";
+
+    const heading = document.createElement("h3");
+    heading.textContent =
+        `Common Potential Failed Students | Exam: ${exam} | Marks ${condition} ${marks}`;
+    wrapper.appendChild(heading);
+
+    const table = document.createElement("table");
+    table.className = "student-range-table";
+    table.innerHTML = `
+        <tr>
+            <th>HTNO</th>
+            <th>Name</th>
+        </tr>
+    `;
+
+    common.forEach(htno => {
+        const student = subjectMap[subjects[0]].find(s => s.htno === htno);
+        table.innerHTML += `
+            <tr>
+                <td>${htno}</td>
+                <td>${student.name}</td>
+            </tr>`;
+    });
+
+    wrapper.appendChild(table);
+
+    attachTableActions(wrapper, table, {
+        year: yearSelect.value,
+        branch: branchSelect.value,
+        title: `COMMON_${exam}_Marks_${condition}_${marks}`
+    });
+
+    chartsContainer.appendChild(wrapper);
+}
+
+
+
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
