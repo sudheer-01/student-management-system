@@ -43,7 +43,7 @@ async function loadExistingData() {
 
     /* CHECKBOXES FOR SUBJECT ADD */
     const selectBox = document.createElement("div");
-    selectBox.innerHTML = `<h4>Select section(s) to add subjects</h4>`;
+    selectBox.innerHTML = `<h4>Select section(s) to assign subject(s)</h4>`;
 
     data.sections.forEach(sec => {
         selectBox.innerHTML += `
