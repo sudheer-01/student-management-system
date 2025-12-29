@@ -339,101 +339,6 @@ app.get("/getStudents", (req, res) => {
 //after getting the marks like year and branch we are entering the marks and saving them
 //for more information just uncomment tto understand more clearly
 // Route to save student marks
-// app.post("/saveMarks", (req, res) => {
-//     let subjectName = req.body.subject; 
-//    // console.log(subjectName);
-//     const exam = req.body.exam;
-
-//     if (!exam) {
-//         return res.json({ success: false, message: "Exam not selected" });
-//     }
-
-//     const marksData = Object.keys(req.body)
-//         .filter(key => key.startsWith("marks_"))
-//         .map(key => ({
-//             htno: key.split("_")[1],
-//             marks: req.body[key]
-//         }));
-
-//     if (marksData.length === 0) {
-//         return res.json({ success: false, message: "No marks data provided" });
-//     }
-
-//     const queries = marksData.map(({ htno, marks }) => {
-//         return new Promise((resolve, reject) => {
-//             // Check if student exists
-//             const checkQuery = `SELECT * FROM studentmarks WHERE htno = ?`;
-//             con.query(checkQuery, [htno], (err, result) => {
-//                 if (err) {
-//                     console.error("Database error:", err);
-//                     return reject(err);
-//                 }
-
-//                 if (result.length > 0) {
-//                     // Check if the subject exists for this student
-//                     const existingSubject = result.find(row => row.subject === subjectName);
-
-//                     if (existingSubject) {
-//                         // Update existing subject marks
-//                         const updateQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
-//                         con.query(updateQuery, [marks, htno, subjectName], (err, updateResult) => {
-//                             if (err) {
-//                                 console.error("Error updating marks:", err);
-//                                 return reject(err);
-//                             }
-//                             //console.log(`Updated marks for ${htno} in ${subjectName}`);
-//                             resolve(updateResult);
-//                         });
-//                     } else {
-//                         // Check for TBD subjects and update them
-//                         const updateSubjectQuery = `UPDATE studentmarks SET subject = ? WHERE htno = ? AND subject LIKE 'TBD_%' LIMIT 1`;
-//                         con.query(updateSubjectQuery, [subjectName, htno], (err, updateSubjectResult) => {
-//                             if (err) {
-//                                 console.error("Error updating subject name:", err);
-//                                 return reject(err);
-//                             }
-
-//                             if (updateSubjectResult.affectedRows > 0) {
-//                                 // If a TBD subject was updated, update the marks
-//                                 const updateMarksQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
-//                                 con.query(updateMarksQuery, [marks, htno, subjectName], (err, updateMarksResult) => {
-//                                     if (err) {
-//                                         console.error("Error updating marks:", err);
-//                                         return reject(err);
-//                                     }
-//                                    // console.log(`Updated marks for ${htno} in ${subjectName}`);
-//                                     resolve(updateMarksResult);
-//                                 });
-//                             } else {
-//                                 // Insert new subject if no TBD entry exists
-//                                 const { year, branch, name } = result[0];
-
-//                                 const insertQuery = `INSERT INTO studentmarks (year, branch, htno, name, subject, ${exam}) VALUES (?, ?, ?, ?, ?, ?)`;
-//                                 con.query(insertQuery, [year, branch, htno, name, subjectName, marks], (err, insertResult) => {
-//                                     if (err) {
-//                                         console.error("Error inserting new subject:", err);
-//                                         return reject(err);
-//                                     }
-//                                     //console.log(`Inserted new subject ${subjectName} for ${htno}`);
-//                                     resolve(insertResult);
-//                                 });
-//                             }
-//                         });
-//                     }
-//                 } else {
-//                     return reject(new Error("Student details not found"));
-//                 }
-//             });
-//         });
-//     });
-
-//     Promise.all(queries)
-//         .then(() => res.json({ success: true }))
-//         .catch((error) => {
-//             console.error("Error processing marks:", error);
-//             res.status(500).json({ success: false, message: "Database error" });
-//         });
-// });
 app.post("/saveMarks", async (req, res) => {
     const { exam, subject } = req.body;
 
@@ -1734,49 +1639,102 @@ app.post("/admin/student-marks", async (req, res) => {
     });
 });
 // Fetch student profiles based on year and branch
+// app.get("/admin/student-profiles", async (req, res) => {
+//     try {
+//         const { year, branch } = req.query;
+
+//         if (!year || !branch) {
+//             return res.status(400).json({ error: "Year and branch required" });
+//         }
+
+//         // 1️⃣ Get unique HTNOs from studentmarks
+//         const [htnos] = await con.promise().query(
+//             `
+//             SELECT DISTINCT htno
+//             FROM studentmarks
+//             WHERE year = ? AND branch = ?
+//             `,
+//             [year, branch]
+//         );
+
+//         if (htnos.length === 0) {
+//             return res.json([]);
+//         }
+
+//         const htnoList = htnos.map(r => r.htno);
+//         const placeholders = htnoList.map(() => "?").join(",");
+
+//         // 2️⃣ Fetch student profiles using HTNOs
+//         const [profiles] = await con.promise().query(
+//             `
+//             SELECT *
+//             FROM student_profiles
+//             WHERE htno IN (${placeholders})
+//             ORDER BY htno
+//             `,
+//             htnoList
+//         );
+
+//         res.json(profiles);
+
+//     } catch (err) {
+//         console.error("STUDENT PROFILES ERROR:", err);
+//         res.status(500).json({ error: "Failed to fetch student profiles" });
+//     }
+// });
 app.get("/admin/student-profiles", async (req, res) => {
     try {
         const { year, branch } = req.query;
 
         if (!year || !branch) {
-            return res.status(400).json({ error: "Year and branch required" });
+            return res.status(400).json({
+                error: "Year and branch are required"
+            });
         }
 
-        // 1️⃣ Get unique HTNOs from studentmarks
-        const [htnos] = await con.promise().query(
-            `
-            SELECT DISTINCT htno
-            FROM studentmarks
-            WHERE year = ? AND branch = ?
-            `,
-            [year, branch]
-        );
-
-        if (htnos.length === 0) {
-            return res.json([]);
-        }
-
-        const htnoList = htnos.map(r => r.htno);
-        const placeholders = htnoList.map(() => "?").join(",");
-
-        // 2️⃣ Fetch student profiles using HTNOs
         const [profiles] = await con.promise().query(
             `
-            SELECT *
+            SELECT
+                htno,
+                full_name,
+                year,
+                branch,
+                batch,
+                dob,
+                gender,
+                admission_type,
+                current_status,
+                student_mobile,
+                email,
+                current_address,
+                permanent_address,
+                father_name,
+                mother_name,
+                parent_mobile,
+                guardian_name,
+                guardian_relation,
+                guardian_mobile,
+                blood_group,
+                nationality,
+                religion,
+                profile_photo
             FROM student_profiles
-            WHERE htno IN (${placeholders})
+            WHERE year = ? AND branch = ?
             ORDER BY htno
             `,
-            htnoList
+            [year, branch]
         );
 
         res.json(profiles);
 
     } catch (err) {
-        console.error("STUDENT PROFILES ERROR:", err);
-        res.status(500).json({ error: "Failed to fetch student profiles" });
+        console.error("ADMIN STUDENT PROFILES ERROR:", err);
+        res.status(500).json({
+            error: "Failed to fetch student profiles"
+        });
     }
 });
+
 // Fetch password reset requests from faculty and HODs
 app.get("/admin/reset-requests", async (req, res) => {
     try {
