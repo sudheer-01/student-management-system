@@ -18,6 +18,86 @@ Chart.register({
     });
   }
 });
+function exportTableToCSV(table, filename) {
+    let csv = [];
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll("th, td");
+        const rowData = [];
+        cols.forEach(col => {
+            let text = col.innerText.replace(/\n/g, " ").replace(/,/g, " ");
+            rowData.push(`"${text}"`);
+        });
+        csv.push(rowData.join(","));
+    });
+
+    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+function printTable(table, title) {
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: Segoe UI; padding: 20px; }
+                h2 { text-align: center; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 8px; }
+                th { background: #f1f5ff; }
+            </style>
+        </head>
+        <body>
+            <h2>${title}</h2>
+            ${table.outerHTML}
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.focus();
+    win.print();
+}
+function attachTableActions(wrapper, table, meta) {
+    const actionDiv = document.createElement("div");
+    actionDiv.style.marginTop = "10px";
+    actionDiv.style.textAlign = "right";
+
+    const printBtn = document.createElement("button");
+    printBtn.textContent = "🖨️ Print";
+    printBtn.className = "view-students-btn";
+    printBtn.onclick = () => {
+        printTable(
+            table,
+            `${meta.year} Year | ${meta.branch} | ${meta.title}`
+        );
+    };
+
+    const csvBtn = document.createElement("button");
+    csvBtn.textContent = "📄 Export CSV";
+    csvBtn.className = "view-students-btn";
+    csvBtn.style.marginLeft = "10px";
+    csvBtn.onclick = () => {
+        exportTableToCSV(
+            table,
+            `${meta.year}_${meta.branch}_${meta.title}.csv`
+        );
+    };
+
+    actionDiv.appendChild(printBtn);
+    actionDiv.appendChild(csvBtn);
+    wrapper.appendChild(actionDiv);
+}
 
 /*************************************************
  * GLOBAL STATE
@@ -364,8 +444,20 @@ generateBtn.onclick = async () => {
 
         viewBtn.onclick = () => {
             if (studentsDiv.innerHTML === "") {
+                // const table = createStudentRangeTable(exam, ranges, students);
+                // studentsDiv.appendChild(table);
+                const wrapper = document.createElement("div");
                 const table = createStudentRangeTable(exam, ranges, students);
-                studentsDiv.appendChild(table);
+
+                wrapper.appendChild(table);
+
+                attachTableActions(wrapper, table, {
+                    year: yearSelect.value,
+                    branch: branchSelect.value,
+                    title: `${subject} - ${exam} Performance`
+                });
+
+                studentsDiv.appendChild(wrapper);
             }
 
             studentsDiv.style.display =
@@ -756,7 +848,18 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
                     });
                 }
 
-                commonBox.appendChild(table);
+                // commonBox.appendChild(table);
+                const wrapper = document.createElement("div");
+                wrapper.appendChild(table);
+
+                attachTableActions(wrapper, table, {
+                    year: yearSelect.value,
+                    branch: branchSelect.value,
+                    title: `Common Students - ${exam}`
+                });
+
+                commonBox.appendChild(wrapper);
+
             });
 
             commonBox.style.display = "block";
@@ -1031,7 +1134,17 @@ document.addEventListener("click", e => {
     `;
   });
 
-  resultDiv.appendChild(table);
+  // resultDiv.appendChild(table);
+  const wrapper = document.createElement("div");
+  wrapper.appendChild(table);
+
+  attachTableActions(wrapper, table, {
+      year: yearSelect.value,
+      branch: branchSelect.value,
+      title: `Student Performance - ${exam}`
+  });
+
+  resultDiv.appendChild(wrapper);
 });
 function renderExamSelectionUI(exams) {
   const container = document.createElement("div");
