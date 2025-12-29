@@ -69,7 +69,7 @@ function renderTable(rows) {
                             src="/studentProfile/photo/${r.htno}" 
                             alt="Profile"
                             style="width:60px;height:60px;border-radius:50%;object-fit:cover"
-                            onerror="this.src='/images/default-avatar.png'"
+                            onerror="this.src='default.png'"
                         >
                     </td>
                 `;
