@@ -178,12 +178,20 @@ saveBtn.addEventListener("click", async () => {
 
 deleteModeBtn.addEventListener("click", async () => {
     deleteMode = true;
+
+    /* Hide add/save UI */
+    document.getElementById("newSectionInput").style.display = "none";
     addBranchBtn.style.display = "none";
     addSubjectBtn.style.display = "none";
     saveBtn.style.display = "none";
+    deleteModeBtn.style.display = "none";
+
+    /* Show back button */
+    document.getElementById("backToSaveBtn").style.display = "inline-block";
 
     await loadDeleteUI();
 });
+
 async function loadDeleteUI() {
     const res = await fetch(
         `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
@@ -272,6 +280,19 @@ function resetUI() {
     saveBtn.style.display = "";
     loadExistingData();
 }
+document.getElementById("backToSaveBtn").addEventListener("click", () => {
+    deleteMode = false;
+
+    /* Restore normal UI */
+    document.getElementById("newSectionInput").style.display = "";
+    addBranchBtn.style.display = "";
+    addSubjectBtn.style.display = "";
+    saveBtn.style.display = "";
+    deleteModeBtn.style.display = "";
+    document.getElementById("backToSaveBtn").style.display = "none";
+
+    loadExistingData();
+});
 
 
 });
