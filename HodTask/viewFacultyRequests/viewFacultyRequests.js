@@ -46,7 +46,7 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
 
     try {
         const branch = localStorage.getItem("hodBranch");
-        console.log("HOD Branch from localStorage:", branch); // Debugging log
+        //console.log("HOD Branch from localStorage:", branch); // Debugging log
         const response = await fetch(`/getbranches/${year}/${branch}`);
         const branches = await response.json();
         const branchDropdown = document.getElementById("branchDropdown");
@@ -96,7 +96,13 @@ document.getElementById("loadRequests").addEventListener("click", async function
                 <td>${request.facultyName}</td>
                 <td>${request.year}</td>
                 <td>${request.subject}</td>
-                <td id="status-${request.faculty_Id}-${request.year}-${request.branch}-${request.subject}">${request.status}</td>
+                <td class="status-cell"
+                    data-id="${request.faculty_Id}"
+                    data-year="${request.year}"
+                    data-branch="${request.branch}"
+                    data-subject="${request.subject}">
+                    ${request.status}
+                </td>
                 <td>
                     <button class="approve-btn" 
                         data-id="${request.faculty_Id}" 
@@ -158,7 +164,15 @@ async function updateStatus(facultyId, year, branch, subject, status) {
         //console.log("Server response:", result); // Debugging log
 
         if (response.ok) {
-            document.querySelector(`#status-${facultyId}-${year}-${branch}-${subject}`).textContent = status;
+            //document.querySelector(`#status-${facultyId}-${year}-${branch}-${subject}`).textContent = status;
+            const statusCell = document.querySelector(
+            `.status-cell[data-id="${facultyId}"][data-year="${year}"][data-branch="${branch}"][data-subject="${subject}"]`
+            );
+            if (!statusCell) {
+                console.error("Status cell not found", { facultyId, year, branch, subject });
+                return;
+            }
+            statusCell.textContent = status;
             alert(`Request ${status} successfully!`);
         } else {
             alert(result.error || "Failed to update request status.");
