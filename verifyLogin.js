@@ -339,100 +339,186 @@ app.get("/getStudents", (req, res) => {
 //after getting the marks like year and branch we are entering the marks and saving them
 //for more information just uncomment tto understand more clearly
 // Route to save student marks
-app.post("/saveMarks", (req, res) => {
-    let subjectName = req.body.subject; // Ensure this has the correct value //g
-   // console.log(subjectName);
-    const exam = req.body.exam;
+// app.post("/saveMarks", (req, res) => {
+//     let subjectName = req.body.subject; 
+//    // console.log(subjectName);
+//     const exam = req.body.exam;
 
-    if (!exam) {
-        return res.json({ success: false, message: "Exam not selected" });
+//     if (!exam) {
+//         return res.json({ success: false, message: "Exam not selected" });
+//     }
+
+//     const marksData = Object.keys(req.body)
+//         .filter(key => key.startsWith("marks_"))
+//         .map(key => ({
+//             htno: key.split("_")[1],
+//             marks: req.body[key]
+//         }));
+
+//     if (marksData.length === 0) {
+//         return res.json({ success: false, message: "No marks data provided" });
+//     }
+
+//     const queries = marksData.map(({ htno, marks }) => {
+//         return new Promise((resolve, reject) => {
+//             // Check if student exists
+//             const checkQuery = `SELECT * FROM studentmarks WHERE htno = ?`;
+//             con.query(checkQuery, [htno], (err, result) => {
+//                 if (err) {
+//                     console.error("Database error:", err);
+//                     return reject(err);
+//                 }
+
+//                 if (result.length > 0) {
+//                     // Check if the subject exists for this student
+//                     const existingSubject = result.find(row => row.subject === subjectName);
+
+//                     if (existingSubject) {
+//                         // Update existing subject marks
+//                         const updateQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
+//                         con.query(updateQuery, [marks, htno, subjectName], (err, updateResult) => {
+//                             if (err) {
+//                                 console.error("Error updating marks:", err);
+//                                 return reject(err);
+//                             }
+//                             //console.log(`Updated marks for ${htno} in ${subjectName}`);
+//                             resolve(updateResult);
+//                         });
+//                     } else {
+//                         // Check for TBD subjects and update them
+//                         const updateSubjectQuery = `UPDATE studentmarks SET subject = ? WHERE htno = ? AND subject LIKE 'TBD_%' LIMIT 1`;
+//                         con.query(updateSubjectQuery, [subjectName, htno], (err, updateSubjectResult) => {
+//                             if (err) {
+//                                 console.error("Error updating subject name:", err);
+//                                 return reject(err);
+//                             }
+
+//                             if (updateSubjectResult.affectedRows > 0) {
+//                                 // If a TBD subject was updated, update the marks
+//                                 const updateMarksQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
+//                                 con.query(updateMarksQuery, [marks, htno, subjectName], (err, updateMarksResult) => {
+//                                     if (err) {
+//                                         console.error("Error updating marks:", err);
+//                                         return reject(err);
+//                                     }
+//                                    // console.log(`Updated marks for ${htno} in ${subjectName}`);
+//                                     resolve(updateMarksResult);
+//                                 });
+//                             } else {
+//                                 // Insert new subject if no TBD entry exists
+//                                 const { year, branch, name } = result[0];
+
+//                                 const insertQuery = `INSERT INTO studentmarks (year, branch, htno, name, subject, ${exam}) VALUES (?, ?, ?, ?, ?, ?)`;
+//                                 con.query(insertQuery, [year, branch, htno, name, subjectName, marks], (err, insertResult) => {
+//                                     if (err) {
+//                                         console.error("Error inserting new subject:", err);
+//                                         return reject(err);
+//                                     }
+//                                     //console.log(`Inserted new subject ${subjectName} for ${htno}`);
+//                                     resolve(insertResult);
+//                                 });
+//                             }
+//                         });
+//                     }
+//                 } else {
+//                     return reject(new Error("Student details not found"));
+//                 }
+//             });
+//         });
+//     });
+
+//     Promise.all(queries)
+//         .then(() => res.json({ success: true }))
+//         .catch((error) => {
+//             console.error("Error processing marks:", error);
+//             res.status(500).json({ success: false, message: "Database error" });
+//         });
+// });
+app.post("/saveMarks", async (req, res) => {
+    const { exam, subject } = req.body;
+
+    if (!exam || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Exam or subject missing"
+        });
     }
 
+    // Extract marks: marks_22C31A6601 → { htno, marks }
     const marksData = Object.keys(req.body)
-        .filter(key => key.startsWith("marks_"))
-        .map(key => ({
-            htno: key.split("_")[1],
-            marks: req.body[key]
+        .filter(k => k.startsWith("marks_"))
+        .map(k => ({
+            htno: k.split("_")[1],
+            marks: req.body[k]
         }));
 
     if (marksData.length === 0) {
-        return res.json({ success: false, message: "No marks data provided" });
+        return res.status(400).json({
+            success: false,
+            message: "No marks provided"
+        });
     }
 
-    const queries = marksData.map(({ htno, marks }) => {
-        return new Promise((resolve, reject) => {
-            // Check if student exists
-            const checkQuery = `SELECT * FROM studentmarks WHERE htno = ?`;
-            con.query(checkQuery, [htno], (err, result) => {
-                if (err) {
-                    console.error("Database error:", err);
-                    return reject(err);
-                }
+    try {
+        for (const { htno, marks } of marksData) {
 
-                if (result.length > 0) {
-                    // Check if the subject exists for this student
-                    const existingSubject = result.find(row => row.subject === subjectName);
+            /* 1️⃣ Get student base info from student_profiles */
+            const [studentRows] = await con
+                .promise()
+                .query(
+                    `SELECT full_name, year, branch 
+                     FROM student_profiles 
+                     WHERE htno = ?`,
+                    [htno]
+                );
 
-                    if (existingSubject) {
-                        // Update existing subject marks
-                        const updateQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
-                        con.query(updateQuery, [marks, htno, subjectName], (err, updateResult) => {
-                            if (err) {
-                                console.error("Error updating marks:", err);
-                                return reject(err);
-                            }
-                            //console.log(`Updated marks for ${htno} in ${subjectName}`);
-                            resolve(updateResult);
-                        });
-                    } else {
-                        // Check for TBD subjects and update them
-                        const updateSubjectQuery = `UPDATE studentmarks SET subject = ? WHERE htno = ? AND subject LIKE 'TBD_%' LIMIT 1`;
-                        con.query(updateSubjectQuery, [subjectName, htno], (err, updateSubjectResult) => {
-                            if (err) {
-                                console.error("Error updating subject name:", err);
-                                return reject(err);
-                            }
+            if (studentRows.length === 0) {
+                throw new Error(`Student not found: ${htno}`);
+            }
 
-                            if (updateSubjectResult.affectedRows > 0) {
-                                // If a TBD subject was updated, update the marks
-                                const updateMarksQuery = `UPDATE studentmarks SET ${exam} = ? WHERE htno = ? AND subject = ?`;
-                                con.query(updateMarksQuery, [marks, htno, subjectName], (err, updateMarksResult) => {
-                                    if (err) {
-                                        console.error("Error updating marks:", err);
-                                        return reject(err);
-                                    }
-                                   // console.log(`Updated marks for ${htno} in ${subjectName}`);
-                                    resolve(updateMarksResult);
-                                });
-                            } else {
-                                // Insert new subject if no TBD entry exists
-                                const { year, branch, name } = result[0];
+            const { full_name, year, branch } = studentRows[0];
 
-                                const insertQuery = `INSERT INTO studentmarks (year, branch, htno, name, subject, ${exam}) VALUES (?, ?, ?, ?, ?, ?)`;
-                                con.query(insertQuery, [year, branch, htno, name, subjectName, marks], (err, insertResult) => {
-                                    if (err) {
-                                        console.error("Error inserting new subject:", err);
-                                        return reject(err);
-                                    }
-                                    //console.log(`Inserted new subject ${subjectName} for ${htno}`);
-                                    resolve(insertResult);
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    return reject(new Error("Student details not found"));
-                }
-            });
+            /* 2️⃣ Check if subject row already exists */
+            const [existing] = await con
+                .promise()
+                .query(
+                    `SELECT id FROM studentmarks
+                     WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
+                    [htno, year, branch, subject]
+                );
+
+            if (existing.length > 0) {
+                /* 3️⃣ UPDATE marks (same subject, new exam) */
+                await con
+                    .promise()
+                    .query(
+                        `UPDATE studentmarks
+                         SET \`${exam}\` = ?
+                         WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
+                        [marks, htno, year, branch, subject]
+                    );
+            } else {
+                /* 4️⃣ INSERT new subject row */
+                await con
+                    .promise()
+                    .query(
+                        `INSERT INTO studentmarks
+                         (year, branch, htno, name, subject, \`${exam}\`)
+                         VALUES (?, ?, ?, ?, ?, ?)`,
+                        [year, branch, htno, full_name, subject, marks]
+                    );
+            }
+        }
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error("SAVE MARKS ERROR:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error saving marks"
         });
-    });
-
-    Promise.all(queries)
-        .then(() => res.json({ success: true }))
-        .catch((error) => {
-            console.error("Error processing marks:", error);
-            res.status(500).json({ success: false, message: "Database error" });
-        });
+    }
 });
 
 
