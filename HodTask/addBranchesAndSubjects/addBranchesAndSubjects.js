@@ -10,10 +10,53 @@ document.addEventListener("DOMContentLoaded", async () => {
     let branchCount = 0;
     let hodBranch = localStorage.getItem("hodBranch");
     let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
-    
-    const freezeBtn = document.getElementById("freezeData");
-    let isFrozen = false;
+    async function loadExistingBranchesAndSubjects() {
+    try {
+        const res = await fetch(
+            `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
+        );
+        const data = await res.json();
 
+        /* ===== SECTIONS ===== */
+        if (!data.branches.length) {
+            branchContainer.innerHTML =
+                `<p class="empty-msg">No sections assigned for this year</p>`;
+        } else {
+            data.branches.forEach(b => {
+                const div = document.createElement("div");
+                div.className = "branch-row";
+                div.innerHTML = `
+                    <input type="text" class="branch-name" value="${b}" readonly>
+                    <button type="button" class="remove-btn">Remove</button>
+                `;
+                div.querySelector(".remove-btn").onclick = () => div.remove();
+                branchContainer.appendChild(div);
+                branchCount++;
+            });
+        }
+
+        /* ===== SUBJECTS ===== */
+        if (!data.subjects.length) {
+            subjectContainer.innerHTML =
+                `<p class="empty-msg">No subjects assigned for this year</p>`;
+        } else {
+            data.subjects.forEach(s => {
+                const div = document.createElement("div");
+                div.className = "subject-row";
+                div.innerHTML = `
+                    <input type="text" class="subject-name" value="${s}" readonly>
+                    <button type="button" class="remove-btn">Remove</button>
+                `;
+                div.querySelector(".remove-btn").onclick = () => div.remove();
+                subjectContainer.appendChild(div);
+            });
+        }
+
+    } catch (err) {
+        console.error("Load existing data error:", err);
+        alert("Failed to load existing sections/subjects");
+    }
+}
     populateYearDropdown();
     // Populate the year dropdown dynamically
     function populateYearDropdown() {
@@ -46,69 +89,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Handle year selection
-    // yearDropdown.addEventListener("change", () => {
-    //     selectedYear = yearDropdown.value;
-    //     branchContainer.innerHTML = "";
-    //     subjectContainer.innerHTML = "";
-    //     branchCount = 0;
-    // });
-
-    yearDropdown.addEventListener("change", async () => {
+   yearDropdown.addEventListener("change", async () => {
         selectedYear = yearDropdown.value;
+
         branchContainer.innerHTML = "";
         subjectContainer.innerHTML = "";
         branchCount = 0;
 
-        const res = await fetch(`/checkFreezeStatus/${selectedYear}/${hodBranch}`);
-        const data = await res.json();
+        if (!selectedYear) return;
 
-        if (data.frozen) {
-            isFrozen = true;
-            loadFrozenData();
-            disableEditing();
-        } else {
-            isFrozen = false;
-            enableEditing();
-        }
+        await loadExistingBranchesAndSubjects();
     });
-    
-    async function loadFrozenData() {
-        const res = await fetch(`/getFrozenData/${selectedYear}/${hodBranch}`);
 
-        const data = await res.json();
-
-        data.branches.forEach(b => {
-            branchContainer.innerHTML += `
-                <div class="branch-row">
-                    <input type="text" value="${b.branch_name}" readonly>
-                </div>`;
-        });
-
-        data.subjects.forEach(s => {
-            subjectContainer.innerHTML += `
-                <div class="subject-row">
-                    <input type="text" value="${s.subject_name}" readonly>
-                </div>`;
-        });
-    }
-     function disableEditing() {
-        addBranchBtn.disabled = true;
-        addSubjectBtn.disabled = true;
-        saveBtn.disabled = true;
-        freezeBtn.disabled = true;
-    }
-    function enableEditing() {
-        addBranchBtn.disabled = false;
-        addSubjectBtn.disabled = false;
-        saveBtn.disabled = false;
-        freezeBtn.disabled = false;
-    }
-    freezeBtn.addEventListener("click", () => {
-        if (!confirm("Once frozen, data cannot be changed. Continue?")) return;
-        isFrozen = true;
-        alert("Data will be frozen on save.");
-    });
 
 
 
@@ -227,8 +219,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 body: JSON.stringify({
                 year: selectedYear,
                 branches,
-                subjects,
-                freeze: isFrozen
+                subjects
             })
             });
 

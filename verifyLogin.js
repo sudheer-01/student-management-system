@@ -679,41 +679,68 @@ app.get("/getFrozenData/:year/:branch", async (req, res) => {
 });
 
 app.post("/saveSubjects", async (req, res) => {
-    const { year, branches, subjects, freeze } = req.body;
+    const { year, branches, subjects } = req.body;
     const db = con.promise();
 
-    const [existing] = await db.query(
-        "SELECT is_frozen FROM branches WHERE year = ? AND branch_name LIKE ? LIMIT 1",
-        [year, `${branches[0].split('-')[0]}%`]
-    );
+    try {
+        /* ===== INSERT BRANCHES (IGNORE DUPLICATES) ===== */
+        for (const branch of branches) {
+            await db.query(
+                `INSERT IGNORE INTO branches (year, branch_name)
+                 VALUES (?, ?)`,
+                [year, branch]
+            );
+        }
 
-    if (existing.length && existing[0].is_frozen === 1) {
-        return res.status(403).json({ error: "Data already frozen for this branch and year." });
+        /* ===== INSERT SUBJECTS (IGNORE DUPLICATES) ===== */
+        for (const branch of branches) {
+            for (const subject of subjects) {
+                await db.query(
+                    `INSERT IGNORE INTO subjects (year, branch_name, subject_name)
+                     VALUES (?, ?, ?)`,
+                    [year, branch, subject]
+                );
+            }
+        }
+
+        res.json({ message: "Sections and subjects saved successfully" });
+
+    } catch (err) {
+        console.error("Save subjects error:", err);
+        res.status(500).json({ error: "Failed to save data" });
     }
-
-    await Promise.all(
-        branches.map(branch =>
-            db.query(
-                "INSERT INTO branches (year, branch_name, is_frozen) VALUES (?, ?, ?)",
-                [year, branch, freeze ? 1 : 0]
-            )
-        )
-    );
-
-    await Promise.all(
-        branches.flatMap(branch =>
-            subjects.map(subject =>
-                db.query(
-                    "INSERT INTO subjects (year, branch_name, subject_name, is_frozen) VALUES (?, ?, ?, ?)",
-                    [year, branch, subject, freeze ? 1 : 0]
-                )
-            )
-        )
-    );
-
-    res.json({ message: "Saved and frozen successfully." });
 });
 
+
+app.get("/hod/branches-subjects", async (req, res) => {
+    const { year, hodBranch } = req.query;
+    const db = con.promise();
+
+    try {
+        const [branches] = await db.query(
+            `SELECT branch_name
+             FROM branches
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${hodBranch}%`]
+        );
+
+        const [subjects] = await db.query(
+            `SELECT DISTINCT subject_name
+             FROM subjects
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${hodBranch}%`]
+        );
+
+        res.json({
+            branches: branches.map(b => b.branch_name),
+            subjects: subjects.map(s => s.subject_name)
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load data" });
+    }
+});
 
 //homePageForFaculty:::requestForSubject
 // Fetch all branches
