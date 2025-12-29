@@ -1244,16 +1244,26 @@ async function loadPotentialFailedStudents() {
     document.getElementById("pfGenerateBtn").onclick = generatePotentialFailedStudents;
 }
 async function generatePotentialFailedStudents() {
-    clearCharts();
+     const examEl = document.getElementById("pfExam");
+    const conditionEl = document.getElementById("pfCondition");
+    const marksEl = document.getElementById("pfMarks");
 
-    const exam = document.getElementById("pfExam").value;
-    const condition = document.getElementById("pfCondition").value;
-    const marks = parseInt(document.getElementById("pfMarks").value);
+    if (!examEl || !conditionEl || !marksEl) {
+        alert("Configuration UI not found. Please re-open Potential Failed Students.");
+        return;
+    }
+
+    const exam = examEl.value;
+    const condition = conditionEl.value;
+    const marks = parseInt(marksEl.value);
 
     if (!exam || isNaN(marks)) {
         alert("Select exam and enter marks");
         return;
     }
+
+    // ✅ Now it's safe to clear charts
+    clearCharts();
 
     const subjects = await (await fetch(
         `/getSubjects/${yearSelect.value}/${branchSelect.value}`
