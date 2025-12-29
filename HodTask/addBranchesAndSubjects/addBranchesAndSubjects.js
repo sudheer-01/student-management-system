@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
 
         /* ===== SECTIONS ===== */
+        branchContainer.innerHTML = "";
         if (!data.branches.length) {
             branchContainer.innerHTML =
                 `<p class="empty-msg">No sections assigned for this year</p>`;
@@ -26,16 +27,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const div = document.createElement("div");
                 div.className = "branch-row";
                 div.innerHTML = `
+                    <input type="checkbox" class="existing-branch" value="${b}">
                     <input type="text" class="branch-name" value="${b}" readonly>
-                    <button type="button" class="remove-btn">Remove</button>
                 `;
-                div.querySelector(".remove-btn").onclick = () => div.remove();
                 branchContainer.appendChild(div);
                 branchCount++;
             });
         }
 
         /* ===== SUBJECTS ===== */
+        subjectContainer.innerHTML = "";
         if (!data.subjects.length) {
             subjectContainer.innerHTML =
                 `<p class="empty-msg">No subjects assigned for this year</p>`;
@@ -44,10 +45,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const div = document.createElement("div");
                 div.className = "subject-row";
                 div.innerHTML = `
+                    <input type="checkbox" class="existing-subject" value="${s}">
                     <input type="text" class="subject-name" value="${s}" readonly>
-                    <button type="button" class="remove-btn">Remove</button>
                 `;
-                div.querySelector(".remove-btn").onclick = () => div.remove();
                 subjectContainer.appendChild(div);
             });
         }
@@ -175,67 +175,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Save Data Button Click
     saveBtn.addEventListener("click", async () => {
-        if (!selectedYear) {
-            alert("Please select a year first.");
-            return;
-        }
-
-        const branchInputs = document.querySelectorAll("#branchContainer .branch-name");
-        const subjectInputs = document.querySelectorAll("#subjectContainer .subject-name");
-
-        if (branchInputs.length === 0) {
-            alert("Please add at least one branch.");
-            return;
-        }
-
-        if (subjectInputs.length === 0) {
-            alert("Please add at least one subject.");
-            return;
-        }
-
-        const branches = Array.from(branchInputs)
-            .map(input => input.value.trim())
-            .filter(Boolean); // Remove empty values
-
-        const subjects = Array.from(subjectInputs)
-            .map(input => input.value.trim())
-            .filter(Boolean); // Remove empty values
-
-        if (branches.length === 0) {
-            alert("Please enter valid branch names.");
-            return;
-        }
-
-        if (subjects.length === 0) {
-            alert("Please enter valid subject names.");
-            return;
-        }
-
-        try {
-            const response = await fetch("/saveSubjects", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                // body: JSON.stringify({ year: selectedYear, branches, subjects })
-                body: JSON.stringify({
-                year: selectedYear,
-                branches,
-                subjects
-            })
-            });
-
-            const result = await response.json();
-            if (result.error) {
-                alert(`Error: ${result.error}`);
-            } else {
-                alert("Branches and subjects saved successfully!");
-                branchContainer.innerHTML = "";
-                subjectContainer.innerHTML = "";
-                branchCount = 0;
+            if (!selectedYear) {
+                alert("Please select a year first.");
+                return;
             }
-        } catch (error) {
-            console.error("Error saving data:", error);
-            alert("Failed to save data. Try again.");
-        }
+
+            /* NEW sections */
+            const newBranches = Array.from(
+                document.querySelectorAll(".branch-row input.branch-name")
+            )
+            .map(i => i.value.trim())
+            .filter(Boolean);
+
+            /* NEW subjects */
+            const newSubjects = Array.from(
+                document.querySelectorAll(".subject-row input.subject-name")
+            )
+            .filter(i => !i.readOnly)
+            .map(i => i.value.trim())
+            .filter(Boolean);
+
+            /* Checked existing sections */
+            const checkedSections = Array.from(
+                document.querySelectorAll(".existing-branch:checked")
+            ).map(cb => cb.value);
+
+            /* Checked existing subjects */
+            const checkedSubjects = Array.from(
+                document.querySelectorAll(".existing-subject:checked")
+            ).map(cb => cb.value);
+
+            try {
+                const response = await fetch("/saveSubjects", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        year: selectedYear,
+                        newBranches,
+                        newSubjects,
+                        checkedSections,
+                        checkedSubjects
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    alert("Saved successfully!");
+                    branchContainer.innerHTML = "";
+                    subjectContainer.innerHTML = "";
+                    branchCount = 0;
+                    loadExistingBranchesAndSubjects();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Save failed");
+            }
     });
 });
 
