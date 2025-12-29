@@ -682,31 +682,77 @@ app.post("/saveSubjects", async (req, res) => {
     const { year, branches, subjects } = req.body;
     const db = con.promise();
 
+    if (!year || !branches?.length || !subjects?.length) {
+        return res.status(400).json({ error: "Invalid data" });
+    }
+
     try {
-        /* ===== INSERT BRANCHES (IGNORE DUPLICATES) ===== */
-        for (const branch of branches) {
+        /* ===============================
+           1️⃣ EXISTING SECTIONS
+        =============================== */
+        const [existingBranches] = await db.query(
+            `SELECT branch_name 
+             FROM branches 
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${branches[0].split("-")[0]}%`]
+        );
+
+        const existingBranchSet = new Set(
+            existingBranches.map(b => b.branch_name)
+        );
+
+        /* ===============================
+           2️⃣ INSERT ONLY NEW SECTIONS
+        =============================== */
+        const newBranches = branches.filter(
+            b => !existingBranchSet.has(b)
+        );
+
+        for (const branch of newBranches) {
             await db.query(
-                `INSERT IGNORE INTO branches (year, branch_name)
-                 VALUES (?, ?)`,
+                `INSERT INTO branches (year, branch_name) VALUES (?, ?)`,
                 [year, branch]
             );
         }
 
-        /* ===== INSERT SUBJECTS (IGNORE DUPLICATES) ===== */
-        for (const branch of branches) {
-            for (const subject of subjects) {
+        /* ===============================
+           3️⃣ EXISTING SUBJECTS
+        =============================== */
+        const [existingSubjects] = await db.query(
+            `SELECT DISTINCT subject_name 
+             FROM subjects 
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${branches[0].split("-")[0]}%`]
+        );
+
+        const existingSubjectSet = new Set(
+            existingSubjects.map(s => s.subject_name)
+        );
+
+        /* ===============================
+           4️⃣ INSERT ONLY NEW SUBJECTS
+        =============================== */
+        const newSubjects = subjects.filter(
+            s => !existingSubjectSet.has(s)
+        );
+
+        for (const branch of newBranches.length ? newBranches : branches) {
+            for (const subject of newSubjects) {
                 await db.query(
-                    `INSERT IGNORE INTO subjects (year, branch_name, subject_name)
+                    `INSERT INTO subjects (year, branch_name, subject_name)
                      VALUES (?, ?, ?)`,
                     [year, branch, subject]
                 );
             }
         }
 
-        res.json({ message: "Sections and subjects saved successfully" });
+        res.json({
+            success: true,
+            message: "Sections and subjects saved without duplication"
+        });
 
     } catch (err) {
-        console.error("Save subjects error:", err);
+        console.error("SAVE SUBJECTS ERROR:", err);
         res.status(500).json({ error: "Failed to save data" });
     }
 });
