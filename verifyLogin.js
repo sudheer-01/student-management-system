@@ -736,6 +736,49 @@ app.get("/hod/branches-subjects", async (req, res) => {
     }
 });
 
+app.post("/deleteSection", async (req, res) => {
+    const { year, section } = req.body;
+    const db = con.promise();
+
+    try {
+        await db.query(
+            "DELETE FROM subjects WHERE year = ? AND branch_name = ?",
+            [year, section]
+        );
+
+        await db.query(
+            "DELETE FROM branches WHERE year = ? AND branch_name = ?",
+            [year, section]
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("DELETE SECTION ERROR:", err);
+        res.status(500).json({ error: "Failed to delete section" });
+    }
+});
+
+app.post("/deleteSubjects", async (req, res) => {
+    const { year, items } = req.body;
+    const db = con.promise();
+
+    try {
+        for (const { section, subject } of items) {
+            await db.query(
+                `DELETE FROM subjects
+                 WHERE year = ? AND branch_name = ? AND subject_name = ?`,
+                [year, section, subject]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("DELETE SUBJECT ERROR:", err);
+        res.status(500).json({ error: "Failed to delete subjects" });
+    }
+});
+
+
 //homePageForFaculty:::requestForSubject
 // Fetch all branches
 app.get("/branches", (req, res) => {

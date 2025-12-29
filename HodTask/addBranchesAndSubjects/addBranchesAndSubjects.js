@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const addSubjectBtn = document.getElementById("addSubject");
     const saveBtn = document.getElementById("saveData");
     const newSubjectsContainer = document.getElementById("newSubjectsContainer");
-
+    const deleteModeBtn = document.getElementById("deleteModeBtn");
+    let deleteMode = false;
 
     let selectedYear = null;
     let branchCount = 0;
@@ -90,18 +91,6 @@ async function loadExistingData() {
             });
         }
     }
-
-//    yearDropdown.addEventListener("change", async () => {
-//         selectedYear = yearDropdown.value;
-
-//         branchContainer.innerHTML = "";
-//         subjectContainer.innerHTML = "";
-//         branchCount = 0;
-
-//         if (!selectedYear) return;
-
-//         await loadExistingBranchesAndSubjects();
-//     });
 
 yearDropdown.addEventListener("change", async () => {
     selectedYear = yearDropdown.value;
@@ -187,6 +176,102 @@ saveBtn.addEventListener("click", async () => {
     loadExistingData();
 });
 
+deleteModeBtn.addEventListener("click", async () => {
+    deleteMode = true;
+    addBranchBtn.style.display = "none";
+    addSubjectBtn.style.display = "none";
+    saveBtn.style.display = "none";
+
+    await loadDeleteUI();
+});
+async function loadDeleteUI() {
+    const res = await fetch(
+        `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
+    );
+    const data = await res.json();
+
+    branchContainer.innerHTML = "";
+    subjectContainer.innerHTML = "";
+
+    data.sections.forEach(sec => {
+        const secDiv = document.createElement("div");
+        secDiv.className = "section-card";
+        secDiv.innerHTML = `
+            <strong>${sec.name}</strong>
+            <button class="danger-btn delete-section" data-sec="${sec.name}">
+                Delete Section
+            </button>
+            <ul>
+                ${sec.subjects.map(s => `
+                    <li>
+                        <input type="checkbox" class="delete-subject"
+                               data-sec="${sec.name}"
+                               value="${s}">
+                        ${s}
+                    </li>
+                `).join("")}
+            </ul>
+        `;
+        branchContainer.appendChild(secDiv);
+    });
+
+    addDeleteHandlers();
+}
+function addDeleteHandlers() {
+
+    /* DELETE SECTION */
+    document.querySelectorAll(".delete-section").forEach(btn => {
+        btn.onclick = async () => {
+            const section = btn.dataset.sec;
+            if (!confirm(`Delete section ${section} and ALL its subjects?`)) return;
+
+            await fetch("/deleteSection", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ year: selectedYear, section })
+            });
+
+            deleteMode = false;
+            resetUI();
+        };
+    });
+
+    /* DELETE SUBJECTS */
+    subjectContainer.insertAdjacentHTML(
+        "beforeend",
+        `<button id="deleteSubjectsBtn" class="danger-btn">Delete Selected Subjects</button>`
+    );
+
+    document.getElementById("deleteSubjectsBtn").onclick = async () => {
+        const checked = Array.from(
+            document.querySelectorAll(".delete-subject:checked")
+        );
+
+        if (!checked.length) {
+            return alert("Select subjects to delete");
+        }
+
+        const payload = checked.map(c => ({
+            section: c.dataset.sec,
+            subject: c.value
+        }));
+
+        await fetch("/deleteSubjects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ year: selectedYear, items: payload })
+        });
+
+        deleteMode = false;
+        resetUI();
+    };
+}
+function resetUI() {
+    addBranchBtn.style.display = "";
+    addSubjectBtn.style.display = "";
+    saveBtn.style.display = "";
+    loadExistingData();
+}
 
 
 });

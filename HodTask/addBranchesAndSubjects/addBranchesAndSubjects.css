@@ -197,3 +197,14 @@ select:focus, input:focus {
   gap: 10px;
   margin-bottom: 8px;
 }
+.danger-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.danger-btn:hover {
+  background: #b91c1c;
+}
