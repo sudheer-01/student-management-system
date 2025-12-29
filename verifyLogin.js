@@ -648,45 +648,40 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
 app.post("/saveSubjects", async (req, res) => {
     const {
         year,
-        newBranches = [],
-        newSubjects = [],
-        checkedSections = [],
-        checkedSubjects = []
+        newSections = [],
+        selectedSections = [],
+        newSubjects = []
     } = req.body;
+
+    if (!year) {
+        return res.status(400).json({ error: "Year required" });
+    }
+
+    if (!selectedSections.length && newSubjects.length) {
+        return res.status(400).json({
+            error: "Select at least one section to add subjects"
+        });
+    }
 
     const db = con.promise();
 
     try {
-        /* 1️⃣ Insert NEW sections */
-        for (const b of newBranches) {
+        /* 1️⃣ Insert new sections safely */
+        for (const section of newSections) {
             await db.query(
-                "INSERT IGNORE INTO branches (year, branch_name) VALUES (?, ?)",
-                [year, b]
+                `INSERT IGNORE INTO branches (year, branch_name)
+                 VALUES (?, ?)`,
+                [year, section]
             );
         }
 
-        /* 2️⃣ Add NEW subjects to:
-              - new sections
-              - checked existing sections */
-        const targetSectionsForNewSubjects = [
-            ...new Set([...newBranches, ...checkedSections])
-        ];
-
-        for (const sec of targetSectionsForNewSubjects) {
-            for (const sub of newSubjects) {
+        /* 2️⃣ Insert new subjects ONLY into selected sections */
+        for (const section of selectedSections) {
+            for (const subject of newSubjects) {
                 await db.query(
-                    "INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)",
-                    [year, sec, sub]
-                );
-            }
-        }
-
-        /* 3️⃣ Add CHECKED existing subjects to NEW sections */
-        for (const sec of newBranches) {
-            for (const sub of checkedSubjects) {
-                await db.query(
-                    "INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)",
-                    [year, sec, sub]
+                    `INSERT IGNORE INTO subjects (year, branch_name, subject_name)
+                     VALUES (?, ?, ?)`,
+                    [year, section, subject]
                 );
             }
         }
@@ -695,7 +690,7 @@ app.post("/saveSubjects", async (req, res) => {
 
     } catch (err) {
         console.error("SAVE SUBJECTS ERROR:", err);
-        res.status(500).json({ error: "Failed to save subjects" });
+        res.status(500).json({ error: "Failed to save data" });
     }
 });
 
@@ -713,15 +708,26 @@ app.get("/hod/branches-subjects", async (req, res) => {
         );
 
         const [subjects] = await db.query(
-            `SELECT DISTINCT subject_name
+            `SELECT branch_name, subject_name
              FROM subjects
-             WHERE year = ? AND branch_name LIKE ?`,
+             WHERE year = ? AND branch_name LIKE ?
+             ORDER BY branch_name`,
             [year, `${hodBranch}%`]
         );
 
+        const subjectMap = {};
+        subjects.forEach(r => {
+            if (!subjectMap[r.branch_name]) {
+                subjectMap[r.branch_name] = [];
+            }
+            subjectMap[r.branch_name].push(r.subject_name);
+        });
+
         res.json({
-            branches: branches.map(b => b.branch_name),
-            subjects: subjects.map(s => s.subject_name)
+            sections: branches.map(b => ({
+                name: b.branch_name,
+                subjects: subjectMap[b.branch_name] || []
+            }))
         });
 
     } catch (err) {
