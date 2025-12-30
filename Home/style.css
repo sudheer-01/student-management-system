@@ -1,168 +1,223 @@
-/* ======================================================
-   SIMS LOGIN – FINAL COLLEGE PORTAL CSS
-   Use this as the ONLY loginStyle.css
-   ====================================================== */
+/* =========================================================
+   SIMS – FINAL COMBINED CSS
+   Login as Index | College Style | Single CSS File
+   ========================================================= */
 
-/* ---------- RESET ---------- */
+/* -------- ROOT VARIABLES -------- */
+:root {
+  --college-red: #7a0c0c;
+  --college-bg: #90a7be;
+  --white: #ffffff;
+  --text: #0b1220;
+  --muted: #5a6a85;
+  --border: #dcdcdc;
+  --radius: 6px;
+  --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* -------- GLOBAL RESET -------- */
 * {
   box-sizing: border-box;
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
   height: 100%;
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* ---------- PAGE BACKGROUND ---------- */
 body {
-  background: #90a7be; /* calm academic background */
-  display: block;
+  margin: 0;
+  font-family: var(--font);
+  background: var(--college-bg);
+  color: var(--text);
 }
 
-/* ---------- LOGIN PAGE WRAPPER ---------- */
-.login-page-wrapper {
-  min-height: calc(100vh - 120px); /* header + footer space */
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.site-header {
+  width: 100%;
+  background: var(--white);
+  border-bottom: 2px solid var(--college-red);
+}
+
+.site-header .container {
+  max-width: 100%;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  background: var(--college-red);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
 }
 
-/* ---------- LOGIN BOX ---------- */
+.logo img {
+  width: 26px;
+  height: 26px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--college-red);
+}
+
+.brand-tag {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================================================
+   LOGIN PAGE LAYOUT
+   ========================================================= */
+
+.login-page-wrapper {
+  min-height: calc(100vh - 110px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 16px;
+}
+
+/* -------- LOGIN BOX -------- */
+
 #loginBox {
+  background: var(--white);
   width: 100%;
   max-width: 520px;
-  background: #ffffff;
-  border-radius: 12px;
   padding: 28px 24px;
-  border: 1px solid #dcdcdc;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  border: 1px solid var(--border);
 }
 
-/* ---------- HEADINGS ---------- */
+/* -------- HEADINGS -------- */
+
 #loginBox h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 700;
+  margin: 0 0 4px;
   text-align: center;
-  color: #0b1220;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .subhead {
-  margin: 6px 0 18px;
   text-align: center;
+  margin-bottom: 16px;
   font-size: 14px;
-  color: #5a6a85;
+  color: var(--muted);
 }
 
-/* ---------- ROLE TABS ---------- */
+/* =========================================================
+   ROLE TABS
+   ========================================================= */
+
 .role-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .tab-btn {
+  border: 1px solid var(--border);
+  background: var(--white);
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #dcdcdc;
-  background: #ffffff;
-  color: #0b1220;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tab-btn i {
-  color: #7a0c0c;
-}
-
-.tab-btn:hover {
-  background: #f5f5f5;
+  color: var(--college-red);
 }
 
 .tab-btn.active {
-  background: #7a0c0c;
-  color: #ffffff;
-  border-color: #7a0c0c;
+  background: var(--college-red);
+  color: var(--white);
+  border-color: var(--college-red);
 }
 
 .tab-btn.active i {
-  color: #ffffff;
+  color: var(--white);
 }
 
-/* ---------- FORMS ---------- */
+/* =========================================================
+   FORMS
+   ========================================================= */
+
 .allDetails {
   display: none;
-  margin-top: 12px;
 }
 
 .allDetails label {
-  display: block;
-  margin: 10px 0 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #333;
+  color: #444;
+  margin: 10px 0 4px;
+  display: block;
 }
 
-/* ---------- INPUT GROUP ---------- */
 .input-group {
   position: relative;
-  margin-bottom: 12px;
-}
-
-.input-group .input-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #7a0c0c;
-  font-size: 14px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 10px 36px 10px 36px;
-  border-radius: 6px;
-  border: 1px solid #cfcfcf;
+  padding: 10px 10px 10px 34px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
   font-size: 14px;
 }
 
-.input-group input:focus {
-  outline: none;
-  border-color: #7a0c0c;
+.input-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--college-red);
+  font-size: 14px;
 }
 
-/* ---------- PASSWORD TOGGLE ---------- */
 .toggle-password {
   position: absolute;
-  right: 8px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
   border: none;
-  background: transparent;
+  background: none;
   cursor: pointer;
   color: #555;
 }
 
-.toggle-password:hover {
-  color: #000;
-}
+/* -------- FORM ROW -------- */
 
-/* ---------- FORM ROW ---------- */
 .form-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 6px 0 14px;
+  margin: 10px 0 14px;
   font-size: 13px;
 }
 
@@ -170,11 +225,11 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #444;
+  color: #555;
 }
 
 .link {
-  color: #7a0c0c;
+  color: var(--college-red);
   text-decoration: none;
   font-weight: 600;
 }
@@ -183,42 +238,44 @@ body {
   text-decoration: underline;
 }
 
-/* ---------- LOGIN BUTTON ---------- */
+/* -------- SUBMIT BUTTON -------- */
+
 .allDetails input[type="submit"] {
   width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 6px;
+  padding: 11px;
+  border-radius: 4px;
   border: none;
+  background: var(--college-red);
+  color: var(--white);
+  font-weight: 700;
   cursor: pointer;
-  background: #7a0c0c;
-  color: #ffffff;
-  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .allDetails input[type="submit"]:hover {
   background: #5e0909;
 }
 
-/* ---------- ERROR ---------- */
-.error {
-  color: #dc2626;
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.simple-footer {
+  width: 100%;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  text-align: center;
   font-size: 13px;
-  margin-top: 6px;
+  color: #444;
+  padding: 10px 0;
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
 @media (max-width: 520px) {
   .role-tabs {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  #loginBox {
-    padding: 22px 18px;
-  }
-
-  #loginBox h1 {
-    font-size: 22px;
   }
 }
