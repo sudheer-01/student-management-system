@@ -1,21 +1,22 @@
 /* =========================================================
-   SIMS – FINAL COMBINED CSS
-   Login as Index | College Style | Single CSS File
+   SIMS – FINAL SINGLE CSS (BLUE THEME)
+   Login as Index | Clean | College-ready
    ========================================================= */
 
-/* -------- ROOT VARIABLES -------- */
+/* -------- ROOT -------- */
 :root {
-  --college-red: #7a0c0c;
-  --college-bg: #90a7be;
+  --blue: #1f6feb;
+  --blue-light: #3b82f6;
+  --bg: #90a7be;
   --white: #ffffff;
   --text: #0b1220;
   --muted: #5a6a85;
-  --border: #dcdcdc;
-  --radius: 6px;
+  --border: rgba(11,18,32,0.15);
+  --radius: 8px;
   --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* -------- GLOBAL RESET -------- */
+/* -------- GLOBAL -------- */
 * {
   box-sizing: border-box;
 }
@@ -27,18 +28,17 @@ html, body {
 body {
   margin: 0;
   font-family: var(--font);
-  background: var(--college-bg);
+  background: var(--bg);
   color: var(--text);
 }
 
 /* =========================================================
    NAVBAR
    ========================================================= */
-
 .site-header {
   width: 100%;
   background: var(--white);
-  border-bottom: 2px solid var(--college-red);
+  border-bottom: 2px solid var(--blue);
 }
 
 .site-header .container {
@@ -57,8 +57,8 @@ body {
 .logo {
   width: 42px;
   height: 42px;
-  border-radius: 6px;
-  background: var(--college-red);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,7 +77,7 @@ body {
 .brand-name {
   font-size: 18px;
   font-weight: 700;
-  color: var(--college-red);
+  color: var(--blue);
 }
 
 .brand-tag {
@@ -88,32 +88,30 @@ body {
 /* =========================================================
    LOGIN PAGE LAYOUT
    ========================================================= */
-
 .login-page-wrapper {
   min-height: calc(100vh - 110px);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px 16px;
+  padding: 32px 16px;
 }
 
 /* -------- LOGIN BOX -------- */
-
 #loginBox {
   background: var(--white);
   width: 100%;
   max-width: 520px;
   padding: 28px 24px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: 1px solid var(--border);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
 /* -------- HEADINGS -------- */
-
 #loginBox h1 {
   margin: 0 0 4px;
   text-align: center;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
 }
 
@@ -127,7 +125,6 @@ body {
 /* =========================================================
    ROLE TABS
    ========================================================= */
-
 .role-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -142,21 +139,22 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tab-btn i {
-  color: var(--college-red);
+  color: var(--blue);
 }
 
 .tab-btn.active {
-  background: var(--college-red);
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
   color: var(--white);
-  border-color: var(--college-red);
+  border-color: transparent;
 }
 
 .tab-btn.active i {
@@ -166,7 +164,6 @@ body {
 /* =========================================================
    FORMS
    ========================================================= */
-
 .allDetails {
   display: none;
 }
@@ -185,24 +182,24 @@ body {
 
 .input-group input {
   width: 100%;
-  padding: 10px 10px 10px 34px;
-  border-radius: 4px;
+  padding: 11px 10px 11px 36px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   font-size: 14px;
 }
 
 .input-icon {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--college-red);
+  color: var(--blue);
   font-size: 14px;
 }
 
 .toggle-password {
   position: absolute;
-  right: 6px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   border: none;
@@ -212,7 +209,6 @@ body {
 }
 
 /* -------- FORM ROW -------- */
-
 .form-row {
   display: flex;
   justify-content: space-between;
@@ -229,7 +225,7 @@ body {
 }
 
 .link {
-  color: var(--college-red);
+  color: var(--blue);
   text-decoration: none;
   font-weight: 600;
 }
@@ -238,14 +234,13 @@ body {
   text-decoration: underline;
 }
 
-/* -------- SUBMIT BUTTON -------- */
-
+/* -------- SUBMIT -------- */
 .allDetails input[type="submit"] {
   width: 100%;
-  padding: 11px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
   border: none;
-  background: var(--college-red);
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
   color: var(--white);
   font-weight: 700;
   cursor: pointer;
@@ -253,13 +248,12 @@ body {
 }
 
 .allDetails input[type="submit"]:hover {
-  background: #5e0909;
+  opacity: 0.92;
 }
 
 /* =========================================================
    FOOTER
    ========================================================= */
-
 .simple-footer {
   width: 100%;
   background: var(--white);
@@ -273,7 +267,6 @@ body {
 /* =========================================================
    RESPONSIVE
    ========================================================= */
-
 @media (max-width: 520px) {
   .role-tabs {
     grid-template-columns: repeat(2, 1fr);
