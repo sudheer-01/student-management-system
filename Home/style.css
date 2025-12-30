@@ -347,3 +347,48 @@ body::before { content: none; }
   border-top: 1px solid #ddd;
   background: #ffffff;
 }
+/* ===== INDEX / LOGIN PAGE LAYOUT FIX ===== */
+
+/* Reset conflicting body styles */
+body {
+  display: block !important;
+  min-height: 100vh;
+  background: #90a7be;
+}
+
+/* Full-page layout */
+.site-header {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 2px solid #7a0c0c;
+}
+
+/* Center login vertically & horizontally */
+.login-page-wrapper {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  background: #90a7be;
+}
+
+/* Login box */
+#loginBox {
+  margin: 0 auto;
+}
+
+/* Footer fixed at bottom */
+.simple-footer {
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #333;
+  background: #ffffff;
+  border-top: 1px solid #ddd;
+}
+.site-header .container {
+  max-width: 100%;
+  padding: 14px 24px;
+}

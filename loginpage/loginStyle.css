@@ -65,3 +65,7 @@ h1 { font-size: 28px; color: #0b1220; margin: 0 0 4px; }
 .checkbox { display: inline-flex; align-items: center; gap: 8px; color: #5a6a85; font-size: 13px; }
 .link { color: #1f6feb; text-decoration: none; font-weight: 600; font-size: 13px; }
 .link:hover { text-decoration: underline; }
+/* Override when login is used inside index page */
+.login-page-wrapper {
+  all: unset;
+}
