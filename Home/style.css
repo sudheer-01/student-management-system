@@ -272,3 +272,39 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* =========================================================
+   FORM SPACING NORMALIZATION (ALL ROLES)
+   ========================================================= */
+
+/* Ensure all inputs behave the same */
+.allDetails input[type="text"],
+.allDetails input[type="password"] {
+  margin-bottom: 14px;
+}
+
+/* Force password fields to look consistent even without icon */
+.allDetails > input[type="password"] {
+  width: 100%;
+  padding: 11px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* Always reserve space for form-row (even if empty) */
+.allDetails .form-row {
+  min-height: 24px;
+  margin-bottom: 14px;
+}
+
+/* If a form DOES NOT have .form-row, simulate spacing */
+.allDetails:not(:has(.form-row))::after {
+  content: "";
+  display: block;
+  height: 24px;
+}
+
+/* Ensure submit button never sticks to previous field */
+.allDetails input[type="submit"] {
+  margin-top: 6px;
+}
