@@ -620,30 +620,4 @@ html, body {
     font-size: 18px;
   }
 }
-/* ===== College Watermark Background ===== */
-.page {
-  position: relative;
-  background-color: #f5f6f8;
-  overflow: hidden;
-}
 
-.page::before {
-  content: "YOUR COLLEGE NAME\nDepartment of Computer Science & Engineering";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  font-weight: 700;
-  text-align: center;
-  color: rgba(122, 12, 12, 0.05); /* very light college red */
-  white-space: pre-line;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Keep actual content above watermark */
-.page > * {
-  position: relative;
-  z-index: 1;
-}
