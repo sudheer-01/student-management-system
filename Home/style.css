@@ -308,3 +308,24 @@ body {
 .allDetails input[type="submit"] {
   margin-top: 6px;
 }
+/* =========================================================
+   REGISTER LINK BELOW LOGIN (ALL ROLES)
+   ========================================================= */
+
+.register-link {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.register-link a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
