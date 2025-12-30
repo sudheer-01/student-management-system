@@ -449,3 +449,173 @@ body {
     color: var(--muted);
     font-style: italic;
 }
+/* =========================================================
+   HOD COLLEGE-STYLE OVERRIDES (FINAL)
+   Purpose: Match official college website UI
+   ========================================================= */
+
+/* -------- GLOBAL TONE RESET -------- */
+:root {
+  --college-red: #7a0c0c;
+  --college-gray: #f2f2f2;
+  --college-border: #dcdcdc;
+}
+
+/* Remove glass & heavy gradients */
+body {
+  background: #f5f6f8 !important;
+}
+
+/* -------- TOP NAVBAR -------- */
+.topnav {
+  background: #ffffff !important;
+  box-shadow: none !important;
+  border-bottom: 2px solid var(--college-red);
+}
+
+.brand {
+  color: var(--college-red) !important;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Navigation buttons */
+.nav-actions .btn,
+.btn.ghost {
+  background: var(--college-red) !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+.btn:hover,
+.btn.ghost:hover {
+  background: #5e0909 !important;
+  transform: none !important;
+}
+
+/* Logout */
+.logout-btn {
+  background: #b91c1c !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+/* -------- PAGE LAYOUT -------- */
+.page {
+  padding: 24px 16px;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+/* -------- PAGE HEADER -------- */
+.page-header {
+  background: #ffffff !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  border: 1px solid var(--college-border);
+  text-align: center;
+}
+
+.page-header::after {
+  display: none;
+}
+
+.gradient-text {
+  background: none !important;
+  color: var(--college-red) !important;
+  -webkit-text-fill-color: initial;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #555;
+}
+
+/* -------- INFO / YEARS CARD -------- */
+.summary.card {
+  background: #ffffff !important;
+  border: 1px solid var(--college-border);
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+.summary-item .label {
+  color: var(--college-red);
+}
+
+/* -------- INSTRUCTIONS SECTION -------- */
+.instructions {
+  background: #ffffff !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--college-border);
+  box-shadow: none !important;
+}
+
+.instructions-title {
+  color: var(--college-red);
+  font-size: 20px;
+  border-bottom: 2px solid var(--college-red);
+  padding-bottom: 6px;
+}
+
+.instructions-list li {
+  font-size: 14px;
+}
+
+/* -------- REMOVE CARD ANIMATIONS -------- */
+.tile,
+.summary.card,
+.page-header,
+.instructions {
+  transition: none !important;
+}
+
+.tile:hover,
+.summary.card:hover {
+  transform: none !important;
+  background: #ffffff !important;
+}
+
+/* -------- BUTTONS (UNIFORM) -------- */
+.btn {
+  background: var(--college-red) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: none !important;
+  font-size: 13px;
+}
+
+.btn.small {
+  font-size: 12px;
+}
+
+/* -------- FULL PAGE FIT -------- */
+html, body {
+  height: 100%;
+}
+
+.page {
+  min-height: calc(100vh - 70px);
+}
+
+/* -------- MOBILE SAFE -------- */
+@media (max-width: 768px) {
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .gradient-text {
+    font-size: 20px;
+  }
+
+  .instructions-title {
+    font-size: 18px;
+  }
+}
