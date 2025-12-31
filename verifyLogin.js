@@ -1613,8 +1613,10 @@ app.post("/adminLogin", (req, res) => {
                 return res.status(500).send("Server error. Try again later.");
             }
             if (result.length > 0) {
+                console.log("Admin login successful");
                 return res.sendFile(path.join(baseDir, "admin", "admin.html"));
             } else {
+                console.log("Invalid Admin ID or Password");
                 return res.send(
                     `<script>alert('Invalid Admin ID or Password'); window.location.href='/';</script>`
                 );
