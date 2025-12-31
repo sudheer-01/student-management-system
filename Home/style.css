@@ -329,3 +329,65 @@ body {
 .register-link a:hover {
   text-decoration: underline;
 }
+/* =========================================================
+   PROFESSIONAL ACADEMIC BACKGROUND
+   ========================================================= */
+
+body {
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #90a7be 100%);
+}
+
+/* Subtle watermark text */
+.login-page-wrapper::before {
+  content: "Student Information Management System";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 56px;
+  font-weight: 700;
+  color: rgba(31, 111, 235, 0.06); /* very light blue */
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure login card stays above watermark */
+.login-page-wrapper {
+  position: relative;
+}
+
+#loginBox {
+  position: relative;
+  z-index: 1;
+}
+/* =========================================================
+   DUAL BRAND HEADER (COLLEGE + SIMS)
+   ========================================================= */
+
+.dual-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* College logo */
+.college-logo img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Separator between logos */
+.brand-separator {
+  width: 1px;
+  height: 42px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Adjust SIMS logo slightly */
+.logo {
+  width: 42px;
+  height: 42px;
+}
