@@ -1598,7 +1598,6 @@ app.get("/studentBasic/:htno", (req, res) => {
     });
 });
 
-
 //admin login
 app.post("/adminLogin", (req, res) => {
     var adminId = req.body.idOfAdmin;

@@ -129,4 +129,27 @@ document.getElementById("studentForm").addEventListener("submit", async function
     }
 });
 
+document.getElementById("adminForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
+    const idOfAdmin = document.getElementById("idOfAdmin").value;
+    const passwordOfAdmin = document.getElementById("passwordOfAdmin").value;   
+    try {
+        const response = await fetch("/adminLogin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idOfAdmin: idOfAdmin, passwordOfAdmin: passwordOfAdmin })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = data.redirectUrl;
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Invalid Admin ID or Password.");
+    }
+});
