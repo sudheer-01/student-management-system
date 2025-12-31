@@ -1644,11 +1644,9 @@ app.post("/adminLogin", (req, res) => {
             }
 
             if (result.length > 0) {
-                console.log("Admin login successful");
-
                 return res.json({
                     success: true,
-                    redirectUrl: "/admin/admin.html"
+                    redirectUrl: "/admin.html"
                 });
             } else {
                 return res.json({
