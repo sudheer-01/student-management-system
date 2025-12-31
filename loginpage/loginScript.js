@@ -142,7 +142,7 @@ document.getElementById("adminForm").addEventListener("submit", async function (
         });
 
         const data = await response.json();
-
+        console.log(data);
         if (data.success) {
             window.location.href = data.redirectUrl;
         } else {
