@@ -1599,9 +1599,36 @@ app.get("/studentBasic/:htno", (req, res) => {
 });
 
 //admin login
+// app.post("/adminLogin", (req, res) => {
+//     var adminId = req.body.idOfAdmin;
+//     var password = req.body.passwordOfAdmin;
+//     console.log(adminId, password);
+
+//     con.query(
+//         "SELECT * FROM admin WHERE id=? AND password=?",
+//         [adminId, password],
+//         (err, result) => {
+//             if (err) {
+//                 console.error(err);
+//                 return res.status(500).send("Server error. Try again later.");
+//             }
+//             if (result.length > 0) {
+//                 console.log("Admin login successful");
+//                 return res.sendFile(path.join(baseDir, "admin", "admin.html"));
+//             } else {
+//                 console.log("Invalid Admin ID or Password");
+//                 return res.send(
+//                     `<script>alert('Invalid Admin ID or Password'); window.location.href='/';</script>`
+//                 );
+//             }
+//         }
+//     );
+// });
+
 app.post("/adminLogin", (req, res) => {
-    var adminId = req.body.idOfAdmin;
-    var password = req.body.passwordOfAdmin;
+    const adminId = req.body.idOfAdmin;
+    const password = req.body.passwordOfAdmin;
+
     console.log(adminId, password);
 
     con.query(
@@ -1610,20 +1637,29 @@ app.post("/adminLogin", (req, res) => {
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).send("Server error. Try again later.");
+                return res.status(500).json({
+                    success: false,
+                    message: "Server error. Try again later."
+                });
             }
+
             if (result.length > 0) {
                 console.log("Admin login successful");
-                return res.sendFile(path.join(baseDir, "admin", "admin.html"));
+
+                return res.json({
+                    success: true,
+                    redirectUrl: "/admin/admin.html"
+                });
             } else {
-                console.log("Invalid Admin ID or Password");
-                return res.send(
-                    `<script>alert('Invalid Admin ID or Password'); window.location.href='/';</script>`
-                );
+                return res.json({
+                    success: false,
+                    message: "Invalid Admin ID or Password"
+                });
             }
         }
     );
 });
+
 
 // Fetch All HOD Requests
 app.get("/getHodRequests", (req, res) => {
