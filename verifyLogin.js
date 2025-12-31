@@ -1602,6 +1602,7 @@ app.get("/studentBasic/:htno", (req, res) => {
 app.post("/adminLogin", (req, res) => {
     var adminId = req.body.idOfAdmin;
     var password = req.body.passwordOfAdmin;
+    console.log(adminId, password);
 
     con.query(
         "SELECT * FROM admin WHERE id=? AND password=?",
