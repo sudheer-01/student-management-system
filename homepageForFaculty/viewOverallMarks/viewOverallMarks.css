@@ -1,201 +1,202 @@
+/* =========================================================
+   FACULTY – VIEW OVERALL MARKS
+========================================================= */
+
 body {
-    margin: 0px;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    text-align: center;  /* Center align all content */
+  margin: 0;
+  background: #f5f6f8;
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
+  color: #0b1220;
+  text-align: center;
 }
 
-/* Centering the form elements */
-.controls-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center elements horizontally */
-    justify-content: center; /* Center elements vertically */
-    margin: 20px 0;
-}
-/* Increase size of dropdown and buttons */
-select, button {
-    padding: 10px 15px; /* Increased padding */
-    font-size: 16px; /* Increased font size */
-    margin: 10px; /* Adjusted spacing */
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
+/* ======================
+   PRIMARY ACTION BUTTON
+====================== */
+#getStudentMarks {
+  margin: 20px auto;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #7a0c0c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-button:hover {
-    background-color: #0056b3;
+#getStudentMarks:hover {
+  background: #5e0808;
 }
 
-/* Centering the save button */
-#saveMarks {
-    display: block;
-    margin: 20px auto; /* Centers horizontally */
-    padding: 12px 20px; /* Increased padding */
-    font-size: 16px;
-}
-
-/* Table Styling */
+/* ======================
+   TABLE
+====================== */
 table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    background: white;
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
 }
 
-th, td {
-    border: 1px solid black;
-    padding: 10px;
-    text-align: center;
+th,
+td {
+  border: 1px solid #dcdcdc;
+  padding: 10px;
+  font-size: 13px;
+  text-align: center;
 }
 
 th {
-    background-color: #62c2a1;
-    color: black;
+  background: #7a0c0c;
+  color: #ffffff;
+  font-weight: 600;
 }
 
-/* .exam-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 10px;
-} */
-.exam-container button {
-    margin: 5px;
-    padding: 8px 14px;
-    border-radius: 6px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    font-size: 15px;
-    transition: 0.3s;
+tbody tr:nth-child(even) {
+  background: #f9fafb;
 }
 
-.exam-container button:hover {
-    background-color: #0056b3;
-}
-
-
-.exam-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    margin-top: 5px;
-    max-width: 600px; /* Optional: To limit the width */
-}
-
-.exam-list label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-}
+/* ======================
+   EXAM / FILTER CONTAINERS
+====================== */
 .exam-container {
-    background: #f8f8f8;
-    border-radius: 10px;
-    padding: 15px 25px;
-    width: 85%;
-    margin: 20px auto;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    text-align: left;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  padding: 16px 20px;
+  width: 90%;
+  margin: 20px auto;
+  text-align: left;
 }
 
+/* Section headings */
+.exam-container h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #7a0c0c;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ======================
+   ROWS
+====================== */
 .exam-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin: 10px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 10px 0;
 }
 
+.exam-row label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ======================
+   INPUTS & SELECTS
+====================== */
+select,
+.exam-row input[type="text"],
+.exam-row input[type="number"] {
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #dcdcdc;
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: #7a0c0c;
+}
+
+/* ======================
+   CHECKBOX / RADIO GROUPS
+====================== */
 .exam-list-inline {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exam-list-inline label,
+.exam-radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .exam-radio-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  gap: 12px;
 }
 
-.exam-row input[type="text"],
-.exam-row input[type="number"] {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 160px;
-}
-
+/* ======================
+   ACTION BUTTONS
+====================== */
 .exam-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
 }
 
-.exam-buttons button {
-    margin: 5px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    font-size: 15px;
-    transition: 0.3s;
+.exam-buttons button,
+#printReport,
+#exportCSV {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #7a0c0c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.25s ease;
 }
 
-.exam-buttons button:hover {
-    background-color: #0056b3;
+.exam-buttons button:hover,
+#printReport:hover,
+#exportCSV:hover {
+  background: #5e0808;
 }
 
-/* Inline checkbox alignment */
-.exam-list-inline label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+/* ======================
+   FOOTER ACTIONS
+====================== */
+#printReport,
+#exportCSV {
+  margin: 5px;
 }
 
-/* Responsive handling for smaller screens */
+/* ======================
+   RESPONSIVE
+====================== */
 @media (max-width: 768px) {
-    .exam-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  table {
+    width: 95%;
+  }
 
-    .exam-row input {
-        width: 100%;
-    }
+  .exam-container {
+    width: 95%;
+  }
 
-    .exam-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-#printReport, #exportCSV {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    font-size: 15px;
-    border-radius: 6px;
-    margin: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
+  .exam-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-#printReport:hover, #exportCSV:hover {
-    background-color: #0056b3;
+  .exam-buttons {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
 }
