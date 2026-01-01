@@ -3,15 +3,14 @@
 ========================= */
 :root {
   --card: #ffffff;
-  --brand: #7a0c0c;          /* deep maroon */
-  --brand-light: #9b1c1c;    /* lighter maroon */
-  --brand-dark: #5e0808;     /* darker maroon */
-  --danger: #dc2626;         /* KEEP red */
-  --success: #28a745;        /* KEEP green */
+  --brand: #1f6feb;
+  --brand-light: #60a5fa;
+  --brand-dark: #2563eb;
+  --danger: #dc2626;
   --border: rgba(11,18,32,0.10);
   --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
   --radius: 12px;
-  font-family: "Segoe UI", "Inter", Tahoma, system-ui, sans-serif;
+  font-family: "Segoe UI", Tahoma, sans-serif;
 }
 
 /* =========================
@@ -26,7 +25,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
-  border-bottom: 2px solid var(--brand);
+  border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
@@ -49,17 +48,17 @@
   display: inline-block;
   text-decoration: none;
   color: #fff;
-  background: var(--brand);
+  background: linear-gradient(120deg, #60a5fa, #3b82f6);
   padding: 8px 16px;
   font-size: 14px;
   border-radius: 10px;
   font-weight: 500;
   transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(122,12,12,0.25);
+  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
 }
 
 .btn:hover {
-  background: var(--brand-light);
+  background: linear-gradient(120deg, #93c5fd, #2563eb);
   transform: translateY(-2px);
 }
 
@@ -77,25 +76,36 @@
   color: white;
   cursor: pointer;
   font-weight: 600;
-  font-size: 14px;
   transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(220,38,38,0.18);
 }
 
 .logout-btn:hover {
   background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .topnav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nav-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
 }
 
 /* =========================
    PAGE BACKGROUND
 ========================= */
 body {
-  background: #f4f4f4;
+  background: #e8f0fb;
   margin: 0;
+  padding: 0px;
 }
-
-/* =========================
-   MAIN CONTAINER
-========================= */
+/* Main container */
 .container {
   background: #ffffff;
   padding: 30px;
@@ -104,35 +114,27 @@ body {
   margin: 40px auto;
   border-radius: 15px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  text-align: left;
 }
 
-/* Page title */
 .container h2 {
   text-align: center;
-  color: var(--brand);
-  font-size: 26px;
-  font-weight: 700;
+  color: #1f6feb;
 }
 
-/* =========================
-   FORM ELEMENTS
-========================= */
 select, input, button {
   padding: 12px;
   margin: 8px;
   border-radius: 5px;
   border: 1px solid #ced4da;
+  transition: border-color 0.3s;
   font-size: 14px;
 }
-
 select:focus, input:focus {
-  border-color: var(--brand-light);
+  border-color: #80bdff;
   outline: none;
 }
 
-/* =========================
-   ROWS
-========================= */
 .branch-row, .subject-row {
   display: flex;
   align-items: center;
@@ -143,49 +145,66 @@ select:focus, input:focus {
   border-bottom: 1px solid #dee2e6;
 }
 
-/* =========================
-   BUTTONS
-========================= */
-.add-btn {
-  background: var(--brand);
+.add-btn, .save-btn, .remove-btn {
+  background: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 6px;
+  transition: background-color 0.3s;
   font-size: 14px;
   padding: 8px 14px;
 }
 
-.add-btn:hover {
-  background: var(--brand-light);
+.add-btn:hover, .remove-btn:hover {
+  background: #0056b3;
 }
 
-/* SAVE = GREEN (KEEP) */
 .save-btn {
-  background: var(--success);
+  background: #28a745;
 }
 .save-btn:hover {
   background: #218838;
 }
 
-/* DELETE = RED (KEEP) */
-.danger-btn {
-  background: var(--danger);
-}
-.danger-btn:hover {
-  background: #b91c1c;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
+/* Ensure responsive inputs */
 @media (max-width: 600px) {
   .branch-row, .subject-row {
     flex-direction: column;
     align-items: stretch;
   }
 }
+.freeze-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.freeze-btn:hover {
+  background: #4b5563;
+}
 
 .action-row {
   margin-top: 20px;
+}
+#newSubjectsContainer .subject-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.danger-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.danger-btn:hover {
+  background: #b91c1c;
 }
