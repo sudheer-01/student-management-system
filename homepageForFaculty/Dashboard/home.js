@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const selectedBranch = localStorage.getItem("selectedBranch");
         const selectedSubject = localStorage.getItem("selectedSubject");
         const facultyId = localStorage.getItem("facultyId");
+        console.log("Retrieved from localStorage:", { selectedYear, selectedBranch, selectedSubject, facultyId });
         
         // If essential data is missing, redirect to the request page or login
         if (!selectedYear || !selectedBranch || !selectedSubject || !facultyId) {

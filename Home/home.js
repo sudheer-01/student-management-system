@@ -51,7 +51,7 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             // ✅ Save facultyId in localStorage
             console.log("Storing facultyId:", data.facultyId);
             localStorage.setItem("facultyId", data.facultyId);
-            console.log("Login successful, redirecting...", data.redirectUrl);
+            //console.log("Login successful, redirecting...", data.redirectUrl);
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
         } else {
@@ -80,12 +80,12 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
 
         if (data.success) {
             // ✅ Save HOD details in localStorage
-            console.log("Storing HOD details:", data.hodDetails);
+            //console.log("Storing HOD details:", data.hodDetails);
             localStorage.setItem("hodName", data.hodDetails.hodName);
             localStorage.setItem("hodBranch", data.hodDetails.hodBranch);
             localStorage.setItem("hodYears", JSON.stringify(data.hodDetails.hodYears)); // Store as string
 
-            console.log("Login successful, redirecting...", data.redirectUrl);
+            //console.log("Login successful, redirecting...", data.redirectUrl);
             // Redirect to HOD dashboard page
             window.location.href = data.redirectUrl;
         } else {
