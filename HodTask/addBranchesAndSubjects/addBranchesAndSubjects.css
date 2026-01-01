@@ -1,284 +1,224 @@
-/* =========================
-   GLOBAL THEME VARIABLES
-========================= */
+/* =========================================================
+   SIMS – ADD BRANCHES & SUBJECTS (HOD)
+   Uses MASTER UI SYSTEM
+   ========================================================= */
+
+/* ---------- ROOT ---------- */
 :root {
+  --brand: #7a0c0c;
+  --brand-dark: #5e0808;
+  --bg: #f5f6f8;
   --card: #ffffff;
-  --brand: #1f6feb;
-  --brand-light: #60a5fa;
-  --brand-dark: #2563eb;
-  --danger: #dc2626;
-  --border: rgba(11,18,32,0.10);
-  --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
-  --radius: 12px;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  --text: #0b1220;
+  --muted: #555;
+  --border: #dcdcdc;
+  --danger: #b91c1c;
+  --success: #28a745; /* KEEP GREEN */
+  --radius: 6px;
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
 }
 
-/* =========================
-   NAVBAR STYLING
-========================= */
+/* ---------- GLOBAL ---------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+}
+
+/* =========================================================
+   NAVBAR (SAME AS HOD DASHBOARD)
+   ========================================================= */
 .topnav {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--card);
+  background: #ffffff;
+  border-bottom: 2px solid var(--brand);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
 
 .brand {
-  font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--brand);
 }
 
 .nav-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  justify-content: center;
-  flex-grow: 1;
 }
 
 .btn {
-  display: inline-block;
+  background: var(--brand);
+  color: #ffffff;
   text-decoration: none;
-  color: #fff;
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 10px;
-  font-weight: 500;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
 }
 
 .btn:hover {
-  background: linear-gradient(120deg, #93c5fd, #2563eb);
-  transform: translateY(-2px);
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  background: var(--brand-dark);
 }
 
 .logout-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius);
   background: var(--danger);
-  color: white;
-  cursor: pointer;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(220,38,38,0.18);
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.logout-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-@media (max-width: 900px) {
-  .topnav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .nav-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-}
-
-/* =========================
-   PAGE BACKGROUND
-========================= */
-body {
-  background: #e8f0fb;
-  margin: 0;
-  padding: 0px;
-}
-/* Main container */
+/* =========================================================
+   MAIN CONTAINER
+   ========================================================= */
 .container {
-  background: #ffffff;
-  padding: 30px;
-  width: 85%;
+  background: var(--card);
   max-width: 900px;
   margin: 40px auto;
-  border-radius: 15px;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-  text-align: left;
+  padding: 30px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
+/* =========================================================
+   HEADINGS & TEXT
+   ========================================================= */
 .container h2 {
+  font-size: 22px;
+  font-weight: 700;
   text-align: center;
-  color: #1f6feb;
+  color: var(--brand);
+  margin-bottom: 8px;
 }
 
-select, input, button {
-  padding: 12px;
-  margin: 8px;
-  border-radius: 5px;
-  border: 1px solid #ced4da;
-  transition: border-color 0.3s;
+.container p {
   font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 20px;
 }
-select:focus, input:focus {
-  border-color: #80bdff;
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+}
+
+/* =========================================================
+   INPUTS & SELECT
+   ========================================================= */
+label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+select,
+input[type="text"] {
+  width: auto;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+select:focus,
+input:focus {
   outline: none;
+  border-color: var(--brand);
 }
 
-.branch-row, .subject-row {
+/* =========================================================
+   ROWS
+   ========================================================= */
+.branch-row,
+.subject-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 12px 0;
-  border-bottom: 1px solid #dee2e6;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.add-btn, .save-btn, .remove-btn {
-  background: #007bff;
-  color: white;
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+/* Normal brown buttons */
+.add-btn,
+#addBranch {
+  background: var(--brand);
+  color: #fff;
   border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background-color 0.3s;
-  font-size: 14px;
   padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.add-btn:hover, .remove-btn:hover {
-  background: #0056b3;
+.add-btn:hover,
+#addBranch:hover {
+  background: var(--brand-dark);
 }
 
+/* ✅ KEEP GREEN */
 .save-btn {
-  background: #28a745;
-}
-.save-btn:hover {
-  background: #218838;
-}
-
-/* Ensure responsive inputs */
-@media (max-width: 600px) {
-  .branch-row, .subject-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-.freeze-btn {
-  background: #6b7280;
-  color: white;
+  background: var(--success);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
   padding: 8px 14px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
   cursor: pointer;
-  margin-right: 10px;
 }
 
-.freeze-btn:hover {
-  background: #4b5563;
+/* ✅ KEEP RED */
+.danger-btn {
+  background: var(--danger);
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
+/* =========================================================
+   ACTION ROW
+   ========================================================= */
 .action-row {
   margin-top: 20px;
 }
-#newSubjectsContainer .subject-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-.danger-btn {
-  background: #dc2626;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  cursor: pointer;
-}
-.danger-btn:hover {
-  background: #b91c1c;
-}
+
 /* =========================================================
-   SIMS BUTTON SYSTEM
+   RESPONSIVE
    ========================================================= */
+@media (max-width: 600px) {
+  .branch-row,
+  .subject-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.btn, .brand {
-  background: #7a0c0c;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn:hover {
-  background: #5e0808;
-}
-
-/* Sizes */
-.btn.small {
-  font-size: 12px;
-  padding: 7px 12px;
-}
-
-/* Action buttons */
-.btn-success {
-  background: #15803d; /* SAVE */
-}
-
-.btn-danger {
-  background: #b91c1c; /* DELETE */
-}
-/* =========================================================
-   SIMS TYPOGRAPHY SYSTEM
-   ========================================================= */
-
-body {
-  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
-}
-
-/* Titles */
-h1 { font-size: 26px; font-weight: 700; }
-h2 { font-size: 22px; font-weight: 700; }
-h3 { font-size: 18px; font-weight: 600; }
-
-/* Text */
-p, li {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-/* Labels */
-label {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* Buttons */
-button, .btn {
-  font-size: 13px;
-  font-weight: 600;
-}
-.logout-btn {
-  background: var(--danger);
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
+  .nav-actions {
+    justify-content: flex-start;
+  }
 }
