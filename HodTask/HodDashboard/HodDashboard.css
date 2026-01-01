@@ -89,7 +89,7 @@ body {
     color: white;
     font-size: 18px;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(31,111,235,0.18);
+    box-shadow: 0 2px 8px #7a0c0c;
 }
 
 .nav-info { 
