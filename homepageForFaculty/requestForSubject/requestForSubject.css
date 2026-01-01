@@ -1,199 +1,218 @@
+/* =========================================================
+   FACULTY – SUBJECT REQUEST PAGE
+   CONSISTENT FACULTY THEME
+========================================================= */
+
+/* ---------- GLOBAL ---------- */
 body {
-    font-family: Arial, sans-serif;
-    background: #90a7be;
-    text-align: center;
-    padding: 20px;
+  margin: 0;
+  padding: 20px;
+  background: #f1f5f9;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #0f172a;
 }
 
+/* ---------- MAIN CONTAINER ---------- */
 .container {
-    background: white;
-    padding: 20px;
-    width: 80%;
-    max-width: 1100px;
-    margin: auto;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px gray;
+  background: #ffffff;
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-/* Styling for subject selection */
-.subject-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
+/* ---------- HEADINGS ---------- */
+h2 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 25px;
 }
 
-.subject-row select {
-    padding: 8px;
-    flex: 1;
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 15px;
 }
 
-.subject-row button {
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.remove-btn {
-    background: red;
-    color: white;
-    border: none;
-}
-
-.request-btn {
-    background: blue;
-    color: white;
-    border: none;
-}
-
-#addSubject {
-    background: green;
-    color: white;
-    padding: 10px;
-    margin-top: 10px;
-    border: none;
-    cursor: pointer;
-}
-
-/* --- Requests Container --- */
-.request-section {
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-/* Individual Box for Pending & Approved Requests */
-.request-box {
-    width: 45%;
-    min-height: 200px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0px 0px 5px gray;
-    padding: 15px;
-    text-align: left;
-}
-
-.request-box h3 {
-    text-align: center;
-    background: #007BFF;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-/* Requests inside the boxes */
-/* .request-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-} */
-.request-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-}
-
-.request-item {
-    border: 2px solid black;
-    padding: 10px;
-    border-radius: 5px;
-    width: 200px;
-    text-align: center;
-    background-color: white;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-
-/* Individual request card */
-.request-card {
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    width: 250px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    border: 2px solid #ccc;
-}
-
-/* Pending status */
-.pending-status {
-    background: gray;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-/* Continue button for approved requests */
-.continue-btn {
-    background: green;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
-}
-
-/* New Styles for Approved Subjects Section */
+/* =========================================================
+   APPROVED SUBJECTS SECTION
+========================================================= */
 #approved-subjects-container {
-    background: #f0f4f8;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-}
-
-#approved-subjects-container h3 {
-    margin-top: 0;
-    color: #333;
-    text-align: left;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
 }
 
 #approved-subjects-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Approved subject option */
 .approved-subject-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .approved-subject-option:hover {
-    background: #e9f2fa;
+  background: #eef2ff;
+  border-color: #6366f1;
 }
 
 .approved-subject-option input[type="radio"] {
-    margin-right: 10px;
+  transform: scale(1.1);
 }
 
+/* Go to dashboard */
 #goToDashboardBtn {
-    background: #28a745;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background 0.3s;
+  display: block;
+  margin: 20px auto 0;
+  background: #16a34a;
+  color: #ffffff;
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 #goToDashboardBtn:hover {
-    background: #218838;
+  background: #15803d;
+}
+
+/* =========================================================
+   SUBJECT REQUEST FORM
+========================================================= */
+#subjectContainer {
+  margin-top: 20px;
+}
+
+/* Subject row */
+.subject-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Dropdown */
+.subject-row select {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+/* Request new subject */
+#addSubject {
+  display: block;
+  margin-top: 20px;
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#addSubject:hover {
+  background: #1e40af;
+}
+
+/* Remove subject */
+.remove-btn {
+  background: #dc2626;
+  color: white;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.remove-btn:hover {
+  background: #b91c1c;
+}
+
+/* Submit request */
+.request-btn {
+  background: #0f766e;
+  color: white;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.request-btn:hover {
+  background: #115e59;
+}
+
+/* Continue button */
+.continue-btn {
+  background: #16a34a;
+  color: white;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.continue-btn:hover {
+  background: #15803d;
+}
+
+/* =========================================================
+   REQUEST STATUS
+========================================================= */
+.pending-status {
+  background: #64748b;
+  color: white;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 768px) {
+  .subject-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #addSubject {
+    width: 100%;
+  }
 }
