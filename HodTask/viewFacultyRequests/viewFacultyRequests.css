@@ -1,253 +1,237 @@
-/* =========================
-   GLOBAL THEME VARIABLES
-========================= */
+/* =========================================================
+   SIMS – HOD FACULTY REQUESTS
+   Uses MASTER UI SYSTEM (MAROON THEME)
+   ========================================================= */
+
+/* ---------- ROOT ---------- */
 :root {
-  --card: #ffffff;
-  --brand: #1f6feb;
-  --brand-light: #60a5fa;
-  --brand-dark: #2563eb;
+  --brand: #7a0c0c;
+  --brand-dark: #5e0808;
+  --success: #28a745;
   --danger: #dc2626;
-  --border: rgba(11,18,32,0.10);
-  --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
-  --radius: 12px;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #0b1220;
+  --muted: #555;
+  --border: #dcdcdc;
+  --radius: 6px;
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
 }
 
-/* =========================
-   NAVBAR STYLING
-========================= */
+/* ---------- GLOBAL ---------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+}
+
+/* =========================================================
+   NAVBAR (SAME AS ALL HOD PAGES)
+   ========================================================= */
 .topnav {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--card);
+  background: #ffffff;
+  border-bottom: 2px solid var(--brand);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
 
 .brand {
-  font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--brand);
 }
 
 .nav-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  justify-content: center;
-  flex-grow: 1;
 }
 
 .btn {
-  display: inline-block;
+  background: var(--brand);
+  color: #ffffff;
   text-decoration: none;
-  color: #fff;
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 10px;
-  font-weight: 500;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
 }
 
 .btn:hover {
-  background: linear-gradient(120deg, #93c5fd, #2563eb);
-  transform: translateY(-2px);
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  background: var(--brand-dark);
 }
 
 .logout-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius);
   background: var(--danger);
-  color: white;
-  cursor: pointer;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(220,38,38,0.18);
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.logout-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-@media (max-width: 900px) {
-  .topnav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .nav-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-}
-
-/* =========================
-   PAGE BACKGROUND
-========================= */
-body {
-  background: #e8f0fb;
-  margin: 0;
-  padding: 0px;
-}
-
-/* ===== CONTAINER ===== */
+/* =========================================================
+   CONTAINER
+   ========================================================= */
 .container {
   max-width: 900px;
-  margin: 50px auto;
-  background: #ffffff;
+  margin: 40px auto;
+  background: var(--card);
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
+/* =========================================================
+   HEADINGS & TEXT
+   ========================================================= */
 h2 {
   text-align: center;
-  color: #1f6feb;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand);
   margin-bottom: 20px;
 }
 
-/* ===== FORM ELEMENTS ===== */
-select, button {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 15px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  transition: border-color 0.3s;
-}
-
-select:focus, button:focus {
-  border-color: #80bdff;
-  outline: none;
-}
-
-button {
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  color: white;
-  border: none;
-  cursor: pointer;
+label {
+  font-size: 14px;
   font-weight: 600;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+  display: block;
 }
 
-button:hover {
-  background: linear-gradient(120deg, #93c5fd, #2563eb);
-  transform: translateY(-1px);
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+select,
+button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
 }
 
-/* ===== TABLE STYLING ===== */
+select:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+/* Load Requests button */
+#loadRequests {
+  background: var(--brand);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+#loadRequests:hover {
+  background: var(--brand-dark);
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 25px;
-  border-radius: 10px;
-  overflow: hidden;
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   padding: 12px;
   text-align: center;
   font-size: 14px;
 }
 
 th {
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  color: white;
+  background: var(--brand);
+  color: #ffffff;
   font-weight: 600;
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background: #fafafa;
 }
 
-tr:hover {
-  background-color: #eef4ff;
-}
-
-/* ===== ACTION BUTTONS ===== */
-.approve-btn, .reject-btn {
-  padding: 6px 12px;
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.25s ease;
-}
-
+/* =========================================================
+   ACTION BUTTONS (KEEP COLORS)
+   ========================================================= */
 .approve-btn {
-  background: #28a745;
-  box-shadow: 0 2px 6px rgba(40,167,69,0.2);
-}
-.approve-btn:hover {
-  background: #218838;
-  transform: translateY(-1px);
+  background: var(--success);
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .reject-btn {
-  background: #dc2626;
-  box-shadow: 0 2px 6px rgba(220,38,38,0.2);
-}
-.reject-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
+  background: var(--danger);
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-/* ===== EMPTY STATE MESSAGE ===== */
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
 .no-requests {
   text-align: center;
-  color: #dc3545;
-  font-size: 18px;
+  font-size: 16px;
+  color: var(--danger);
   margin-top: 20px;
 }
 
-/* Responsive table adjustments */
+/* =========================================================
+   RESPONSIVE TABLE
+   ========================================================= */
 @media (max-width: 700px) {
   table, thead, tbody, th, td, tr {
     display: block;
   }
+
   th {
     display: none;
   }
+
   tr {
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 10px;
   }
+
   td {
     text-align: right;
-    position: relative;
     padding-left: 50%;
+    position: relative;
   }
+
   td::before {
     content: attr(data-label);
     position: absolute;
-    left: 15px;
-    width: 45%;
-    padding-right: 10px;
-    font-weight: bold;
+    left: 12px;
+    font-weight: 600;
     text-align: left;
-    color: #333;
+    color: var(--text);
   }
 }
