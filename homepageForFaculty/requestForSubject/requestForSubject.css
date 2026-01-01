@@ -197,3 +197,76 @@ body {
 #goToDashboardBtn:hover {
     background: #218838;
 }
+/* =========================================================
+   TEACHER SUBJECT REQUEST – BUTTON OVERRIDES ONLY
+   (Add at END of CSS file)
+========================================================= */
+
+/* ➕ Request New Subject */
+#addSubject {
+  background-color: #16a34a; /* professional green */
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.25s ease;
+}
+#addSubject:hover {
+  background-color: #15803d;
+}
+
+/* 📤 Request Button (inside subject row) */
+.request-btn {
+  background-color: #2563eb; /* professional blue */
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.25s ease;
+}
+.request-btn:hover {
+  background-color: #1e40af;
+}
+
+/* 🗑 Remove Subject Button */
+.remove-btn {
+  background-color: #dc2626; /* danger red */
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.25s ease;
+}
+.remove-btn:hover {
+  background-color: #b91c1c;
+}
+
+/* ⏳ Pending Status Badge */
+.pending-status {
+  background-color: #64748b; /* slate gray */
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* ▶ Continue Button (Approved Subject) */
+.continue-btn {
+  background-color: #15803d; /* success green */
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.25s ease;
+}
+.continue-btn:hover {
+  background-color: #166534;
+}
+
+/* 🏠 Go To Dashboard Button */
+#goToDashboardBtn {
+  background-color: #0f766e; /* teal */
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+#goToDashboardBtn:hover {
+  background-color: #115e59;
+  transform: translateY(-1px);
+}
