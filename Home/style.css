@@ -1,12 +1,12 @@
 /* =========================================================
-   SIMS – FINAL SINGLE CSS (BLUE THEME)
+   SIMS – FINAL SINGLE CSS (DEEP MAROON THEME)
    Login as Index | Clean | College-ready
    ========================================================= */
 
 /* -------- ROOT -------- */
 :root {
-  --blue: #1f6feb;
-  --blue-light: #3b82f6;
+  --blue: #7a0c0c;                 /* replaced blue */
+  --blue-light: #9b1c1c;           /* replaced blue-light */
   --bg: #90a7be;
   --white: #ffffff;
   --text: #0b1220;
@@ -272,17 +272,15 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 /* =========================================================
    FORM SPACING NORMALIZATION (ALL ROLES)
    ========================================================= */
-
-/* Ensure all inputs behave the same */
 .allDetails input[type="text"],
 .allDetails input[type="password"] {
   margin-bottom: 14px;
 }
 
-/* Force password fields to look consistent even without icon */
 .allDetails > input[type="password"] {
   width: 100%;
   padding: 11px 10px;
@@ -291,27 +289,24 @@ body {
   font-size: 14px;
 }
 
-/* Always reserve space for form-row (even if empty) */
 .allDetails .form-row {
   min-height: 24px;
   margin-bottom: 14px;
 }
 
-/* If a form DOES NOT have .form-row, simulate spacing */
 .allDetails:not(:has(.form-row))::after {
   content: "";
   display: block;
   height: 24px;
 }
 
-/* Ensure submit button never sticks to previous field */
 .allDetails input[type="submit"] {
   margin-top: 6px;
 }
-/* =========================================================
-   REGISTER LINK BELOW LOGIN (ALL ROLES)
-   ========================================================= */
 
+/* =========================================================
+   REGISTER LINK BELOW LOGIN
+   ========================================================= */
 .register-link {
   margin-top: 14px;
   text-align: center;
@@ -323,22 +318,19 @@ body {
   color: var(--blue);
   font-weight: 600;
   text-decoration: none;
-  margin-left: 4px;
 }
 
 .register-link a:hover {
   text-decoration: underline;
 }
+
 /* =========================================================
    PROFESSIONAL ACADEMIC BACKGROUND
    ========================================================= */
-
 body {
-  background:
-    linear-gradient(180deg, #eef3fb 0%, #90a7be 100%);
+  background: linear-gradient(180deg, #eef3fb 0%, #90a7be 100%);
 }
 
-/* Subtle watermark text */
 .login-page-wrapper::before {
   content: "Student Information Management System";
   position: absolute;
@@ -347,13 +339,12 @@ body {
   transform: translate(-50%, -50%);
   font-size: 56px;
   font-weight: 700;
-  color: rgba(31, 111, 235, 0.06); /* very light blue */
+  color: rgba(122, 12, 12, 0.06); /* maroon watermark */
   white-space: nowrap;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Ensure login card stays above watermark */
 .login-page-wrapper {
   position: relative;
 }
@@ -362,31 +353,28 @@ body {
   position: relative;
   z-index: 1;
 }
-/* =========================================================
-   DUAL BRAND HEADER (COLLEGE + SIMS)
-   ========================================================= */
 
+/* =========================================================
+   DUAL BRAND HEADER
+   ========================================================= */
 .dual-brand {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* College logo */
 .college-logo img {
   height: 42px;
   width: auto;
   object-fit: contain;
 }
 
-/* Separator between logos */
 .brand-separator {
   width: 1px;
   height: 42px;
   background: rgba(0, 0, 0, 0.15);
 }
 
-/* Adjust SIMS logo slightly */
 .logo {
   width: 42px;
   height: 42px;
