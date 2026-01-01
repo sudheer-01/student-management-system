@@ -197,3 +197,40 @@ tbody tr:nth-child(even) {
   font-weight: 600;
   color: #64748b;
 }
+/* =========================
+   STUDENT PROFILE IMAGE
+========================= */
+.profile-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: block;
+  margin: 0 auto;
+}
+
+/* =========================
+   TABLE ACTIONS (EXPORT / PRINT)
+========================= */
+.table-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.table-actions button {
+  background: var(--brand);
+  color: #ffffff;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.table-actions button:hover {
+  background: var(--brand-dark);
+}

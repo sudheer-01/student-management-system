@@ -4,6 +4,7 @@ const filters = document.getElementById("filters");
 const yearSelect = document.getElementById("yearSelect");
 const branchSelect = document.getElementById("branchSelect");
 const table = document.getElementById("dataTable");
+const tableActions = document.getElementById("tableActions");
 
 let currentMode = ""; // view | reset
 
@@ -99,11 +100,12 @@ function renderStudentTable(rows) {
     if (!rows || rows.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="22" class="no-data">
+                <td colspan="23" class="no-data">
                     No students available
                 </td>
             </tr>
         `;
+        tableActions.classList.add("hidden"); // ✅ hide when no data
         return;
     }
 
@@ -170,8 +172,9 @@ function renderStudentTable(rows) {
             </tr>
         `;
     });
-}
 
+    tableActions.classList.remove("hidden"); // ✅ show when data exists
+}
 
 /* ===========================
    RENDER RESET PASSWORD TABLE
