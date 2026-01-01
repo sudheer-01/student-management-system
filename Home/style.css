@@ -1,36 +1,47 @@
 /* =========================================================
-   SIMS – MASTER BASE CSS (BROWN THEME)
-   Login as Index | Academic | Consistent Typography
+   SIMS – FINAL SINGLE CSS (BLUE THEME)
+   Login as Index | Clean | College-ready
    ========================================================= */
 
-/* ================= ROOT VARIABLES ================= */
+/* -------- ROOT -------- */
+/* :root {
+  --blue: #1f6feb;
+  --blue-light: #3b82f6;
+  --bg: #90a7be;
+  --white: #ffffff;
+  --text: #0b1220;
+  --muted: #5a6a85;
+  --border: rgba(11,18,32,0.15);
+  --radius: 8px;
+  --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+} */
 :root {
-  /* 🎓 Brown Academic Palette */
-  --primary: #7b4a12;          /* Main brown */
-  --primary-light: #a9712a;    /* Light brown */
-  --accent: #5c3a0d;           /* Dark brown */
+  /* ===== Academic Coffee / Maroon Theme ===== */
+  --primary: #7a0c0c;        /* MAIN color (matches HOD page) */
+  --primary-dark: #5e0808;   /* Darker shade */
+  --primary-light: #9b1c1c;  /* Hover / highlight */
 
   /* Backgrounds */
-  --bg-main: #f3efe9;          /* Page background */
-  --bg-gradient: linear-gradient(180deg, #f8f5f1 0%, #e1d6c7 100%);
+  --bg-main: #f4f4f4;
+  --bg-gradient: linear-gradient(180deg, #f8f8f8 0%, #e6e6e6 100%);
   --card-bg: #ffffff;
 
   /* Text */
-  --text-main: #2b1d12;
-  --text-muted: #6b5a4a;
+  --text-main: #1f1f1f;
+  --text-muted: #555555;
 
-  /* Borders & Shadow */
-  --border: rgba(43,29,18,0.18);
-  --shadow: 0 12px 28px rgba(0,0,0,0.12);
+  /* Borders & shadow */
+  --border: rgba(0,0,0,0.15);
+  --shadow: 0 12px 28px rgba(0,0,0,0.15);
 
   /* Radius */
   --radius: 8px;
 
-  /* Typography */
+  /* Font */
   --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* ================= GLOBAL ================= */
+/* -------- GLOBAL -------- */
 * {
   box-sizing: border-box;
 }
@@ -42,37 +53,45 @@ html, body {
 body {
   margin: 0;
   font-family: var(--font);
-  background: var(--bg-gradient);
-  color: var(--text-main);
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* ================= NAVBAR ================= */
+/* =========================================================
+   NAVBAR
+   ========================================================= */
 .site-header {
-  width: 100%;
   background: var(--card-bg);
   border-bottom: 3px solid var(--primary);
 }
 
+
 .site-header .container {
+  max-width: 100%;
   padding: 14px 24px;
   display: flex;
   align-items: center;
 }
 
-.dual-brand {
+.brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.college-logo img {
-  height: 44px;
-}
-
-.brand-separator {
-  width: 1px;
+.logo {
+  width: 42px;
   height: 42px;
-  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  width: 26px;
+  height: 26px;
 }
 
 .brand-text {
@@ -81,86 +100,75 @@ body {
 }
 
 .brand-name {
-  font-size: 18px;
-  font-weight: 700;
   color: var(--primary);
 }
 
+
 .brand-tag {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
-/* ================= LOGIN PAGE LAYOUT ================= */
+/* =========================================================
+   LOGIN PAGE LAYOUT
+   ========================================================= */
 .login-page-wrapper {
   min-height: calc(100vh - 110px);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 32px 16px;
-  position: relative;
 }
 
-/* Watermark */
-.login-page-wrapper::before {
-  content: "Student Information Management System";
-  position: absolute;
-  font-size: 56px;
-  font-weight: 700;
-  color: rgba(123,74,18,0.06);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-/* ================= LOGIN CARD ================= */
+/* -------- LOGIN BOX -------- */
 #loginBox {
-  background: var(--card-bg);
+  background: var(--white);
   width: 100%;
   max-width: 520px;
   padding: 28px 24px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  position: relative;
-  z-index: 1;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
-/* Headings */
+/* -------- HEADINGS -------- */
 #loginBox h1 {
+  margin: 0 0 4px;
   text-align: center;
   font-size: 26px;
   font-weight: 700;
-  margin-bottom: 4px;
 }
 
 .subhead {
   text-align: center;
+  margin-bottom: 16px;
   font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 18px;
+  color: var(--muted);
 }
 
-/* ================= ROLE TABS ================= */
+/* =========================================================
+   ROLE TABS
+   ========================================================= */
 .role-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .tab-btn {
-  background: var(--card-bg);
   border: 1px solid var(--border);
+  background: var(--white);
   padding: 10px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 6px;
   cursor: pointer;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tab-btn i {
@@ -168,16 +176,18 @@ body {
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: #fff;
-  border-color: transparent;
+  background: var(--primary);
+  color: #ffffff;
 }
 
 .tab-btn.active i {
-  color: #fff;
+  color: #ffffff;
 }
 
-/* ================= FORMS ================= */
+
+/* =========================================================
+   FORMS
+   ========================================================= */
 .allDetails {
   display: none;
 }
@@ -185,6 +195,7 @@ body {
 .allDetails label {
   font-size: 13px;
   font-weight: 600;
+  color: #444;
   margin: 10px 0 4px;
   display: block;
 }
@@ -206,7 +217,8 @@ body {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--primary);
+  color: var(--blue);
+  font-size: 14px;
 }
 
 .toggle-password {
@@ -214,85 +226,177 @@ body {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
   border: none;
+  background: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: #555;
 }
 
-/* ================= FORM ROW ================= */
+/* -------- FORM ROW -------- */
 .form-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 12px 0 14px;
+  margin: 10px 0 14px;
   font-size: 13px;
 }
 
 .checkbox {
   display: flex;
+  align-items: center;
   gap: 6px;
-  color: var(--text-muted);
+  color: #555;
 }
 
-.link {
+.link,
+.register-link a {
   color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
 }
+
 
 .link:hover {
   text-decoration: underline;
 }
 
-/* ================= SUBMIT BUTTON ================= */
+/* -------- SUBMIT -------- */
 .allDetails input[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  background: var(--primary);
+  color: #ffffff;
 }
+
 
 .allDetails input[type="submit"]:hover {
   opacity: 0.92;
 }
 
-/* ================= REGISTER LINK ================= */
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.simple-footer {
+  width: 100%;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+  color: #444;
+  padding: 10px 0;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 520px) {
+  .role-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* =========================================================
+   FORM SPACING NORMALIZATION (ALL ROLES)
+   ========================================================= */
+
+/* Ensure all inputs behave the same */
+.allDetails input[type="text"],
+.allDetails input[type="password"] {
+  margin-bottom: 14px;
+}
+
+/* Force password fields to look consistent even without icon */
+.allDetails > input[type="password"] {
+  width: 100%;
+  padding: 11px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* Always reserve space for form-row (even if empty) */
+.allDetails .form-row {
+  min-height: 24px;
+  margin-bottom: 14px;
+}
+
+/* If a form DOES NOT have .form-row, simulate spacing */
+.allDetails:not(:has(.form-row))::after {
+  content: "";
+  display: block;
+  height: 24px;
+}
+
+/* Ensure submit button never sticks to previous field */
+.allDetails input[type="submit"] {
+  margin-top: 6px;
+}
+/* =========================================================
+   REGISTER LINK BELOW LOGIN (ALL ROLES)
+   ========================================================= */
+
 .register-link {
   margin-top: 14px;
   text-align: center;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .register-link a {
-  color: var(--primary);
+  color: var(--blue);
   font-weight: 600;
   text-decoration: none;
+  margin-left: 4px;
 }
 
 .register-link a:hover {
   text-decoration: underline;
 }
+/* =========================================================
+   PROFESSIONAL ACADEMIC BACKGROUND
+   ========================================================= */
 
-/* ================= FOOTER ================= */
-.simple-footer {
-  background: var(--card-bg);
-  border-top: 1px solid var(--border);
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-muted);
-  padding: 10px 0;
+body {
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #90a7be 100%);
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 520px) {
-  .role-tabs {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* Subtle watermark text */
+.login-page-wrapper::before {
+  color: rgba(122, 12, 12, 0.05);
+}
+
+
+/* Ensure login card stays above watermark */
+.login-page-wrapper {
+  position: relative;
+}
+
+#loginBox {
+  position: relative;
+  z-index: 1;
+}
+/* =========================================================
+   DUAL BRAND HEADER (COLLEGE + SIMS)
+   ========================================================= */
+
+.dual-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* College logo */
+.college-logo img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Separator between logos */
+.brand-separator {
+  width: 1px;
+  height: 42px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Adjust SIMS logo slightly */
+.logo {
+  width: 42px;
+  height: 42px;
 }
