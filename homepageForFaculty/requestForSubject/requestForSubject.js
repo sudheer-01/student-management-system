@@ -234,3 +234,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     await fetchRequests();  
 });
                
+/* ===============================
+   LOGOUT HANDLER
+================================ */
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    if (!confirm("Are you sure you want to logout?")) return;
+
+    fetch("/logout", { method: "POST" })
+      .then(() => {
+        window.location.href = "/";
+      })
+      .catch(() => {
+        window.location.href = "/";
+      });
+  });
+}
