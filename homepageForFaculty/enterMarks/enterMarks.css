@@ -1,70 +1,94 @@
+/* =========================================================
+   FACULTY – ENTER MARKS (PAGE ONLY)
+========================================================= */
+
 body {
-    margin: 0px;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    text-align: center; /* Centering everything */
+  margin: 0;
+  background: #f5f6f8;
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
+  color: #0b1220;
+  text-align: center;
 }
 
+/* ======================
+   FORM CONTROLS
+====================== */
 label {
-    font-size: 18px;
-    font-weight: bold;
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 6px;
 }
 
 select {
-    padding: 10px;
-    font-size: 16px;
-    margin: 10px;
-    display: inline-block;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #dcdcdc;
+  margin: 10px;
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 10px;
+select:focus {
+  outline: none;
+  border-color: #7a0c0c;
 }
+
+/* ======================
+   BUTTONS
+====================== */
+button,
 #save {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #7a0c0c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background 0.25s ease;
 }
 
-button:hover {
-    background-color: #0056b3;
+button:hover,
+#save:hover {
+  background: #5e0808;
 }
 
-/* Centering elements */
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Table Styling */
+/* ======================
+   TABLE
+====================== */
 table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    background: white;
+  width: 85%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
 }
 
-th, td {
-    border: 1px solid black;
-    padding: 10px;
-    text-align: center;
+th,
+td {
+  border: 1px solid #dcdcdc;
+  padding: 10px;
+  font-size: 13px;
+  text-align: center;
 }
 
 th {
-    background-color: #62c2a1;
-    color: black;
+  background: #7a0c0c;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ======================
+   RESPONSIVE
+====================== */
+@media (max-width: 768px) {
+  table {
+    width: 95%;
+  }
+
+  button,
+  #save {
+    width: 90%;
+  }
 }
