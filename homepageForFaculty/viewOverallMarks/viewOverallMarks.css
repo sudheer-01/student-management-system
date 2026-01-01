@@ -200,3 +200,62 @@ input:focus {
     width: 100%;
   }
 }
+/* =========================================================
+   VIEW OVERALL MARKS – ACTION BUTTON COLORS (OVERRIDES ONLY)
+========================================================= */
+
+/* ➕ ADD COLUMN */
+#addColumn {
+  background-color: #16a34a; /* professional green */
+}
+#addColumn:hover {
+  background-color: #15803d;
+}
+
+/* 🗑 REMOVE COLUMN */
+#removeColumn {
+  background-color: #dc2626; /* danger red */
+}
+#removeColumn:hover {
+  background-color: #b91c1c;
+}
+
+/* ♻️ CLEAR ALL ADDED COLUMNS */
+#clearColumns {
+  background-color: #7c2d12; /* muted brown-red */
+}
+#clearColumns:hover {
+  background-color: #5c1e0c;
+}
+
+/* ✅ APPLY FILTER */
+#applyFilter {
+  background-color: #2563eb; /* professional blue */
+}
+#applyFilter:hover {
+  background-color: #1e40af;
+}
+
+/* ❌ CLEAR FILTER */
+#clearFilter {
+  background-color: #64748b; /* slate gray */
+}
+#clearFilter:hover {
+  background-color: #475569;
+}
+
+/* 🖨 PRINT REPORT */
+#printReport {
+  background-color: #4f46e5; /* indigo */
+}
+#printReport:hover {
+  background-color: #4338ca;
+}
+
+/* 📄 EXPORT CSV */
+#exportCSV {
+  background-color: #0f766e; /* teal */
+}
+#exportCSV:hover {
+  background-color: #115e59;
+}
