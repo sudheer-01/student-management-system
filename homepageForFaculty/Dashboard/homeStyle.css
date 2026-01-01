@@ -1,126 +1,100 @@
-/* =========================================================
-   SIMS – FACULTY HOME (MASTER THEME)
-   ========================================================= */
-
-/* ---------- ROOT ---------- */
-:root {
-  --brand: #7a0c0c;
-  --brand-dark: #5e0808;
-  --bg: #f5f6f8;
-  --card: #ffffff;
-  --text: #0b1220;
-  --muted: #555;
-  --border: #dcdcdc;
-  --radius: 6px;
-
-  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #1a4b47; /* Dark teal background from image */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ---------- GLOBAL ---------- */
-html, body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-}
-
-/* =========================================================
-   NAVBAR
-   ========================================================= */
-nav {
-  width: 100%;
-  background: #ffffff;
-  border-bottom: 2px solid var(--brand);
-}
-
-nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 14px 24px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-nav li {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-nav li a {
-  text-decoration: none;
-  color: #ffffff;
-}
-
-nav li:not(.danger) {
-  background: var(--brand);
-}
-
-nav li:not(.danger):hover {
-  background: var(--brand-dark);
-}
-
-nav li.danger {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-/* =========================================================
-   FACULTY DETAILS CARD
-   ========================================================= */
+/* Teacher Details Section */
 #teacherDetails {
-  max-width: 900px;
-  margin: 32px auto;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  text-align: center;
+    border: none; /* Removed border for a cleaner look */
+    font-size: 1.2rem; /* Increased font size */
+    width: 80%;
+    max-width: 800px; /* Reduced max-width */
+    padding: 20px;
+    margin: 30px 0;
+    border-radius: 10px;
+    box-shadow: 0 0 20px 5px rgba(100, 180, 255, 0.5); /* Added glowing shadow effect */
+    background-color: #ffffff;
+    color: #000000;
+    text-align: center;
 }
-
 #teacherDetails h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 6px 0;
-  color: var(--brand);
+    color: #000000;
+    font-size: 1.6rem; /* Increased font size */
+    margin: 5px 0;
 }
 
-/* =========================================================
-   FACULTY INSTRUCTIONS
-   ========================================================= */
+/* Completed Exams Section */
+#completedExams {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 exams per row */
+    width: 90%;
+    max-width: 900px;
+    gap: 25px;
+    justify-items: center; /* Center items within grid cells */
+}
+
+#completedExams h1 {
+    border: none;
+    padding: 18px;
+    width: 220px;
+    text-align: center;
+    border-radius: 8px; /* Rounded borders */
+    background-color: #2a2a2a; /* Dark button color */
+    color: #ffffff;
+    box-shadow: 0 0 12px 3px rgba(100, 180, 255, 0.4); /* Blue glow effect */
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+#completedExams h1:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px 6px rgba(100, 180, 255, 0.6); /* Enhanced glow on hover */
+}
+
+/* This targets the last item if it's the only one in its row */
+#completedExams h1:last-child:nth-child(3n - 2) {
+    grid-column-start: 2;
+}
+
+/* This targets the last two items if they are the only ones in their row */
+#completedExams h1:last-child:nth-child(3n - 1) {
+    grid-column-start: 1;
+}
+#completedExams h1:nth-last-child(2):nth-child(3n - 2) {
+    grid-column-end: 3;
+    grid-column-start: 2;
+}
 #facultyInstructions {
-  max-width: 900px;
-  margin: 32px auto;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
+    background-color: #ffffff;
+    color: #000;
+    width: 80%;
+    max-width: 900px;
+    padding: 25px 35px;
+    margin: 30px 0;
+    border-radius: 10px;
+    box-shadow: 0 0 20px 5px rgba(100, 180, 255, 0.4);
+    text-align: left;
 }
 
 #facultyInstructions h2 {
-  text-align: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--brand);
-  margin-bottom: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1a4b47;
 }
 
 #facultyInstructions ol {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 
 #facultyInstructions li {
-  margin-bottom: 12px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text);
-}
-
-#facultyInstructions strong {
-  font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+    line-height: 1.6;
 }
