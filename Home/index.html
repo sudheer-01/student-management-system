@@ -143,7 +143,13 @@
       </div>
 
       <label>Password</label>
-      <input type="password" id="studentPassword" required />
+      <div class="input-group">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" id="studentPassword" required />
+        <button type="button" class="toggle-password" data-target="studentPassword">
+          <i class="fa-regular fa-eye"></i>
+        </button>
+      </div>
 
       <div class="form-row">
         <label class="checkbox"><input type="checkbox"/> Remember me</label>
