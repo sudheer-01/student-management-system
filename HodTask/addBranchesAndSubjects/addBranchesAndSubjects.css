@@ -208,3 +208,67 @@ select:focus, input:focus {
 .danger-btn:hover {
   background: #b91c1c;
 }
+/* =========================================================
+   SIMS BUTTON SYSTEM
+   ========================================================= */
+
+.btn {
+  background: #7a0c0c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #5e0808;
+}
+
+/* Sizes */
+.btn.small {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+/* Action buttons */
+.btn-success {
+  background: #15803d; /* SAVE */
+}
+
+.btn-danger {
+  background: #b91c1c; /* DELETE */
+}
+/* =========================================================
+   SIMS TYPOGRAPHY SYSTEM
+   ========================================================= */
+
+body {
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
+}
+
+/* Titles */
+h1 { font-size: 26px; font-weight: 700; }
+h2 { font-size: 22px; font-weight: 700; }
+h3 { font-size: 18px; font-weight: 600; }
+
+/* Text */
+p, li {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Labels */
+label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Buttons */
+button, .btn {
+  font-size: 13px;
+  font-weight: 600;
+}
