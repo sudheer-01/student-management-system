@@ -82,7 +82,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    background: #7a0c0c;
     display: flex;
     align-items: center;
     justify-content: center;
