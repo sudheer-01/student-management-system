@@ -91,3 +91,9 @@ th {
     width: 90%;
   }
 }
+#save {
+    background-color: hsl(120, 50%, 45%);
+}
+#save:hover {
+    background-color: hsl(120, 50%, 35%);
+}
