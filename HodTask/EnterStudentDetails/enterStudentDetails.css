@@ -1,293 +1,230 @@
-/* =========================
-   GLOBAL THEME VARIABLES
-========================= */
+/* =========================================================
+   SIMS – ENTER STUDENT DETAILS (HOD)
+   MASTER SYSTEM – MAROON THEME
+   ========================================================= */
+
+/* ---------- ROOT ---------- */
 :root {
-  --card: #ffffff;
-  --brand: #1f6feb;
-  --brand-light: #60a5fa;
-  --brand-dark: #2563eb;
+  --brand: #7a0c0c;
+  --brand-dark: #5e0808;
+  --success: #28a745;
   --danger: #dc2626;
-  --border: rgba(11,18,32,0.10);
-  --shadow: 0 4px 16px rgba(11, 18, 32, 0.08);
-  --radius: 12px;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #0b1220;
+  --muted: #555;
+  --border: #dcdcdc;
+  --radius: 6px;
+  font-family: 'Inter', system-ui, Segoe UI, Arial, sans-serif;
 }
 
-/* =========================
-   NAVBAR STYLING
-========================= */
+/* ---------- GLOBAL TYPOGRAPHY LOCK ---------- */
+html, body {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea,
+label,
+option,
+th,
+td,
+p,
+span,
+div {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ---------- BODY ---------- */
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+/* =========================================================
+   NAVBAR (COMMON)
+   ========================================================= */
 .topnav {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--card);
+  background: #ffffff;
+  border-bottom: 2px solid var(--brand);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
 
 .brand {
-  font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--brand);
 }
 
 .nav-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  justify-content: center;
-  flex-grow: 1;
 }
 
 .btn {
-  display: inline-block;
+  background: var(--brand);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
-  color: #fff;
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 10px;
-  font-weight: 500;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.25);
+  border-radius: 4px;
 }
 
 .btn:hover {
-  background: linear-gradient(120deg, #93c5fd, #2563eb);
-  transform: translateY(-2px);
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  background: var(--brand-dark);
 }
 
 .logout-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius);
   background: var(--danger);
-  color: white;
-  cursor: pointer;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(220,38,38,0.18);
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.logout-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-@media (max-width: 900px) {
-  .topnav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .nav-actions {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-}
-
-/* =========================
-   PAGE BACKGROUND
-========================= */
-body {
-  background: #e8f0fb;
-  margin: 0;
-  padding: 0px;
-}
-
-/* =========================
+/* =========================================================
    FORM CONTAINER
-========================= */
+   ========================================================= */
 .form-container {
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
   max-width: 950px;
   margin: 40px auto;
+  background: var(--card);
   padding: 30px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
+/* =========================================================
+   HEADINGS
+   ========================================================= */
 h1 {
   text-align: center;
-  color: var(--brand-dark);
-  margin-bottom: 24px;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  color: var(--brand);
+  margin-bottom: 24px;
 }
 
-/* =========================
-   FORM ROWS & FIELDS
-========================= */
-.top-row, .mid-row, .bottom-row {
+/* =========================================================
+   FORM LAYOUT
+   ========================================================= */
+.top-row,
+.mid-row,
+.bottom-row {
   display: flex;
+  gap: 24px;
   justify-content: center;
   align-items: flex-end;
-  gap: 24px;
-  margin-bottom: 22px;
   flex-wrap: wrap;
+  margin-bottom: 22px;
 }
 
 .field-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   min-width: 200px;
 }
 
 label {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #333;
 }
 
-select, input[type="number"] {
-  padding: 10px 12px;
-  font-size: 15px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  width: 200px;
-  transition: 0.3s;
+/* =========================================================
+   INPUTS
+   ========================================================= */
+select,
+input[type="number"],
+input[type="file"] {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
 }
 
-select:focus, input:focus {
-  border-color: var(--brand);
+select:focus,
+input:focus {
   outline: none;
-  box-shadow: 0 0 6px rgba(37,99,235,0.2);
+  border-color: var(--brand);
 }
 
-/* =========================
+/* =========================================================
    BUTTONS
-========================= */
-button, input[type="submit"] {
-  padding: 10px 16px;
-  font-size: 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+   ========================================================= */
+button,
+input[type="submit"] {
+  background: var(--brand);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
-  min-width: 140px;
-  color: white;
-  transition: all 0.25s ease;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-#getStudentsInfo {
-  background: linear-gradient(120deg, #3b82f6, #2563eb);
+button:hover,
+input[type="submit"]:hover {
+  background: var(--brand-dark);
 }
-#confirmRows {
-  background: linear-gradient(120deg, #14b8a6, #0d9488);
-}
-#addRow {
-  background: linear-gradient(120deg, #6366f1, #4f46e5);
-}
+
+/* Save button (KEEP GREEN) */
 #save {
-  background: #22c55e;
+  background: var(--success);
 }
 
-button:hover, input[type="submit"]:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-}
-
-/* =========================
-   TABLE STYLING
-========================= */
+/* =========================================================
+   TABLE
+   ========================================================= */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 25px;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #ffffff;
-  display: none;
-}
-
-thead {
-  background: linear-gradient(120deg, #60a5fa, #3b82f6);
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 2;
 }
 
 th, td {
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  text-align: center;
+  border: 1px solid var(--border);
+  padding: 10px;
   font-size: 14px;
+  text-align: center;
 }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9;
+thead {
+  background: var(--brand);
+  color: #ffffff;
 }
 
-tr:hover {
-  background-color: #eef4ff;
-}
-
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: 900px) {
-  .form-container {
-    width: 95%;
-    padding: 20px;
-  }
-
-  .top-row, .mid-row, .bottom-row {
+  .top-row,
+  .mid-row,
+  .bottom-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
   }
 
-  select, input[type="number"], button, input[type="submit"] {
+  select,
+  input,
+  button {
     width: 100%;
   }
-}
-
-@media (max-width: 600px) {
-  body {
-    padding: 20px 10px;
-  }
-
-  h1 {
-    font-size: 20px;
-  }
-
-  th, td {
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  table {
-    width: 100%;
-    font-size: 13px;
-  }
-}
-
-#excelFile {
-  padding: 8px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  width: 220px;
-}
-
-#importExcel {
-  background: linear-gradient(120deg, #f59e0b, #d97706);
-}
-
-#importExcel:hover {
-  filter: brightness(1.1);
 }
