@@ -577,3 +577,19 @@ td[contenteditable="true"] {
     padding: 6px 10px !important;
   }
 }
+/* =========================================================
+   ADMIN NAVBAR – REMOVE EXTRA VERTICAL GAP
+   (NO font-size changes)
+========================================================= */
+
+/* Reduce space BELOW navbar */
+.admin-navbar {
+  margin-bottom: 8px !important;  /* was ~30px */
+  padding-top: 10px;              /* keep visual balance */
+  padding-bottom: 10px;
+}
+
+/* Reduce space ABOVE page content */
+.page {
+  margin-top: 12px !important;    /* was 40px */
+}
