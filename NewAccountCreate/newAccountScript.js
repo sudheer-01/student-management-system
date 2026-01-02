@@ -98,6 +98,7 @@ document.getElementById("teacherSubmitButton").addEventListener("click", functio
     event.preventDefault(); // Prevent default form submission
 
     let teacherName = document.getElementById("teacherName").value.toUpperCase();
+    console.log("teacherName:", teacherName);
     let facultyId = document.getElementById("facultyId").value;
     let emailOfTeacher = document.getElementById("emailOfTeacher").value;
     let passwordOfTeacher = document.getElementById("passwordOfTeacher").value;

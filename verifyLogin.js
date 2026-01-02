@@ -65,6 +65,7 @@ app.get("/",(req,res) =>
 // entering teacher details into database
 app.post("/createTeacherAccount", (req, res) => {
     var teacherName = req.body.teacherName;
+    console.log("teacherName:", teacherName);
     var facultyId = req.body.facultyId;
     var emailOfTeacher = req.body.emailOfTeacher;
     var passwordOfTeacher = req.body.passwordOfTeacher;
