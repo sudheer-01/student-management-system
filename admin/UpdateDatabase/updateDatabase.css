@@ -566,37 +566,12 @@ td[contenteditable="true"] {
   font-size: 13px;              /* keep consistent with HOD */
   line-height: 1.2;
 }
-
-/* Mobile spacing */
-@media (max-width: 900px) {
-  .admin-navbar {
-    padding: 6px 0 !important;
-  }
-
-  .admin-navbar .nav-btn {
-    padding: 6px 10px !important;
-  }
+.nav-btn{
+  margin-bottom: 5px;
+  margin-top: 5px;
 }
-/* =========================================================
-   ADMIN NAVBAR – REMOVE EXTRA VERTICAL GAP
-   (NO font-size changes)
-========================================================= */
-
-/* Reduce space BELOW navbar */
-.admin-navbar {
-  margin-bottom: 8px !important;  /* was ~30px */
-  padding-top: 10px;              /* keep visual balance */
-  padding-bottom: 10px;
+.nav-left{
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
-/* Reduce space ABOVE page content */
-.page {
-  margin-top: 12px !important;    /* was 40px */
-}
-.admin-navbar {
-  margin-bottom: 4px !important;
-}
-
-.page {
-  margin-top: 6px !important;
-}
