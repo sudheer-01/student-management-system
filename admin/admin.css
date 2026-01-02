@@ -74,3 +74,145 @@ a.btn.ghost:hover {
     background-color: #007bff;
     color: white;
 }
+/* =========================================================
+   ADMIN THEME OVERRIDES – MAROON / BROWN
+   Add at END of admin.css
+========================================================= */
+
+/* ---------- FONT UNIFICATION ---------- */
+body,
+button,
+input,
+select,
+table,
+th,
+td {
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+}
+
+/* ---------- BRAND COLORS ---------- */
+:root {
+  --admin-brand: #7a0c0c;
+  --admin-brand-dark: #5e0808;
+  --admin-bg: #f5f6f8;
+  --admin-card: #ffffff;
+  --admin-border: #d6d3d1;
+  --admin-text: #1f2937;
+}
+
+/* ---------- PAGE BACKGROUND ---------- */
+body {
+  background: var(--admin-bg) !important;
+  color: var(--admin-text);
+}
+
+/* ---------- HEADER ---------- */
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--admin-brand);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ---------- INPUTS & SELECT ---------- */
+.input,
+.select {
+  border-radius: 6px;
+  border: 1px solid var(--admin-border);
+  font-size: 14px;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* Secondary (Export CSV) */
+.btn.secondary {
+  background: var(--admin-brand);
+  color: #fff;
+}
+.btn.secondary:hover {
+  background: var(--admin-brand-dark);
+}
+
+/* Ghost (Manage Academic Data) */
+.btn.ghost {
+  background: transparent;
+  border: 1px solid var(--admin-brand);
+  color: var(--admin-brand);
+}
+.btn.ghost:hover {
+  background: var(--admin-brand);
+  color: #fff;
+}
+
+/* Danger (Logout) */
+.btn.danger {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+.btn.danger:hover {
+  background: #b91c1c;
+}
+
+/* ---------- TABLE ---------- */
+.table-wrapper {
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+}
+
+thead th {
+  background: #f1f1f1 !important;
+  color: var(--admin-brand);
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--admin-brand);
+}
+
+tbody td {
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #fafafa;
+}
+
+/* ---------- STATUS BADGES ---------- */
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+/* ---------- ACTION BUTTONS IN TABLE ---------- */
+.action-btn {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.action-btn.approve {
+  background: #15803d;
+}
+.action-btn.approve:hover {
+  background: #166534;
+}
+
+.action-btn.reject {
+  background: #dc2626;
+}
+.action-btn.reject:hover {
+  background: #b91c1c;
+}
+
+/* ---------- SPINNER ---------- */
+.spinner {
+  border-top-color: var(--admin-brand);
+}
