@@ -460,3 +460,82 @@ td[contenteditable="true"] {
 .nav-btn.logout:hover {
   background: #b91c1c !important;
 }
+/* =========================================================
+   ADMIN NAVBAR – MATCH HOD & FACULTY (FINAL OVERRIDE)
+   MUST BE AT VERY END OF updateDatabase.css
+========================================================= */
+
+/* Navbar wrapper */
+.admin-navbar {
+  background: #ffffff !important;
+  border-bottom: 2px solid #7a0c0c;
+  padding: 14px 0;
+}
+
+/* Inner alignment */
+.admin-navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Logo */
+.admin-navbar .logo {
+  color: #7a0c0c !important;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* Right nav container */
+.admin-navbar .nav-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* All nav buttons */
+.admin-navbar .nav-btn {
+  background: #7a0c0c !important;
+  color: #ffffff !important;
+  border: 1px solid #7a0c0c !important;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.admin-navbar .nav-btn:hover {
+  background: #5e0808 !important;
+  border-color: #5e0808 !important;
+}
+
+/* Logout button (slightly brighter red) */
+.admin-navbar .nav-btn.logout {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.admin-navbar .nav-btn.logout:hover {
+  background: #b91c1c !important;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .admin-navbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .admin-navbar .nav-right {
+    width: 100%;
+  }
+}
