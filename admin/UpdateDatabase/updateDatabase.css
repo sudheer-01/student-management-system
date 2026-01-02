@@ -593,3 +593,10 @@ td[contenteditable="true"] {
 .page {
   margin-top: 12px !important;    /* was 40px */
 }
+.admin-navbar {
+  margin-bottom: 4px !important;
+}
+
+.page {
+  margin-top: 6px !important;
+}
