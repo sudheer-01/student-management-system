@@ -1,58 +1,126 @@
+/* =========================================================
+   GLOBAL BASE
+========================================================= */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f6f8;
   margin: 0;
   padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f6f8;
+  color: #1f2937;
 }
 
+/* =========================================================
+   PAGE LAYOUT
+========================================================= */
 .page {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 12px; /* ✅ reduced gap */
 }
 
 .container {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   width: 850px;
   max-width: 95%;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #d6d3d1;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 28px;
-  color: #333;
+  font-size: 26px;
+  font-weight: 800;
+  color: #7a0c0c;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #666;
+  color: #6b7280;
 }
 
-a {
-  display: inline-block;
-  margin: 15px 0;
-  color: #007BFF;
-  text-decoration: none;
+/* =========================================================
+   ADMIN NAVBAR (MATCH HOD / FACULTY)
+========================================================= */
+.admin-navbar {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 2px solid #7a0c0c;
+  padding: 8px 0; /* ✅ controlled height */
 }
 
-a:hover { text-decoration: underline; }
+.admin-navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 
-.form-row {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
-.form-group {
-  flex: 1;
-  min-width: 200px;
+.admin-navbar .logo {
+  color: #7a0c0c;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
+.nav-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Navbar buttons */
+.nav-btn {
+  background: #7a0c0c;
+  color: #ffffff;
+  border: 1px solid #7a0c0c;
+  padding: 6px 12px; /* ✅ button height fixed */
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  line-height: 1.2;
+  transition: background 0.25s ease;
+}
+
+.nav-btn:hover {
+  background: #5e0808;
+  border-color: #5e0808;
+}
+
+.nav-btn.logout {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.nav-btn.logout:hover {
+  background: #b91c1c;
+}
+
+/* Responsive navbar */
+@media (max-width: 900px) {
+  .admin-navbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .nav-right {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   FORMS & INPUTS
+========================================================= */
 label {
   display: block;
+  font-size: 14px;
   font-weight: 600;
   color: #444;
   margin-bottom: 5px;
@@ -61,40 +129,62 @@ label {
 select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
   font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #d6d3d1;
 }
 
+/* =========================================================
+   BUTTONS
+========================================================= */
 button {
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 8px 16px;
+  font-size: 13px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  margin-right: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.delete-btn { background-color: #dc3545; color: #fff; }
-.update-btn { background-color: #28a745; color: #fff; }
-.export-btn { background-color: #007bff; color: #fff; }
+.update-btn,
+#updateBtnAlways {
+  background: #7a0c0c;
+  color: #ffffff;
+}
 
-button:hover { opacity: 0.9; }
+.update-btn:hover,
+#updateBtnAlways:hover {
+  background: #5e0808;
+}
 
-#message { margin-top: 15px; font-weight: bold; }
+.delete-btn {
+  background: #dc2626;
+  color: #ffffff;
+}
 
-.success { color: green; }
-.error { color: red; }
+.delete-btn:hover {
+  background: #b91c1c;
+}
 
-#dynamicContent { margin-top: 25px; }
+.export-btn {
+  background: #92400e;
+  color: #ffffff;
+}
 
-/* Editable Table */
+.export-btn:hover {
+  background: #78350f;
+}
+
+/* =========================================================
+   TABLES
+========================================================= */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 th, td {
@@ -103,281 +193,9 @@ th, td {
   text-align: left;
 }
 
-th { background-color: #f8f9fa; font-weight: 600; }
-
-tr:nth-child(even) { background-color: #fafafa; }
-
-tr:hover { background-color: #eef5ff; }
-
-td[contenteditable="true"] {
-  background-color: #fffbe6;
-}
-
-.action-pill {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  border: none;
-  margin-right: 5px;
-}
-
-.action-pill.update { background-color: #28a745; color: white; }
-.action-pill.delete { background-color: #dc3545; color: white; }
-.top-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 15px 0 25px 0;
-}
-
-#updateBtnAlways {
-  padding: 8px 16px;
-  border-radius: 8px;
-  background-color: #28a745;
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-#updateBtnAlways:hover {
-  background-color: #218838;
-}
-/* ===== ADMIN NAVBAR (FULL WIDTH) ===== */
-
-.admin-navbar {
-  width: 100%;
-  background: #1e293b;
-  padding: 14px 0;
-  margin-bottom: 30px;
-}
-
-/* Inner container to center content */
-.admin-navbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.admin-navbar .logo {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 1.2;
-}
-
-/* Right-side buttons */
-.nav-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-/* Navbar buttons */
-.nav-btn {
-  background: #334155;
-  color: #ffffff;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s ease;
-}
-
-.nav-btn:hover {
-  background: #475569;
-}
-
-.nav-btn.logout {
-  background: #dc2626;
-}
-
-.nav-btn.logout:hover {
-  background: #b91c1c;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .admin-navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-right {
-    width: 100%;
-    margin-top: 12px;
-  }
-}
-
-h3 {
-  color: #1e293b;
-  font-size: 18px;
-}
-
-.update-btn {
-  background: #2563eb;
-}
-
-.update-btn:hover {
-  background: #1d4ed8;
-}
-
-table th {
-  text-transform: uppercase;
-  font-size: 12px;
-}
-/* =========================================================
-   ADMIN – BROWN / MAROON THEME OVERRIDES
-   Add at END of updateDatabase.css
-========================================================= */
-
-/* ---------- GLOBAL FONT CONSISTENCY ---------- */
-body,
-button,
-input,
-select,
-table,
-th,
-td {
-  font-family: "Segoe UI", Tahoma, sans-serif !important;
-}
-
-/* ---------- THEME VARIABLES ---------- */
-:root {
-  --admin-brand: #7a0c0c;
-  --admin-brand-dark: #5e0808;
-  --admin-bg: #f5f6f8;
-  --admin-card: #ffffff;
-  --admin-border: #d6d3d1;
-  --admin-text: #1f2937;
-}
-
-/* ---------- PAGE BACKGROUND ---------- */
-body {
-  background: var(--admin-bg) !important;
-  color: var(--admin-text);
-}
-
-/* ---------- PAGE HEADER ---------- */
-.page-header h1 {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--admin-brand);
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-/* ---------- ADMIN NAVBAR ---------- */
-.admin-navbar {
-  background: var(--admin-brand);
-}
-
-.admin-navbar .logo {
-  font-size: 20px;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.nav-btn {
-  background: #ffffff;
-  color: var(--admin-brand);
-  border: 1px solid var(--admin-brand);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.nav-btn:hover {
-  background: var(--admin-brand);
-  color: #ffffff;
-}
-
-.nav-btn.logout {
-  background: #dc2626;
-  border-color: #dc2626;
-  color: #ffffff;
-}
-
-.nav-btn.logout:hover {
-  background: #b91c1c;
-}
-
-/* ---------- CONTAINER ---------- */
-.container {
-  border-radius: 12px;
-  border: 1px solid var(--admin-border);
-}
-
-/* ---------- FORM ELEMENTS ---------- */
-label {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-select {
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid var(--admin-border);
-}
-
-/* ---------- BUTTONS ---------- */
-button {
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 6px;
-}
-
-/* Main update button */
-.update-btn,
-#updateBtnAlways {
-  background: var(--admin-brand);
-  color: #ffffff;
-}
-
-.update-btn:hover,
-#updateBtnAlways:hover {
-  background: var(--admin-brand-dark);
-}
-
-/* Delete */
-.delete-btn,
-.action-pill.delete {
-  background: #dc2626;
-}
-
-.delete-btn:hover,
-.action-pill.delete:hover {
-  background: #b91c1c;
-}
-
-/* Export */
-.export-btn {
-  background: #92400e;
-}
-
-.export-btn:hover {
-  background: #78350f;
-}
-
-/* ---------- TABLE ---------- */
-table {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
 th {
   background: #f1f1f1;
-  color: var(--admin-brand);
+  color: #7a0c0c;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -387,31 +205,46 @@ td {
   font-size: 14px;
 }
 
-tr:hover {
+tr:nth-child(even) {
   background: #fafafa;
 }
 
-/* Editable cells */
+tr:hover {
+  background: #f9fafb;
+}
+
 td[contenteditable="true"] {
   background: #fff7ed;
 }
 
-/* ---------- ACTION PILLS ---------- */
+/* =========================================================
+   ACTION PILLS
+========================================================= */
 .action-pill {
+  padding: 5px 10px;
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
+  border: none;
 }
 
 .action-pill.update {
   background: #15803d;
+  color: #ffffff;
 }
 
 .action-pill.update:hover {
   background: #166534;
 }
 
-/* ---------- STATUS MESSAGES ---------- */
+.action-pill.delete {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* =========================================================
+   STATUS MESSAGES
+========================================================= */
 .success {
   color: #15803d;
 }
@@ -419,159 +252,3 @@ td[contenteditable="true"] {
 .error {
   color: #dc2626;
 }
-/* =========================================================
-   ADMIN NAVBAR – MATCH HOD / FACULTY (WHITE BACKGROUND)
-   Add at END of updateDatabase.css
-========================================================= */
-
-/* Navbar container */
-.admin-navbar {
-  background: #ffffff !important;
-  border-bottom: 2px solid #7a0c0c;
-}
-
-/* Logo */
-.admin-navbar .logo {
-  color: #7a0c0c !important;
-  font-weight: 800;
-}
-
-/* Navbar buttons */
-.nav-btn {
-  background: #ffffff !important;
-  color: #7a0c0c !important;
-  border: 1px solid #7a0c0c !important;
-  font-weight: 600;
-}
-
-/* Hover effect */
-.nav-btn:hover {
-  background: #7a0c0c !important;
-  color: #ffffff !important;
-}
-
-/* Logout button */
-.nav-btn.logout {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-  color: #ffffff !important;
-}
-
-.nav-btn.logout:hover {
-  background: #b91c1c !important;
-}
-/* =========================================================
-   ADMIN NAVBAR – MATCH HOD & FACULTY (FINAL OVERRIDE)
-   MUST BE AT VERY END OF updateDatabase.css
-========================================================= */
-
-/* Navbar wrapper */
-.admin-navbar {
-  background: #ffffff !important;
-  border-bottom: 2px solid #7a0c0c;
-  padding: 14px 0;
-}
-
-/* Inner alignment */
-.admin-navbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-/* Logo */
-.admin-navbar .logo {
-  color: #7a0c0c !important;
-  font-size: 20px;
-  font-weight: 800;
-}
-
-/* Right nav container */
-.admin-navbar .nav-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* All nav buttons */
-.admin-navbar .nav-btn {
-  background: #7a0c0c !important;
-  color: #ffffff !important;
-  border: 1px solid #7a0c0c !important;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 3px;
-  text-decoration: none;
-  transition: all 0.25s ease;
-}
-
-/* Hover */
-.admin-navbar .nav-btn:hover {
-  background: #5e0808 !important;
-  border-color: #5e0808 !important;
-}
-
-/* Logout button (slightly brighter red) */
-.admin-navbar .nav-btn.logout {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-}
-
-.admin-navbar .nav-btn.logout:hover {
-  background: #b91c1c !important;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .admin-navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .admin-navbar .nav-right {
-    width: 100%;
-  }
-}
-/* =========================================================
-   ADMIN NAVBAR – HEIGHT & SPACING CONTROL
-   Adjust values as needed
-========================================================= */
-
-/* Overall navbar height */
-.admin-navbar {
-  padding: 8px 0 !important;   /* ⬅ reduce this (default was ~14px) */
-}
-
-/* Inner alignment */
-.admin-navbar-inner {
-  align-items: center;
-}
-
-/* Logo size & spacing */
-.admin-navbar .logo {
-  font-size: 18px;             /* ⬅ reduce if needed */
-  line-height: 1.2;
-}
-
-/* Buttons height control */
-.admin-navbar .nav-btn {
-  padding: 6px 12px !important; /* ⬅ main height control */
-  font-size: 13px;              /* keep consistent with HOD */
-  line-height: 1.2;
-}
-.nav-btn{
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.nav-left{
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
