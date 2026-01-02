@@ -216,3 +216,62 @@ td.subject {
 #profilePhoto {
     margin-top: 6px;
 }
+/* =========================================================
+   STUDENT – BUTTON COLOR OVERRIDES
+   Add at END of studentsMarks.css
+========================================================= */
+
+/* PRIMARY ACTION (Get Marks, Save Profile) */
+#fetchMarksBtn,
+#saveProfile {
+  background: #37cb32;
+  color: #ffffff;
+}
+
+#fetchMarksBtn:hover,
+#saveProfile:hover {
+  background: #1a9a20;
+}
+
+/* EXPORT CSV */
+#exportCsvBtn {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+#exportCsvBtn:hover {
+  background: #1d4ed8;
+}
+
+/* PRINT */
+#printBtn {
+  background: #475569;
+  color: #ffffff;
+  border: none;
+}
+
+#printBtn:hover {
+  background: #334155;
+}
+
+/* STUDENT PROFILE BUTTON */
+#profileBtn {
+  background: transparent;
+  color: #7a0c0c;
+  border: 1px solid #7a0c0c;
+}
+
+#profileBtn:hover {
+  background: #7a0c0c;
+  color: #ffffff;
+}
+
+/* LOGOUT */
+#logoutBtn {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+#logoutBtn:hover {
+  background: #b91c1c;
+}
