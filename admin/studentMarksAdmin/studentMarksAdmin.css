@@ -1,105 +1,43 @@
-body {
-    font-family: Arial;
-    background: #f6f8fb;
-}
+/* =========================================================
+   STUDENT MARKS – ADMIN (PAGE ONLY STYLES)
+========================================================= */
 
+/* Page container spacing */
 .container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-.filters, .actions {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
-
-th, td {
-    border: 1px solid #e2e8f0;
-    padding: 8px;
-    text-align: center;
-}
-
-th {
-    background: #e2e8f0;
-}
-
-/* ===== ADMIN NAVBAR (FULL WIDTH) ===== */
-
-.admin-navbar {
-  width: 100%;
-  background: #1e293b;
-  padding: 14px 0;
-  margin-bottom: 30px;
-}
-
-/* Inner container to center content */
-.admin-navbar-inner {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  margin: 20px auto;
+}
 
+/* Filters & actions row */
+.filters,
+.actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
   flex-wrap: wrap;
 }
 
-.admin-navbar .logo {
-  color: #ffffff;
+/* Align actions to right */
+.actions {
+  justify-content: flex-end;
+}
+
+/* Load / Export / Print buttons already styled in base */
+
+/* Table wrapper */
+.table-wrapper {
+  margin-top: 15px;
+  overflow-x: auto;
+}
+
+/* Marks table tweaks */
+#marksTable th,
+#marksTable td {
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Table header emphasis */
+#marksTable th {
   font-weight: 700;
-  font-size: 20px;
-  line-height: 1.2;
-}
-
-/* Right-side buttons */
-.nav-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-/* Navbar buttons */
-.nav-btn {
-  background: #334155;
-  color: #ffffff;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s ease;
-}
-
-.nav-btn:hover {
-  background: #475569;
-}
-
-.nav-btn.logout {
-  background: #dc2626;
-}
-
-.nav-btn.logout:hover {
-  background: #b91c1c;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .admin-navbar-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-right {
-    width: 100%;
-    margin-top: 12px;
-  }
 }
