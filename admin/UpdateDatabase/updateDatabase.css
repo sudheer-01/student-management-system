@@ -234,3 +234,188 @@ table th {
   text-transform: uppercase;
   font-size: 12px;
 }
+/* =========================================================
+   ADMIN – BROWN / MAROON THEME OVERRIDES
+   Add at END of updateDatabase.css
+========================================================= */
+
+/* ---------- GLOBAL FONT CONSISTENCY ---------- */
+body,
+button,
+input,
+select,
+table,
+th,
+td {
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+}
+
+/* ---------- THEME VARIABLES ---------- */
+:root {
+  --admin-brand: #7a0c0c;
+  --admin-brand-dark: #5e0808;
+  --admin-bg: #f5f6f8;
+  --admin-card: #ffffff;
+  --admin-border: #d6d3d1;
+  --admin-text: #1f2937;
+}
+
+/* ---------- PAGE BACKGROUND ---------- */
+body {
+  background: var(--admin-bg) !important;
+  color: var(--admin-text);
+}
+
+/* ---------- PAGE HEADER ---------- */
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--admin-brand);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ---------- ADMIN NAVBAR ---------- */
+.admin-navbar {
+  background: var(--admin-brand);
+}
+
+.admin-navbar .logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.nav-btn {
+  background: #ffffff;
+  color: var(--admin-brand);
+  border: 1px solid var(--admin-brand);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nav-btn:hover {
+  background: var(--admin-brand);
+  color: #ffffff;
+}
+
+.nav-btn.logout {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.nav-btn.logout:hover {
+  background: #b91c1c;
+}
+
+/* ---------- CONTAINER ---------- */
+.container {
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+}
+
+/* ---------- FORM ELEMENTS ---------- */
+label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+select {
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid var(--admin-border);
+}
+
+/* ---------- BUTTONS ---------- */
+button {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* Main update button */
+.update-btn,
+#updateBtnAlways {
+  background: var(--admin-brand);
+  color: #ffffff;
+}
+
+.update-btn:hover,
+#updateBtnAlways:hover {
+  background: var(--admin-brand-dark);
+}
+
+/* Delete */
+.delete-btn,
+.action-pill.delete {
+  background: #dc2626;
+}
+
+.delete-btn:hover,
+.action-pill.delete:hover {
+  background: #b91c1c;
+}
+
+/* Export */
+.export-btn {
+  background: #92400e;
+}
+
+.export-btn:hover {
+  background: #78350f;
+}
+
+/* ---------- TABLE ---------- */
+table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th {
+  background: #f1f1f1;
+  color: var(--admin-brand);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+td {
+  font-size: 14px;
+}
+
+tr:hover {
+  background: #fafafa;
+}
+
+/* Editable cells */
+td[contenteditable="true"] {
+  background: #fff7ed;
+}
+
+/* ---------- ACTION PILLS ---------- */
+.action-pill {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.action-pill.update {
+  background: #15803d;
+}
+
+.action-pill.update:hover {
+  background: #166534;
+}
+
+/* ---------- STATUS MESSAGES ---------- */
+.success {
+  color: #15803d;
+}
+
+.error {
+  color: #dc2626;
+}
