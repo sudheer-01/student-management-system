@@ -254,3 +254,27 @@ td[contenteditable="true"] {
 .error {
   color: #dc2626;
 }
+/* ===== ADMIN – FACULTY & HOD BUTTON COLORS ===== */
+
+/* Main update button */
+.update-btn,
+#updateBtnAlways {
+  background: #7a0c0c;
+  color: #ffffff;
+}
+
+.update-btn:hover,
+#updateBtnAlways:hover {
+  background: #5e0808;
+}
+
+/* Action pills */
+.action-pill.update {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.action-pill.delete {
+  background: #dc2626;
+  color: #ffffff;
+}
