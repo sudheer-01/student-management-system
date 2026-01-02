@@ -574,4 +574,6 @@ td[contenteditable="true"] {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-
+.nav-btn {
+  border-radius: 0px;
+}
