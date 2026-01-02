@@ -167,3 +167,61 @@ h2 {
 .input-group input { padding-left: 36px !important; }
 .toggle-password { position: absolute; right: 8px; border: none; background: transparent; cursor: pointer; color: #5a6a85; padding: 6px; border-radius: 8px; }
 .toggle-password:hover { color: #0b1220; background: rgba(11,18,32,0.05); }
+/* =========================================================
+   REGISTRATION PAGE – BUTTON COLOR OVERRIDES ONLY
+========================================================= */
+
+/* ---------- ROLE TAB BUTTONS (HOD / TEACHER) ---------- */
+.tab-btn {
+  background: #ffffff;
+  color: #7a0c0c;
+  border: 1px solid #7a0c0c;
+}
+
+.tab-btn i {
+  color: #7a0c0c;
+}
+
+.tab-btn:hover {
+  background: #7a0c0c;
+  color: #ffffff;
+}
+
+.tab-btn:hover i {
+  color: #ffffff;
+}
+
+/* Active role */
+.tab-btn.active {
+  background: #7a0c0c;
+  color: #ffffff;
+  border-color: #7a0c0c;
+}
+
+.tab-btn.active i {
+  color: #ffffff;
+}
+
+/* ---------- CREATE ACCOUNT BUTTONS ---------- */
+#hodSubmitButton,
+#teacherSubmitButton {
+  background: #7a0c0c;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+#hodSubmitButton:hover,
+#teacherSubmitButton:hover {
+  background: #5e0808;
+}
+
+/* ---------- PASSWORD TOGGLE (EYE ICON BUTTON) ---------- */
+.toggle-password {
+  background: transparent;
+  color: #6b7280;
+}
+
+.toggle-password:hover {
+  background: rgba(0,0,0,0.05);
+  color: #374151;
+}
