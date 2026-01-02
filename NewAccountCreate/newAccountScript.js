@@ -53,7 +53,7 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
     // Get form values
     let yearOfHod = document.getElementById("yearOfHod").value;
     let branchOfHod = document.getElementById("branchOfHod").value;
-    let hodName = document.getElementById("hodName").value;
+    let hodName = document.getElementById("hodName").value.toUpperCase();
     let emailOfHod = document.getElementById("emailOfHod").value;
     let passwordOfHod = document.getElementById("passwordOfHod").value;
     let reEnterPassword = document.getElementById("reEnterPassword").value;
@@ -97,7 +97,7 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
 document.getElementById("teacherSubmitButton").addEventListener("click", function (event) {
     event.preventDefault(); // Prevent default form submission
 
-    let teacherName = document.getElementById("teacherName").value;
+    let teacherName = document.getElementById("teacherName").value.toUpperCase();
     let facultyId = document.getElementById("facultyId").value;
     let emailOfTeacher = document.getElementById("emailOfTeacher").value;
     let passwordOfTeacher = document.getElementById("passwordOfTeacher").value;
