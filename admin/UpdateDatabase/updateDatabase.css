@@ -260,3 +260,6 @@ td[contenteditable="true"] {
 #updateBtnAlways:hover {
   background-color: #1b8a44;
 }
+#logoutBtn {
+  cursor: pointer;
+}
