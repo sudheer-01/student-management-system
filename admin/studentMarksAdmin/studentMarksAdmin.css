@@ -41,3 +41,23 @@
 #marksTable th {
   font-weight: 700;
 }
+#printReport {
+  background-color: #4f46e5; /* indigo */
+}
+#printReport:hover {
+  background-color: #4338ca;
+}
+
+/* 📄 EXPORT CSV */
+#exportCSV {
+  background-color: #0f766e; /* teal */
+}
+#exportCSV:hover {
+  background-color: #115e59;
+}
+#loadBtn {
+  background-color: #38b263; /* blue */
+}
+#loadBtn:hover {
+  background-color: #269d30;
+}

@@ -32,3 +32,17 @@
 .error {
   color: #dc2626;
 }
+#downloadBtn {
+  background-color: #37ae63;
+}
+#downloadBtn:hover {
+  background-color: #2f8f4e;
+}
+
+/* 📄 EXPORT CSV */
+#exportBtn {
+  background-color: #0f766e; /* teal */
+}
+#exportBtn:hover {
+  background-color: #115e59;
+}

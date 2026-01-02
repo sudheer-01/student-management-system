@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="studentProfilesAdmin.css">
 </head>
 <body>
-
 <nav class="admin-navbar">
   <div class="admin-navbar-inner">
     <div class="nav-left">
@@ -30,6 +29,7 @@
     <p class="subtitle">View, export, and print student profile information</p>
 
     <div class="filters">
+        <label for="yearSelect">Select Year</label>
         <select id="yearSelect">
             <option value="">Select Year</option>
             <option value="1">1</option>
@@ -37,7 +37,7 @@
             <option value="3">3</option>
             <option value="4">4</option>
         </select>
-
+        <label for="branchSelect">Select Branch</label>
         <select id="branchSelect">
             <option value="">Select Branch</option>
         </select>
@@ -46,8 +46,8 @@
     </div>
 
     <div class="actions">
-        <button onclick="exportCSV()" class="btn secondary">Export CSV</button>
-        <button onclick="printTable()" class="btn ghost">Print</button>
+        <button onclick="exportCSV()" class="btn secondary" id="exportCSV">Export CSV</button>
+        <button onclick="printTable()" class="btn ghost" id="printReport">Print</button>
     </div>
 
     <div class="table-wrapper">

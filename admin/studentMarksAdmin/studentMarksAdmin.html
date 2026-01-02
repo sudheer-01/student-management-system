@@ -13,7 +13,6 @@
     <div class="nav-left">
       <span class="logo">SIMS-Admin</span>
     </div>
-
     <div class="nav-right">
       <a href="updateDatabase.html" class="nav-btn">Faculty & HOD Management</a>
       <a href="academicDataManagement.html" class="nav-btn">Academic Data Management</a>
@@ -26,8 +25,8 @@
   </div>
 </nav>
 <div class="container">
-
     <div class="filters">
+        <label for="yearSelect">Select Year</label>
         <select id="yearSelect">
             <option value="">Select Year</option>
             <option value="1">1</option>
@@ -35,7 +34,7 @@
             <option value="3">3</option>
             <option value="4">4</option>
         </select>
-
+        <label for="branchSelect">Select Branch</label>
         <select id="branchSelect">
             <option value="">Select Branch</option>
         </select>
@@ -44,8 +43,8 @@
     </div>
 
     <div class="actions">
-        <button onclick="exportCSV()">Export CSV</button>
-        <button onclick="printTable()">Print</button>
+        <button onclick="exportCSV()" id="exportCSV">Export CSV</button>
+        <button onclick="printTable()" id="printReport">Print</button>
     </div>
 
     <!-- SINGLE, FIXED TABLE -->

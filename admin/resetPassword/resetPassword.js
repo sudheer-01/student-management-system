@@ -19,7 +19,7 @@ async function loadResetRequests() {
                     <input type="password" id="pwd-${r.role}-${r.id}">
                 </td>
                 <td>
-                    <button onclick="approveReset('${r.role}','${r.id}')">
+                    <button id="enableReset" onclick="approveReset('${r.role}','${r.id}')">
                         Enable Reset
                     </button>
                 </td>
