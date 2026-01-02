@@ -294,3 +294,32 @@ body {
   transform: translateY(-1px);
 }
 
+/* ===============================
+   LOGOUT BUTTON – INSIDE CONTAINER
+================================ */
+.container {
+  position: relative; /* 🔑 anchor for absolute button */
+}
+
+.logout-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+.logout-btn:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
