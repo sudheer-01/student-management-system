@@ -539,3 +539,41 @@ td[contenteditable="true"] {
     width: 100%;
   }
 }
+/* =========================================================
+   ADMIN NAVBAR – HEIGHT & SPACING CONTROL
+   Adjust values as needed
+========================================================= */
+
+/* Overall navbar height */
+.admin-navbar {
+  padding: 8px 0 !important;   /* ⬅ reduce this (default was ~14px) */
+}
+
+/* Inner alignment */
+.admin-navbar-inner {
+  align-items: center;
+}
+
+/* Logo size & spacing */
+.admin-navbar .logo {
+  font-size: 18px;             /* ⬅ reduce if needed */
+  line-height: 1.2;
+}
+
+/* Buttons height control */
+.admin-navbar .nav-btn {
+  padding: 6px 12px !important; /* ⬅ main height control */
+  font-size: 13px;              /* keep consistent with HOD */
+  line-height: 1.2;
+}
+
+/* Mobile spacing */
+@media (max-width: 900px) {
+  .admin-navbar {
+    padding: 6px 0 !important;
+  }
+
+  .admin-navbar .nav-btn {
+    padding: 6px 10px !important;
+  }
+}
