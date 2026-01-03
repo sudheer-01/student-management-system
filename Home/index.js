@@ -49,8 +49,11 @@ document.getElementById("teacherForm").addEventListener("submit", async function
 
         if (data.success) {
             localStorage.setItem("facultyId", data.facultyId);
+            localStorage.setItem("isLoggedIn", data.isLoggedIn);
+            localStorage.setItem("role", data.role);
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
+            
         } else {
             alert(data.message);
         }

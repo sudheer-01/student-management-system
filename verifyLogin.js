@@ -128,6 +128,8 @@ app.post("/TeacherLogin", (req, res) => {
                 return res.json({
                     success: true,
                     facultyId: facultyId,
+                    role: "Faculty",
+                    isLoggedIn: "true",
                     redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
                 });
             } else {
@@ -193,7 +195,6 @@ app.post("/createHodAccount", (req, res) => {
 
 
 //checking hod credentials to login into hod dashboard
-
 app.post("/loginToHodDashBoard", (req, res) => {
     const hodId = req.body.HodId;
     const passwordOfHod = req.body.passwordOfHod;
@@ -219,17 +220,10 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 return res.json({
                     success: true,
                     hodDetails: hodDetails,
-                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html",
-                    `<script> localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("role", "faculty");</script>`
+                    role: "HOD",
+                    isLoggedIn: "true",
+                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
                 });
-                // Store HOD details in global variables
-                /*hodName = result[0].name;
-                hodBranch = result[0].branch;
-                
-                // Convert ENUM year value to an array
-                hodYears = result[0].year.split(","); 
-
-                res.sendFile(path.join(baseDir, "HodTask", "HodDashboard", "HodDashboard.html"));*/
             } else {
                 return res.send(
                     `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
