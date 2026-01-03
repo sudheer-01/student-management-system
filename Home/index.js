@@ -53,7 +53,6 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             localStorage.setItem("role", data.role);
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
-            
         } else {
             alert(data.message);
         }
@@ -79,13 +78,13 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
         const data = await response.json();
 
         if (data.success) {
-            // ✅ Save HOD details in localStorage
-            //console.log("Storing HOD details:", data.hodDetails);
+            // Save HOD details in localStorage
             localStorage.setItem("hodName", data.hodDetails.hodName);
             localStorage.setItem("hodBranch", data.hodDetails.hodBranch);
             localStorage.setItem("hodYears", JSON.stringify(data.hodDetails.hodYears)); // Store as string
-
-            //console.log("Login successful, redirecting...", data.redirectUrl);
+            localStorage.setItem("hodId", data.hodId);
+            localStorage.setItem("isLoggedIn", data.isLoggedIn);
+            localStorage.setItem("role", data.role);
             // Redirect to HOD dashboard page
             window.location.href = data.redirectUrl;
         } else {
@@ -113,11 +112,12 @@ document.getElementById("studentForm").addEventListener("submit", async function
         const data = await response.json();
 
         if (data.success) {
-            // ✅ Save student details in localStorage
-            // localStorage.setItem("studentYear", data.studentDetails.year);
+            // Save student details in localStorage
             localStorage.setItem("studentHtno", data.studentDetails.htno);
+            localStorage.setItem("isLoggedIn", data.isLoggedIn);
+            localStorage.setItem("role", data.role);
 
-            // ✅ Redirect to marks page
+            // Redirect to marks page
             window.location.href = data.redirectUrl;
         } else {
             alert(data.message || "Invalid HTNO");
@@ -144,6 +144,10 @@ document.getElementById("adminForm").addEventListener("submit", async function (
         const data = await response.json();
         console.log(data);
         if (data.success) {
+            localStorage.setItem("adminId", data.adminId);
+            localStorage.setItem("isLoggedIn", data.isLoggedIn);
+            localStorage.setItem("role", data.role);
+            // Redirect to admin dashboard
             window.location.href = data.redirectUrl;
         } else {
             alert(data.message);

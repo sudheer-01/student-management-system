@@ -222,6 +222,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                     hodDetails: hodDetails,
                     role: "HOD",
                     isLoggedIn: "true",
+                    hodId: hodId,
                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
                 });
             } else {
@@ -1330,6 +1331,8 @@ app.post("/studentCheckin", (req, res) => {
                 // ✅ If valid, send success + redirect URL
                 return res.json({
                     success: true,
+                    isLoggedIn: "true",
+                    role: "student",
                     redirectUrl: "/studentsMarks/studentsMarks.html",
                     studentDetails: {
                         htno: stuHtno
@@ -1595,31 +1598,6 @@ app.get("/studentBasic/:htno", (req, res) => {
 });
 
 //admin login
-// app.post("/adminLogin", (req, res) => {
-//     var adminId = req.body.idOfAdmin;
-//     var password = req.body.passwordOfAdmin;
-//     console.log(adminId, password);
-
-//     con.query(
-//         "SELECT * FROM admin WHERE id=? AND password=?",
-//         [adminId, password],
-//         (err, result) => {
-//             if (err) {
-//                 console.error(err);
-//                 return res.status(500).send("Server error. Try again later.");
-//             }
-//             if (result.length > 0) {
-//                 console.log("Admin login successful");
-//                 return res.sendFile(path.join(baseDir, "admin", "admin.html"));
-//             } else {
-//                 console.log("Invalid Admin ID or Password");
-//                 return res.send(
-//                     `<script>alert('Invalid Admin ID or Password'); window.location.href='/';</script>`
-//                 );
-//             }
-//         }
-//     );
-// });
 
 app.post("/adminLogin", (req, res) => {
     const adminId = req.body.idOfAdmin;
@@ -1642,6 +1620,9 @@ app.post("/adminLogin", (req, res) => {
             if (result.length > 0) {
                 return res.json({
                     success: true,
+                    isLoggedIn: "true",
+                    role: "admin",
+                    adminId: adminId,
                     redirectUrl: "/admin.html"
                 });
             } else {
