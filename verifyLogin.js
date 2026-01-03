@@ -1638,6 +1638,7 @@ app.post("/adminLogin", (req, res) => {
 //Authenticate based on role and userId
 app.post("/verify-session", async (req, res) => {
     const { role, userId } = req.body;
+    console.log("Verifying session for:", { role, userId });
     if (!role || !userId) {
         return res.status(401).json({ valid: false });
     }
