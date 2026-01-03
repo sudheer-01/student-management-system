@@ -83,17 +83,26 @@ document.addEventListener("DOMContentLoaded", async function() {
     const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out of the faculty panel?")) return;
-            // Clear session-related storage
-            localStorage.removeItem("selectedYear");
-            localStorage.removeItem("selectedBranch");
-            localStorage.removeItem("selectedSubject");
-            localStorage.removeItem("facultyId");
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
 
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("facultyId");
+
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
+        window.location.href = "/";
+    });
     }
 });
