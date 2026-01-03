@@ -5,8 +5,8 @@
 
 (async function () {
 
-    const LOGIN_PAGE = "/login.html";
-    const VERIFY_API = "/api/auth/verify-session";
+    const LOGIN_PAGE = "/";
+    const VERIFY_API = "/verify-session";
 
     function redirectToLogin() {
         localStorage.clear();
@@ -15,14 +15,14 @@
 
     function getUserIdByRole(role) {
         switch (role) {
-            case "ADMIN":
+            case "admin":
                 return localStorage.getItem("adminId");
             case "HOD":
                 return localStorage.getItem("hodId");
-            case "FACULTY":
+            case "Faculty":
                 return localStorage.getItem("facultyId");
-            case "STUDENT":
-                return localStorage.getItem("studentId");
+            case "student":
+                return localStorage.getItem("studentHtno");
             default:
                 return null;
         }
@@ -32,7 +32,7 @@
 
         const isLoggedIn = localStorage.getItem("isLoggedIn");
         const role = localStorage.getItem("role");
-
+        console.log("in auth js", isLoggedIn, role);
         if (isLoggedIn !== "true" || !role) {
             redirectToLogin();
             return;

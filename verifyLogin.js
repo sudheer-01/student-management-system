@@ -1635,6 +1635,53 @@ app.post("/adminLogin", (req, res) => {
     );
 });
 
+//Authenticate based on role and userId
+app.post("/verify-session", async (req, res) => {
+    const { role, userId } = req.body;
+    if (!role || !userId) {
+        return res.status(401).json({ valid: false });
+    }
+    try {
+
+        let query = "";
+        let params = [userId];
+
+        switch (role) {
+
+            case "admin":
+                query = "SELECT admin_id FROM admins WHERE admin_id = ?";
+                break;
+
+            case "HOD":
+                query = "SELECT hod_id FROM hods WHERE hod_id = ?";
+                break;
+
+            case "Faculty":
+                query = "SELECT faculty_id FROM faculty WHERE faculty_id = ?";
+                break;
+
+            case "student":
+                query = "SELECT student_id FROM students WHERE student_id = ?";
+                break;
+
+            default:
+                return res.status(401).json({ valid: false });
+        }
+
+        const [rows] = await con.execute(query, params);
+
+        if (rows.length === 0) {
+            return res.status(401).json({ valid: false });
+        }
+
+        return res.json({ valid: true });
+
+    } catch (err) {
+        console.error("Session verification error:", err);
+        return res.status(500).json({ valid: false });
+    }
+});
+
 
 // Fetch All HOD Requests
 app.get("/getHodRequests", (req, res) => {
