@@ -238,17 +238,27 @@ document.addEventListener("DOMContentLoaded", async () => {
    LOGOUT HANDLER
 ================================ */
 const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
 
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    if (!confirm("Are you sure you want to logout?")) return;
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("facultyId");
 
-    fetch("/logout", { method: "POST" })
-      .then(() => {
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
         window.location.href = "/";
-      })
-      .catch(() => {
-        window.location.href = "/";
-      });
-  });
-}
+    });
+    }
