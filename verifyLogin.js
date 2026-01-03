@@ -1650,19 +1650,19 @@ app.post("/verify-session", async (req, res) => {
         switch (role) {
 
             case "admin":
-                query = "SELECT admin_id FROM admins WHERE admin_id = ?";
+                query = "SELECT id FROM admin WHERE id = ?";
                 break;
 
             case "HOD":
-                query = "SELECT hod_id FROM hods WHERE hod_id = ?";
+                query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
                 break;
 
             case "Faculty":
-                query = "SELECT faculty_id FROM faculty WHERE faculty_id = ?";
+                query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
                 break;
 
             case "student":
-                query = "SELECT student_id FROM students WHERE student_id = ?";
+                query = "SELECT htno FROM student_profiles WHERE htno = ?";
                 break;
 
             default:
