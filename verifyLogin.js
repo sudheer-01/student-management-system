@@ -1636,52 +1636,53 @@ app.post("/adminLogin", (req, res) => {
 });
 
 //Authenticate based on role and userId
-app.post("/verify-session", async (req, res) => {
+app.post("/verify-session", (req, res) => {
     const { role, userId } = req.body;
+
     console.log("Verifying session for:", { role, userId });
+
     if (!role || !userId) {
         return res.status(401).json({ valid: false });
     }
-    try {
 
-        let query = "";
-        let params = [userId];
+    let query = "";
+    let params = [userId];
 
-        switch (role) {
+    switch (role) {
+        case "admin":
+            query = "SELECT id FROM admin WHERE id = ?";
+            break;
 
-            case "admin":
-                query = "SELECT id FROM admin WHERE id = ?";
-                break;
+        case "HOD":
+            query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
+            break;
 
-            case "HOD":
-                query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
-                break;
+        case "Faculty":
+            query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
+            break;
 
-            case "Faculty":
-                query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
-                break;
+        case "student":
+            query = "SELECT htno FROM student_profiles WHERE htno = ?";
+            break;
 
-            case "student":
-                query = "SELECT htno FROM student_profiles WHERE htno = ?";
-                break;
+        default:
+            return res.status(401).json({ valid: false });
+    }
 
-            default:
-                return res.status(401).json({ valid: false });
+    con.query(query, params, (err, rows) => {
+        if (err) {
+            console.error("Session verification error:", err);
+            return res.status(500).json({ valid: false });
         }
-
-        const [rows] = await con.execute(query, params);
 
         if (rows.length === 0) {
             return res.status(401).json({ valid: false });
         }
 
         return res.json({ valid: true });
-
-    } catch (err) {
-        console.error("Session verification error:", err);
-        return res.status(500).json({ valid: false });
-    }
+    });
 });
+
 
 
 // Fetch All HOD Requests
