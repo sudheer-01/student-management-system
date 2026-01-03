@@ -2740,25 +2740,6 @@ app.delete("/api/delete-row/:table/:id", (req, res) => {
 });
 
 
-//------------------
-
-// app.post("/logout", (req, res) => {
-//     req.session.destroy(err => {
-//         if (err) {
-//             return res.status(500).json({ error: "Logout failed" });
-//         }
-
-//         res.clearCookie("connect.sid"); // session cookie
-//         res.json({ success: true });
-//     });
-// });
-// app.use((req, res, next) => {
-//     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
-//     res.setHeader("Pragma", "no-cache");
-//     res.setHeader("Expires", "0");
-//     next();
-// });
-
 app.get("/hod/branches", (req, res) => {
     const { year, hodBranch } = req.query;
 
@@ -2834,6 +2815,59 @@ app.post("/hod/update-student-password", (req, res) => {
 
         res.json({ success: true });
     });
+});
+
+
+// session store (declare once, global)
+// const sessionStore = {
+//     admin: new Map(),
+//     HOD: new Map(),
+//     Faculty: new Map(),
+//     student: new Map()
+// };
+
+// // LOGOUT API
+// app.post("/logout", (req, res) => {
+//     const { role, userId, sessionKey } = req.body;
+
+//     if (!role || !userId || !sessionKey) {
+//         return res.status(400).json({ success: false });
+//     }
+
+//     const roleStore = sessionStore[role];
+
+//     if (!roleStore) {
+//         return res.status(400).json({ success: false });
+//     }
+
+//     // Verify key matches
+//     const storedKey = roleStore.get(userId);
+
+//     if (storedKey && storedKey === sessionKey) {
+//         roleStore.delete(userId); // ✅ remove key
+//         return res.json({ success: true });
+//     }
+
+//     return res.status(401).json({ success: false });
+// });
+app.post("/logout", (req, res) => {
+    const { role, userId } = req.body;
+    console.log("Logout request for:", role, userId);
+
+    if (!role || !userId) {
+        return res.json({ success: true }); // safe exit
+    }
+
+    try {
+        // if (sessionStore[role]) {
+        //     sessionStore[role].delete(userId);
+        // }
+
+        return res.json({ success: true });
+    } catch (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ success: false });
+    }
 });
 
 
