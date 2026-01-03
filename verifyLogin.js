@@ -219,7 +219,8 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 return res.json({
                     success: true,
                     hodDetails: hodDetails,
-                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html",
+                    `<script> localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("role", "faculty");</script>`
                 });
                 // Store HOD details in global variables
                 /*hodName = result[0].name;
