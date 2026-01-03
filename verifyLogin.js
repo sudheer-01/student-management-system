@@ -42,8 +42,6 @@ app.use(express.static(path.join(baseDir,"admin","resetPassword")));
 //forgot password
 app.use(express.static(path.join(baseDir,"ForgotPassword")));
 app.use(express.static(path.join(baseDir,"ForgotPassword","resetSTFPassword")));
-//Authentication
-app.use(express.static(path.join(baseDir,"Authentication")));
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
