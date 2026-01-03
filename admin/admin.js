@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusMessage = document.getElementById("statusMessage");
     const searchInput = document.getElementById("searchInput");
     const exportCsvBtn = document.getElementById("exportCsvBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    //const logoutBtn = document.getElementById("logoutBtn");
     let cachedData = [];
 
     // Fetch HOD Requests
@@ -119,16 +119,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // logout
+   const logoutBtn = document.getElementById("logoutBtn");
+    // logout
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out of the admin panel?")) return;
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
+
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("adminId");
+
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
+        window.location.href = "/";
+    });
     }
-
-
 
     // initial load
     fetchHodRequests("All");
