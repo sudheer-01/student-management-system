@@ -21,23 +21,21 @@
     <button id="getStudentMarks">Click to Get Students' Overall Marks</button>
     <p id="uiMessage" class="ui-message hidden"></p>
 
-    <!-- Section for Adding New Column -->
 <!-- Section for Adding / Removing Columns -->
 <div id="addColumnSection" style="display: none;" class="exam-container">
     <h3>Generate New Column(s)</h3>
 
     <!-- Select Exams Row -->
     <div class="exam-row">
-        <label><strong>Select Exams:</strong></label>
+        <label>Select Exams:</label>
         <div id="examCheckboxes" class="exam-list-inline"></div>
     </div>
 
-    <!-- Input + Radio Row -->
     <div class="exam-row">
-        <label><strong>Enter Column Name:</strong></label>
+        <label>Enter Column Name:</label>
         <input type="text" id="newColumnName" placeholder="Enter column name"/>
 
-        <label><strong>Insert Column At Position:</strong></label>
+        <label>Insert Column At Position:</label>
         <input type="number" id="columnPosition" min="1" value="1"/>
 
         <div class="exam-radio-group">
@@ -54,9 +52,6 @@
     </div>
 </div>
 
-
-    
-
     <table id="studentsInformationTable" border="1">
         <thead>
             <tr>
@@ -67,7 +62,7 @@
         </thead>
         <tbody></tbody>
     </table>
-    <!-- 🔍 Filter Section -->
+    <!-- Filter Section -->
         <div id="filterSection" style="display: none;" class="exam-container">
 
             <h3>Marks-Based Filtering</h3>
@@ -100,7 +95,6 @@
             </div>
 
         </div>
-
 
     <div style="text-align: center; margin-top: 20px;">
         <button id="printReport">Print Report</button>

@@ -11,7 +11,7 @@ function showMessage(message, type = "info", autoHide = true) {
     if (autoHide) {
         setTimeout(() => {
             msgEl.classList.add("hidden");
-        }, 4000); // hide after 4 seconds
+        }, 3000); 
     }
 }
 
@@ -33,7 +33,7 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
         .catch(error => console.error("Error fetching student marks:", error));
 });
 
-// 🔁 Render Table Function
+// Render Table Function
 function renderTable(data) {
     const table = document.getElementById("studentsInformationTable");
     const thead = table.querySelector("thead tr");
@@ -68,7 +68,7 @@ function renderTable(data) {
     updateFilterCheckboxes();
 }
 
-// ✅ Update exam selection checkboxes dynamically
+// Update exam selection checkboxes dynamically
 function updateExamCheckboxes() {
     const thead = document.querySelector("#studentsInformationTable thead tr");
     const examCheckboxes = document.getElementById("examCheckboxes");
@@ -87,7 +87,7 @@ function updateExamCheckboxes() {
         });
 }
 
-// ✅ Update filter column checkboxes dynamically
+// Update filter column checkboxes dynamically
 function updateFilterCheckboxes() {
     const thead = document.querySelector("#studentsInformationTable thead tr");
     const filterCheckboxes = document.getElementById("filterColumnCheckboxes");
@@ -106,7 +106,7 @@ function updateFilterCheckboxes() {
         });
 }
 
-// ➕ Add Column (Sum/Average)
+// Add Column (Sum/Average)
 document.getElementById("addColumn").addEventListener("click", () => {
     const selectedExams = Array.from(document.querySelectorAll("#examCheckboxes input:checked")).map(cb => cb.value);
     const newColumnName = document.getElementById("newColumnName").value.trim();
@@ -160,7 +160,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
     updateFilterCheckboxes();
 });
 
-// 🗑️ Remove Column
+// Remove Column
 document.getElementById("removeColumn").addEventListener("click", () => {
     const columnName = prompt("Enter the exact column name you want to remove:");
     if (!columnName) return;
@@ -182,7 +182,7 @@ document.getElementById("removeColumn").addEventListener("click", () => {
     updateFilterCheckboxes();
 });
 
-// ♻️ Clear All Added Columns
+//Clear All Added Columns
 document.getElementById("clearColumns").addEventListener("click", () => {
     if (!originalData) {
         showMessage("No data to restore!", "error");
@@ -215,7 +215,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         [...thead.children].findIndex(th => th.textContent === col)
     );
 
-    /* 🔍 FILTER ROWS */
+    /* FILTER ROWS */
     Array.from(tbody.children).forEach(row => {
         const cells = row.children;
 
@@ -230,7 +230,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
         row.style.display = matches ? "" : "none";
     });
 
-    /* 🔢 RECALCULATE SERIAL NUMBERS (ONCE) */
+    /* RECALCULATE SERIAL NUMBERS (ONCE) */
     let serial = 1;
     Array.from(tbody.children).forEach(row => {
         if (row.style.display !== "none") {
@@ -241,7 +241,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
 });
 
 
-// ❌ Clear Filter
+// Clear Filter
 document.getElementById("clearFilter").addEventListener("click", () => {
     Array.from(document.querySelectorAll("#studentsInformationTable tbody tr")).forEach(row => {
         row.style.display = "";
@@ -249,7 +249,7 @@ document.getElementById("clearFilter").addEventListener("click", () => {
     document.getElementById("filterValue").value = "";
     document.querySelectorAll("#filterColumnCheckboxes input").forEach(cb => (cb.checked = false));
 
-    // 🔢 Restore serial numbers
+    //Restore serial numbers
     Array.from(document.querySelectorAll("#studentsInformationTable tbody tr"))
         .forEach((row, index) => {
             row.children[0].textContent = index + 1;
@@ -343,8 +343,7 @@ document.getElementById("printReport").addEventListener("click", function () {
     win.print();
 });
 
-// 🔽 EXPORT TABLE TO CSV FUNCTIONALITY
-// 🔽 EXPORT ONLY VISIBLE TABLE DATA TO CSV
+// EXPORT TABLE 
 document.getElementById("exportCSV").addEventListener("click", function () {
     const table = document.getElementById("studentsInformationTable");
     if (!table) return showMessage("No table data found!", "error");
@@ -353,7 +352,6 @@ document.getElementById("exportCSV").addEventListener("click", function () {
     const rows = table.querySelectorAll("tr");
 
     rows.forEach(row => {
-        // Skip hidden rows (e.g., filtered out)
         if (row.style.display === "none") return;
 
         const cols = row.querySelectorAll("th, td");
