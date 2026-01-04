@@ -6,12 +6,26 @@ const checkTempBtn = document.getElementById("checkTempBtn");
 const resetSection = document.getElementById("resetSection");
 const updateBtn = document.getElementById("updateBtn");
 const msg = document.getElementById("msg");
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
 
 verifyBtn.onclick = async () => {
     const role = roleEl.value;
     const userId = userIdEl.value;
 
-    if (!role || !userId) return alert("Select role and enter ID");
+    if (!role || !userId) return showMessage("Select role and enter ID", "error");
 
     const res = await fetch("/api/reset/verify-user", {
         method: "POST",
@@ -57,7 +71,7 @@ updateBtn.onclick = async () => {
     const confirmPwd = document.getElementById("confirmPassword").value;
 
     if (newPwd !== confirmPwd) {
-        return alert("Passwords do not match");
+        return showMessage("Passwords do not match", "error");
     }
 
     const res = await fetch("/api/reset/update-password", {
