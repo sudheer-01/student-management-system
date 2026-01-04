@@ -5,6 +5,21 @@ const table = document.getElementById("profilesTable");
 const thead = table.querySelector("thead");
 const tbody = table.querySelector("tbody");
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 /* Load branches */
 yearSelect.addEventListener("change", async () => {
     branchSelect.innerHTML = `<option value="">Select Branch</option>`;
@@ -24,7 +39,7 @@ loadBtn.addEventListener("click", async () => {
     const branch = branchSelect.value;
 
     if (!year || !branch) {
-        alert("Select year and branch");
+        showMessage("Select year and branch", "error");
         return;
     }
 
@@ -61,7 +76,7 @@ function renderTable(rows) {
 
         columns.forEach(col => {
 
-            /* ✅ PROFILE PHOTO */
+            /*  PROFILE PHOTO */
             if (col === "profile_photo") {
                 rowHtml += `
                     <td>
@@ -75,12 +90,12 @@ function renderTable(rows) {
                 `;
             }
 
-            /* ✅ DATE FIELDS (DOB etc.) */
+            /*  DATE FIELDS (DOB etc.) */
             else if (r[col] instanceof Date) {
                 rowHtml += `<td>${r[col].toISOString().split("T")[0]}</td>`;
             }
 
-            /* ✅ NULL SAFE */
+            /*  NULL SAFE */
             else {
                 rowHtml += `<td>${r[col] ?? ""}</td>`;
             }
@@ -130,7 +145,6 @@ function printTable() {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
