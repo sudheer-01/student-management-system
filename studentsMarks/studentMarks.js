@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             showMessage("Failed to load marks. Please try again.", "error");
+            console.error(err);
         } finally {
             spinner.classList.add("hidden");
         }
