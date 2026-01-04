@@ -144,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function deleteRow(table, row) {
     const idKey = table === "faculty" ? "facultyId" : "hod_id";
-    if (!confirm("Are you sure you want to delete this record?")) return;
 
     fetch(`/api/delete-row/${table}/${row[idKey]}`, {
       method: "DELETE"
