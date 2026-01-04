@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const updateBtn = document.getElementById("updateBtnAlways");
@@ -119,8 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify({ row: updated })
     })
     .then(res => res.json())
-    .then(() => alert("Updated successfully"))
-    .catch(err => alert(err.message));
+    .then(() => showMessage("Updated successfully",  "success"))
+    .catch(err => showMessage(err.message, "error"));
   }
 
   /* ============================
@@ -135,8 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "DELETE"
     })
     .then(res => res.json())
-    .then(() => alert("Deleted successfully"))
-    .catch(err => alert(err.message));
+    .then(() => showMessage("Deleted successfully", "success"))
+    .catch(err => showMessage(err.message, "error"));
   }
 
   /* ============================
@@ -155,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");

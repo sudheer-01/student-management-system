@@ -15,7 +15,7 @@ body {
 .page {
   display: flex;
   justify-content: center;
-  margin-top: 12px; /* ✅ reduced gap */
+  margin-top: 12px; 
 }
 
 .container {
@@ -47,7 +47,7 @@ body {
   width: 100%;
   background: #ffffff;
   border-bottom: 2px solid #7a0c0c;
-  padding: 8px 0; /* ✅ controlled height */
+  padding: 8px 0; 
 }
 
 .admin-navbar-inner {
@@ -79,7 +79,7 @@ body {
   background: #7a0c0c;
   color: #ffffff;
   border: 1px solid #7a0c0c;
-  padding: 6px 12px; /* ✅ button height fixed */
+  padding: 6px 12px; 
   font-size: 13px;
   font-weight: 600;
   border-radius: 4px;
@@ -262,4 +262,38 @@ td[contenteditable="true"] {
 }
 #logoutBtn {
   cursor: pointer;
+}
+/* Common UI message (replaces alert) */
+.ui-message {
+    margin: 12px 0;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Hidden by default */
+.ui-message.hidden {
+    display: none;
+}
+
+/* Error message */
+.ui-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Success message */
+.ui-message.success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+/* Optional warning/info */
+.ui-message.info {
+    background-color: #e0f2fe;
+    color: #075985;
+    border: 1px solid #7dd3fc;
 }
