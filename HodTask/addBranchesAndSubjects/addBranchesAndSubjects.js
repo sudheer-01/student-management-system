@@ -288,25 +288,6 @@ function addDeleteHandlers() {
         resetUI();
     };
 }
-// function resetUI() {
-//     addBranchBtn.style.display = "";
-//     addSubjectBtn.style.display = "";
-//     saveBtn.style.display = "";
-//     loadExistingData();
-// }
-// document.getElementById("backToSaveBtn").addEventListener("click", () => {
-//     deleteMode = false;
-
-//     /* Restore normal UI */
-//     document.getElementById("newSectionInput").style.display = "";
-//     addBranchBtn.style.display = "";
-//     addSubjectBtn.style.display = "";
-//     saveBtn.style.display = "";
-//     deleteModeBtn.style.display = "";
-//     document.getElementById("backToSaveBtn").style.display = "none";
-
-//     loadExistingData();
-// });
 
 function resetUI() {
     switchToSaveMode();

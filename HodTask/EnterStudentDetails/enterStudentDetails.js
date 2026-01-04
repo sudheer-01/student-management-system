@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     fetchYears();
 });
@@ -6,20 +21,18 @@ async function fetchYears() {
     try {
     const storedYears = localStorage.getItem("hodYears");
     if (!storedYears) {
-        console.warn("No HOD years found in localStorage");
+        showMessage("No HOD years found.", "error");
         return;
     }
 
     let parsedYears;
     try {
-        // Try parsing JSON (["2","3","4"])
         parsedYears = JSON.parse(storedYears);
     } catch (e) {
-        // Fallback to comma-split ("2,3,4")
         parsedYears = storedYears.split(",");
     }
 
-    // Convert to numbers (int)
+    // Convert to numbers
     const years = parsedYears.map(year => parseInt(year, 10));
 
     const yearSelect = document.getElementById("yearSelect");
@@ -31,14 +44,14 @@ async function fetchYears() {
 
     yearSelect.addEventListener("change", fetchBranches);
 } catch (error) {
-    console.error("Error loading years from localStorage:", error);
+    showMessage("Error loading years.", "error");
 }
 
 }
 
 async function fetchBranches() {
     const year = document.getElementById("yearSelect").value;
-    const branch = localStorage.getItem("hodBranch"); // example: "CSE" or "ECE"
+    const branch = localStorage.getItem("hodBranch"); 
     
     if (!year || !branch) return;
 
@@ -52,7 +65,7 @@ async function fetchBranches() {
             branchSelect.innerHTML += `<option value="${branch_name}">${branch_name}</option>`;
         });
     } catch (error) {
-        console.error("Error fetching branches:", error);
+        showMessage("Error fetching branches.", "error");
     }
 }
 
@@ -90,7 +103,7 @@ document.getElementById("studentsForm").addEventListener("submit", function (eve
     let branch = document.getElementById("branchSelect").value;
 
     if (!year || !branch) {
-        alert("Please select Year and Branch.");
+        showMessage("Please select Year and Branch.", "error");
         return;
     }
 
@@ -111,8 +124,8 @@ document.getElementById("studentsForm").addEventListener("submit", function (eve
         body: JSON.stringify({ students })
     })
     .then(response => response.text())
-    .then(data => alert(data))
-    .catch(error => console.error("Error:", error));
+    .then(data => showMessage(data, "info"))
+    .catch(error => showMessage("Error saving data.", "error"));
 });
 
 document.getElementById("getStudentsInfo").addEventListener("click", function() {
@@ -127,7 +140,7 @@ function fetchStudentData() {
     const noDataMsg = document.getElementById("noDataMsg");
 
     if (!year || !branch) {
-        alert("Please select both Year and Section.");
+        showMessage("Please select Year and Branch.", "error");
         return;
     }
 
@@ -174,8 +187,7 @@ function fetchStudentData() {
             });
         })
         .catch(error => {
-            console.error("Error fetching student data:", error);
-            alert("Error while fetching student details.");
+            showMessage("Error while fetching student details.", "error");
         });
 }
 
@@ -190,7 +202,7 @@ document.getElementById("importExcel").addEventListener("click", () => {
     const file = fileInput.files[0];
 
     if (!file) {
-        alert("Please select an Excel file.");
+        showMessage("Please select an Excel file.", "error");
         return;
     }
 
@@ -225,7 +237,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");

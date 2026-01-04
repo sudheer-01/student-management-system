@@ -199,7 +199,7 @@ input:focus {
   background: var(--brand-dark);
 }
 
-/* ✅ KEEP GREEN */
+/* KEEP GREEN */
 .save-btn {
   background: var(--success);
   color: #ffffff;
@@ -211,7 +211,7 @@ input:focus {
   cursor: pointer;
 }
 
-/* ✅ KEEP RED */
+/* KEEP RED */
 .danger-btn {
   background: var(--danger);
   color: #ffffff;
