@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileSection = document.getElementById("studentProfile");
     const saveProfileBtn = document.getElementById("saveProfile");
 
-    // const studentYear = localStorage.getItem("studentYear");
     const studentHtno = localStorage.getItem("studentHtno");
 
     if (!studentHtno) {
@@ -67,36 +66,44 @@ document.addEventListener("DOMContentLoaded", () => {
        GET YOUR MARKS
     ===================================================== */
     //get student year from server
-    async function fetchAndStoreStudentYear() {
-            try {
-                const res = await fetch(`/api/studentyear/${studentHtno}`);
-                const data = await res.json();
+   async function fetchAndStoreStudentYear() {
+    try {
+        const res = await fetch(`/api/studentyear/${studentHtno}`);
+        const data = await res.json();
 
-                if (!data.success) {
-                    showMessage(data.message || "Failed to fetch student year", "error");
-                    return;
-                }
-
-                // Store year in localStorage
-                localStorage.setItem("studentYear", data.year);
-
-                console.log("Student year stored:", data.year);
-
-            } catch (error) {
-                console.error("Error:", error);
-                showMessage("Network error while fetching student year", "error");
-            }
+        if (!data.success) {
+            showMessage(data.message || "Failed to fetch student year", "error");
+            return null;
         }
 
-    const studentYear = localStorage.getItem("studentYear");
+        localStorage.setItem("studentYear", data.year);
+        return data.year;
+
+    } catch (error) {
+        console.error(error);
+        showMessage("Network error while fetching student year", "error");
+        return null;
+    }
+    }
+
     fetchMarksBtn.addEventListener("click", async () => {
 
-        fetchAndStoreStudentYear();
         showMarksView();
         spinner.classList.remove("hidden");
         setStatus("Fetching your marks...");
 
         try {
+            let studentYear = localStorage.getItem("studentYear");
+
+            // fetch ONLY if not present
+            if (!studentYear) {
+                studentYear = await fetchAndStoreStudentYear();
+            }
+
+            if (!studentYear) {
+                throw new Error("Student year not available");
+            }
+
             const res = await fetch(`/studentDashboard/${studentYear}/${studentHtno}`, {
                 method: "POST"
             });
