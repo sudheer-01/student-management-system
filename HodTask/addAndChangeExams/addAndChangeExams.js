@@ -55,14 +55,11 @@ async function fetchYears() {
 
     let parsedYears;
     try {
-        // Try parsing JSON (["2","3","4"])
         parsedYears = JSON.parse(storedYears);
     } catch (e) {
-        // Fallback to comma-split ("2,3,4")
         parsedYears = storedYears.split(",");
     }
 
-    // Convert to numbers (int)
     const years = parsedYears.map(year => parseInt(year, 10));
 
     const yearSelect = document.getElementById("yearSelect");
@@ -81,7 +78,7 @@ async function fetchYears() {
 
 async function fetchBranches() {
     const year = document.getElementById("yearSelect").value;
-    const branch = localStorage.getItem("hodBranch"); // example: "CSE" or "ECE"
+    const branch = localStorage.getItem("hodBranch"); 
     
     if (!year || !branch) return;
 
@@ -100,7 +97,7 @@ async function fetchBranches() {
     }
 }
 
-// Add event listener for branch selection (outside fetchBranches to avoid re-adding)
+// Add event listener for branch selection 
 document.getElementById("branchSelect").addEventListener("change", loadExams);
 
 // Load exams when both year and branch are selected
@@ -153,7 +150,6 @@ document.getElementById("addExam").addEventListener("click", async () => {
             return;
         }
 
-        //const examName = number == 0 ? examBase : `${examBase}${number}`;
         let examName;
         if (number == 0) {
             examName = examBase;

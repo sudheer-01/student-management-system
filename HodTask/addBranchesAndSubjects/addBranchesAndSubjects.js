@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const yearDropdown = document.getElementById("year");
     const branchContainer = document.getElementById("branchContainer");
@@ -103,7 +118,7 @@ yearDropdown.addEventListener("change", async () => {
     // Add Branch Button Click
    addBranchBtn.addEventListener("click", async () => {
     const sec = document.getElementById("newSectionInput").value.trim();
-    if (!sec) return alert("Enter section name");
+    if (!sec) return showMessage("Enter section name", "error");
 
     await fetch("/saveSubjects", {
         method: "POST",
@@ -124,7 +139,7 @@ yearDropdown.addEventListener("change", async () => {
     // Add Subject Button Click
     addSubjectBtn.addEventListener("click", () => {
     if (!selectedYear) {
-        alert("Please select a year first.");
+        showMessage("Please select a year first.", "error");
         return;
     }
 
@@ -150,7 +165,7 @@ saveBtn.addEventListener("click", async () => {
     .filter(Boolean);
 
     if (!newSubjects.length) {
-        return alert("Enter at least one subject");
+        return showMessage("Enter at least one subject", "error");
     }
 
     const selectedSections = Array.from(
@@ -158,7 +173,7 @@ saveBtn.addEventListener("click", async () => {
     ).map(cb => cb.value);
 
     if (!selectedSections.length) {
-        return alert("Select at least one section");
+        return showMessage("Select at least one section", "error");
     }
 
     await fetch("/saveSubjects", {
@@ -231,7 +246,6 @@ function addDeleteHandlers() {
     document.querySelectorAll(".delete-section").forEach(btn => {
         btn.onclick = async () => {
             const section = btn.dataset.sec;
-            if (!confirm(`Delete section ${section} and ALL its subjects?`)) return;
 
             await fetch("/deleteSection", {
                 method: "POST",
@@ -256,7 +270,7 @@ function addDeleteHandlers() {
         );
 
         if (!checked.length) {
-            return alert("Select subjects to delete");
+            return showMessage("Select subjects to delete", "error");
         }
 
         const payload = checked.map(c => ({
@@ -323,7 +337,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
