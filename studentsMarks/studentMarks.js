@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
        GET YOUR MARKS
     ===================================================== */
     //get student year from server
-    async function fetchAndStoreStudentYear(htno) {
+    async function fetchAndStoreStudentYear() {
             try {
                 const res = await fetch(`/api/studentyear/${studentHtno}`);
                 const data = await res.json();
@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const studentYear = localStorage.getItem("studentYear");
     fetchMarksBtn.addEventListener("click", async () => {
 
+        fetchAndStoreStudentYear();
         showMarksView();
         spinner.classList.remove("hidden");
         setStatus("Fetching your marks...");
