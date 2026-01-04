@@ -1,7 +1,21 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const profileAvatar = document.getElementById("profileAvatar");
         
-        // Update HOD details in navbar
         const hodName = localStorage.getItem("hodName");
         const hodBranch = localStorage.getItem("hodBranch");
         const hodYears = JSON.parse(localStorage.getItem("hodYears")) || [];
@@ -14,13 +28,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const pill = document.getElementById("branchPillText");
             if (pill) pill.textContent = hodBranch;
         }
-
-        // Update profile avatar with first letter of HOD name
         if (profileAvatar && hodName) {
             profileAvatar.textContent = hodName.charAt(0).toUpperCase();
         }
 
-        // Update years display
         document.getElementById("hodYears").innerText = `Available Years: ${hodYears.join(", ")}`;
     
 
@@ -28,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");

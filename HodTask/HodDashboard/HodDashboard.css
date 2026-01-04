@@ -1,11 +1,10 @@
 /* =========================================================
-   SIMS – HOD DASHBOARD (MASTER STYLE)
-   This file is the DESIGN REFERENCE for all pages
+   SIMS – HOD DASHBOARD 
    ========================================================= */
 
 /* ---------------- ROOT THEME ---------------- */
 :root {
-  --brand: #7a0c0c;          /* Deep maroon (college color) */
+  --brand: #7a0c0c;         
   --brand-dark: #5e0808;
   --bg: #f5f6f8;
   --card: #ffffff;
@@ -188,11 +187,11 @@ html, body {
 
 /* Action buttons */
 .btn-success {
-  background: #15803d; /* SAVE */
+  background: #15803d; 
 }
 
 .btn-danger {
-  background: #b91c1c; /* DELETE */
+  background: #b91c1c; 
 }
 /* =========================================================
    SIMS TYPOGRAPHY SYSTEM
@@ -223,4 +222,38 @@ label {
 button, .btn {
   font-size: 13px;
   font-weight: 600;
+}
+/* Common UI message (replaces alert) */
+.ui-message {
+    margin: 12px 0;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Hidden by default */
+.ui-message.hidden {
+    display: none;
+}
+
+/* Error message */
+.ui-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Success message */
+.ui-message.success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+/* Optional warning/info */
+.ui-message.info {
+    background-color: #e0f2fe;
+    color: #075985;
+    border: 1px solid #7dd3fc;
 }
