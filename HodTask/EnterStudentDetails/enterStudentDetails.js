@@ -184,15 +184,7 @@ function showTableControls() {
     document.getElementById('addRow').style.display = "inline-block";
     document.getElementById('save').style.display = "inline-block";
 }
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out?")) return;
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
-    }
+
 document.getElementById("importExcel").addEventListener("click", () => {
     const fileInput = document.getElementById("excelFile");
     const file = fileInput.files[0];
@@ -229,3 +221,28 @@ document.getElementById("importExcel").addEventListener("click", () => {
     };
     reader.readAsArrayBuffer(file);
 });
+const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
+
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("hodId");
+
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
+        window.location.href = "/";
+    });
+    }
