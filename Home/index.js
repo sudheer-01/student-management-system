@@ -69,7 +69,7 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
         } else {
-            showMessage(data.message, "info");
+            showMessage(data.message, "error");
         }
     } catch (error) {
         //console.error("Error:", error);
@@ -103,7 +103,7 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
             // Redirect to HOD dashboard page
             window.location.href = data.redirectUrl;
         } else {
-            showMessage(data.message, "info");
+            showMessage(data.message, "error");
         }
     } catch (error) {
         //console.error("Error:", error);
@@ -135,8 +135,7 @@ document.getElementById("studentForm").addEventListener("submit", async function
             // Redirect to marks page
             window.location.href = data.redirectUrl;
         } else {
-            showMessage(data.message || "Invalid HTNO", "info");
-            window.location.href = "/";
+            showMessage("Invalid HTNO or Password", "error");
         }
     } catch (error) {
        //console.error("Error:", error);
@@ -164,7 +163,7 @@ document.getElementById("adminForm").addEventListener("submit", async function (
             // Redirect to admin dashboard
             window.location.href = data.redirectUrl;
         } else {
-            showMessage(data.message, "info");
+            showMessage(data.message, "error");
         }
     } catch (error) {
         //console.error("Error:", error);
