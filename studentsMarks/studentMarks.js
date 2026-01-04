@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     /* =====================================================
@@ -23,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const studentHtno = localStorage.getItem("studentHtno");
 
     if (!studentHtno) {
-        alert("Session expired. Please login again.");
+        showMessage("Session expired. Please login again.", "error");
         window.location.href = "/";
         return;
     }
@@ -58,18 +73,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
 
                 if (!data.success) {
-                    alert(data.message || "Failed to fetch student year");
+                    showMessage(data.message || "Failed to fetch student year", "error");
                     return;
                 }
 
-                // ✅ Store year in localStorage
+                // Store year in localStorage
                 localStorage.setItem("studentYear", data.year);
 
                 console.log("Student year stored:", data.year);
 
             } catch (error) {
                 console.error("Error:", error);
-                alert("Network error while fetching student year");
+                showMessage("Network error while fetching student year", "error");
             }
         }
 
@@ -127,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setStatus("Marks loaded successfully");
 
         } catch (err) {
-            alert("Failed to load marks");
+            showMessage("Failed to load marks. Please try again.", "error");
         } finally {
             spinner.classList.add("hidden");
         }
@@ -235,10 +250,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await res.json();
         await uploadProfilePhoto();
 
-        alert(result.message || "Profile saved successfully");
+        showMessage(result.message || "Profile saved successfully", "success");
 
     } catch (err) {
-        alert("Failed to save profile");
+        showMessage("Failed to save profile. Please try again.", "error");
         console.error(err);
     }
 });
@@ -248,7 +263,7 @@ profilePhoto.addEventListener("change", e => {
     if (!file) return;
 
     if (file.size < 20 * 1024 || file.size > 100 * 1024) {
-        alert("Image size must be between 20 KB and 100 KB");
+        showMessage("Image size must be between 20 KB and 100 KB", "error");
         e.target.value = "";
         return;
     }
@@ -272,12 +287,12 @@ async function uploadProfilePhoto() {
     if (!res.ok) {
         const text = await res.text();
         console.error("Upload failed:", text);
-        alert("Image upload failed (check server)");
+        showMessage("Image upload failed.", "error");
         return;
     }
 
     const result = await res.json();
-    alert(result.message);
+    showMessage(result.message || "Image uploaded successfully", "success");
 }
 
     /* =====================================================
@@ -399,7 +414,6 @@ async function uploadProfilePhoto() {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("studentHtno");
