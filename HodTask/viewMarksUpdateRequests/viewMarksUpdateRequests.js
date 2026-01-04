@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     loadYears();
 
@@ -7,11 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadYears() {
     try {
-        // Get stored years from localStorage
         const storedYears = localStorage.getItem("hodYears");
         if (!storedYears) return;
 
-        // Parse and clean years (convert to integers)
         const years = JSON.parse(storedYears).map(y => parseInt(y, 10));
 
         const dropdown = document.getElementById("yearDropdown");
@@ -22,7 +35,8 @@ async function loadYears() {
             dropdown.add(option);
         });
     } catch (err) {
-        console.error("Error loading years:", err);
+        showMessage("Error loading years. Please try again.", "error");
+        // console.error("Error loading years:", err);
     }
 }
 
@@ -30,7 +44,6 @@ async function loadBranches() {
     const year = document.getElementById("yearDropdown").value;
     if (!year) return;
 
-    // HOD branch filter from localStorage
     const hodBranch = localStorage.getItem("hodBranch") || "";
 
     try {
@@ -44,7 +57,8 @@ async function loadBranches() {
             dropdown.add(option);
         });
     } catch (err) {
-        console.error("Error loading branches:", err);
+        showMessage("Error loading branches. Please try again.", "error");
+        //console.error("Error loading branches:", err);
     }
 }
 
@@ -56,14 +70,14 @@ async function loadRequests() {
     const noMsg = document.getElementById("noRequestsMsg");
 
     if (!year || !branch) {
-        alert("Please select both year and branch.");
+        showMessage("Please select both year and branch.", "error");
         return;
     }
 
     const response = await fetch(`/getRequests/${year}/${branch}`);
 
     if (!response.ok) {
-        alert("Failed to load data. Please try again.");
+        showMessage("Failed to load data. Please try again.", "error");
         return;
     }
 
@@ -71,11 +85,11 @@ async function loadRequests() {
 
     if (!requests || requests.length === 0) {
         document.getElementById("requestTable").innerHTML = "";
-        noMsg.style.display = "block"; // ✅ SHOW MESSAGE
+        noMsg.style.display = "block"; 
         return;
     }
 
-    noMsg.style.display = "none"; // ✅ HIDE MESSAGE
+    noMsg.style.display = "none"; 
     populateTable(requests);
 }
 
@@ -120,11 +134,11 @@ async function updateStatus(faculty, subject, exam, status) {
             throw new Error("Failed to update request status.");
         }
 
-        alert(`Request ${status} successfully!`);
+        showMessage(`Request ${status} successfully!`,"success");
         loadRequests(); // Refresh table after updating
     } catch (error) {
-        console.error("Error updating status:", error);
-        alert("Error updating status. Please try again.");
+        //console.error("Error updating status:", error);
+        showMessage("Error updating status. Please try again.","error");
     }
 }
 
@@ -139,11 +153,11 @@ async function toggleStudentTable(button, faculty, subject, exam) {
 
         const students = await response.json();
 
-        // ✅ Filter only students whose marks have changed
+        // Filter only students whose marks have changed
         const changedStudents = students.filter(s => s.old_marks !== s.new_marks);
 
         if (changedStudents.length === 0) {
-            alert("No students have updated marks for this request.");
+            showMessage("No students have updated marks for this request.", "info");
             return;
         }
 
@@ -185,8 +199,8 @@ async function toggleStudentTable(button, faculty, subject, exam) {
         wrapper.querySelector(".student-table-wrapper").appendChild(table);
         button.closest("tr").after(wrapper);
     } catch (error) {
-        console.error("Error fetching update details:", error);
-        alert("Error fetching details. Please try again.");
+        //console.error("Error fetching update details:", error);
+        showMessage("Error fetching details. Please try again.", "error");
     }
 }
 
@@ -195,7 +209,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
