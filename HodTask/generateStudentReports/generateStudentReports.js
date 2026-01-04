@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const yearSelect = document.getElementById("year");
     const branchSelect = document.getElementById("branch");
@@ -104,7 +119,7 @@ yearSelect.addEventListener("change", function () {
                         });
                     }
                 })
-                .catch(error => console.error("Error fetching exams:", error));
+                .catch(error => showMessage("Error fetching exams:", "error"));
         }
     });
 
@@ -166,7 +181,7 @@ yearSelect.addEventListener("change", function () {
         const marksValue = parseInt(filterInput.value);
 
         if (!criteria || isNaN(marksValue)) {
-            alert("Please select filter criteria and enter marks");
+            showMessage("Please select filter criteria and enter marks", "error");
             return;
         }
 
@@ -369,7 +384,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
