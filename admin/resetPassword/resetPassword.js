@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 document.addEventListener("DOMContentLoaded", loadResetRequests);
 
 async function loadResetRequests() {
@@ -34,7 +49,7 @@ async function approveReset(role, id) {
     const newPassword = pwdInput.value;
 
     if (!newPassword) {
-        alert("Enter a temporary password");
+        showMessage("Enter a temporary password", "error");
         return;
     }
 
@@ -45,7 +60,7 @@ async function approveReset(role, id) {
     });
 
     const result = await res.json();
-    alert(result.message);
+    showMessage(result.message, result.success ? "success" : "error");
 
     loadResetRequests();
 }
@@ -53,7 +68,6 @@ async function approveReset(role, id) {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
