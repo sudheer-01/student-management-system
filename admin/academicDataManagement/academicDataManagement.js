@@ -4,6 +4,22 @@ const actionButtons = document.getElementById("actionButtons");
 const message = document.getElementById("message");
 const dynamicContent = document.getElementById("dynamicContent");
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
+
 /* ===============================
    LOAD BRANCHES BASED ON YEAR
 ================================ */
@@ -28,7 +44,7 @@ yearSelect.addEventListener("change", async () => {
       branchSelect.appendChild(opt);
     });
   } catch (err) {
-    alert("Failed to load branches");
+    showMessage("Failed to load branches", "error");
   }
 });
 
@@ -53,7 +69,7 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
   const branch = branchSelect.value;
 
   if (!year || !branch) {
-    alert("Select year and branch first");
+    showMessage("Select year and branch first", "error");
     return;
   }
 
@@ -131,12 +147,12 @@ function downloadSelectedCSVs() {
   const branch = branchSelect.value;
 
   if (!selectedTables.length) {
-    alert("Select at least one table to export");
+    showMessage("Select at least one table to export", "error");
     return;
   }
 
   if (!year || !branch) {
-    alert("Select year and branch first");
+    showMessage("Select year and branch first", "error");
     return;
   }
 
