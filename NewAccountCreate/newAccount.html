@@ -18,6 +18,7 @@
         <button id="hod" class="tab-btn" type="button" onclick="switchTab('allDetailsOfHod', this)"><i class="fa-solid fa-user-tie" aria-hidden="true"></i><span>HOD</span></button>
         <button id="teacher" class="tab-btn" type="button" onclick="switchTab('allDetailsOfTeacher', this)"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i><span>Teacher</span></button>
       </nav>
+      <p id="uiMessage" class="ui-message hidden"></p>
       <!-- HOD details -->
         <h2>Creating HOD account</h2>
         <form id="hodForm" class="allDetails allDetailsOfHod">
@@ -72,7 +73,6 @@
                 <input type="password" id="reEnterPassword" name="reEnterPassword" placeholder="Re-Enter Password" autocomplete="new-password" required/>
                 <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPassword"><i class="fa-regular fa-eye"></i></button>
             </div>
-            <p id="uiMessage" class="ui-message hidden"></p>
             <button type="submit" value="Create Account" id="hodSubmitButton">Create Account</button>
            
             <div id="errorMessage"></div> <!-- For displaying the backend respose -->            
@@ -107,7 +107,7 @@
                 <input type="password" id="reEnterPasswordTeacher" name="reEnterPasswordTeacher" placeholder="Re-Enter Password" autocomplete="new-password" required/>
                 <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPasswordTeacher"><i class="fa-regular fa-eye"></i></button>
             </div>
-            <p id="uiMessage" class="ui-message hidden"></p>
+            
             <button type="submit" value="Create Account" id="teacherSubmitButton">Create Account</button>
         </form>
     </div>
