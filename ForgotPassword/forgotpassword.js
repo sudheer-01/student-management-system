@@ -3,6 +3,21 @@ const userIdInput = document.getElementById("userId");
 const verifyBtn = document.getElementById("verifyBtn");
 const requestBtn = document.getElementById("requestBtn");
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 let verified = false;
 
 /* ROLE CHANGE */
@@ -18,7 +33,7 @@ verifyBtn.addEventListener("click", async () => {
     const id = userIdInput.value.trim();
 
     if (!role || !id) {
-        alert("Fill all required fields");
+        showMessage("Please fill all required fields", "error");
         return;
     }
 
@@ -36,11 +51,11 @@ verifyBtn.addEventListener("click", async () => {
     const data = await res.json();
 
     if (!data.success) {
-        alert("Invalid details");
+        showMessage("Invalid details", "error");
         verified = false;
         requestBtn.disabled = true;
     } else {
-        alert("Verified successfully");
+        showMessage("Verified successfully", "success");
         verified = true;
         requestBtn.disabled = false;
     }
@@ -65,9 +80,9 @@ requestBtn.addEventListener("click", async () => {
     const data = await res.json();
 
     if (data.success) {
-        alert("Reset request sent successfully");
+        showMessage("Reset request sent successfully", "success");
         requestBtn.disabled = true;
     } else {
-        alert("Failed to send request");
+        showMessage("Failed to send request", "error");
     }
 });
