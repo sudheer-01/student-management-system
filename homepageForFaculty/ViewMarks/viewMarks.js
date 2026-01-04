@@ -1,5 +1,21 @@
 let examMaxMarks = {};
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
+
 document.getElementById("exam").addEventListener("change", function () {
     const exam = this.value;
 
@@ -14,13 +30,12 @@ document.getElementById("exam").addEventListener("change", function () {
 
 
 let table = document.getElementById('studentsInformationTable');
-// console.log(table.tBodies[0]);  // Correct way to access tbody
 let tbody = table.tBodies[0];
 document.getElementById("getStudentMarks").addEventListener("click", fetchStudentData);
 async function fetchStudentData() {
     let selectedExam = document.getElementById("exam").value;
     if (!selectedExam) {
-        alert("Please select an exam.");
+        showMessage("Please select an exam.", "error");
         return;
     }
 
@@ -77,8 +92,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
 
     } catch (error) {
-        console.error("Error fetching exams:", error);
-        alert("Failed to load exams.");
+        showMessage("Failed to load exams.", "error");
     }
     const logoutBtn = document.getElementById("logoutBtn");
     // logout
