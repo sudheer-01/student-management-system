@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 function switchTab(role, button) {
     const entiredata = document.querySelectorAll('.allDetails');
     entiredata.forEach(element => element.style.display = 'none');
@@ -60,7 +75,7 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
     let hodId = document.getElementById("hodId").value;
 
     if (passwordOfHod !== reEnterPassword) {
-        alert("Passwords do not match.");
+        showMessage("Passwords do not match.", "error");
         return;
     }
 
@@ -82,14 +97,14 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message); // Show success or error message
+        showMessage(data.message, data.success ? "success" : "error");
         if (data.success) {
             document.getElementById("hodForm").reset(); // Reset form on success
         }
     })
     .catch(error => {
         console.error("Error:", error);
-        alert("An error occurred. Please try again.");
+        showMessage("An error occurred. Please try again.", "error");
     });
 });
 
@@ -105,7 +120,7 @@ document.getElementById("teacherSubmitButton").addEventListener("click", functio
     let reEnterPasswordTeacher = document.getElementById("reEnterPasswordTeacher").value;
 
     if (passwordOfTeacher !== reEnterPasswordTeacher) { // FIXED THIS LINE
-        alert("Passwords do not match.");
+        showMessage("Passwords do not match.", "error");
         return;
     }
 
@@ -125,13 +140,13 @@ document.getElementById("teacherSubmitButton").addEventListener("click", functio
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message); // Show success or error message
+        showMessage(data.message, data.success ? "success" : "error");
         if (data.success) {
             document.getElementById("teacherForm").reset(); // Reset form on success
         }
     })
     .catch(error => {
         console.error("Error:", error);
-        alert("An error occurred. Please try again.");
+        showMessage("An error occurred. Please try again.", "error");
     });
 });
