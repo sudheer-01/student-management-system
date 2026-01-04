@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 function toRoman(num) {
     if (num <= 0 || num >= 4000) return num;
 
@@ -34,7 +49,7 @@ async function fetchYears() {
     try {
     const storedYears = localStorage.getItem("hodYears");
     if (!storedYears) {
-        console.warn("No HOD years found in localStorage");
+        showMessage("No HOD years found.", "error");
         return;
     }
 
@@ -59,7 +74,7 @@ async function fetchYears() {
 
     yearSelect.addEventListener("change", fetchBranches);
 } catch (error) {
-    console.error("Error loading years from localStorage:", error);
+    showMessage("Error loading years.", "error");
 }
 
 }
@@ -81,7 +96,7 @@ async function fetchBranches() {
         });
         branchSelect.addEventListener("change", loadExams);
     } catch (error) {
-        console.error("Error fetching branches:", error);
+        showMessage("Error loading sections.", "error");
     }
 }
 
@@ -109,7 +124,7 @@ async function loadExams() {
 
         exams.forEach(exam => addExamRow(exam));
     } catch (error) {
-        console.error("Error fetching exams:", error);
+        showMessage("Error loading exams.", "error");
     }
 }
 
@@ -119,7 +134,7 @@ document.getElementById("addExam").addEventListener("click", async () => {
     const branch = document.getElementById("branchSelect").value;
 
     if (!year || !branch) {
-        alert("Please select Year and Section.");
+        showMessage("Please select Year and Section.", "error");
         return;
     }
 
@@ -134,7 +149,7 @@ document.getElementById("addExam").addEventListener("click", async () => {
         const maxMarks = row.querySelector(".max-marks").value;
 
         if (!maxMarks) {
-            alert(`Please enter max marks for ${examBase}`);
+            showMessage(`Please enter max marks for ${examBase}.`, "info");
             return;
         }
 
@@ -157,8 +172,7 @@ document.getElementById("addExam").addEventListener("click", async () => {
             })
         });
     }
-
-    alert("Selected exams added successfully.");
+    showMessage("Selected exams added successfully.", "success");
     loadExams();
 });
 
@@ -186,10 +200,10 @@ async function removeExam(examName) {
         });
 
         const message = await response.text();
-        alert(message);
+        showMessage(message, "info");
         loadExams();
     } catch (error) {
-        console.error("Error removing exam:", error);
+        showMessage("Error removing exam.", "error");
     }
 }
 
@@ -197,7 +211,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
