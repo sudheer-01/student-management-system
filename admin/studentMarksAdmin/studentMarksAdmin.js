@@ -3,6 +3,21 @@ const branchSelect = document.getElementById("branchSelect");
 const loadBtn = document.getElementById("loadBtn");
 const container = document.getElementById("tablesContainer");
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 /* ============================
    LOAD BRANCHES BASED ON YEAR
 ============================ */
@@ -23,8 +38,7 @@ yearSelect.addEventListener("change", async () => {
         });
 
     } catch (err) {
-        console.error(err);
-        alert("Failed to load branches");
+        showMessage("Failed to load branches", "error");
     }
 });
 
@@ -36,7 +50,7 @@ loadBtn.addEventListener("click", async () => {
     const branch = branchSelect.value;
 
     if (!year || !branch) {
-        alert("Select year and branch");
+        showMessage("Select year and branch", "error");
         return;
     }
 
@@ -47,12 +61,10 @@ loadBtn.addEventListener("click", async () => {
         );
 
         const rows = await res.json();
-        console.log(rows);
         renderTable(rows);
 
     } catch (err) {
-        console.error(err);
-        alert("Failed to load student marks");
+        showMessage("Failed to load student marks", "error");
     }
 });
 
@@ -118,7 +130,7 @@ function exportCSV() {
 
     const table = document.getElementById("marksTable");
     if (!table) {
-        alert("No data to export");
+        showMessage("No data to export", "error");
         return;
     }
 
@@ -132,7 +144,7 @@ function exportCSV() {
     }
 
     if (csv.length === 0) {
-        alert("No data to export");
+        showMessage("No data to export", "error");
         return;
     }
 
@@ -157,7 +169,7 @@ function printTable() {
 
     const table = document.getElementById("marksTable");
     if (!table || table.rows.length === 0) {
-        alert("No data to print");
+        showMessage("No data to print", "error");
         return;
     }
 
@@ -208,7 +220,6 @@ function printTable() {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
