@@ -24,6 +24,9 @@
          <!-- retriving exams dynamically from examOfSpecificYearAndBranch -->
     </select>
     <button id="getDetailsToEnterMarks" onclick="getStudentDetailsToEnterMarks()">Click to get student details</button>
+   
+    <p id="uiMessage" class="ui-message hidden"></p>
+    
     <form id="studentsForm" action="saveMarks">
         <table id="studentsInformationTable" border="1">
             <thead>
@@ -35,12 +38,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- <tr>
-                    <td>1</td>
-                    <td>6601</td>
-                    <td>Sudheer</td>
-                    <td>05</td>
-                </tr> -->
+                <!-- Dynamically adding student details here -->
             </tbody>
         </table>
         <input type="submit" id="save" value="Save Marks"/>

@@ -1,5 +1,21 @@
 let examMaxMarks = {};
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
+
 document.getElementById("exam").addEventListener("change", function () {
     const exam = this.value;
 
@@ -10,13 +26,9 @@ document.getElementById("exam").addEventListener("change", function () {
     } else {
         document.getElementById("examHeading").textContent = "Marks";
     }
-
-    // 🔥 IMPORTANT FIX: clear table when exam changes
     const tbody = document.querySelector("#studentsInformationTable tbody");
     tbody.innerHTML = "";
 
-    // Optional UX message
-    // alert("Exam changed. Please click 'Get student details' again.");
 });
 
 
@@ -26,7 +38,7 @@ document.getElementById("getDetailsToEnterMarks").addEventListener("click", getS
 async function getStudentDetailsToEnterMarks() {
     const exam = document.getElementById("exam").value;
     if (!exam) {
-        alert("Please select an exam.");
+        showMessage("Please select an exam.", "error");
         return;
     }
     try {
@@ -36,12 +48,12 @@ async function getStudentDetailsToEnterMarks() {
         const students = await response.json();
         
         if (students.length === 0) {
-            alert("No student records found!");
+            showMessage("No student records found!", "error");
             return;
         }
 
         const tbody = document.querySelector("#studentsInformationTable tbody");
-        tbody.innerHTML = ""; // Clear previous data
+        tbody.innerHTML = ""; 
 
         students.forEach((student, index) => {
             const row = document.createElement("tr");
@@ -72,8 +84,7 @@ async function getStudentDetailsToEnterMarks() {
         });
 
     } catch (error) {
-        console.error("Error fetching student details:", error);
-        alert("Failed to fetch student details.");
+        showMessage("Failed to fetch student details.", "error");
     }
 }
 
@@ -81,13 +92,13 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
     event.preventDefault();
     const invalid = document.querySelector("input:invalid");
     if (invalid) {
-        alert("Please correct invalid marks before saving.");
+        showMessage("Please correct invalid marks before saving.", "error");
         invalid.focus();
         return;
     }
     const exam = document.getElementById("exam").value;
     if (!exam) {
-        alert("Please select an exam.");
+        showMessage("Please select an exam.", "error");
         return;
     }
 
@@ -98,31 +109,26 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
 
     formData["exam"] = exam; // Add exam field
 
-    //console.log("Submitting marks data:", formData); // Debug log
-
     try {
         const selectedSubject = localStorage.getItem("selectedSubject");
         const response = await fetch("/saveMarks", {
             method: "POST",
-            headers: { "Content-Type": "application/json" }, // Ensure JSON format
-            // body: JSON.stringify(formData),
+            headers: { "Content-Type": "application/json" }, 
               body: JSON.stringify({
-                ...formData,             // keep your existing formData
-                subject: selectedSubject // add subject to it
+                ...formData,             
+                subject: selectedSubject 
             }),
         });
 
         const result = await response.json();
-        //console.log("Server response:", result);
 
         if (result.success) {
-            alert("Marks saved successfully!");
+            showMessage("Marks saved successfully!", "success");
         } else {
-            alert("Failed to save marks.");
+            showMessage("Failed to save marks.", "error");
         }
     } catch (error) {
-        console.error("Error saving marks:", error);
-        alert("Error occurred while saving marks.");
+        showMessage("Error occurred while saving marks.", "error");
     }
 });
 
@@ -130,7 +136,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
-        // const response = await fetch("/getExams");
         const examsRes = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
         const exams = await examsRes.json();
 
@@ -149,8 +154,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
 
     } catch (error) {
-        console.error("Error fetching exams:", error);
-        alert("Failed to load exams.");
+        showMessage("Failed to load exams.", "error");
     }
 
     const logoutBtn = document.getElementById("logoutBtn");

@@ -25,7 +25,7 @@ function showMessage(message, type = "info", autoHide = true) {
     if (autoHide) {
         setTimeout(() => {
             msgEl.classList.add("hidden");
-        }, 4000); // hide after 4 seconds
+        }, 3000);
     }
 }
 /* =========================
