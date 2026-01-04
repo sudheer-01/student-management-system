@@ -1,24 +1,35 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000);
+    }
+}
+
 // Load available years dynamically
 async function loadYears() {
     const storedYears = localStorage.getItem("hodYears");
 
     if (!storedYears) {
-        console.warn("No HOD years found in localStorage");
+        showMessage("No HOD years found.", "error");
         return;
     }
 
     let parsedYears;
     try {
-        // Try parsing as JSON first (["2","3","4"])
         parsedYears = JSON.parse(storedYears);
     } catch (e) {
-        // If not JSON, fallback to comma-split ("2,3,4")
         parsedYears = storedYears.split(",");
     }
-    // Convert to array of objects { year: "X" }
     const years = parsedYears.map(year => ({ year: year.trim() }));
 
-    console.log("HOD Years from localStorage:", years);
 
     // Populate dropdown
     const yearDropdown = document.getElementById("yearDropdown");
@@ -27,7 +38,6 @@ async function loadYears() {
     years.forEach(({ year }) => {
         const option = document.createElement("option");
         option.value = year;
-        console.log(option.value);
         option.textContent = `${year} Year`;
         yearDropdown.appendChild(option);
     });
@@ -37,7 +47,6 @@ async function loadYears() {
 // Load branches dynamically based on selected year and HOD's branch
 document.getElementById("yearDropdown").addEventListener("change", async function () {
     const year = this.value;
-    console.log("Selected year:", year); // Debugging log
 
     if (!year) {
         document.getElementById("branchDropdown").innerHTML = '<option value="">Select Branch</option>';
@@ -46,7 +55,6 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
 
     try {
         const branch = localStorage.getItem("hodBranch");
-        //console.log("HOD Branch from localStorage:", branch); // Debugging log
         const response = await fetch(`/getbranches/${year}/${branch}`);
         const branches = await response.json();
         const branchDropdown = document.getElementById("branchDropdown");
@@ -60,8 +68,7 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
         });
 
     } catch (error) {
-        console.error("Error loading branches:", error);
-        alert("Server error. Try again later.");
+        showMessage("Server error. Try again later.", "error");
     }
 });
 // Load faculty requests when clicking the button
@@ -70,7 +77,7 @@ document.getElementById("loadRequests").addEventListener("click", async function
     const branch = document.getElementById("branchDropdown").value;
 
     if (!year || !branch) {
-        alert("Please select both year and branch.");
+        showMessage("Please select both year and branch.", "error");
         return;
     }
 
@@ -146,13 +153,11 @@ document.getElementById("loadRequests").addEventListener("click", async function
         });
 
     } catch (error) {
-        console.error("Error loading requests:", error);
-        alert("Server error. Try again later.");
+        showMessage("Server error. Try again later.", "error");
     }
 });
 // Function to update request status
 async function updateStatus(facultyId, year, branch, subject, status) {
-    //console.log("Sending request with:", facultyId, year, branch, subject, status); // Debugging log
 
     try {
         const response = await fetch(`/updateRequestStatus`, {
@@ -161,25 +166,23 @@ async function updateStatus(facultyId, year, branch, subject, status) {
             body: JSON.stringify({ facultyId, status, year, branch, subject })
         });
         const result = await response.json();
-        //console.log("Server response:", result); // Debugging log
 
         if (response.ok) {
-            //document.querySelector(`#status-${facultyId}-${year}-${branch}-${subject}`).textContent = status;
             const statusCell = document.querySelector(
             `.status-cell[data-id="${facultyId}"][data-year="${year}"][data-branch="${branch}"][data-subject="${subject}"]`
             );
-            if (!statusCell) {
-                console.error("Status cell not found", { facultyId, year, branch, subject });
-                return;
-            }
+            // if (!statusCell) {
+            //     console.error("Status cell not found", { facultyId, year, branch, subject });
+            //     return;
+            // }
             statusCell.textContent = status;
-            alert(`Request ${status} successfully!`);
+            showMessage(`Request ${status} successfully!`, "success");
         } else {
-            alert(result.error || "Failed to update request status.");
+            showMessage(result.error || "Failed to update request status.", "error");
         }
     } catch (error) {
-        console.error("Error updating status:", error);
-        //alert("Server error. Try again later.");
+        // console.error("Error updating status:", error);
+        showMessage("Server error. Try again later.", "error");
     }
 }
 
@@ -190,7 +193,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
