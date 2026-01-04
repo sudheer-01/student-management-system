@@ -84,14 +84,6 @@ body {
     border-radius: 5px;
 }
 
-/* Requests inside the boxes */
-/* .request-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-} */
 .request-list {
     display: flex;
     flex-wrap: wrap;
@@ -198,13 +190,12 @@ body {
     background: #218838;
 }
 /* =========================================================
-   TEACHER SUBJECT REQUEST – BUTTON OVERRIDES ONLY
-   (Add at END of CSS file)
+   TEACHER SUBJECT REQUEST
 ========================================================= */
 
-/* ➕ Request New Subject */
+/* Request New Subject */
 #addSubject {
-  background-color: #16a34a; /* professional green */
+  background-color: #16a34a;
   color: #ffffff;
   font-weight: 600;
   border-radius: 6px;
@@ -214,9 +205,9 @@ body {
   background-color: #15803d;
 }
 
-/* 📤 Request Button (inside subject row) */
+/* Request Button (inside subject row) */
 .request-btn {
-  background-color: #2563eb; /* professional blue */
+  background-color: #2563eb; 
   color: #ffffff;
   border-radius: 6px;
   font-weight: 600;
@@ -226,9 +217,9 @@ body {
   background-color: #1e40af;
 }
 
-/* 🗑 Remove Subject Button */
+/* Remove Subject Button */
 .remove-btn {
-  background-color: #dc2626; /* danger red */
+  background-color: #dc2626; 
   color: #ffffff;
   border-radius: 6px;
   font-weight: 600;
@@ -238,17 +229,17 @@ body {
   background-color: #b91c1c;
 }
 
-/* ⏳ Pending Status Badge */
+/* Pending Status Badge */
 .pending-status {
-  background-color: #64748b; /* slate gray */
+  background-color: #64748b; 
   color: #ffffff;
   font-weight: 600;
   border-radius: 6px;
 }
 
-/* ▶ Continue Button (Approved Subject) */
+/* Continue Button (Approved Subject) */
 .continue-btn {
-  background-color: #15803d; /* success green */
+  background-color: #15803d; 
   color: #ffffff;
   font-weight: 600;
   border-radius: 6px;
@@ -258,9 +249,9 @@ body {
   background-color: #166534;
 }
 
-/* 🏠 Go To Dashboard Button */
+/* Go To Dashboard Button */
 #goToDashboardBtn {
-  background-color: #0f766e; /* teal */
+  background-color: #0f766e; 
   color: #ffffff;
   font-weight: 700;
   border-radius: 8px;
@@ -277,7 +268,7 @@ body {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #dc2626; /* danger red */
+  background-color: #dc2626; 
   color: #ffffff;
   padding: 10px 16px;
   font-size: 14px;
@@ -298,7 +289,7 @@ body {
    LOGOUT BUTTON – INSIDE CONTAINER
 ================================ */
 .container {
-  position: relative; /* 🔑 anchor for absolute button */
+  position: relative; 
 }
 
 .logout-btn {

@@ -43,13 +43,12 @@ async function fetchStudentData() {
     const selectedBranch = localStorage.getItem("selectedBranch");
     const selectedSubject = localStorage.getItem("selectedSubject");
 
-    /* 🔹 Fetch max marks map */
+    /* Fetch max marks map */
     const maxRes = await fetch(
         `/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`
     );
     examMaxMarks = await maxRes.json();
 
-    /* ✅ FIX: force heading update AFTER data arrives */
     document.getElementById("examHeading").textContent =
         `${selectedExam} Marks (Max: ${examMaxMarks[selectedExam]})`;
 
@@ -77,12 +76,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
-        // const response = await fetch("/getExams");
         const response = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
         const exams = await response.json();
         
         const examDropdown = document.getElementById("exam");
-        examDropdown.innerHTML = '<option value="">Select Exam</option>'; // Reset options
+        examDropdown.innerHTML = '<option value="">Select Exam</option>'; 
 
         exams.forEach(exam => {
             let option = document.createElement("option");

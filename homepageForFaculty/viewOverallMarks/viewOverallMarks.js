@@ -1,5 +1,19 @@
 let originalData = null;
 let currentData = null; // store current filtered/modified data
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
 
 // Fetch data and render
 document.getElementById("getStudentMarks").addEventListener("click", () => {
@@ -100,7 +114,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
     const operationType = document.querySelector('input[name="operationType"]:checked').value;
 
     if (selectedExams.length === 0 || newColumnName === "") {
-        alert("Please select exams and enter a column name.");
+        showMessage("Please select exams and enter a column name.", "error");
         return;
     }
 
@@ -110,7 +124,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
 
     const existingHeaders = Array.from(thead.children).map(th => th.textContent.trim());
     if (existingHeaders.includes(newColumnName)) {
-        alert("A column with this name already exists!");
+        showMessage("A column with this name already exists!", "error");
         return;
     }
 
@@ -141,9 +155,7 @@ document.getElementById("addColumn").addEventListener("click", () => {
         newTd.textContent = result;
         row.insertBefore(newTd, row.children[columnPosition]);
     });
-
-    alert(`New column '${newColumnName}' (${operationType.toUpperCase()}) added successfully!`);
-
+    showMessage(`New column '${newColumnName}' (${operationType.toUpperCase()}) added successfully!`, "success");
     updateExamCheckboxes();
     updateFilterCheckboxes();
 });
@@ -159,14 +171,13 @@ document.getElementById("removeColumn").addEventListener("click", () => {
 
     const colIndex = [...thead.children].findIndex(th => th.textContent.trim() === columnName.trim());
     if (colIndex === -1) {
-        alert("Column not found!");
+        showMessage("Column not found!", "error");
         return;
     }
 
     thead.removeChild(thead.children[colIndex]);
     Array.from(tbody.children).forEach(row => row.removeChild(row.children[colIndex]));
-
-    alert(`Column '${columnName}' removed successfully.`);
+    showMessage(`Column '${columnName}' removed successfully.`, "success");
     updateExamCheckboxes();
     updateFilterCheckboxes();
 });
@@ -174,44 +185,14 @@ document.getElementById("removeColumn").addEventListener("click", () => {
 // ♻️ Clear All Added Columns
 document.getElementById("clearColumns").addEventListener("click", () => {
     if (!originalData) {
-        alert("No data to restore!");
+        showMessage("No data to restore!", "error");
         return;
     }
     renderTable(originalData);
     currentData = JSON.parse(JSON.stringify(originalData));
-    alert("✅ Table restored to original state!");
+    showMessage("Table restored to original state!", "success");
 });
 
-// 🔍 Apply Filter
-// document.getElementById("applyFilter").addEventListener("click", () => {
-//     const filterValue = parseFloat(document.getElementById("filterValue").value);
-//     const selectedColumns = Array.from(document.querySelectorAll("#filterColumnCheckboxes input:checked")).map(cb => cb.value);
-
-//     if (selectedColumns.length === 0 || isNaN(filterValue)) {
-//         alert("Please select at least one column and enter a valid number!");
-//         return;
-//     }
-
-//     const table = document.getElementById("studentsInformationTable");
-//     const thead = table.querySelector("thead tr");
-//     const tbody = table.querySelector("tbody");
-
-//     const colIndexes = selectedColumns.map(col =>
-//         [...thead.children].findIndex(th => th.textContent === col)
-//     );
-
-//     const rows = Array.from(tbody.children);
-//     rows.forEach(row => {
-//         const cells = row.children;
-//         const meetsCondition = colIndexes.every(i => {
-//             const val = parseFloat(cells[i]?.textContent) || 0;
-//             return val <= filterValue;
-//         });
-//         row.style.display = meetsCondition ? "" : "none";
-//     });
-
-//     alert(`✅ Filter applied: showing students with <= ${filterValue} in ${selectedColumns.join(", ")}.`);
-// });
 
 document.getElementById("applyFilter").addEventListener("click", () => {
     const criteria = document.getElementById("filterCriteria").value;
@@ -222,7 +203,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
     ).map(cb => cb.value);
 
     if (selectedColumns.length === 0 || isNaN(filterValue)) {
-        alert("Please select exams and enter valid marks!");
+        showMessage("Please select exams and enter valid marks!", "error");
         return;
     }
 
@@ -256,10 +237,7 @@ document.getElementById("applyFilter").addEventListener("click", () => {
             row.children[0].textContent = serial++;
         }
     });
-
-    alert(
-        `Filter applied: ${criteria.toUpperCase()} ${filterValue} in ${selectedColumns.join(", ")}`
-    );
+    showMessage(`Filter applied: ${criteria.toUpperCase()} ${filterValue} in ${selectedColumns.join(", ")}`, "success");
 });
 
 
@@ -276,8 +254,7 @@ document.getElementById("clearFilter").addEventListener("click", () => {
         .forEach((row, index) => {
             row.children[0].textContent = index + 1;
         });
-
-    alert("✅ All filters cleared!");
+    showMessage("Filters cleared.", "success");
 });
 
 const logoutBtn = document.getElementById("logoutBtn");
@@ -370,7 +347,7 @@ document.getElementById("printReport").addEventListener("click", function () {
 // 🔽 EXPORT ONLY VISIBLE TABLE DATA TO CSV
 document.getElementById("exportCSV").addEventListener("click", function () {
     const table = document.getElementById("studentsInformationTable");
-    if (!table) return alert("No table data found!");
+    if (!table) return showMessage("No table data found!", "error");
 
     let csvContent = "";
     const rows = table.querySelectorAll("tr");
