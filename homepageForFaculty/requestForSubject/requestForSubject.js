@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const subjectContainer = document.getElementById("subjectContainer");
     const addSubjectButton = document.getElementById("addSubject");
@@ -11,9 +26,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // If somehow not logged in, send back to login
         window.location.href = "/";
     }
-    console.log("Faculty logged in:", facultyId);
-
-
 
     // Fetch all branches and subjects initially
     async function fetchAllData() {
@@ -24,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const subjectResponse = await fetch("/subjects");
             allSubjects = await subjectResponse.json();
         } catch (error) {
-            console.error("Error fetching initial data:", error);
+            showMessage("Error fetching data.", "error");
         }
     }
 
@@ -35,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const requests = await response.json();
             displayRequests(requests);
         } catch (error) {
-            console.error("Error fetching requests:", error);
+            showMessage("Error fetching requests.", "error");
         }
     }
     function displayRequests(requests) {
@@ -98,7 +110,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const response = await fetch(`/branches/${year}`);
             return await response.json();
         } catch (error) {
-            console.error("Error fetching branches:", error);
+            showMessage("Error fetching branches.", "error");
+            //console.error("Error fetching branches:", error);
             return [];
         }
     }
@@ -109,7 +122,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const response = await fetch(`/subjects/${year}/${branch}`);
             return await response.json();
         } catch (error) {
-            console.error("Error fetching subjects:", error);
+            showMessage("Error fetching subjects.", "error");
+            //console.error("Error fetching subjects:", error);
             return [];
         }
     }
@@ -192,7 +206,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const selectedSubject = subjectSelect.value;
         
             if (!selectedYear || !selectedBranch || !selectedSubject) {
-                alert("Please select Year, Branch, and Subject before sending request.");
+                showMessage("Please select Year, Branch, and Subject before sending request.", "error");
                 return;
             }
         
@@ -215,22 +229,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         
                 const result = await response.json();
                 if (response.ok) {
-                    alert("Request sent successfully!");
+                    showMessage("Request sent successfully!", "success");
                     this.textContent = "Pending...";
                     this.style.background = "gray";
                     this.disabled = true;
                 } else {
-                    alert("Error sending request.");
+                    showMessage("Error sending request.", "error");
                 }
             } catch (error) {
-                console.error("Error:", error);
-                alert("Server error. Try again later.");
+                showMessage("Server error. Try again later.", "error");
             }
         });
     }
     addSubjectButton.addEventListener("click", createSubjectField);
     
-    await fetchAllData();  // Load all data when the page loads
+    await fetchAllData();  
     await fetchRequests();  
 });
                
