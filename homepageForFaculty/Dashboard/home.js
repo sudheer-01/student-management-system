@@ -5,15 +5,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         const selectedBranch = localStorage.getItem("selectedBranch");
         const selectedSubject = localStorage.getItem("selectedSubject");
         const facultyId = localStorage.getItem("facultyId");
-        console.log("Retrieved from localStorage:", { selectedYear, selectedBranch, selectedSubject, facultyId });
+
+        function showMessage(message, type = "info", autoHide = true) {
+                const msgEl = document.getElementById("uiMessage");
+                if (!msgEl) return;
+
+                msgEl.textContent = message;
+                msgEl.className = `ui-message ${type}`;
+                msgEl.classList.remove("hidden");
+
+                if (autoHide) {
+                    setTimeout(() => {
+                        msgEl.classList.add("hidden");
+                    }, 3000); 
+                }
+        }
         
-        // If essential data is missing, redirect to the request page or login
         if (!selectedYear || !selectedBranch || !selectedSubject || !facultyId) {
-            alert("No approved subject selected. Redirecting...");
-            window.location.href = "/homepageForFaculty/requestForSubject/requestForSubject.html";
+            showMessage("No approved subject selected. Redirecting...", "error");
+            window.location.href = "/";
             return;
         }
-
         // Prepare request data
         const requestData = {
             year: selectedYear,
@@ -36,11 +48,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("subject").textContent = `Subject: ${data.subject}`;
             document.getElementById("breanch").textContent = `Branch: ${data.branch} | Year: ${data.year}`;
         } else {
-            alert("Failed to load faculty details. " + data.message);
+            showMessage("Failed to load faculty details" + data.message, "error");
         }
     } catch (error) {
-        console.error("Error fetching faculty details:", error);
-        alert("Server error in home.js. Try again later.");
+        showMessage("Server error in faculty home page. Try again later.", "error");
+        window.location.href = "/";
+            return;
     }
 
     const logoutBtn = document.getElementById("logoutBtn");
@@ -72,6 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 🔹 Redirect to login
         window.location.href = "/";
     });
-}
+    }
 
 });
