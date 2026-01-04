@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 4000); // hide after 4 seconds
+    }
+}
+
 /*************************************************
  * CHART PLUGIN – VALUES ON BARS
  *************************************************/
@@ -202,7 +217,7 @@ async function loadSubjectExamAnalysis() {
   resetAnalysisUI();
 
   if (!yearSelect.value || !branchSelect.value) {
-    alert("Please select Year and Section");
+    showMessage("Please select Year and Section", "error");
     return;
   }
 
@@ -345,7 +360,7 @@ generateBtn.onclick = async () => {
     const subject = subjectSelect.value;
 
     if (!year || !branch || !subject) {
-        alert("Please select Year, Section and Subject");
+        showMessage("Please select Year, Section and Subject", "error");
         return;
     }
 
@@ -355,7 +370,7 @@ generateBtn.onclick = async () => {
         const exam = cfg.querySelector(".levelCount")?.dataset.exam;
         if (!exam) continue;
 
-        // 🔹 Collect ranges
+        // Collect ranges
         const inputs = cfg.querySelectorAll("input");
         const ranges = [];
 
@@ -371,18 +386,18 @@ generateBtn.onclick = async () => {
 
         if (ranges.length === 0) continue;
 
-        // 🔹 Fetch students
+        // Fetch students
         const res = await fetch(
             `/getStudentReports/${year}/${branch}/${subject}/${exam}`
         );
         const students = await res.json();
 
-        // 🔹 Count students per range
+        // Count students per range
         const counts = ranges.map(r =>
             students.filter(s => s.marks >= r.from && s.marks <= r.to).length
         );
 
-        // 🔹 Chart box
+        // Chart box
         const chartBox = document.createElement("div");
         chartBox.className = "analysis-block";
 
@@ -401,7 +416,7 @@ generateBtn.onclick = async () => {
 
         chartsContainer.appendChild(chartBox);
 
-        // 🔹 Draw chart
+        // Draw chart
         const chart = new Chart(chartBox.querySelector("canvas"), {
             type: "bar",
             data: {
@@ -439,14 +454,12 @@ generateBtn.onclick = async () => {
 
         marksChartInstances.push(chart);
 
-        // 🔹 View Students toggle
+        // View Students toggle
         const viewBtn = chartBox.querySelector(".view-students-btn");
         const studentsDiv = chartBox.querySelector(".students-container");
 
         viewBtn.onclick = () => {
             if (studentsDiv.innerHTML === "") {
-                // const table = createStudentRangeTable(exam, ranges, students);
-                // studentsDiv.appendChild(table);
                 const wrapper = document.createElement("div");
                 const table = createStudentRangeTable(exam, ranges, students);
 
@@ -587,7 +600,7 @@ async function loadComparativeInsightChart() {
     const branch = branchSelect.value;
 
     if (!year || !branch) {
-        alert("Please select Year and Section");
+        showMessage("Please select Year and Section", "error");
         return;
     }
 
@@ -686,7 +699,7 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
     const exams = [...document.querySelectorAll(".ciExamCheck:checked")].map(i => i.dataset.exam);
 
     if (!subjects.length || !exams.length) {
-        alert("Select subjects and exams");
+        showMessage("Select subjects and exams", "error");
         return;
     }
 
@@ -949,7 +962,7 @@ async function showStudentPerformanceControls() {
   resetAnalysisUI();
 
   if (!yearSelect.value || !branchSelect.value) {
-    alert("Please select Year and Section first");
+    showMessage("Please select Year and Section first", "error");
     return;
   }
 
@@ -969,8 +982,7 @@ async function showStudentPerformanceControls() {
       studentSelect.appendChild(opt);
     });
   } catch (err) {
-    console.error(err);
-    alert("Failed to load students");
+    showMessage("Error loading students", "error");
   }
 }
 
@@ -980,7 +992,7 @@ async function showStudentPerformanceControls() {
 async function loadStudentPerformanceChart() {
   const htno = document.getElementById("studentHtno").value;
   if (!htno) {
-    alert("Please select a student");
+    showMessage("Please select a student", "error");
     return;
   }
 
@@ -1056,7 +1068,7 @@ async function loadStudentPerformanceChart() {
     marksChartInstances.push(chart);
     renderExamSelectionUI(exams);
   } catch (err) {
-    console.error(err);
+    //console.error(err);
     chartsContainer.innerHTML = "<p>Error loading student performance</p>";
   }
 }
@@ -1097,7 +1109,7 @@ document.addEventListener("click", e => {
   );
 
   if (isNaN(value)) {
-    alert("Enter marks");
+    showMessage("Enter marks", "error");
     return;
   }
 
@@ -1206,7 +1218,7 @@ async function loadPotentialFailedStudents() {
     resetAnalysisUI();
 
     if (!yearSelect.value || !branchSelect.value) {
-        alert("Please select Year and Section");
+        showMessage("Please select Year and Section", "error");
         return;
     }
 
@@ -1249,7 +1261,7 @@ async function generatePotentialFailedStudents() {
     const marksEl = document.getElementById("pfMarks");
 
     if (!examEl || !conditionEl || !marksEl) {
-        alert("Configuration UI not found. Please re-open Potential Failed Students.");
+        showMessage("Configuration UI not found. Please re-open Potential Failed Students.", "error");
         return;
     }
 
@@ -1258,11 +1270,10 @@ async function generatePotentialFailedStudents() {
     const marks = parseInt(marksEl.value);
 
     if (!exam || isNaN(marks)) {
-        alert("Select exam and enter marks");
+        showMessage("Select exam and enter marks", "error");
         return;
     }
 
-    // ✅ Now it's safe to clear charts
     clearCharts();
 
     const subjects = await (await fetch(
@@ -1284,7 +1295,7 @@ async function generatePotentialFailedStudents() {
         const filtered = students.filter(s => conditionFn(s.marks));
         allSubjectStudents[subject_name] = filtered;
 
-        // 🔹 Build table per subject
+        // Build table per subject
         const wrapper = document.createElement("div");
         wrapper.className = "analysis-block";
 
@@ -1322,7 +1333,7 @@ async function generatePotentialFailedStudents() {
 
         wrapper.appendChild(table);
 
-        // ✅ Print & CSV support (already implemented earlier)
+        // Print & CSV support (already implemented earlier)
         attachTableActions(wrapper, table, {
             year: yearSelect.value,
             branch: branchSelect.value,
@@ -1332,7 +1343,7 @@ async function generatePotentialFailedStudents() {
         chartsContainer.appendChild(wrapper);
     }
 
-    // 🔹 COMMON STUDENTS
+    // COMMON STUDENTS
     generateCommonPotentialFailed(allSubjectStudents, exam, condition, marks);
 }
 function generateCommonPotentialFailed(subjectMap, exam, condition, marks) {
@@ -1391,7 +1402,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
