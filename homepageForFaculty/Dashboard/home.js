@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         // 🔹 Get values FIRST (before clearing)
         const role = localStorage.getItem("role");
