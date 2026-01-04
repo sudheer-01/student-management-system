@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); // hide after 3 seconds
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const statusFilter = document.getElementById("statusFilter");
     const hodRequestsBody = document.getElementById("hodRequestsBody");
@@ -5,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusMessage = document.getElementById("statusMessage");
     const searchInput = document.getElementById("searchInput");
     const exportCsvBtn = document.getElementById("exportCsvBtn");
-    //const logoutBtn = document.getElementById("logoutBtn");
     let cachedData = [];
 
     // Fetch HOD Requests
@@ -15,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/getHodRequests")
             .then(response => response.json())
             .then(data => {
-                console.log("Fetched Data:", data);
                 cachedData = Array.isArray(data) ? data : [];
                 hodRequestsBody.innerHTML = ""; // Clear table before inserting new data
 
@@ -44,7 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (statusMessage) { statusMessage.textContent = `${hodRequestsBody.children.length} request(s) loaded.`; setTimeout(() => statusMessage.classList.add('hidden'), 1500); }
             })
             .catch(error => {
-                console.error("Error fetching HOD requests:", error);
+                showMessage("Error loading HOD requests.", "error");
+                // console.error("Error fetching HOD requests:", error);
                 if (statusMessage) { statusMessage.textContent = "Error loading requests."; statusMessage.classList.remove("hidden"); }
             })
             .finally(() => { if (spinner) spinner.classList.add("hidden"); });
@@ -61,8 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(response => response.json())
         .then(result => {
-            console.log("Update Response:", result);
-            alert(result.message);
+            showMessage(result.message, result.success ? "success" : "error");
             fetchHodRequests(statusFilter.value); // Refresh table after update
         })
         .catch(error => console.error("Error updating status:", error))
