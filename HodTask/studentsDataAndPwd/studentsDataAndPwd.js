@@ -6,21 +6,28 @@ const branchSelect = document.getElementById("branchSelect");
 const table = document.getElementById("dataTable");
 const tableActions = document.getElementById("tableActions");
 
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
+
 let currentMode = ""; // view | reset
 
-// HOD info from localStorage
-const hodBranch = localStorage.getItem("hodBranch"); // e.g., CSM
-const hodYears = JSON.parse(localStorage.getItem("hodYears")); // ["3","4"]
+const hodBranch = localStorage.getItem("hodBranch"); 
+const hodYears = JSON.parse(localStorage.getItem("hodYears")); 
 
-/* ===========================
-   VIEW STUDENT DATA
-=========================== */
-// viewDataBtn.onclick = () => {
-//     currentMode = "view";
-//     filters.classList.remove("hidden");
-//     table.querySelector("thead").innerHTML = "";
-//     table.querySelector("tbody").innerHTML = "";
-// };
+
 viewDataBtn.onclick = async () => {
     currentMode = "view";
     filters.classList.remove("hidden");
@@ -31,7 +38,7 @@ viewDataBtn.onclick = async () => {
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
 
-    // 🔑 THIS IS THE MISSING PART
+    // THIS IS THE MISSING PART
     if (year && branch) {
         const res = await fetch(
             `/hod/student-profiles?year=${year}&branch=${branch}`
@@ -105,7 +112,7 @@ function renderStudentTable(rows) {
                 </td>
             </tr>
         `;
-        tableActions.classList.add("hidden"); // ✅ hide when no data
+        tableActions.classList.add("hidden"); 
         return;
     }
 
@@ -173,7 +180,7 @@ function renderStudentTable(rows) {
         `;
     });
 
-    tableActions.classList.remove("hidden"); // ✅ show when data exists
+    tableActions.classList.remove("hidden"); 
 }
 
 /* ===========================
@@ -231,14 +238,10 @@ async function updateStudentPassword(htno) {
     const tempPassword = pwdInput.value.trim();
 
     if (!tempPassword) {
-        alert("Enter temporary password");
+        showMessage("Enter temporary password", "info");
         return;
     }
 
-    const confirmUpdate = confirm(
-        "Are you sure you want to set this temporary password?"
-    );
-    if (!confirmUpdate) return;
 
     const res = await fetch("/hod/update-student-password", {
         method: "POST",
@@ -252,17 +255,17 @@ async function updateStudentPassword(htno) {
     const data = await res.json();
 
     if (data.success) {
-        alert("Temporary password set successfully");
+        showMessage("Temporary password set successfully", "success");
         pwdInput.value = "";
     } else {
-        alert(data.message || "Failed to update password");
+        showMessage(data.message || "Failed to update password", "error");
     }
 }
 
 function exportStudentCSV() {
     const table = document.querySelector("table");
     if (!table) {
-        alert("No data to export");
+        showMessage("No table data to export", "info");
         return;
     }
 
@@ -312,7 +315,6 @@ const logoutBtn = document.getElementById("logoutBtn");
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-        if (!confirm("Log out of the faculty panel?")) return;
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
