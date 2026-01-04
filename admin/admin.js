@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update Status (Approve/Reject)
     window.updateStatus = function (hod_id, newStatus) {
-        if (!confirm(`Are you sure you want to mark ${hod_id} as ${newStatus}?`)) return;
+        // if (!confirm(`Are you sure you want to mark ${hod_id} as ${newStatus}?`)) return;
         if (spinner) spinner.classList.remove("hidden");
         fetch("/updateHodStatus", {
             method: "POST",

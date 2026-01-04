@@ -73,10 +73,6 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
     return;
   }
 
-  if (!confirm(`Are you sure you want to delete all semester data for ${year} - ${branch}?`)) {
-    return;
-  }
-
   try {
     const res = await fetch("/api/delete-semester-data", {
       method: "POST",
