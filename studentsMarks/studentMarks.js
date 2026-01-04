@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileBtn    = document.getElementById("profileBtn");
     const exportCsvBtn  = document.getElementById("exportCsvBtn");
     const printBtn      = document.getElementById("printBtn");
-    const logoutBtn     = document.getElementById("logoutBtn");
 
     const spinner       = document.getElementById("loadingSpinner");
     const statusMessage = document.getElementById("statusMessage");
@@ -396,10 +395,30 @@ async function uploadProfilePhoto() {
        LOGOUT
     ===================================================== */
 
-    logoutBtn.addEventListener("click", () => {
-        if (!confirm("Log out?")) return;
-        fetch("/logout", { method: "POST" })
-            .finally(() => window.location.href = "/");
+    const logoutBtn = document.getElementById("logoutBtn");
+    // logout
+    if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
+
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("studentHtno");
+
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
+        window.location.href = "/";
     });
+    }
 
 });
