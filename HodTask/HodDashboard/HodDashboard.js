@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const logoutBtn = document.getElementById("logoutBtn");
     const profileAvatar = document.getElementById("profileAvatar");
         
         // Update HOD details in navbar
@@ -25,12 +24,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("hodYears").innerText = `Available Years: ${hodYears.join(", ")}`;
     
 
+    const logoutBtn = document.getElementById("logoutBtn");
+    // logout
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", function () {
-            if (!confirm("Log out?")) return;
-            fetch("/logout", { method: "POST" })
-                .then(() => { window.location.href = "/"; })
-                .catch(() => { window.location.href = "/"; });
-        });
+    logoutBtn.addEventListener("click", async function () {
+        if (!confirm("Log out of the faculty panel?")) return;
+
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("hodId");
+
+        try {
+            await fetch("/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ role, userId })
+            });
+        } catch (err) {
+            console.error("Logout API failed:", err);
+        }
+        localStorage.clear();
+
+        window.location.href = "/";
+    });
     }
 });
