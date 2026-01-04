@@ -1,3 +1,18 @@
+function showMessage(message, type = "info", autoHide = true) {
+    const msgEl = document.getElementById("uiMessage");
+    if (!msgEl) return;
+
+    msgEl.textContent = message;
+    msgEl.className = `ui-message ${type}`;
+    msgEl.classList.remove("hidden");
+
+    if (autoHide) {
+        setTimeout(() => {
+            msgEl.classList.add("hidden");
+        }, 3000); 
+    }
+}
+
 function switchTab(role, button) {
   const sections = document.querySelectorAll('.allDetails');
   sections.forEach((element) => { element.style.display = 'none'; });
@@ -54,11 +69,11 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
         } else {
-            alert(data.message);
+            showMessage(data.message, "info");
         }
     } catch (error) {
-        console.error("Error:", error);
-        alert("Network error, please try again.");
+        //console.error("Error:", error);
+        showMessage("Network error, please try again.", "error");
     }
 });
 
@@ -88,11 +103,11 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
             // Redirect to HOD dashboard page
             window.location.href = data.redirectUrl;
         } else {
-            alert(data.message);
+            showMessage(data.message, "info");
         }
     } catch (error) {
-        console.error("Error:", error);
-        alert("Invalid HOD ID or Password.");
+        //console.error("Error:", error);
+        showMessage("Invalid HOD ID or Password.", "error");
     }
 });
 
@@ -120,12 +135,12 @@ document.getElementById("studentForm").addEventListener("submit", async function
             // Redirect to marks page
             window.location.href = data.redirectUrl;
         } else {
-            alert(data.message || "Invalid HTNO");
+            showMessage(data.message || "Invalid HTNO", "info");
             window.location.href = "/";
         }
     } catch (error) {
-        console.error("Error:", error);
-        alert("Network error, please try again.");
+       //console.error("Error:", error);
+        showMessage("Network error, please try again.", "error");
     }
 });
 
@@ -142,7 +157,6 @@ document.getElementById("adminForm").addEventListener("submit", async function (
         });
 
         const data = await response.json();
-        console.log(data);
         if (data.success) {
             localStorage.setItem("adminId", data.adminId);
             localStorage.setItem("isLoggedIn", data.isLoggedIn);
@@ -150,10 +164,10 @@ document.getElementById("adminForm").addEventListener("submit", async function (
             // Redirect to admin dashboard
             window.location.href = data.redirectUrl;
         } else {
-            alert(data.message);
+            showMessage(data.message, "info");
         }
     } catch (error) {
-        console.error("Error:", error);
-        alert("Invalid Admin ID or Password.");
+        //console.error("Error:", error);
+        showMessage("Invalid Admin ID or Password.", "error");
     }
 });
