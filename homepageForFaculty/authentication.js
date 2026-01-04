@@ -32,7 +32,7 @@
 
         const isLoggedIn = localStorage.getItem("isLoggedIn");
         const role = localStorage.getItem("role");
-        console.log("in auth js", isLoggedIn, role);
+        //console.log("in auth js", isLoggedIn, role);
         if (isLoggedIn !== "true" || !role) {
             redirectToLogin();
             return;
