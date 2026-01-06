@@ -338,3 +338,19 @@ td.subject {
   font-size: 13px;
   white-space: nowrap;
 }
+/* ===== MARKS OPERATIONS – CHECKBOX LAYOUT (FINAL FIX) ===== */
+
+#examCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;   /* row-gap | column-gap */
+  max-width: 100%;
+}
+
+#examCheckboxes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
