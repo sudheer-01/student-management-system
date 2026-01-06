@@ -484,7 +484,6 @@ function buildExamCheckboxes() {
     examCheckboxes.appendChild(label);
   });
 }
-
 /* Inject column */
 addColumnBtn.addEventListener("click", () => {
 
