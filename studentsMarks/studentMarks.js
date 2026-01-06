@@ -445,3 +445,86 @@ async function uploadProfilePhoto() {
     }
 
 });
+
+
+/* =====================================================
+   STUDENT MARKS – SUM / AVERAGE COLUMN ADDER
+===================================================== */
+
+const marksOps        = document.getElementById("marksOps");
+const examCheckboxes  = document.getElementById("examCheckboxes");
+const addColumnBtn    = document.getElementById("addColumnBtn");
+const newColumnInput  = document.getElementById("newColumnName");
+const operationSelect = document.getElementById("operationType");
+
+/* Build checkboxes after marks load */
+function buildExamCheckboxes() {
+  examCheckboxes.innerHTML = "";
+
+  const headers = document.querySelectorAll("#examHeaders th");
+  headers.forEach((th, index) => {
+    if (index === 0) return; // skip Subject
+
+    const label = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = index;
+
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(" " + th.innerText));
+    examCheckboxes.appendChild(label);
+  });
+}
+
+/* Inject column */
+addColumnBtn.addEventListener("click", () => {
+
+  const selectedCols = [...examCheckboxes.querySelectorAll("input:checked")]
+                        .map(cb => Number(cb.value));
+
+  const colName = newColumnInput.value.trim();
+  const operation = operationSelect.value;
+
+  if (!colName || !operation || selectedCols.length === 0) {
+    showMessage("Select columns, operation, and column name", "error");
+    return;
+  }
+
+  const headerRow = document.getElementById("examHeaders");
+  headerRow.insertAdjacentHTML("beforeend", `<th>${colName}</th>`);
+
+  document.querySelectorAll("#marksBody tr").forEach(row => {
+    let sum = 0;
+    let count = 0;
+
+    selectedCols.forEach(idx => {
+      const cell = row.children[idx];
+      const val = parseFloat(cell?.innerText);
+      if (!isNaN(val)) {
+        sum += val;
+        count++;
+      }
+    });
+
+    const result =
+      operation === "average" && count > 0
+        ? (sum / count).toFixed(2)
+        : sum;
+
+    row.insertAdjacentHTML("beforeend", `<td>${result}</td>`);
+  });
+
+  showMessage(`Column "${colName}" added successfully`, "success");
+});
+
+/* Hook after marks load */
+const originalFetchMarksBtn = fetchMarksBtn.onclick;
+
+fetchMarksBtn.addEventListener("click", () => {
+  setTimeout(() => {
+    if (marksTable.style.display === "table") {
+      marksOps.classList.remove("hidden");
+      buildExamCheckboxes();
+    }
+  }, 600);
+});

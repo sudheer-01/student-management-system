@@ -309,3 +309,24 @@ td.subject {
     color: #075985;
     border: 1px solid #7dd3fc;
 }
+/* ===== STUDENT MARKS – SUM / AVERAGE OPS ===== */
+
+#marksOps h3 {
+  color: #7a0c0c;
+}
+
+#marksOps input,
+#marksOps select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  min-width: 180px;
+}
+
+#examCheckboxes label {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

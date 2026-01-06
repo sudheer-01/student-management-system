@@ -29,6 +29,31 @@
             <div id="statusMessage" class="status hidden" role="status"></div>
 
             <section id="studentInfo" class="student-info card"></section>
+
+            <!-- ===== MARKS OPERATIONS (SUM / AVERAGE) ===== -->
+            <div id="marksOps" class="card hidden">
+
+            <h3 style="margin-bottom:10px;">Marks Operations</h3>
+
+            <div id="examCheckboxes" style="display:flex; flex-wrap:wrap; gap:12px;"></div>
+
+            <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+                <input type="text" id="newColumnName" placeholder="New Column Name" />
+                
+                <select id="operationType">
+                <option value="">Select Operation</option>
+                <option value="sum">Sum</option>
+                <option value="average">Average</option>
+                </select>
+
+                <button id="addColumnBtn" class="btn primary">
+                Add Column
+                </button>
+            </div>
+
+            </div>
+
+
             <div class="table-wrapper hidden">
                 <table id="marksTable" style="display: none;">
                     <thead>
