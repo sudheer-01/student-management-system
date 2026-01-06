@@ -342,7 +342,7 @@ td.subject {
 #examCheckboxes label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   font-size: 13px;
   white-space: nowrap;
 }
