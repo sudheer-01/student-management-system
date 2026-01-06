@@ -474,7 +474,6 @@ function buildExamCheckboxes() {
     if (th.dataset.derived === "true") return;
 
     const label = document.createElement("label");
-    label.style.marginRight = "18px";
 
     const cb = document.createElement("input");
     cb.type = "checkbox";

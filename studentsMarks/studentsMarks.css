@@ -330,3 +330,19 @@ td.subject {
   align-items: center;
   gap: 6px;
 }
+/* ===== MARKS OPERATIONS – CHECKBOX GRID FIX ===== */
+
+#examCheckboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px 14px; /* row-gap | column-gap */
+  margin-top: 6px;
+}
+
+#examCheckboxes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
