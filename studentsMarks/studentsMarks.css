@@ -354,3 +354,15 @@ td.subject {
   font-size: 13px;
   white-space: nowrap;
 }
+/* ===== FIX CHECKBOX ↔ TEXT GAP (FINAL) ===== */
+
+#examCheckboxes label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start; /* 🔑 prevents stretching */
+  gap: 4px;                    /* small controlled gap */
+}
+
+#examCheckboxes input[type="checkbox"] {
+  margin: 0;                   /* 🔑 removes browser default margin */
+}
