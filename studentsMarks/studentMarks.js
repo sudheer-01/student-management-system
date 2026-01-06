@@ -148,6 +148,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             marksTable.style.display = "table";
             setStatus("Marks loaded successfully");
+            // === Enable marks operations immediately ===
+            marksOps.classList.remove("hidden");
+            buildExamCheckboxes();
+
 
         } catch (err) {
             showMessage("Failed to load marks. Please try again.", "error");
@@ -480,7 +484,7 @@ function buildExamCheckboxes() {
 addColumnBtn.addEventListener("click", () => {
 
   const selectedCols = [...examCheckboxes.querySelectorAll("input:checked")]
-                        .map(cb => Number(cb.value));
+    .map(cb => Number(cb.value));
 
   const colName = newColumnInput.value.trim();
   const operation = operationSelect.value;
@@ -514,17 +518,10 @@ addColumnBtn.addEventListener("click", () => {
     row.insertAdjacentHTML("beforeend", `<td>${result}</td>`);
   });
 
+  // 🔥 IMPORTANT: rebuild checkbox list immediately
+  buildExamCheckboxes();
+
   showMessage(`Column "${colName}" added successfully`, "success");
 });
 
-/* Hook after marks load */
-const originalFetchMarksBtn = fetchMarksBtn.onclick;
 
-fetchMarksBtn.addEventListener("click", () => {
-  setTimeout(() => {
-    if (marksTable.style.display === "table") {
-      marksOps.classList.remove("hidden");
-      buildExamCheckboxes();
-    }
-  }, 600);
-});
