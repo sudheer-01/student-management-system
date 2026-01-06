@@ -335,7 +335,7 @@ td.subject {
 #examCheckboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 8px 14px; /* row-gap | column-gap */
+  gap: 4px 7px; /* row-gap | column-gap */
   margin-top: 6px;
 }
 
