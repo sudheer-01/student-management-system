@@ -466,10 +466,16 @@ function buildExamCheckboxes() {
   examCheckboxes.innerHTML = "";
 
   const headers = document.querySelectorAll("#examHeaders th");
+
   headers.forEach((th, index) => {
     if (index === 0) return; // skip Subject
 
+    // ❌ Skip derived columns (SUM / AVG / custom)
+    if (th.dataset.derived === "true") return;
+
     const label = document.createElement("label");
+    label.style.marginRight = "18px";
+
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.value = index;
@@ -495,7 +501,11 @@ addColumnBtn.addEventListener("click", () => {
   }
 
   const headerRow = document.getElementById("examHeaders");
-  headerRow.insertAdjacentHTML("beforeend", `<th>${colName}</th>`);
+  headerRow.insertAdjacentHTML(
+    "beforeend",
+    `<th data-derived="true">${colName}</th>`
+    );
+
 
   document.querySelectorAll("#marksBody tr").forEach(row => {
     let sum = 0;
