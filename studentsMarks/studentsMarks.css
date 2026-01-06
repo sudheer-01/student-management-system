@@ -335,14 +335,14 @@ td.subject {
 #examCheckboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 4px 7px; /* row-gap | column-gap */
+  gap: 4px 14px; /* row-gap | column-gap */
   margin-top: 6px;
 }
 
 #examCheckboxes label {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   font-size: 13px;
   white-space: nowrap;
 }
