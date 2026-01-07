@@ -361,7 +361,7 @@ td.subject {
   align-items: center;
   justify-content: flex-start;
   gap: 2px;  
-
+}
 #examCheckboxes input[type="checkbox"] {
   margin: 0;
 }
