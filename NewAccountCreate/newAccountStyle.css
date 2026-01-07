@@ -1,16 +1,10 @@
-/* Body styling */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    min-height: 100vh;
     background: #90a7be;
     font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
-/* Main login box styling */
+
 #loginBox {
     border: 1px solid rgba(11,18,32,0.10);
     padding: 28px 22px;
@@ -258,4 +252,11 @@ h2 {
     background-color: #e0f2fe;
     color: #075985;
     border: 1px solid #7dd3fc;
+}
+.login-page-wrapper {
+    min-height: calc(100vh - 120px); /* header + footer space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 16px;
 }
