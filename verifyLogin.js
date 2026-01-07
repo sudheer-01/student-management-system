@@ -160,6 +160,42 @@ app.post("/loginToHodDashBoard", (req, res) => {
         }
     );
 });
+//3. Admin Login
+app.post("/adminLogin", (req, res) => {
+    const adminId = req.body.idOfAdmin;
+    const password = req.body.passwordOfAdmin;
+
+    con.query(
+        "SELECT * FROM admin WHERE id=? AND password=?",
+        [adminId, password],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Server error. Try again later."
+                });
+            }
+
+            if (result.length > 0) {
+                const { sessionValue } = createSession("admin", adminId);
+                return res.json({
+                    success: true,
+                    isLoggedIn: "true",
+                    role: "admin",
+                    adminId: adminId,
+                    key: sessionValue,
+                    redirectUrl: "/admin.html"
+                });
+            } else {
+                return res.json({
+                    success: false,
+                    message: "Invalid Admin ID or Password"
+                });
+            }
+        }
+    );
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //NEW ACCOUNT CREATE
@@ -1518,43 +1554,6 @@ app.get("/studentBasic/:htno", (req, res) => {
         }
         res.json(rows[0]);
     });
-});
-
-//admin login
-app.post("/adminLogin", (req, res) => {
-    const adminId = req.body.idOfAdmin;
-    const password = req.body.passwordOfAdmin;
-
-    console.log(adminId, password);
-
-    con.query(
-        "SELECT * FROM admin WHERE id=? AND password=?",
-        [adminId, password],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Server error. Try again later."
-                });
-            }
-
-            if (result.length > 0) {
-                return res.json({
-                    success: true,
-                    isLoggedIn: "true",
-                    role: "admin",
-                    adminId: adminId,
-                    redirectUrl: "/admin.html"
-                });
-            } else {
-                return res.json({
-                    success: false,
-                    message: "Invalid Admin ID or Password"
-                });
-            }
-        }
-    );
 });
 
 //Authenticate based on role and userId

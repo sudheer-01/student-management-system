@@ -162,6 +162,7 @@ document.getElementById("adminForm").addEventListener("submit", async function (
             localStorage.setItem("adminId", data.adminId);
             localStorage.setItem("isLoggedIn", data.isLoggedIn);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("key", data.key);
             // Redirect to admin dashboard
             window.location.href = data.redirectUrl;
         } else {
