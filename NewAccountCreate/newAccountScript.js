@@ -76,13 +76,13 @@ function toggleBranchVisibility() {
 document.getElementById("hodSubmitButton").addEventListener("click", function (event) {
     event.preventDefault();
 
-    let yearOfHod = yearOfHod.value;
-    let branchOfHod = branchOfHod.value;
-    let hodId = hodId.value;
-    let hodName = hodName.value.trim().toUpperCase();
-    let email = emailOfHod.value.trim();
-    let password = passwordOfHod.value;
-    let confirm = reEnterPassword.value;
+    let yearOfHod = document.getElementById("yearOfHod").value;
+    let branchOfHod = document.getElementById("branchOfHod").value;
+    let hodId = document.getElementById("hodId").value;
+    let hodName = document.getElementById("hodName").value.trim().toUpperCase();
+    let email = document.getElementById("emailOfHod").value.trim();
+    let password = document.getElementById("passwordOfHod").value;
+    let confirm = document.getElementById("reEnterPassword").value;
 
     // ⛔ EMPTY CHECK
     if (
@@ -143,12 +143,11 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
 document.getElementById("teacherSubmitButton").addEventListener("click", function (event) {
     event.preventDefault();
 
-    let teacherName = teacherName.value.trim().toUpperCase();
-    let facultyId = facultyId.value.trim();
-    let email = emailOfTeacher.value.trim();
-    let password = passwordOfTeacher.value;
-    let confirm = reEnterPasswordTeacher.value;
-
+    let teacherName = document.getElementById("teacherName").value.trim().toUpperCase();
+    let facultyId = document.getElementById("facultyId").value.trim();
+    let email = document.getElementById("emailOfTeacher").value.trim();
+    let password = document.getElementById("passwordOfTeacher").value;
+    let confirm = document.getElementById("reEnterPasswordTeacher").value;
     if (
         isEmpty(teacherName) ||
         isEmpty(facultyId) ||
