@@ -104,6 +104,7 @@ app.post("/TeacherLogin", (req, res) => {
             if (result.length > 0) {
                 //Send facultyId to frontend
                 const { sessionValue } = createSession("faculty", facultyId);
+                console.log(sessionValue)
                 console.log("Login successful for facultyId:", facultyId);
                 return res.json({
                     success: true,
