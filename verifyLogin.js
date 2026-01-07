@@ -1604,7 +1604,7 @@ app.post("/verify-session", (req, res) => {
         if (rows.length === 0) {
             return res.status(401).json({ valid: false });
         }
-
+        console.log("Session valid for:", { role, userId });
         return res.json({ valid: true });
     });
 });
