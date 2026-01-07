@@ -84,7 +84,7 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
     let password = document.getElementById("passwordOfHod").value;
     let confirm = document.getElementById("reEnterPassword").value;
 
-    // ⛔ EMPTY CHECK
+    // EMPTY CHECK
     if (
         isEmpty(hodId) ||
         isEmpty(hodName) ||
@@ -96,13 +96,13 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
         return;
     }
 
-    // ⛔ EMAIL CHECK
+    // EMAIL CHECK
     if (!isValidEmail(email)) {
         showMessage("Enter a valid email address.", "error");
         return;
     }
 
-    // ⛔ PASSWORD STRENGTH
+    // PASSWORD STRENGTH
     if (!isStrongPassword(password)) {
         showMessage(
             "Password must be at least 8 characters and include letters, numbers, and special characters.",
@@ -111,13 +111,13 @@ document.getElementById("hodSubmitButton").addEventListener("click", function (e
         return;
     }
 
-    // ⛔ PASSWORD MATCH
+    // PASSWORD MATCH
     if (password !== confirm) {
         showMessage("Passwords do not match.", "error");
         return;
     }
 
-    // ✅ ONLY NOW CALL BACKEND (UNCHANGED)
+    // ONLY NOW CALL BACKEND (UNCHANGED)
     fetch("/createHodAccount", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
