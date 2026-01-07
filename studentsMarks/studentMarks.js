@@ -470,9 +470,6 @@ function buildExamCheckboxes() {
   headers.forEach((th, index) => {
     if (index === 0) return; // skip Subject
 
-    // ❌ Skip derived columns (SUM / AVG / custom)
-    if (th.dataset.derived === "true") return;
-
     const label = document.createElement("label");
 
     const cb = document.createElement("input");
@@ -484,6 +481,7 @@ function buildExamCheckboxes() {
     examCheckboxes.appendChild(label);
   });
 }
+
 /* Inject column */
 addColumnBtn.addEventListener("click", () => {
 
