@@ -67,7 +67,6 @@ const sessionStore = {
   student: new Map()
 };
 const crypto = require("crypto");
-const { se } = require("date-fns/locale");
 
 function generateSessionValue() {
   return crypto.randomBytes(32).toString("hex");
