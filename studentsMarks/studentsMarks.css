@@ -317,7 +317,7 @@ td.subject {
 
 /* #marksOps input,
 #marksOps select {
-  padding: 2px 4px;
+  padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #cbd5e1;
   font-size: 14px;
@@ -330,6 +330,37 @@ td.subject {
   margin-top: 6px;
 }
 
+#examCheckboxes label {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+#examCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;   
+  max-width: 100%;
+}
+
+#examCheckboxes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+#examCheckboxes label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;                    
+}
+#examCheckboxes input[type="checkbox"] {
+  margin: 0;               
+}
 #examCheckboxes {
   display: flex;
   flex-wrap: wrap;
@@ -341,7 +372,7 @@ td.subject {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 2px; 
+  gap: 2px;  /* main control for distance between checkbox and exam name */
 }
 
 #examCheckboxes input[type="checkbox"] {
