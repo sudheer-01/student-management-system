@@ -1,23 +1,19 @@
 var express = require("express");
 var path = require("path");
 var app = express();
-// console.log(__dirname);
 var baseDir = __dirname;
-// console.log(baseDir);
-
-//WHEN YOU ARE ADDING STATIC FILES ONCE CHECK YOUR PATH
 
 app.use(express.static(path.join(baseDir,"Home")));
 app.use(express.static(path.join(baseDir,"loginpage")));
 app.use(express.static(path.join(baseDir,"NewAccountCreate")));
 
-//homepageForFaculty
+//Faculty
 app.use(express.static(path.join(baseDir,"homepageForFaculty")));
 // Serve homepageForFaculty at /homepageForFaculty URL prefix
 app.use('/homepageForFaculty', express.static(path.join(baseDir, 'homepageForFaculty')));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","Dashboard")));
 app.use(express.static(path.join(baseDir,"homepageForFaculty","requestForSubject")));
-//HodTask
+//Hod
 app.use('/HodTask', express.static(path.join(baseDir, 'HodTask')));
 app.use(express.static(path.join(baseDir,"HodTask")));
 app.use(express.static(path.join(baseDir,"HodTask","HodDashboard")));
@@ -47,6 +43,8 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 var mysql = require("mysql2");
 const exp = require("constants");
+const multer = require("multer");
+const fs = require("fs");
 var con = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -61,18 +59,30 @@ app.get("/",(req,res) =>
 }
 );
 
+// session store (declare once, global)
+// const sessionStore = {
+//     admin: new Map(),
+//     HOD: new Map(),
+//     Faculty: new Map(),
+//     student: new Map()
+// };
 
-// entering teacher details into database
+//API'S
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//LOGIN 
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//NEW ACCOUNT CREATE
+
+//1.Faculty Account Creation
 app.post("/createTeacherAccount", (req, res) => {
     var teacherName = req.body.teacherName;
-    //console.log("teacherName:", teacherName);
     var facultyId = req.body.facultyId;
     var emailOfTeacher = req.body.emailOfTeacher;
     var passwordOfTeacher = req.body.passwordOfTeacher;
     var reEnterPasswordTeacher = req.body.reEnterPasswordTeacher;
-
-    //console.log(passwordOfTeacher);
-    //console.log(reEnterPasswordTeacher); // Fix: Use correct variable
 
     // Password match validation
     if (passwordOfTeacher !== reEnterPasswordTeacher) {
@@ -108,40 +118,9 @@ app.post("/createTeacherAccount", (req, res) => {
         }
     );
 });
-//checking teacher credentials to login to faculty dashboard
-
-app.post("/TeacherLogin", (req, res) => {
-    const facultyId = req.body.facultyId;
-    const passwordOfTeacher = req.body.passwordOfTeacher;
-    console.log(facultyId,passwordOfTeacher);
-    con.query(
-        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-        [facultyId, passwordOfTeacher],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ success: false, message: "Server error. Try again later." });
-            }
-            if (result.length > 0) {
-                // ✅ Send facultyId to frontend
-                console.log("Login successful for facultyId:", facultyId);
-                return res.json({
-                    success: true,
-                    facultyId: facultyId,
-                    role: "Faculty",
-                    isLoggedIn: "true",
-                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
-                });
-            } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
-            }
-        }
-    );
-});
-
-// entering hod details into database
+//2.Hod Account Creation
 app.post("/createHodAccount", (req, res) => {
-    var yearOfHod = parseInt(req.body.yearOfHod);  // Ensure integer conversion
+    var yearOfHod = parseInt(req.body.yearOfHod);  
     var branchOfHod = req.body.branchOfHod;
     var hodName = req.body.hodName;
     var emailOfHod = req.body.emailOfHod;
@@ -192,7 +171,40 @@ app.post("/createHodAccount", (req, res) => {
         }
     );
 });
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 
+//Pending...
+
+//checking teacher credentials to login to faculty dashboard
+app.post("/TeacherLogin", (req, res) => {
+    const facultyId = req.body.facultyId;
+    const passwordOfTeacher = req.body.passwordOfTeacher;
+    console.log(facultyId,passwordOfTeacher);
+    con.query(
+        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+        [facultyId, passwordOfTeacher],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, message: "Server error. Try again later." });
+            }
+            if (result.length > 0) {
+                // ✅ Send facultyId to frontend
+                console.log("Login successful for facultyId:", facultyId);
+                return res.json({
+                    success: true,
+                    facultyId: facultyId,
+                    role: "Faculty",
+                    isLoggedIn: "true",
+                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
+                });
+            } else {
+                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+            }
+        }
+    );
+});
 
 //checking hod credentials to login into hod dashboard
 app.post("/loginToHodDashBoard", (req, res) => {
@@ -234,30 +246,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
     );
 });
 
-
 //Entering sutdent details such as htno and name by hod 
-// app.post("/saveData", (req, res) => {
-//     let students = req.body.students;
-    
-//     if (!students || students.length === 0) {
-//         return res.status(400).send("No student data received.");
-//     }
-
-//     let values = students.map(student => [student.htno, student.name, student.branch, student.year]);
-
-//     con.query("INSERT INTO studentmarks (htno, name, branch, year) VALUES ?", [values], (err, result) => {
-//         if (err) {
-//             console.error(err);
-//             return res.status(500).send("The student already exists with the same htno.");
-//         }
-//         // if (err) {
-//         // console.error("MySQL Error:", err);
-//         // return res.status(500).send(err.sqlMessage || "Error saving data."); 
-//         // }
-
-//         res.send("Data saved successfully!");
-//     });
-// });
 app.post("/saveData", (req, res) => {
     const students = req.body.students;
 
@@ -292,7 +281,6 @@ app.post("/saveData", (req, res) => {
     });
 });
 
-
 //retriving student details such as htno and name by hod
 app.get("/getData", (req, res) => {
     let branch = req.query.branch;
@@ -315,8 +303,6 @@ app.get("/getData", (req, res) => {
     );
 });
 
-
-
 //homepageForFaculty:::enterMarks
 // Route to fetch student details (year and branch can be added as filters)
 app.get("/getStudents", (req, res) => {
@@ -331,7 +317,6 @@ app.get("/getStudents", (req, res) => {
         }
     });
 });
-
 
 //after getting the marks like year and branch we are entering the marks and saving them
 //for more information just uncomment tto understand more clearly
@@ -416,9 +401,6 @@ app.post("/saveMarks", async (req, res) => {
 });
 
 
-//homepageForFaculty:::ViewMarks
-//viewing marks
-
 app.get("/getStudentMarks", (req, res) => {
    
     const examColumn = req.query.exam;  // Get exam name from frontend
@@ -449,36 +431,6 @@ app.get("/getStudentMarks", (req, res) => {
 });
 //homepageForFaculty:::viewOverallMarks
 // API to fetch all students with dynamic exam columns
-// app.get("/getOverallMarks", (req, res) => {
-//     const branch = req.query.branch;  // Get branch from frontend
-//     const year = req.query.year;        // Get year from frontend
-//     const subject = req.query.subject;  // Get subject from frontend
-
-//     // Query to get exam columns dynamically
-//     con.query("SHOW COLUMNS FROM studentmarks", (err, columns) => {
-//         if (err) {
-//             console.error("Error fetching column names:", err);
-//             return res.status(500).json({ success: false, message: "Database error" });
-//         }
-
-//         // Extract column names excluding non-exam fields
-//         let examColumns = columns
-//             .map(col => col.Field)
-//             .filter(col => !["year", "branch", "htno", "name", "subject"].includes(col));
-
-//         // Construct SQL Query to fetch data dynamically
-//         let sqlQuery = `SELECT htno, name, ${examColumns.join(", ")} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
-
-//         con.query(sqlQuery, [branch, year, subject], (err, results) => {
-//             if (err) {
-//                 console.error("Error fetching student marks:", err);
-//                 return res.status(500).json({ success: false, message: "Database error" });
-//             }
-
-//             res.json(results);
-//         });
-//     });
-// });
 app.get("/getOverallMarks", (req, res) => {
     const { branch, year, subject } = req.query;
 
@@ -609,38 +561,6 @@ app.post("/requestHodToUpdateMarks", (req, res) => {
 });
 
 //HodTask:::addBranchesAndSubjects
-// app.post("/saveSubjects", async (req, res) => {
-//     const { year, branches, subjects } = req.body;
-
-//     if (!year || !branches.length || !subjects.length) {
-//         return res.status(400).json({ error: "Year, branches, and subjects are required!" });
-//     }
-
-//     try {
-//         const db = con.promise();
-
-//         // Insert dynamically generated branches
-//         await Promise.all(
-//             branches.map(branch =>
-//                 db.query("INSERT IGNORE INTO branches (year, branch_name) VALUES (?, ?)", [year, branch])
-//             )
-//         );
-
-//         // Insert subjects for each branch
-//         await Promise.all(
-//             branches.flatMap(branch =>
-//                 subjects.map(subject =>
-//                     db.query("INSERT IGNORE INTO subjects (year, branch_name, subject_name) VALUES (?, ?, ?)", [year, branch, subject])
-//                 )
-//             )
-//         );
-
-//         res.json({ message: "Branches and subjects saved successfully!" });
-//     } catch (err) {
-//         console.error("Database Insert Error:", err);
-//         res.status(500).json({ error: "Database error while saving subjects." });
-//     }
-// });
 
 app.post("/saveSubjects", async (req, res) => {
     const {
@@ -690,7 +610,6 @@ app.post("/saveSubjects", async (req, res) => {
         res.status(500).json({ error: "Failed to save data" });
     }
 });
-
 
 app.get("/hod/branches-subjects", async (req, res) => {
     const { year, hodBranch } = req.query;
@@ -863,7 +782,6 @@ app.get("/getRequests", (req, res) => {
         res.json(result);
     });
 });
-
 
 app.get("/getbranches/:year/:branch", (req, res) => {
     const { year,branch } = req.params;
@@ -1133,8 +1051,6 @@ app.post("/addExamToDatabase", (req, res) => {
     });
 });
 
-
-
 // Remove an Exam Column from studentMarks and 
 app.post("/removeExamColumn", (req, res) => {
     const { year, branch, examName } = req.body;
@@ -1214,9 +1130,6 @@ app.get("/getExams", (req, res) => {
     });
 });
 
-
-const multer = require("multer");
-
 /* =====================================================
    MULTER CONFIG (IMAGE STORED IN MYSQL AS BLOB)
 ===================================================== */
@@ -1234,7 +1147,6 @@ const upload = multer({
         }
     }
 });
-
 
 
 app.post(
@@ -1347,7 +1259,6 @@ app.post("/studentCheckin", (req, res) => {
         }
     );
 });
-
 
 app.post("/studentDashboard/:year/:htno", (req, res) => {
     const { year, htno } = req.params;
@@ -1473,9 +1384,7 @@ app.get("/api/studentyear/:htno", (req, res) => {
     });
 });
 
-
 // Fetch student profile
-
 app.get("/studentProfile/:htno", (req, res) => {
     con.query(
         "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
@@ -1494,8 +1403,6 @@ app.get("/studentProfile/:htno", (req, res) => {
         }
     );
 });
-
-
 
 app.post("/studentProfile/save", (req, res) => {
 
@@ -1582,8 +1489,6 @@ app.post("/studentProfile/save", (req, res) => {
     );
 });
 
-
-
 app.get("/studentBasic/:htno", (req, res) => {
     const { htno } = req.params;
 
@@ -1598,7 +1503,6 @@ app.get("/studentBasic/:htno", (req, res) => {
 });
 
 //admin login
-
 app.post("/adminLogin", (req, res) => {
     const adminId = req.body.idOfAdmin;
     const password = req.body.passwordOfAdmin;
@@ -1683,8 +1587,6 @@ app.post("/verify-session", (req, res) => {
     });
 });
 
-
-
 // Fetch All HOD Requests
 app.get("/getHodRequests", (req, res) => {
     con.query("SELECT hod_id, name, email, year, branch, status FROM hod_details", (err, results) => {
@@ -1765,49 +1667,7 @@ app.post("/admin/student-marks", async (req, res) => {
     });
 });
 // Fetch student profiles based on year and branch
-// app.get("/admin/student-profiles", async (req, res) => {
-//     try {
-//         const { year, branch } = req.query;
 
-//         if (!year || !branch) {
-//             return res.status(400).json({ error: "Year and branch required" });
-//         }
-
-//         // 1️⃣ Get unique HTNOs from studentmarks
-//         const [htnos] = await con.promise().query(
-//             `
-//             SELECT DISTINCT htno
-//             FROM studentmarks
-//             WHERE year = ? AND branch = ?
-//             `,
-//             [year, branch]
-//         );
-
-//         if (htnos.length === 0) {
-//             return res.json([]);
-//         }
-
-//         const htnoList = htnos.map(r => r.htno);
-//         const placeholders = htnoList.map(() => "?").join(",");
-
-//         // 2️⃣ Fetch student profiles using HTNOs
-//         const [profiles] = await con.promise().query(
-//             `
-//             SELECT *
-//             FROM student_profiles
-//             WHERE htno IN (${placeholders})
-//             ORDER BY htno
-//             `,
-//             htnoList
-//         );
-
-//         res.json(profiles);
-
-//     } catch (err) {
-//         console.error("STUDENT PROFILES ERROR:", err);
-//         res.status(500).json({ error: "Failed to fetch student profiles" });
-//     }
-// });
 app.get("/admin/student-profiles", async (req, res) => {
     try {
         const { year, branch } = req.query;
@@ -2013,7 +1873,6 @@ app.get("/getExamMaxMarks/:year/:branch/:exam", (req, res) => {
     });
 });
 
-
 //HodTask:::viewMarksUpdateRequests
 app.get("/getRequests/:year/:branch", (req, res) => {
     const query = `SELECT DISTINCT 
@@ -2108,7 +1967,6 @@ app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
     }
 });
 
-
 //generating charts
 // API to get student marks for a subject
 app.get("/marks", (req, res) => {
@@ -2163,7 +2021,6 @@ app.get("/getExamMaxMarksAll/:year/:branch", (req, res) => {
     });
 });
 
-
 // API to get marks for all subjects for a given year and branch
 // Fetch comparative marks for a year and branch (only exams from examsofspecificyearandbranch)
 app.get("/comparativemarks", (req, res) => {
@@ -2203,7 +2060,6 @@ app.get("/comparativemarks", (req, res) => {
         });
     });
 });
-
 
 app.get("/getStudentsData/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
@@ -2344,41 +2200,6 @@ app.post("/auth/request-reset", (req, res) => {
     });
 });
 
-// app.post("/reset-password-at-login", (req, res) => {
-//     const { role, id, newPassword } = req.body;
-
-//     let sql;
-
-//     if (role === "hod") {
-//         sql = `
-//           UPDATE hod_details
-//           SET password=?, reset_password='no'
-//           WHERE hod_id=?
-//         `;
-//     } else if (role === "faculty") {
-//         sql = `
-//           UPDATE faculty
-//           SET password=?, reset_password='no'
-//           WHERE facultyId=?
-//         `;
-//     } else if (role === "student") {
-//         sql = `
-//           UPDATE student_profiles
-//           SET password=?, reset_password='no'
-//           WHERE htno=?
-//         `;
-//     }
-
-//     con.query(sql, [newPassword, id], err => {
-//         if (err) return res.status(500).json({ success: false });
-//         res.json({ success: true });
-//     });
-// });
-
-//------------------------------------------------------
-
-//code for admin to delete all data of specific year and branch
-
 app.post("/api/reset/verify-user", (req, res) => {
     const { role, userId } = req.body;
 
@@ -2443,8 +2264,6 @@ app.post("/api/reset/update-password", (req, res) => {
         }
     );
 });
-
-
 
 app.post("/api/delete-semester-data", (req, res) => {
   const { year, branch } = req.body;
@@ -2545,45 +2364,6 @@ app.delete("/api/delete-row", (req, res) => {
 });
 
 // Export CSV
-// app.get("/api/export-csv", async (req, res) => {
-//     const { table, year, branch } = req.query;
-//     if (!table || !year || !branch)
-//         return res.status(400).send("Missing params");
-
-//     const sql =
-//         table === "subjects" || table === "branches"
-//             ? `SELECT * FROM ${table} WHERE year=? AND branch_name=?`
-//             : `SELECT * FROM ${table} WHERE year=? AND branch=?`;
-
-//     con.query(sql, [year, branch], (err, results) => {
-//         if (err) return res.status(500).send(err.message);
-//         if (!results.length) return res.status(404).send("No data found");
-
-//         // Convert each row properly (handle JSON fields)
-//         const processedResults = results.map(row => {
-//             const newRow = {};
-//             for (let key in row) {
-//                 const val = row[key];
-//                 // If it's an object (e.g. JSON column), stringify it
-//                 if (typeof val === "object" && val !== null) {
-//                     newRow[key] = JSON.stringify(val).replace(/,/g, ";"); // Avoid breaking CSV commas
-//                 } else {
-//                     newRow[key] = val;
-//                 }
-//             }
-//             return newRow;
-//         });
-
-//         const header = Object.keys(processedResults[0]).join(",");
-//         const rows = processedResults.map(r => Object.values(r).join(",")).join("\n");
-//         const csv = header + "\n" + rows;
-
-//         res.setHeader("Content-disposition", `attachment; filename=${table}-${year}-${branch}.csv`);
-//         res.set("Content-Type", "text/csv");
-//         res.send(csv);
-//     });
-// });
-const fs = require("fs");
 
 app.get("/api/export-csv", async (req, res) => {
     const { tables, year, branch } = req.query; // 'tables' can be comma-separated
@@ -2644,7 +2424,6 @@ app.get("/api/export-csv", async (req, res) => {
     }
 });
 
-
 app.post("/api/update-row", (req, res) => {
     const { table, data } = req.body;
 
@@ -2666,7 +2445,6 @@ app.post("/api/update-row", (req, res) => {
         res.json({ success: true });
     });
 });
-
 
 // ✅ Fetch all faculty or hod data (no year/branch filter)
 app.get("/api/get-table-data-simple", (req, res) => {
@@ -2738,7 +2516,6 @@ app.delete("/api/delete-row/:table/:id", (req, res) => {
     res.json({ success: true, message: "Row deleted successfully." });
   });
 });
-
 
 app.get("/hod/branches", (req, res) => {
     const { year, hodBranch } = req.query;
@@ -2817,15 +2594,6 @@ app.post("/hod/update-student-password", (req, res) => {
     });
 });
 
-
-// session store (declare once, global)
-// const sessionStore = {
-//     admin: new Map(),
-//     HOD: new Map(),
-//     Faculty: new Map(),
-//     student: new Map()
-// };
-
 // // LOGOUT API
 // app.post("/logout", (req, res) => {
 //     const { role, userId, sessionKey } = req.body;
@@ -2869,7 +2637,6 @@ app.post("/logout", (req, res) => {
         return res.status(500).json({ success: false });
     }
 });
-
 
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
