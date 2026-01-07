@@ -314,7 +314,7 @@ td.subject {
 #marksOps h3 {
   color: #7a0c0c;
 }
-/* 
+
 #marksOps input,
 #marksOps select {
   padding: 8px 10px;
@@ -323,7 +323,7 @@ td.subject {
   font-size: 14px;
   min-width: 180px;
 }
-
+/* 
 #examCheckboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
