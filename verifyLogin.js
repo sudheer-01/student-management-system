@@ -196,7 +196,45 @@ app.post("/adminLogin", (req, res) => {
         }
     );
 });
-//--------------------------------------------------------------
+//4. Student Login
+app.post("/studentCheckin", (req, res) => {
+    const password = req.body.password;
+    const stuHtno = req.body.htno;
+
+    con.query(
+        "SELECT * FROM student_profiles WHERE htno=? AND password=?",
+        [stuHtno, password],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Server error. Try again later."
+                });
+            }
+
+            if (result.length > 0) {
+                const { sessionValue } = createSession("student", stuHtno);
+                return res.json({
+                    success: true,
+                    isLoggedIn: "true",
+                    role: "student",
+                    key: sessionValue,
+                    redirectUrl: "/studentsMarks/studentsMarks.html",
+                    studentDetails: {
+                        htno: stuHtno
+                    }
+                });
+            } else {
+                return res.json({
+                    success: false,
+                    message: "Invalid HTNO or Year"
+                });
+            }
+        }
+    );
+});
+//-------------------------------------------------------------
 //--------------------------------------------------------------
 //NEW ACCOUNT CREATE
 
@@ -1277,42 +1315,6 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
 
 
 // studentMarks
-app.post("/studentCheckin", (req, res) => {
-    const password = req.body.password;
-    const stuHtno = req.body.htno;
-
-    con.query(
-        "SELECT * FROM student_profiles WHERE htno=? AND password=?",
-        [stuHtno, password],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Server error. Try again later."
-                });
-            }
-
-            if (result.length > 0) {
-                // ✅ If valid, send success + redirect URL
-                return res.json({
-                    success: true,
-                    isLoggedIn: "true",
-                    role: "student",
-                    redirectUrl: "/studentsMarks/studentsMarks.html",
-                    studentDetails: {
-                        htno: stuHtno
-                    }
-                });
-            } else {
-                return res.json({
-                    success: false,
-                    message: "Invalid HTNO or Year"
-                });
-            }
-        }
-    );
-});
 
 app.post("/studentDashboard/:year/:htno", (req, res) => {
     const { year, htno } = req.params;

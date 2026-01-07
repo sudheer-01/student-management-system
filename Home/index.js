@@ -133,6 +133,7 @@ document.getElementById("studentForm").addEventListener("submit", async function
             localStorage.setItem("studentHtno", data.studentDetails.htno);
             localStorage.setItem("isLoggedIn", data.isLoggedIn);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("key", data.key);
 
             // Redirect to marks page
             window.location.href = data.redirectUrl;
