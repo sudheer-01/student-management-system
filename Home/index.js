@@ -66,6 +66,7 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             localStorage.setItem("facultyId", data.facultyId);
             localStorage.setItem("isLoggedIn", data.isLoggedIn);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("key", data.key);
             // Redirect to faculty request page
             window.location.href = data.redirectUrl;
         } else {

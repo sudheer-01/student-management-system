@@ -59,18 +59,66 @@ app.get("/",(req,res) =>
 }
 );
 
-// session store (declare once, global)
-// const sessionStore = {
-//     admin: new Map(),
-//     HOD: new Map(),
-//     Faculty: new Map(),
-//     student: new Map()
-// };
+// sessionStore.js
+const sessionStore = {
+  admin: new Map(),
+  hod: new Map(),
+  faculty: new Map(),
+  student: new Map()
+};
+const crypto = require("crypto");
+
+function generateSessionValue() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+function createSession(role, id) {
+  const key = `${role}:${id}`;
+  const value = generateSessionValue();
+
+  // overwrite old session automatically
+  sessionStore[role].set(key, value);
+
+  return {
+    sessionValue: value
+  };
+}
 
 //API'S
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //LOGIN 
+
+//1. Faculty Login
+app.post("/TeacherLogin", (req, res) => {
+    const facultyId = req.body.facultyId;
+    const passwordOfTeacher = req.body.passwordOfTeacher;
+    con.query(
+        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
+        [facultyId, passwordOfTeacher],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false, message: "Server error. Try again later." });
+            }
+            if (result.length > 0) {
+                //Send facultyId to frontend
+                const { sessionValue } = createSession("faculty", facultyId);
+                console.log("Login successful for facultyId:", facultyId);
+                return res.json({
+                    success: true,
+                    facultyId: facultyId,
+                    role: "faculty",
+                    isLoggedIn: "true",
+                    key: sessionValue,
+                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
+                });
+            } else {
+                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+            }
+        }
+    );
+});
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -177,34 +225,7 @@ app.post("/createHodAccount", (req, res) => {
 //Pending...
 
 //checking teacher credentials to login to faculty dashboard
-app.post("/TeacherLogin", (req, res) => {
-    const facultyId = req.body.facultyId;
-    const passwordOfTeacher = req.body.passwordOfTeacher;
-    console.log(facultyId,passwordOfTeacher);
-    con.query(
-        "SELECT * FROM faculty WHERE facultyId=? AND password=?",
-        [facultyId, passwordOfTeacher],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ success: false, message: "Server error. Try again later." });
-            }
-            if (result.length > 0) {
-                // ✅ Send facultyId to frontend
-                console.log("Login successful for facultyId:", facultyId);
-                return res.json({
-                    success: true,
-                    facultyId: facultyId,
-                    role: "Faculty",
-                    isLoggedIn: "true",
-                    redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
-                });
-            } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
-            }
-        }
-    );
-});
+
 
 //checking hod credentials to login into hod dashboard
 app.post("/loginToHodDashBoard", (req, res) => {
