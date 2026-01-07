@@ -314,7 +314,7 @@ td.subject {
 #marksOps h3 {
   color: #7a0c0c;
 }
-
+/* 
 #marksOps input,
 #marksOps select {
   padding: 8px 10px;
@@ -324,51 +324,16 @@ td.subject {
   min-width: 180px;
 }
 
-/* ===== MARKS OPERATIONS – CHECKBOX GRID FIX ===== */
-
 #examCheckboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   margin-top: 6px;
 }
 
-#examCheckboxes label {
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  white-space: nowrap;
-}
-/* ===== MARKS OPERATIONS – CHECKBOX LAYOUT (FINAL FIX) ===== */
-
 #examCheckboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;   /* row-gap | column-gap */
-  max-width: 100%;
-}
-
-#examCheckboxes label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-/* ===== FIX CHECKBOX ↔ TEXT GAP (FINAL) ===== */
-
-#examCheckboxes label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start; /* 🔑 prevents stretching */
-  gap: 4px;                    /* small controlled gap */
-}
-#examCheckboxes input[type="checkbox"] {
-  margin: 0;                   /* 🔑 removes browser default margin */
-}
-#examCheckboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px; /* row-gap | column-gap for spacing between items, not between checkbox and text */
+  gap: 8px 16px; 
   max-width: 100%;
 }
 
@@ -376,9 +341,9 @@ td.subject {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 2px;  /* main control for distance between checkbox and exam name */
+  gap: 2px; 
 }
 
 #examCheckboxes input[type="checkbox"] {
   margin: 0;
-}
+} */
