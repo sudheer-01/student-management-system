@@ -101,6 +101,7 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
             localStorage.setItem("hodId", data.hodId);
             localStorage.setItem("isLoggedIn", data.isLoggedIn);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("key", data.key);
             // Redirect to HOD dashboard page
             window.location.href = data.redirectUrl;
         } else {

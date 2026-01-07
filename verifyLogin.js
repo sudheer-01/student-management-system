@@ -67,6 +67,7 @@ const sessionStore = {
   student: new Map()
 };
 const crypto = require("crypto");
+const { se } = require("date-fns/locale");
 
 function generateSessionValue() {
   return crypto.randomBytes(32).toString("hex");
@@ -104,8 +105,7 @@ app.post("/TeacherLogin", (req, res) => {
             if (result.length > 0) {
                 //Send facultyId to frontend
                 const { sessionValue } = createSession("faculty", facultyId);
-                console.log(sessionValue)
-                console.log("Login successful for facultyId:", facultyId);
+                console.log("Login successful for facultyId:", facultyId, "Session Key:", sessionValue);
                 return res.json({
                     success: true,
                     facultyId: facultyId,
@@ -120,7 +120,47 @@ app.post("/TeacherLogin", (req, res) => {
         }
     );
 });
+//2. HOD Login
+app.post("/loginToHodDashBoard", (req, res) => {
+    const hodId = req.body.HodId;
+    const passwordOfHod = req.body.passwordOfHod;
 
+    con.query(
+        "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
+        [hodId, passwordOfHod],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.send(
+                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
+                );
+            }
+            if (result.length > 0) {
+                //Send HOD details to the client
+                const hodDetails = {
+                    hodName: result[0].name,
+                    hodBranch: result[0].branch,
+                    hodYears: result[0].year.split(",")
+                };
+                const { sessionValue } = createSession("hod", hodId);
+                console.log("Hod successful login:", hodDetails, sessionValue);
+                return res.json({
+                    success: true,
+                    hodDetails: hodDetails,
+                    role: "HOD",
+                    isLoggedIn: "true",
+                    hodId: hodId,
+                    key: sessionValue,
+                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
+                });
+            } else {
+                return res.send(
+                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
+                );
+            }
+        }
+    );
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //NEW ACCOUNT CREATE
@@ -224,49 +264,6 @@ app.post("/createHodAccount", (req, res) => {
 //--------------------------------------------------------------
 
 //Pending...
-
-//checking teacher credentials to login to faculty dashboard
-
-
-//checking hod credentials to login into hod dashboard
-app.post("/loginToHodDashBoard", (req, res) => {
-    const hodId = req.body.HodId;
-    const passwordOfHod = req.body.passwordOfHod;
-
-    con.query(
-        "SELECT name, branch, year FROM hod_details WHERE hod_id=? AND password=? AND status = 'Approved'",
-        [hodId, passwordOfHod],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
-                );
-            }
-            if (result.length > 0) {
-                // ✅ Send HOD details to the client
-                const hodDetails = {
-                    hodName: result[0].name,
-                    hodBranch: result[0].branch,
-                    hodYears: result[0].year.split(",")
-                };
-                console.log("Hod Details:", hodDetails);
-                return res.json({
-                    success: true,
-                    hodDetails: hodDetails,
-                    role: "HOD",
-                    isLoggedIn: "true",
-                    hodId: hodId,
-                    redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
-                });
-            } else {
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
-                );
-            }
-        }
-    );
-});
 
 //Entering sutdent details such as htno and name by hod 
 app.post("/saveData", (req, res) => {
