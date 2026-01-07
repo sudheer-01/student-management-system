@@ -17,9 +17,9 @@
         switch (role) {
             case "admin":
                 return localStorage.getItem("adminId");
-            case "HOD":
+            case "hod":
                 return localStorage.getItem("hodId");
-            case "Faculty":
+            case "faculty":
                 return localStorage.getItem("facultyId");
             case "student":
                 return localStorage.getItem("studentHtno");
