@@ -146,7 +146,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                 return res.json({
                     success: true,
                     hodDetails: hodDetails,
-                    role: "HOD",
+                    role: "hod",
                     isLoggedIn: "true",
                     hodId: hodId,
                     key: sessionValue,
