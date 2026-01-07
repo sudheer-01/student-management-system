@@ -365,3 +365,20 @@ td.subject {
 #examCheckboxes input[type="checkbox"] {
   margin: 0;                   /* 🔑 removes browser default margin */
 }
+#examCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px; /* row-gap | column-gap for spacing between items, not between checkbox and text */
+  max-width: 100%;
+}
+
+#examCheckboxes label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;  /* main control for distance between checkbox and exam name */
+}
+
+#examCheckboxes input[type="checkbox"] {
+  margin: 0;
+}
