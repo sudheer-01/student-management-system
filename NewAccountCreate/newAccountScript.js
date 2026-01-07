@@ -9,8 +9,21 @@ function showMessage(message, type = "info", autoHide = true) {
     if (autoHide) {
         setTimeout(() => {
             msgEl.classList.add("hidden");
-        }, 4000); // hide after 4 seconds
+        }, 3000); 
     }
+}
+function isValidEmail(email) {
+    // strict email check
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isStrongPassword(password) {
+    // min 8 chars, one letter, one number, one special char
+    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(password);
+}
+
+function isEmpty(value) {
+    return !value || value.trim() === "";
 }
 
 function switchTab(role, button) {
@@ -60,93 +73,126 @@ function toggleBranchVisibility() {
     branchSection.style.display = (yearSelect.value === "1") ? "none" : "block";
 }
 
-
-
 document.getElementById("hodSubmitButton").addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
-    // Get form values
-    let yearOfHod = document.getElementById("yearOfHod").value;
-    let branchOfHod = document.getElementById("branchOfHod").value;
-    let hodName = document.getElementById("hodName").value.toUpperCase();
-    let emailOfHod = document.getElementById("emailOfHod").value;
-    let passwordOfHod = document.getElementById("passwordOfHod").value;
-    let reEnterPassword = document.getElementById("reEnterPassword").value;
-    let hodId = document.getElementById("hodId").value;
+    let yearOfHod = yearOfHod.value;
+    let branchOfHod = branchOfHod.value;
+    let hodId = hodId.value;
+    let hodName = hodName.value.trim().toUpperCase();
+    let email = emailOfHod.value.trim();
+    let password = passwordOfHod.value;
+    let confirm = reEnterPassword.value;
 
-    if (passwordOfHod !== reEnterPassword) {
+    // ⛔ EMPTY CHECK
+    if (
+        isEmpty(hodId) ||
+        isEmpty(hodName) ||
+        isEmpty(email) ||
+        isEmpty(password) ||
+        isEmpty(confirm)
+    ) {
+        showMessage("All fields are required.", "error");
+        return;
+    }
+
+    // ⛔ EMAIL CHECK
+    if (!isValidEmail(email)) {
+        showMessage("Enter a valid email address.", "error");
+        return;
+    }
+
+    // ⛔ PASSWORD STRENGTH
+    if (!isStrongPassword(password)) {
+        showMessage(
+            "Password must be at least 8 characters and include letters, numbers, and special characters.",
+            "error"
+        );
+        return;
+    }
+
+    // ⛔ PASSWORD MATCH
+    if (password !== confirm) {
         showMessage("Passwords do not match.", "error");
         return;
     }
 
-    // Send data to backend using fetch
+    // ✅ ONLY NOW CALL BACKEND (UNCHANGED)
     fetch("/createHodAccount", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            yearOfHod: yearOfHod,
-            branchOfHod: branchOfHod,
-            hodName: hodName,
-            emailOfHod: emailOfHod,
-            passwordOfHod: passwordOfHod,
-            reEnterPassword: reEnterPassword,
-            hodId: hodId
+            yearOfHod,
+            branchOfHod,
+            hodName,
+            emailOfHod: email,
+            passwordOfHod: password,
+            reEnterPassword: confirm,
+            hodId
         })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         showMessage(data.message, data.success ? "success" : "error");
-        if (data.success) {
-            document.getElementById("hodForm").reset(); // Reset form on success
-        }
+        if (data.success) document.getElementById("hodForm").reset();
     })
-    .catch(error => {
-        console.error("Error:", error);
-        showMessage("An error occurred. Please try again.", "error");
-    });
+    .catch(() => showMessage("Server error. Try again.", "error"));
 });
 
 //teacher details
 document.getElementById("teacherSubmitButton").addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
-    let teacherName = document.getElementById("teacherName").value.toUpperCase();
-    //console.log("teacherName:", teacherName);
-    let facultyId = document.getElementById("facultyId").value;
-    let emailOfTeacher = document.getElementById("emailOfTeacher").value;
-    let passwordOfTeacher = document.getElementById("passwordOfTeacher").value;
-    let reEnterPasswordTeacher = document.getElementById("reEnterPasswordTeacher").value;
+    let teacherName = teacherName.value.trim().toUpperCase();
+    let facultyId = facultyId.value.trim();
+    let email = emailOfTeacher.value.trim();
+    let password = passwordOfTeacher.value;
+    let confirm = reEnterPasswordTeacher.value;
 
-    if (passwordOfTeacher !== reEnterPasswordTeacher) { // FIXED THIS LINE
+    if (
+        isEmpty(teacherName) ||
+        isEmpty(facultyId) ||
+        isEmpty(email) ||
+        isEmpty(password) ||
+        isEmpty(confirm)
+    ) {
+        showMessage("All fields are required.", "error");
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showMessage("Enter a valid email address.", "error");
+        return;
+    }
+
+    if (!isStrongPassword(password)) {
+        showMessage(
+            "Password must be at least 8 characters and include letters, numbers, and special characters.",
+            "error"
+        );
+        return;
+    }
+
+    if (password !== confirm) {
         showMessage("Passwords do not match.", "error");
         return;
     }
 
-    // Send data to backend using fetch
     fetch("/createTeacherAccount", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            teacherName: teacherName,
-            facultyId: facultyId,
-            emailOfTeacher: emailOfTeacher,
-            passwordOfTeacher: passwordOfTeacher,
-            reEnterPasswordTeacher: reEnterPasswordTeacher
+            teacherName,
+            facultyId,
+            emailOfTeacher: email,
+            passwordOfTeacher: password,
+            reEnterPasswordTeacher: confirm
         })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         showMessage(data.message, data.success ? "success" : "error");
-        if (data.success) {
-            document.getElementById("teacherForm").reset(); // Reset form on success
-        }
+        if (data.success) document.getElementById("teacherForm").reset();
     })
-    .catch(error => {
-        console.error("Error:", error);
-        showMessage("An error occurred. Please try again.", "error");
-    });
+    .catch(() => showMessage("Server error. Try again.", "error"));
 });

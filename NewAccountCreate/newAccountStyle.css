@@ -418,3 +418,14 @@ body {
     width: 100%;
     margin-top: 6px;
 }
+/* Make select (Year & Branch) same size as inputs */
+.allDetails select {
+  width: 100%;
+  padding: 11px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  background: var(--white);
+  color: var(--text);
+  height: auto;
+}
