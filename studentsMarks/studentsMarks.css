@@ -216,10 +216,7 @@ td.subject {
 #profilePhoto {
     margin-top: 6px;
 }
-/* =========================================================
-   STUDENT – BUTTON COLOR OVERRIDES
-   Add at END of studentsMarks.css
-========================================================= */
+
 
 /* PRIMARY ACTION (Get Marks, Save Profile) */
 #fetchMarksBtn,
@@ -315,15 +312,6 @@ td.subject {
   color: #7a0c0c;
 }
 
-/* #marksOps input,
-#marksOps select {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  font-size: 14px;
-  min-width: 180px;
-} */
-
 #examCheckboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -372,8 +360,7 @@ td.subject {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 2px;  /* main control for distance between checkbox and exam name */
-}
+  gap: 2px;  
 
 #examCheckboxes input[type="checkbox"] {
   margin: 0;

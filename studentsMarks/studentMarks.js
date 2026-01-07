@@ -15,10 +15,6 @@ function showMessage(message, type = "info", autoHide = true) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* =====================================================
-       BASIC REFERENCES
-    ===================================================== */
-
     const fetchMarksBtn = document.getElementById("fetchMarksBtn");
     const profileBtn    = document.getElementById("profileBtn");
     const exportCsvBtn  = document.getElementById("exportCsvBtn");
@@ -41,10 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/";
         return;
     }
-
-    /* =====================================================
-       HELPER FUNCTIONS
-    ===================================================== */
 
     function showMarksView() {
         profileSection.classList.add("hidden");
@@ -524,7 +516,6 @@ addColumnBtn.addEventListener("click", () => {
     row.insertAdjacentHTML("beforeend", `<td>${result}</td>`);
   });
 
-  // 🔥 IMPORTANT: rebuild checkbox list immediately
   buildExamCheckboxes();
 
   showMessage(`Column "${colName}" added successfully`, "success");
