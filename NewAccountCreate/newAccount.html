@@ -30,7 +30,7 @@
         </div>
     </div>
     </header>
-
+<main class="login-page-wrapper">
     <div id="loginBox" class="loginBox" role="region" aria-label="Create Account">
         <h1>Create your SIMS account</h1>
         <p class="subhead">Select your role to continue</p>
@@ -93,8 +93,11 @@
                 <input type="password" id="reEnterPassword" name="reEnterPassword" placeholder="Re-Enter Password" autocomplete="new-password" required/>
                 <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPassword"><i class="fa-regular fa-eye"></i></button>
             </div>
-            <button type="submit" value="Create Account" id="hodSubmitButton">Create Account</button>
-           
+            <button type="submit" value="Create Account" id="hodSubmitButton" class="tab-btn">Create Account</button>
+            <div class="register-link">
+                <span>Have an account?</span>
+                <a href="/">Click here to Login</a>
+            </div>
             <div id="errorMessage"></div> <!-- For displaying the backend respose -->            
         </form>
         <!-- Teacher details -->
@@ -128,9 +131,14 @@
                 <button type="button" class="toggle-password" aria-label="Show password" data-target="reEnterPasswordTeacher"><i class="fa-regular fa-eye"></i></button>
             </div>
             
-            <button type="submit" value="Create Account" id="teacherSubmitButton">Create Account</button>
+            <button type="submit" value="Create Account" id="teacherSubmitButton" class="tab-btn">Create Account</button>
+            <div class="register-link">
+                <span>Have an account?</span>
+                <a href="/">Click here to Login</a>
+            </div>
         </form>
     </div>
+</main>
     <!-- ===== FOOTER ===== -->
 <footer class="simple-footer">
   © 2025 SIMS. All rights reserved.

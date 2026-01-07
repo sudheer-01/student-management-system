@@ -406,3 +406,15 @@ body {
     color: #075985;
     border: 1px solid #7dd3fc;
 }
+#hodSubmitButton, #teacherSubmitButton {
+    background: linear-gradient(135deg, var(--blue), var(--blue-light));
+    color: var(--white);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 12px;
+    border-radius: 6px;
+    width: 100%;
+    margin-top: 6px;
+}
