@@ -1579,11 +1579,11 @@ app.post("/verify-session", (req, res) => {
             query = "SELECT id FROM admin WHERE id = ?";
             break;
 
-        case "HOD":
+        case "hod":
             query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
             break;
 
-        case "Faculty":
+        case "faculty":
             query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
             break;
 
