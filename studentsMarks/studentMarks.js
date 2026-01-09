@@ -422,6 +422,7 @@ async function uploadProfilePhoto() {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("studentHtno");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -429,7 +430,7 @@ async function uploadProfilePhoto() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

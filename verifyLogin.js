@@ -2619,47 +2619,29 @@ app.post("/hod/update-student-password", (req, res) => {
     });
 });
 
-// // LOGOUT API
-// app.post("/logout", (req, res) => {
-//     const { role, userId, sessionKey } = req.body;
-
-//     if (!role || !userId || !sessionKey) {
-//         return res.status(400).json({ success: false });
-//     }
-
-//     const roleStore = sessionStore[role];
-
-//     if (!roleStore) {
-//         return res.status(400).json({ success: false });
-//     }
-
-//     // Verify key matches
-//     const storedKey = roleStore.get(userId);
-
-//     if (storedKey && storedKey === sessionKey) {
-//         roleStore.delete(userId); // ✅ remove key
-//         return res.json({ success: true });
-//     }
-
-//     return res.status(401).json({ success: false });
-// });
+// LOGOUT API
 app.post("/logout", (req, res) => {
-    const { role, userId } = req.body;
-    console.log("Logout request for:", role, userId);
-
-    if (!role || !userId) {
-        return res.json({ success: true }); // safe exit
-    }
-
+    const { role, userId, sessionValue } = req.body;
+    console.log("Logout request for:", role, userId, sessionValue);
     try {
-        // if (sessionStore[role]) {
-        //     sessionStore[role].delete(userId);
-        // }
+         if (!sessionStore[role]) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+        }
+       
+        const valid = validateSession(role, userId, sessionValue);
+        if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+        }
 
-        return res.json({ success: true });
+        const key = `${role}:${userId}`;
+        sessionStore[role].delete(key);
+        return res.json({ success: true, message: "Logged out successfully" });
     } catch (err) {
         console.error("Logout error:", err);
-        return res.status(500).json({ success: false });
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
