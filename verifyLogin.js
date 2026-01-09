@@ -89,7 +89,7 @@ function validateSession(role, id, sessionValue) {
 
   if (!storedValue) return false;
   if (storedValue !== sessionValue) return false;
-
+  
   return true;
 }
 
@@ -354,9 +354,19 @@ app.post("/createHodAccount", (req, res) => {
 //STUDENT TASKS
 
 //1. Get student year using Hall Ticket Number
-app.get("/api/studentyear/:htno", (req, res) => {
-    const { htno } = req.params;
-
+app.get("/api/studentyear/:htno/:role", (req, res) => {
+    const { htno, role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+    }
     const sql = `
         SELECT year
         FROM studentmarks

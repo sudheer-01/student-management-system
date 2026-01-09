@@ -60,7 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
     //get student year from server
    async function fetchAndStoreStudentYear() {
     try {
-        const res = await fetch(`/api/studentyear/${studentHtno}`);
+        const role = localStorage.getItem("role");
+        const sessionValue = localStorage.getItem("key");
+        const res = await fetch(`/api/studentyear/${htno}/${role}`, {
+            headers: {
+                "x-session-key": sessionValue;
+            }
+        });
         const data = await res.json();
 
         if (!data.success) {
