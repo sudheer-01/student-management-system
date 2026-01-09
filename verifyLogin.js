@@ -83,6 +83,22 @@ function createSession(role, id) {
     sessionValue: value
   };
 }
+function validateSession(role, id, sessionValue) {
+  const key = `${role}:${id}`;
+  const storedValue = sessionStore[role].get(key);
+
+  if (!storedValue) return false;
+  if (storedValue !== sessionValue) return false;
+
+  return true;
+}
+
+
+//   const valid = validateSession(role, id, sessionValue);
+//   if (!valid) {
+//     return res.status(401).json({ message: "Invalid session" });
+//   }
+
 
 //API'S
 //--------------------------------------------------------------
@@ -335,7 +351,332 @@ app.post("/createHodAccount", (req, res) => {
 });
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+//STUDENT TASKS
 
+//1. Get student year using Hall Ticket Number
+app.get("/api/studentyear/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const sql = `
+        SELECT year
+        FROM studentmarks
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(sql, [htno], (err, results) => {
+        if (err) {
+            console.error("Error fetching student year:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No student found with this HTNO"
+            });
+        }
+
+        res.json({
+            success: true,
+            year: results[0].year
+        });
+    });
+});
+//2. To get student marks
+app.post("/studentDashboard/:year/:htno", (req, res) => {
+    const { year, htno } = req.params;
+
+    if (!year || !htno) {
+        return res.status(400).json({ error: "Session expired or invalid credentials." });
+    }
+
+    // Step 1: Get student's branch
+    const getBranchQuery = `SELECT branch, name FROM studentmarks WHERE year = ? AND htno = ? LIMIT 1`;
+
+    con.query(getBranchQuery, [year, htno], (branchErr, branchResults) => {
+        if (branchErr) {
+            console.error("Error fetching branch:", branchErr);
+            return res.status(500).json({ error: "Error retrieving student branch." });
+        }
+
+        if (branchResults.length === 0) {
+            return res.status(404).json({ error: "Invalid HTNO or Year" });
+        }
+
+        const branch = branchResults[0].branch;
+
+        // Step 2: Get allowed exams from examsofspecificyearandbranch
+        const getExamsQuery = `SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ? LIMIT 1`;
+
+        con.query(getExamsQuery, [year, branch], (examErr, examResults) => {
+            if (examErr) {
+                console.error("Error fetching exams:", examErr);
+                return res.status(500).json({ error: "Error retrieving exam details." });
+            }
+
+            if (examResults.length === 0) {
+                return res.status(404).json({ error: "No exam mapping found for this branch/year." });
+            }
+
+           let examsJson;
+try {
+    examsJson = examResults[0].exams;
+
+    // If MySQL returned string, parse it
+    if (typeof examsJson === "string") {
+        examsJson = JSON.parse(examsJson);
+    }
+} catch (parseErr) {
+    console.error("Error parsing exams JSON:", parseErr);
+    return res.status(500).json({ error: "Invalid exam mapping format." });
+}
+
+
+            // Extract exam columns (["Unit_test_1", "Mid_1", ...])
+            const examColumns = Object.keys(examsJson).map(exam => `\`${exam}\``);
+
+            if (examColumns.length === 0) {
+                return res.status(404).json({ error: "No exam columns found for this branch/year." });
+            }
+
+            // Step 3: Fetch student data with only those columns
+            const getStudentQuery = `
+                SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
+                FROM studentmarks
+                WHERE year = ? AND htno = ? AND branch = ?
+            `;
+
+            con.query(getStudentQuery, [year, htno, branch], (err, results) => {
+                if (err) {
+                    console.error("Database error:", err);
+                    return res.status(500).json({ error: "Server error. Try again later." });
+                }
+
+                if (results.length === 0) {
+                    return res.status(404).json({ error: "No student records found." });
+                }
+
+                const studentInfo = {
+                    year: results[0].year,
+                    branch: results[0].branch,
+                    htno: results[0].htno,
+                    name: results[0].name,
+                    subjects: results.map(row => {
+                        let marks = {};
+                        Object.keys(examsJson).forEach(exam => {
+                            marks[exam] = row[exam] !== null ? row[exam] : "N/A";
+                        });
+                        return { subject: row.subject, marks };
+                    }),
+                };
+
+                res.json(studentInfo);
+            });
+        });
+    });
+});
+//3. To get student basic details such as name, branch, year using htno
+app.get("/studentBasic/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const q = `SELECT htno, name, branch, year FROM studentmarks WHERE htno = ? LIMIT 1`;
+
+    con.query(q, [htno], (err, rows) => {
+        if (err || rows.length === 0) {
+            return res.status(404).json({ success: false });
+        }
+        res.json(rows[0]);
+    });
+});
+//4. To get student personal profile details
+app.get("/studentProfile/:htno", (req, res) => {
+    con.query(
+        "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
+        [req.params.htno],
+        (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false });
+            }
+
+            if (rows.length === 0) {
+                return res.json({ exists: false });
+            }
+
+            res.json({ exists: true, profile: rows[0] });
+        }
+    );
+});
+//5.Store and retrieve student profile photo
+const upload = multer({
+    storage: multer.memoryStorage(), // store image in memory
+    limits: {
+        fileSize: 100 * 1024 // max 100 KB
+    },
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            cb(new Error("Only image files are allowed"), false);
+        } else {
+            cb(null, true);
+        }
+    }
+});
+app.post("/studentProfile/photo/:htno",upload.single("profile_photo"),(req, res) => {
+
+        const { htno } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image uploaded"
+            });
+        }
+
+        if (req.file.size < 20 * 1024 || req.file.size > 100 * 1024) {
+            return res.status(400).json({
+                success: false,
+                message: "Image must be between 20 KB and 100 KB"
+            });
+        }
+
+        const query = `
+            UPDATE student_profiles
+            SET profile_photo = ?
+            WHERE htno = ?
+        `;
+
+        con.query(query, [req.file.buffer, htno], err => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to save image"
+                });
+            }
+
+            res.json({
+                success: true,
+                message: "Profile photo saved successfully"
+            });
+        });
+    }
+);
+app.get("/studentProfile/photo/:htno", (req, res) => {
+    const { htno } = req.params;
+
+    const query = `
+        SELECT profile_photo
+        FROM student_profiles
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(query, [htno], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).end();
+        }
+
+        if (!results.length || !results[0].profile_photo) {
+            // No image → return 404 so frontend can fallback
+            return res.status(404).end();
+        }
+
+        const imageBuffer = results[0].profile_photo;
+
+        res.setHeader("Content-Type", "image/jpeg");
+        res.setHeader("Cache-Control", "no-store");
+        res.send(imageBuffer);
+    });
+});
+//6. Save student profile details
+app.post("/studentProfile/save", (req, res) => {
+
+    const { htno } = req.body;
+
+    if (!htno) {
+        return res.status(400).json({ success: false, message: "HTNO missing" });
+    }
+
+    // Remove empty / undefined fields
+    const allowedFields = [
+        "full_name", "batch", "dob", "gender", "admission_type", "current_status",
+        "student_mobile", "email", "current_address", "permanent_address",
+        "father_name", "mother_name", "parent_mobile",
+        "guardian_name", "guardian_relation", "guardian_mobile",
+        "blood_group", "nationality", "religion"
+    ];
+
+    const data = {};
+    allowedFields.forEach(field => {
+        if (req.body[field] !== undefined && req.body[field] !== "") {
+            data[field] = req.body[field];
+        }
+    });
+
+    // If nothing to save
+    if (Object.keys(data).length === 0) {
+        return res.json({ success: true, message: "Nothing to update" });
+    }
+    if (!data.current_status) {
+        data.current_status = "Active";
+    }
+
+    // Check if profile exists
+    con.query(
+        "SELECT id FROM student_profiles WHERE htno = ?",
+        [htno],
+        (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ success: false });
+            }
+
+            if (rows.length === 0) {
+                // INSERT (dynamic)
+                const columns = Object.keys(data).join(", ");
+                const placeholders = Object.keys(data).map(() => "?").join(", ");
+                const values = Object.values(data);
+
+                const insertQuery = `
+                    INSERT INTO student_profiles (htno, ${columns})
+                    VALUES (?, ${placeholders})
+                `;
+
+                con.query(insertQuery, [htno, ...values], err => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ success: false });
+                    }
+                    res.json({ success: true, message: "Profile saved successfully" });
+                });
+
+            } else {
+                // UPDATE (dynamic)
+                const setClause = Object.keys(data)
+                    .map(field => `${field} = ?`)
+                    .join(", ");
+
+                const updateQuery = `
+                    UPDATE student_profiles
+                    SET ${setClause}
+                    WHERE htno = ?
+                `;
+
+                con.query(updateQuery, [...Object.values(data), htno], err => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).json({ success: false });
+                    }
+                    res.json({ success: true, message: "Profile updated successfully" });
+                });
+            }
+        }
+    );
+});
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //Pending...
 
 //Entering sutdent details such as htno and name by hod 
@@ -1222,341 +1563,6 @@ app.get("/getExams", (req, res) => {
     });
 });
 
-/* =====================================================
-   MULTER CONFIG (IMAGE STORED IN MYSQL AS BLOB)
-===================================================== */
-
-const upload = multer({
-    storage: multer.memoryStorage(), // store image in memory
-    limits: {
-        fileSize: 100 * 1024 // max 100 KB
-    },
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("image/")) {
-            cb(new Error("Only image files are allowed"), false);
-        } else {
-            cb(null, true);
-        }
-    }
-});
-
-
-app.post(
-    "/studentProfile/photo/:htno",
-    upload.single("profile_photo"),
-    (req, res) => {
-
-        const { htno } = req.params;
-
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: "No image uploaded"
-            });
-        }
-
-        if (req.file.size < 20 * 1024 || req.file.size > 100 * 1024) {
-            return res.status(400).json({
-                success: false,
-                message: "Image must be between 20 KB and 100 KB"
-            });
-        }
-
-        const query = `
-            UPDATE student_profiles
-            SET profile_photo = ?
-            WHERE htno = ?
-        `;
-
-        con.query(query, [req.file.buffer, htno], err => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Failed to save image"
-                });
-            }
-
-            res.json({
-                success: true,
-                message: "Profile photo saved successfully"
-            });
-        });
-    }
-);
-app.get("/studentProfile/photo/:htno", (req, res) => {
-    const { htno } = req.params;
-
-    const query = `
-        SELECT profile_photo
-        FROM student_profiles
-        WHERE htno = ?
-        LIMIT 1
-    `;
-
-    con.query(query, [htno], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).end();
-        }
-
-        if (!results.length || !results[0].profile_photo) {
-            // No image → return 404 so frontend can fallback
-            return res.status(404).end();
-        }
-
-        const imageBuffer = results[0].profile_photo;
-
-        res.setHeader("Content-Type", "image/jpeg");
-        res.setHeader("Cache-Control", "no-store");
-        res.send(imageBuffer);
-    });
-});
-
-
-// studentMarks
-
-app.post("/studentDashboard/:year/:htno", (req, res) => {
-    const { year, htno } = req.params;
-
-    if (!year || !htno) {
-        return res.status(400).json({ error: "Session expired or invalid credentials." });
-    }
-
-    // Step 1: Get student's branch
-    const getBranchQuery = `SELECT branch, name FROM studentmarks WHERE year = ? AND htno = ? LIMIT 1`;
-
-    con.query(getBranchQuery, [year, htno], (branchErr, branchResults) => {
-        if (branchErr) {
-            console.error("Error fetching branch:", branchErr);
-            return res.status(500).json({ error: "Error retrieving student branch." });
-        }
-
-        if (branchResults.length === 0) {
-            return res.status(404).json({ error: "Invalid HTNO or Year" });
-        }
-
-        const branch = branchResults[0].branch;
-
-        // Step 2: Get allowed exams from examsofspecificyearandbranch
-        const getExamsQuery = `SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ? LIMIT 1`;
-
-        con.query(getExamsQuery, [year, branch], (examErr, examResults) => {
-            if (examErr) {
-                console.error("Error fetching exams:", examErr);
-                return res.status(500).json({ error: "Error retrieving exam details." });
-            }
-
-            if (examResults.length === 0) {
-                return res.status(404).json({ error: "No exam mapping found for this branch/year." });
-            }
-
-           let examsJson;
-try {
-    examsJson = examResults[0].exams;
-
-    // If MySQL returned string, parse it
-    if (typeof examsJson === "string") {
-        examsJson = JSON.parse(examsJson);
-    }
-} catch (parseErr) {
-    console.error("Error parsing exams JSON:", parseErr);
-    return res.status(500).json({ error: "Invalid exam mapping format." });
-}
-
-
-            // Extract exam columns (["Unit_test_1", "Mid_1", ...])
-            const examColumns = Object.keys(examsJson).map(exam => `\`${exam}\``);
-
-            if (examColumns.length === 0) {
-                return res.status(404).json({ error: "No exam columns found for this branch/year." });
-            }
-
-            // Step 3: Fetch student data with only those columns
-            const getStudentQuery = `
-                SELECT year, branch, htno, name, subject, ${examColumns.join(", ")}
-                FROM studentmarks
-                WHERE year = ? AND htno = ? AND branch = ?
-            `;
-
-            con.query(getStudentQuery, [year, htno, branch], (err, results) => {
-                if (err) {
-                    console.error("Database error:", err);
-                    return res.status(500).json({ error: "Server error. Try again later." });
-                }
-
-                if (results.length === 0) {
-                    return res.status(404).json({ error: "No student records found." });
-                }
-
-                const studentInfo = {
-                    year: results[0].year,
-                    branch: results[0].branch,
-                    htno: results[0].htno,
-                    name: results[0].name,
-                    subjects: results.map(row => {
-                        let marks = {};
-                        Object.keys(examsJson).forEach(exam => {
-                            marks[exam] = row[exam] !== null ? row[exam] : "N/A";
-                        });
-                        return { subject: row.subject, marks };
-                    }),
-                };
-
-                res.json(studentInfo);
-            });
-        });
-    });
-});
-
-// Get student year using Hall Ticket Number
-app.get("/api/studentyear/:htno", (req, res) => {
-    const { htno } = req.params;
-
-    const sql = `
-        SELECT year
-        FROM studentmarks
-        WHERE htno = ?
-        LIMIT 1
-    `;
-
-    con.query(sql, [htno], (err, results) => {
-        if (err) {
-            console.error("Error fetching student year:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
-
-        if (results.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No student found with this HTNO"
-            });
-        }
-
-        res.json({
-            success: true,
-            year: results[0].year
-        });
-    });
-});
-
-// Fetch student profile
-app.get("/studentProfile/:htno", (req, res) => {
-    con.query(
-        "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
-        [req.params.htno],
-        (err, rows) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ success: false });
-            }
-
-            if (rows.length === 0) {
-                return res.json({ exists: false });
-            }
-
-            res.json({ exists: true, profile: rows[0] });
-        }
-    );
-});
-
-app.post("/studentProfile/save", (req, res) => {
-
-    const { htno } = req.body;
-
-    if (!htno) {
-        return res.status(400).json({ success: false, message: "HTNO missing" });
-    }
-
-    // 1️⃣ Remove empty / undefined fields
-    const allowedFields = [
-        "full_name", "batch", "dob", "gender", "admission_type", "current_status",
-        "student_mobile", "email", "current_address", "permanent_address",
-        "father_name", "mother_name", "parent_mobile",
-        "guardian_name", "guardian_relation", "guardian_mobile",
-        "blood_group", "nationality", "religion"
-    ];
-
-    const data = {};
-    allowedFields.forEach(field => {
-        if (req.body[field] !== undefined && req.body[field] !== "") {
-            data[field] = req.body[field];
-        }
-    });
-
-    // If nothing to save
-    if (Object.keys(data).length === 0) {
-        return res.json({ success: true, message: "Nothing to update" });
-    }
-    if (!data.current_status) {
-        data.current_status = "Active";
-    }
-
-    // 2️⃣ Check if profile exists
-    con.query(
-        "SELECT id FROM student_profiles WHERE htno = ?",
-        [htno],
-        (err, rows) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ success: false });
-            }
-
-            if (rows.length === 0) {
-                // 3️⃣ INSERT (dynamic)
-                const columns = Object.keys(data).join(", ");
-                const placeholders = Object.keys(data).map(() => "?").join(", ");
-                const values = Object.values(data);
-
-                const insertQuery = `
-                    INSERT INTO student_profiles (htno, ${columns})
-                    VALUES (?, ${placeholders})
-                `;
-
-                con.query(insertQuery, [htno, ...values], err => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).json({ success: false });
-                    }
-                    res.json({ success: true, message: "Profile saved successfully" });
-                });
-
-            } else {
-                // 4️⃣ UPDATE (dynamic)
-                const setClause = Object.keys(data)
-                    .map(field => `${field} = ?`)
-                    .join(", ");
-
-                const updateQuery = `
-                    UPDATE student_profiles
-                    SET ${setClause}
-                    WHERE htno = ?
-                `;
-
-                con.query(updateQuery, [...Object.values(data), htno], err => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).json({ success: false });
-                    }
-                    res.json({ success: true, message: "Profile updated successfully" });
-                });
-            }
-        }
-    );
-});
-
-app.get("/studentBasic/:htno", (req, res) => {
-    const { htno } = req.params;
-
-    const q = `SELECT htno, name, branch, year FROM studentmarks WHERE htno = ? LIMIT 1`;
-
-    con.query(q, [htno], (err, rows) => {
-        if (err || rows.length === 0) {
-            return res.status(404).json({ success: false });
-        }
-        res.json(rows[0]);
-    });
-});
 
 //Authenticate based on role and userId
 app.post("/verify-session", (req, res) => {
