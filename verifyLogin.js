@@ -2712,6 +2712,9 @@ app.post("/hod/update-student-password", (req, res) => {
         res.json({ success: true });
     });
 });
+//-----------------------------------------------------
+//-----------------------------------------------------
+//COMMON FOR ALL ROLES
 
 // LOGOUT API
 app.post("/logout", (req, res) => {
