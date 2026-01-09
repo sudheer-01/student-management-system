@@ -9,7 +9,7 @@ function showMessage(message, type = "info", autoHide = true) {
     if (autoHide) {
         setTimeout(() => {
             msgEl.classList.add("hidden");
-        }, 4000); // hide after 4 seconds
+        }, 4000); 
     }
 }
 
@@ -18,7 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const addSubjectButton = document.getElementById("addSubject");
     const approvedSubjectsList = document.getElementById("approved-subjects-list");
     const goToDashboardBtn = document.getElementById("goToDashboardBtn");
-
+    const role = localStorage.getItem("role");
+    const sessionValue = localStorage.getItem("key");
+  
     let allBranches = [];
     let allSubjects = [];
     const facultyId = localStorage.getItem("facultyId");
@@ -30,10 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch all branches and subjects initially
     async function fetchAllData() {
         try {
-            const branchResponse = await fetch("/branches");
+            const branchResponse = await fetch(`/branches/${role}/${facultyId}`,  {
+            headers: {
+                "x-session-key": sessionValue
+            } });
             allBranches = await branchResponse.json();
 
-            const subjectResponse = await fetch("/subjects");
+            const subjectResponse = await fetch(`/subjects/${role}/${facultyId}`, {headers: { "x-session-key" : sessionValue }});
             allSubjects = await subjectResponse.json();
         } catch (error) {
             showMessage("Error fetching data.", "error");
@@ -42,8 +47,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function fetchRequests() {
         try {
-            // const response = await fetch("/getRequests");
-            const response = await fetch(`/getRequests?facultyId=${facultyId}`);
+            const response = await fetch(`/getRequests/${role}?facultyId=${facultyId}`,
+                {
+            headers: {
+                "x-session-key": sessionValue
+            } }
+            );
             const requests = await response.json();
             displayRequests(requests);
         } catch (error) {
@@ -107,7 +116,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch branches for a specific year
     async function fetchBranches(year) {
         try {
-            const response = await fetch(`/branches/${year}`);
+            const response = await fetch(`/branches/${year}/${role}/${facultyId}`, 
+                 {
+            headers: {
+                "x-session-key": sessionValue
+            } }
+            );
             return await response.json();
         } catch (error) {
             showMessage("Error fetching branches.", "error");
@@ -119,7 +133,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch subjects for a specific year and branch
     async function fetchSubjects(year, branch) {
         try {
-            const response = await fetch(`/subjects/${year}/${branch}`);
+            const response = await fetch(`/subjects/${year}/${branch}/${role},${facultyId}`, 
+                 {
+            headers: {
+                "x-session-key": sessionValue
+            } }
+            );
             return await response.json();
         } catch (error) {
             showMessage("Error fetching subjects.", "error");
@@ -219,10 +238,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             
         
             try {
-                const response = await fetch("/sendRequest", {
+                const response = await fetch(`/sendRequest/${role}`, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                         "x-session-key": sessionValue
                     },
                     body: JSON.stringify(requestData)
                 });

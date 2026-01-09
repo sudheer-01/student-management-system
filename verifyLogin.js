@@ -93,13 +93,6 @@ function validateSession(role, id, sessionValue) {
   return true;
 }
 
-
-//   const valid = validateSession(role, id, sessionValue);
-//   if (!valid) {
-//     return res.status(401).json({ message: "Invalid session" });
-//   }
-
-
 //API'S
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -771,6 +764,279 @@ app.post("/studentProfile/save/:role", (req, res) => {
 });
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+//FACULTY TASKS
+
+//1. REQUEST FOR SUBJECT
+// Fetch all branches
+app.get("/branches/:role/:facultyId", (req, res) => {
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in branches:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = "SELECT DISTINCT branch_name FROM branches";
+    con.query(query, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+// Fetch all subjects
+app.get("/subjects/:role/:facultyId", (req, res) => {
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Subjects:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = "SELECT DISTINCT subject_name FROM subjects";
+    con.query(query, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+//to display status of request for faculty
+app.get("/getRequests/:role", (req, res) => {
+    const facultyId = req.query.facultyId;
+    const { role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Get Requests:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = "SELECT facultyName, subject, branch, year, status FROM faculty_requests where faculty_Id = ? ";
+    
+    con.query(query,[facultyId], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+// Fetch branches for a specific year
+app.get("/branches/:year/:role/facultyId", (req, res) => {
+    const year = req.params.year;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in branches of specific year:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
+    
+    con.query(query, [year], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+// Fetch subjects based on year and branch
+app.get("/subjects/:year/:branch/:role/:facultyId", (req, res) => {
+    const { year, branch } = req.params;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Subjects of a branch:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = "SELECT subject_name FROM subjects WHERE year = ? AND branch_name = ?";
+    
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+// Store faculty requests in the database
+app.post("/sendRequest/:role", (req, res) => {
+
+    const { year, branch, subject, facultyId } = req.body;
+    const { role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Send Request:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = `
+        INSERT INTO faculty_requests (faculty_Id, facultyName, year, branch, subject, status)
+        SELECT f.facultyId, f.name, ?, ?, ?, 'Pending'
+        FROM faculty f
+        WHERE f.facultyId = ?;
+    `;
+
+    con.query(query, [year, branch, subject, facultyId], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json({ message: "Request sent successfully" });
+    });
+});
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //Pending...
 
 //Entering sutdent details such as htno and name by hod 
@@ -1223,92 +1489,10 @@ app.post("/deleteSubjects", async (req, res) => {
 
 
 //homePageForFaculty:::requestForSubject
-// Fetch all branches
-app.get("/branches", (req, res) => {
-    const query = "SELECT DISTINCT branch_name FROM branches";
-    con.query(query, (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
 
-// Fetch branches for a specific year
-app.get("/branches/:year", (req, res) => {
-    const year = req.params.year;
-    const query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
-    
-    con.query(query, [year], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
-
-// Fetch all subjects
-app.get("/subjects", (req, res) => {
-    const query = "SELECT DISTINCT subject_name FROM subjects";
-    con.query(query, (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
-
-// Fetch subjects based on year and branch
-app.get("/subjects/:year/:branch", (req, res) => {
-    const { year, branch } = req.params;
-    const query = "SELECT subject_name FROM subjects WHERE year = ? AND branch_name = ?";
-    
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
-
-// Store faculty requests in the database
-app.post("/sendRequest", (req, res) => {
-
-    const { year, branch, subject, facultyId } = req.body;
-
-    const query = `
-        INSERT INTO faculty_requests (faculty_Id, facultyName, year, branch, subject, status)
-        SELECT f.facultyId, f.name, ?, ?, ?, 'Pending'
-        FROM faculty f
-        WHERE f.facultyId = ?;
-    `;
-
-    con.query(query, [year, branch, subject, facultyId], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json({ message: "Request sent successfully" });
-    });
-});
 
 //homepageForFaculty:::requestForSubject
-//to display status of request for faculty
-app.get("/getRequests", (req, res) => {
-    const facultyId = req.query.facultyId;
-    const query = "SELECT facultyName, subject, branch, year, status FROM faculty_requests where faculty_Id = ? ";
-    
-    con.query(query,[facultyId], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
+
 
 app.get("/getbranches/:year/:branch", (req, res) => {
     const { year,branch } = req.params;
