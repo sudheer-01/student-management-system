@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const sessionValue = localStorage.getItem("key");
         const res = await fetch(`/api/studentyear/${htno}/${role}`, {
             headers: {
-                "x-session-key": sessionValue;
+                "x-session-key": sessionValue
             }
         });
         const data = await res.json();
