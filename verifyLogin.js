@@ -364,6 +364,7 @@ app.get("/api/studentyear/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for uye", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
