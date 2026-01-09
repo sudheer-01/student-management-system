@@ -101,9 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!studentYear) {
                 throw new Error("Student year not available");
             }
-
-            const res = await fetch(`/studentDashboard/${studentYear}/${studentHtno}`, {
-                method: "POST"
+            const role = localStorage.getItem("role");
+            const sessionValue = localStorage.getItem("key");
+            const res = await fetch(`/studentDashboard/${studentYear}/${studentHtno}/${role}`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "x-session-key": sessionValue 
+                }
             });
             const data = await res.json();
 
@@ -168,13 +173,27 @@ document.addEventListener("DOMContentLoaded", () => {
         showProfileView();
 
         // ----- BASIC INFO -----
-        const basic = await fetch(`/studentBasic/${studentHtno}`).then(r => r.json());
+        const role = localStorage.getItem("role");
+        const sessionValue = localStorage.getItem("key");
+        const basic = await fetch(`/studentBasic/${studentHtno}/${role}`, 
+            {
+                headers: {
+                "x-session-key": sessionValue 
+                }
+            }
+        ).then(r => r.json());
 
         profileName.value = basic.name;
         profileHtno.value = basic.htno;
 
         // ----- PROFILE DATA -----
-        const res = await fetch(`/studentProfile/${studentHtno}`);
+        const res = await fetch(`/studentProfile/${studentHtno}/${role}`, 
+            {
+                headers: {
+                "x-session-key": sessionValue 
+                }
+            }
+        );
         const data = await res.json();
 
         if (!data.exists) return;
@@ -210,7 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
         religion.value = p.religion || "";
 
         if (p.profile_photo) {
-            profilePreview.src = `/studentProfile/photo/${studentHtno}`;
+            profilePreview.src = `/studentProfile/photo/${studentHtno}/${role}?session=${sessionValue}`;
+
         }
     });
 
@@ -250,10 +270,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-        const res = await fetch("/studentProfile/save", {
+        const role = localStorage.getItem("role");
+        const sessionValue = localStorage.getItem("key");
+        const res = await fetch(`/studentProfile/save/${role}`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                 "x-session-key": sessionValue 
             },
             body: JSON.stringify(payload)
         });
@@ -289,9 +312,14 @@ async function uploadProfilePhoto() {
 
     const fd = new FormData();
     fd.append("profile_photo", file);
-
-    const res = await fetch(`/studentProfile/photo/${studentHtno}`, {
+    
+    const role = localStorage.getItem("role");
+    const sessionValue = localStorage.getItem("key");
+    const res = await fetch(`/studentProfile/photo/${studentHtno}/${role}`, {
         method: "POST",
+        headers: {
+                "x-session-key": sessionValue 
+            },
         body: fd
     });
 

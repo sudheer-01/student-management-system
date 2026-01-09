@@ -353,7 +353,7 @@ app.post("/createHodAccount", (req, res) => {
 //--------------------------------------------------------------
 //STUDENT TASKS
 
-//1. Get student year using Hall Ticket Number
+//1. Get student year using Hall Ticket Number.
 app.get("/api/studentyear/:htno/:role", (req, res) => {
     const { htno, role } = req.params;
     const sessionValue = req.headers["x-session-key"];
@@ -364,7 +364,7 @@ app.get("/api/studentyear/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for uye", valid);
+    console.log("validation for one", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -395,11 +395,23 @@ app.get("/api/studentyear/:htno/:role", (req, res) => {
     });
 });
 //2. To get student marks
-app.post("/studentDashboard/:year/:htno", (req, res) => {
-    const { year, htno } = req.params;
+app.post("/studentDashboard/:year/:htno/:role", (req, res) => {
+    const { year, htno, role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for two", valid);
+    if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+    }
 
     if (!year || !htno) {
-        return res.status(400).json({ error: "Session expired or invalid credentials." });
+        return res.status(400).json({ error: "Invalid credentials." });
     }
 
     // Step 1: Get student's branch
@@ -488,9 +500,23 @@ try {
     });
 });
 //3. To get student basic details such as name, branch, year using htno
-app.get("/studentBasic/:htno", (req, res) => {
-    const { htno } = req.params;
-
+app.get("/studentBasic/:htno/:role", (req, res) => {
+    const { htno, role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for three", valid);
+    if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    if(!htno || !role) {
+        return res.status(401).json({ success: false, message: "Invalid credentials"});
+    }
     const q = `SELECT htno, name, branch, year FROM studentmarks WHERE htno = ? LIMIT 1`;
 
     con.query(q, [htno], (err, rows) => {
@@ -501,10 +527,26 @@ app.get("/studentBasic/:htno", (req, res) => {
     });
 });
 //4. To get student personal profile details
-app.get("/studentProfile/:htno", (req, res) => {
+app.get("/studentProfile/:htno/:role", (req, res) => {
+    const {htno, role} = req.params;
+    const sessionValue = req.headers["x-session-key"];
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for four", valid);
+    if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    if(!htno || !role) {
+        return res.status(401).json({ success: false, message: "Invalid credentials"});
+    }
     con.query(
         "SELECT * FROM student_profiles WHERE htno = ? LIMIT 1",
-        [req.params.htno],
+        [htno],
         (err, rows) => {
             if (err) {
                 console.error(err);
@@ -533,10 +575,24 @@ const upload = multer({
         }
     }
 });
-app.post("/studentProfile/photo/:htno",upload.single("profile_photo"),(req, res) => {
+app.post("/studentProfile/photo/:htno/:role",upload.single("profile_photo"),(req, res) => {
 
-        const { htno } = req.params;
-
+        const {htno, role} = req.params;
+        const sessionValue = req.headers["x-session-key"];
+        if (!sessionStore[role]) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+        }
+        const valid = validateSession(role, htno, sessionValue);
+        console.log("validation for five a", valid);
+        if (!valid) {
+                return res.status(401).json({ success: false, message: "Invalid session" });
+        }
+        if(!htno || !role) {
+            return res.status(401).json({ success: false, message: "Invalid credentials"});
+        }
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -574,7 +630,22 @@ app.post("/studentProfile/photo/:htno",upload.single("profile_photo"),(req, res)
     }
 );
 app.get("/studentProfile/photo/:htno", (req, res) => {
-    const { htno } = req.params;
+    const { htno, role } = req.params;
+    const sessionValue = req.query.session;
+    if (!sessionStore[role]) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for five b", valid);
+    if (!valid) {
+                return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    if(!htno || !role) {
+            return res.status(401).json({ success: false, message: "Invalid credentials"});
+    }
 
     const query = `
         SELECT profile_photo
@@ -605,9 +676,21 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
 app.post("/studentProfile/save", (req, res) => {
 
     const { htno } = req.body;
-
-    if (!htno) {
-        return res.status(400).json({ success: false, message: "HTNO missing" });
+    const { role} = req.params;
+    const sessionValue = req.headers["x-session-key"];
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    const valid = validateSession(role, htno, sessionValue);
+    console.log("validation for six", valid);
+    if (!valid) {
+            return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    if(!htno || !role) {
+        return res.status(401).json({ success: false, message: "Invalid credentials"});
     }
 
     // Remove empty / undefined fields
