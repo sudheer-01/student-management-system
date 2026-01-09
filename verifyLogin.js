@@ -629,7 +629,7 @@ app.post("/studentProfile/photo/:htno/:role",upload.single("profile_photo"),(req
         });
     }
 );
-app.get("/studentProfile/photo/:htno", (req, res) => {
+app.get("/studentProfile/photo/:htno/:role", (req, res) => {
     const { htno, role } = req.params;
     const sessionValue = req.query.session;
     if (!sessionStore[role]) {
@@ -673,7 +673,7 @@ app.get("/studentProfile/photo/:htno", (req, res) => {
     });
 });
 //6. Save student profile details
-app.post("/studentProfile/save", (req, res) => {
+app.post("/studentProfile/save/:role", (req, res) => {
 
     const { htno } = req.body;
     const { role} = req.params;
