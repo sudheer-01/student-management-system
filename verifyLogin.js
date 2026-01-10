@@ -901,7 +901,7 @@ app.get("/branches/:year/:role/facultyId", (req, res) => {
     const year = req.params.year;
     const { role, facultyId } = req.params;
     const sessionValue = req.headers["x-session-key"];
-
+    console.log("received data", year, role, facultyId, sessionValue);
     if (!facultyId ||  !role || !year) {
         return res.status(400).json({
             success: false,
