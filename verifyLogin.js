@@ -1510,11 +1510,11 @@ app.post("/requestHodToUpdateMarks/:role", (req, res) => {
     let branch = req.body.selectedBranch; 
     let year = req.body.selectedYear; 
     let subject = req.body.selectedSubject; 
-    let facultyName = req.body.facultyId; 
+    let facultyId = req.body.facultyId; 
     const { role } = req.params;
     const sessionValue = req.headers["x-session-key"];
 
-    if (!facultyName ||  !role || !year || !branch || !subject) {
+    if (!facultyId ||  !role || !year || !branch || !subject) {
         return res.status(400).json({
             success: false,
             message: "Invalid request parameters"
@@ -1559,7 +1559,7 @@ app.post("/requestHodToUpdateMarks/:role", (req, res) => {
         r.oldMarks,
         r.newMarks,
         r.reason,
-        facultyName,
+        facultyId,
         'Pending'
     ]);
 
