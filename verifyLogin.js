@@ -2241,7 +2241,7 @@ app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
         });
     }
 });
-app.get("/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
+app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
     const { htno, role, adminId } = req.params;
     const sessionValue = req.query.session;
     if(!htno || !role || !adminId) {

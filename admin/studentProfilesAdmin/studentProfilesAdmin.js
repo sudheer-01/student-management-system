@@ -98,7 +98,7 @@ function renderTable(rows) {
                 rowHtml += `
                     <td>
                         <img 
-                            src="/studentProfile/photo/${r.htno}/${role}/${adminId}?sessionValue=${sessionValue}" 
+                            src="/admin/studentProfile/photo/${r.htno}/${role}/${adminId}?sessionValue=${sessionValue}" 
                             alt="Profile"
                             style="width:60px;height:60px;border-radius:50%;object-fit:cover"
                             onerror="this.src='default.png'"
