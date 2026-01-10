@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     goToDashboardBtn.addEventListener('click', () => {
-        window.location.href = `/home/${role}/${facultyId}?session=${sessionValue}`;
+        window.location.href = `/home/${role}/${facultyId}?sessionValue=${sessionValue}`;
     });
 
     // Fetch branches for a specific year
