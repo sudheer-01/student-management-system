@@ -897,7 +897,7 @@ app.get("/getRequests/:role", (req, res) => {
     });
 });
 // Fetch branches for a specific year
-app.get("/branches/:year/:role/facultyId", (req, res) => {
+app.get("/branches/:year/:role/:facultyId", (req, res) => {
     const year = req.params.year;
     const { role, facultyId } = req.params;
     const sessionValue = req.headers["x-session-key"];
