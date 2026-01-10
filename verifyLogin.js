@@ -1104,7 +1104,7 @@ app.get("/home/:role/:facultyId", (req, res) => {
             message: "Invalid session"
         });
     }
-    const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home");
+    const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
     // console.log("Serving file:", filePath);
     res.sendFile(filePath);
 });
