@@ -1455,6 +1455,129 @@ app.get("/getStudentMarks/:role/:facultyId", (req, res) => {
         res.json(results);
     });
 });
+//--------------------------------------------------------
+//5. EDIT MARKS
+// Get student marks for selected exam
+app.get("/getStudentMarksForEditing/:role/:facultyId", (req, res) => {
+    const { exam, year, branch, subject } = req.query;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch || !exam) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation edit student marks :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    let query = `SELECT htno, name, ?? FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
+    
+    con.query(query, [exam, branch, year, subject], (err, results) => {
+        if (err) {
+            console.error("Error fetching student marks:", err);
+            res.status(500).json({ success: false, message: "Database error" });
+        } else {
+            //console.log("Fetched Data:", results);
+            res.json(results);
+        }
+    });
+});
+// Faculty requests HOD approval for marks update
+app.post("/requestHodToUpdateMarks/:role", (req, res) => {
+    let updateRequests = req.body.requests;
+    let branch = req.body.selectedBranch; 
+    let year = req.body.selectedYear; 
+    let subject = req.body.selectedSubject; 
+    let facultyName = req.body.facultyId; 
+    const { role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyName ||  !role || !year || !branch || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation request to hod for marks updation :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+   let query = `
+    INSERT INTO pending_marks_updates
+    (htno, name, year, branch, subject, exam, old_marks, new_marks, reason, requested_by, request_status)
+    VALUES ?
+    `;
+
+    let values = updateRequests.map(r => [
+        r.htno,
+        r.name,
+        year,
+        branch,
+        subject,
+        r.exam,
+        r.oldMarks,
+        r.newMarks,
+        r.reason,
+        facultyName,
+        'Pending'
+    ]);
+
+
+    if (values.length === 0) {
+        return res.status(400).json({ success: false, message: "No valid marks provided." });
+    }
+
+    con.query(query, [values], (err, result) => {
+        if (err) {
+            console.error("Error inserting into pending_marks_updates:", err);
+            res.status(500).json({ success: false, message: "Database error" });
+        } else {
+            res.json({ success: true, message: "Request sent to HOD" });
+        }
+    });
+});
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -1587,71 +1710,9 @@ app.get("/getReportDetails", (req, res) => {
 });
 
 //homepageForFaculty:::editMarks
-// Get student marks for selected exam
-app.get("/getStudentMarksForEditing", (req, res) => {
-    const { exam, year, branch, subject } = req.query;
-    
-    // console.log("Exam:", exam);
-    // console.log("Branch:", branch);
-    // console.log("Year:", year);
-    // console.log("Subject:", subject);
-
-    let query = `SELECT htno, name, ?? FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
-    
-    con.query(query, [exam, branch, year, subject], (err, results) => {
-        if (err) {
-            console.error("Error fetching student marks:", err);
-            res.status(500).json({ success: false, message: "Database error" });
-        } else {
-            //console.log("Fetched Data:", results);
-            res.json(results);
-        }
-    });
-});
 
 // Faculty requests HOD approval for marks update
-// Faculty requests HOD approval for marks update
-app.post("/requestHodToUpdateMarks", (req, res) => {
-    let updateRequests = req.body.requests;
-    let branch = req.body.selectedBranch; 
-    let year = req.body.selectedYear; 
-    let subject = req.body.selectedSubject; 
-    let facultyName = req.body.facultyId; //facultyId not name
 
-   let query = `
-    INSERT INTO pending_marks_updates
-    (htno, name, year, branch, subject, exam, old_marks, new_marks, reason, requested_by, request_status)
-    VALUES ?
-    `;
-
-    let values = updateRequests.map(r => [
-        r.htno,
-        r.name,
-        year,
-        branch,
-        subject,
-        r.exam,
-        r.oldMarks,
-        r.newMarks,
-        r.reason,
-        facultyName,
-        'Pending'
-    ]);
-
-
-    if (values.length === 0) {
-        return res.status(400).json({ success: false, message: "No valid marks provided." });
-    }
-
-    con.query(query, [values], (err, result) => {
-        if (err) {
-            console.error("Error inserting into pending_marks_updates:", err);
-            res.status(500).json({ success: false, message: "Database error" });
-        } else {
-            res.json({ success: true, message: "Request sent to HOD" });
-        }
-    });
-});
 
 //HodTask:::addBranchesAndSubjects
 
