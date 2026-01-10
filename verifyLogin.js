@@ -2241,6 +2241,50 @@ app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
         });
     }
 });
+app.get("/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
+    const { htno, role, adminId } = req.params;
+    const sessionValue = req.query.session;
+    if(!htno || !role || !adminId) {
+            return res.status(401).json({ success: false, message: "Invalid credentials"});
+    }
+    if (!sessionStore[role]) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+    }
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("validation for admin- student photo retrival ", valid);
+    if (!valid) {
+                return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    
+
+    const query = `
+        SELECT profile_photo
+        FROM student_profiles
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(query, [htno], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).end();
+        }
+
+        if (!results.length || !results[0].profile_photo) {
+            // No image → return 404 so frontend can fallback
+            return res.status(404).end();
+        }
+
+        const imageBuffer = results[0].profile_photo;
+
+        res.setHeader("Content-Type", "image/jpeg");
+        res.setHeader("Cache-Control", "no-store");
+        res.send(imageBuffer);
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...

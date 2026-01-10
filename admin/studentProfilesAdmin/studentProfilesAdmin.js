@@ -78,6 +78,8 @@ function renderTable(rows) {
 
     const columns = Object.keys(rows[0]);
     const sessionValue = localStorage.getItem("key");
+    const role = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
     /* ===== TABLE HEADER ===== */
     thead.innerHTML = `
         <tr>
@@ -96,7 +98,7 @@ function renderTable(rows) {
                 rowHtml += `
                     <td>
                         <img 
-                            src="/studentProfile/photo/${r.htno}?sessionValue=${sessionValue}" 
+                            src="/studentProfile/photo/${r.htno}/${role}/${adminId}?sessionValue=${sessionValue}" 
                             alt="Profile"
                             style="width:60px;height:60px;border-radius:50%;object-fit:cover"
                             onerror="this.src='default.png'"
