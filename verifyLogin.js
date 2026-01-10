@@ -1075,7 +1075,7 @@ app.post("/sendRequest/:role", (req, res) => {
 app.get("/home/:role/:facultyId", (req, res) => {
     const { role, facultyId } = req.params;
     const sessionValue = req.query;
-
+    console.log("validation home", role, facultyId, sessionValue);
     if (!facultyId ||  !role || !sessionValue) {
         return res.status(400).json({
             success: false,
