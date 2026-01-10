@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch subjects for a specific year and branch
     async function fetchSubjects(year, branch) {
         try {
-            const response = await fetch(`/subjects/${year}/${branch}/${role},${facultyId}`, 
+            const response = await fetch(`/subjects/${year}/${branch}/${role}/${facultyId}`, 
                  {
             headers: {
                 "x-session-key": sessionValue
