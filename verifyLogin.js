@@ -2154,6 +2154,93 @@ app.post("/admin/reset-password/:roleOfUser/:adminId", async (req, res) => {
         res.status(500).json({ error: "Reset failed" });
     }
 });
+
+//5. STUDENT PROFILES (PERSONAL DATA)
+// Fetch student profiles based on year and branch
+app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- student profiels :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    try {
+        const { year, branch } = req.query;
+
+        if (!year || !branch) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid request parameters"
+            });
+        }
+
+        const [profiles] = await con.promise().query(
+            `
+            SELECT
+                htno,
+                full_name,
+                year,
+                branch,
+                batch,
+                dob,
+                gender,
+                admission_type,
+                current_status,
+                student_mobile,
+                email,
+                current_address,
+                permanent_address,
+                father_name,
+                mother_name,
+                parent_mobile,
+                guardian_name,
+                guardian_relation,
+                guardian_mobile,
+                blood_group,
+                nationality,
+                religion,
+                profile_photo
+            FROM student_profiles
+            WHERE year = ? AND branch = ?
+            ORDER BY htno
+            `,
+            [year, branch]
+        );
+
+        res.json(profiles);
+
+    } catch (err) {
+        console.error("ADMIN STUDENT PROFILES ERROR:", err);
+        res.status(500).json({
+            error: "Failed to fetch student profiles"
+        });
+    }
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -2717,60 +2804,6 @@ app.post("/admin/student-marks", async (req, res) => {
             res.json(results);
         });
     });
-});
-// Fetch student profiles based on year and branch
-
-app.get("/admin/student-profiles", async (req, res) => {
-    try {
-        const { year, branch } = req.query;
-
-        if (!year || !branch) {
-            return res.status(400).json({
-                error: "Year and branch are required"
-            });
-        }
-
-        const [profiles] = await con.promise().query(
-            `
-            SELECT
-                htno,
-                full_name,
-                year,
-                branch,
-                batch,
-                dob,
-                gender,
-                admission_type,
-                current_status,
-                student_mobile,
-                email,
-                current_address,
-                permanent_address,
-                father_name,
-                mother_name,
-                parent_mobile,
-                guardian_name,
-                guardian_relation,
-                guardian_mobile,
-                blood_group,
-                nationality,
-                religion,
-                profile_photo
-            FROM student_profiles
-            WHERE year = ? AND branch = ?
-            ORDER BY htno
-            `,
-            [year, branch]
-        );
-
-        res.json(profiles);
-
-    } catch (err) {
-        console.error("ADMIN STUDENT PROFILES ERROR:", err);
-        res.status(500).json({
-            error: "Failed to fetch student profiles"
-        });
-    }
 });
 
 //homepageForHod::: to get subjects based on year and branch

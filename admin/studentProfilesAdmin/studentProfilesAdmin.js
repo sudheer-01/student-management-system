@@ -24,8 +24,16 @@ function showMessage(message, type = "info", autoHide = true) {
 yearSelect.addEventListener("change", async () => {
     branchSelect.innerHTML = `<option value="">Select Branch</option>`;
     if (!yearSelect.value) return;
-
-    const res = await fetch(`/api/branches/${yearSelect.value}`);
+    const role = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
+    const sessionValue = localStorage.getItem("key");
+    const res = await fetch(`/api/branches/${role}/${adminId}/${yearSelect.value}`, 
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    );
     const data = await res.json();
 
     data.branches.forEach(b => {
@@ -37,14 +45,21 @@ yearSelect.addEventListener("change", async () => {
 loadBtn.addEventListener("click", async () => {
     const year = yearSelect.value;
     const branch = branchSelect.value;
-
+    const role = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
+    const sessionValue = localStorage.getItem("key");
     if (!year || !branch) {
         showMessage("Select year and branch", "error");
         return;
     }
 
     const res = await fetch(
-        `/admin/student-profiles?year=${year}&branch=${branch}`
+        `/admin/student-profiles/${role}/${adminId}?year=${year}&branch=${branch}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
 
     const rows = await res.json();
@@ -148,6 +163,7 @@ function printTable() {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
+         const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -155,7 +171,7 @@ function printTable() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
