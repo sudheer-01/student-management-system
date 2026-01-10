@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const role = localStorage.getItem("role");
         const facultyId = localStorage.getItem("facultyId");
         const sessionValue = localStorage.getItem("key");
-        const response = await fetch(`/getExams/${role}${facultyId}?year=${selectedYear}&branch=${selectedBranch}`,
+        const response = await fetch(`/getExams/${role}/${facultyId}?year=${selectedYear}&branch=${selectedBranch}`,
             { headers: { "x-session-key": sessionValue } }
         );
         const exams = await response.json();
