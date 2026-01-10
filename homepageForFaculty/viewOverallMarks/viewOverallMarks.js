@@ -272,6 +272,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("facultyId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
