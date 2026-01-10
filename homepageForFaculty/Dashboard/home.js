@@ -62,14 +62,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // logout
     if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-
-        // 🔹 Get values FIRST (before clearing)
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("facultyId");
         const sessionValue = localStorage.getItem("key");
 
         try {
-            // 🔹 Call backend logout API with required info
             await fetch("/logout", {
                 method: "POST",
                 headers: {
@@ -81,10 +78,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Logout API failed:", err);
         }
 
-        // 🔹 NOW clear localStorage (AFTER backend logout)
         localStorage.clear();
 
-        // 🔹 Redirect to login
         window.location.href = "/";
     });
     }
