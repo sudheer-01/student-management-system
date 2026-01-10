@@ -1037,6 +1037,136 @@ app.post("/sendRequest/:role", (req, res) => {
 
 //2. FACULTY DASHBOARD
 
+// to open home page home.html from the requests page of faculty
+// app.post("/dashboardOfFaculty", (req, res) => {
+
+//     var { subject, branch, year, facultyId } = req.body;
+
+//     console.log("Received Request:", {subject, branch, year, facultyId });
+
+//     if (!facultyId || !year || !branch || !subject) {
+//         console.log("Missing parameters");
+//         return res.status(400).json({ success: false, message: "Missing required parameters" });
+//     }
+  
+
+//     const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
+
+//     con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
+//         if (err) {
+//             console.error("Database error:", err);
+//             return res.status(500).json({ success: false, message: "Database error" });
+//         }
+
+//         //console.log("Query Result:", result);
+//         if (result.length > 0) {
+//             console.log("Redirecting to home page...");
+//            // res.sendFile(path.join(baseDir, "homepageForFaculty", "Dashboard", "home.html"));
+//             return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" }); 
+//             //  // Redirect to GET route
+//         } else {
+//             console.log("No matching record found");
+//             return res.status(404).json({ success: false, message: "No approved request found" });
+//         }
+//     });
+// });
+
+// Separate GET route to serve home.html (it is for above dashboardOfFaculty)
+app.get("/home/:role/:facultyId", (req, res) => {
+    const { role, facultyId } = req.params;
+    const sessionValue = req.query;
+
+    if (!facultyId ||  !role || !sessionValue) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Sending home page:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
+    // console.log("Serving file:", filePath);
+    res.sendFile(filePath);
+});
+
+//to display faculty details in the dashboard
+app.post("/getFacultyDetails/:role", (req, res) => {
+    const {year, branch, subject, facultyId} = req.body;
+    console.log(year, branch, subject, facultyId);
+    const { role } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Get faculty details:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
+
+    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+
+        if (result.length > 0) {
+            const faculty = result[0];
+            return res.json({
+                success: true,
+                facultyName: faculty.facultyName,
+                subject: faculty.subject,
+                branch: faculty.branch,
+                year: faculty.year
+            });
+        } else {
+            return res.status(404).json({ success: false, message: "No faculty details found" });
+        }
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -1564,79 +1694,6 @@ app.post("/updateRequestStatus", (req, res) => {
         }
 
         res.json({ message: `Request ${status} successfully!` });
-    });
-});
-
-// to open home page home.html from the requests page of faculty
-app.post("/dashboardOfFaculty", (req, res) => {
-
-    var { subject, branch, year, facultyId } = req.body;
-
-    console.log("Received Request:", {subject, branch, year, facultyId });
-
-    if (!facultyId || !year || !branch || !subject) {
-        console.log("Missing parameters");
-        return res.status(400).json({ success: false, message: "Missing required parameters" });
-    }
-  
-
-    const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
-
-    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
-
-        //console.log("Query Result:", result);
-        if (result.length > 0) {
-            console.log("Redirecting to home page...");
-           // res.sendFile(path.join(baseDir, "homepageForFaculty", "Dashboard", "home.html"));
-            return res.json({ success: true, redirectUrl: "/homepageForFaculty/Dashboard/home.html" }); 
-            //  // Redirect to GET route
-        } else {
-            console.log("No matching record found");
-            return res.status(404).json({ success: false, message: "No approved request found" });
-        }
-    });
-});
-
-// Separate GET route to serve home.html (it is for above dashboardOfFaculty)
-app.get("/home", (req, res) => {
-    const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
-    // console.log("Serving file:", filePath);
-    res.sendFile(filePath);
-});
-
-//to display faculty details in the home.html
-app.post("/getFacultyDetails", (req, res) => {
-    const {year, branch, subject, facultyId} = req.body;
-    console.log(year, branch, subject, facultyId);
-
-    if (!facultyId || !year || !branch || !subject) {
-        return res.status(401).json({ success: false, message: "Unauthorized access" });
-    }
-
-    const sqlQuery = "SELECT * FROM faculty_requests WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ? AND status = 'Approved'";
-
-    con.query(sqlQuery, [facultyId, year, branch, subject], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
-
-        if (result.length > 0) {
-            const faculty = result[0];
-            return res.json({
-                success: true,
-                facultyName: faculty.facultyName,
-                subject: faculty.subject,
-                branch: faculty.branch,
-                year: faculty.year
-            });
-        } else {
-            return res.status(404).json({ success: false, message: "No faculty details found" });
-        }
     });
 });
 

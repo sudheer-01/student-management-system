@@ -33,11 +33,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             subject: selectedSubject,
             facultyId: facultyId
         };
-
-        const response = await fetch("/getFacultyDetails", {
+        const role = localStorage.getItem("role");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/getFacultyDetails/${role}`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "x-session-key": sessionValue
             },
             body: JSON.stringify(requestData)
         });
