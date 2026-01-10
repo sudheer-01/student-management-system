@@ -1826,7 +1826,6 @@ app.get("/api/get-table-data-simple/:role/:adminId", (req, res) => {
         res.json(results);
     });
 });
-
 // Update specific record (faculty or HOD)
 app.post("/api/update/:role/:adminId/:table", (req, res) => {
   const { table } = req.params;
@@ -1875,7 +1874,6 @@ app.post("/api/update/:role/:adminId/:table", (req, res) => {
     res.json({ success: true, message: "Row updated successfully." });
   });
 });
-
 // Delete specific record (faculty or HOD)
 app.delete("/api/delete-row/:table/:id/:role/:adminId", (req, res) => {
   const { table, id } = req.params;
@@ -1918,6 +1916,133 @@ app.delete("/api/delete-row/:table/:id/:role/:adminId", (req, res) => {
     res.json({ success: true, message: "Row deleted successfully." });
   });
 });
+
+//3. ACADEMIC DATA MNGMNT
+// Fetch branches based on selected year
+app.get("/api/branches/:role/:adminId/:year", (req, res) => {
+    const year = req.params.year;
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !year) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- get branches :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    if (!year) {
+        return res.status(400).json({ error: "Year is required" });
+    }
+
+    const sql = "SELECT branch_name FROM branches WHERE year = ?";
+    con.query(sql, [year], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        const branches = results.map(row => row.branch_name);
+        res.json({ branches });
+    });
+});
+//Delete semester data
+app.post("/api/delete-semester-data/:role/:adminId", (req, res) => {
+  const { year, branch } = req.body;
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- delete semester data :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+  if (!year || !branch) {
+    return res.status(400).json({ error: "Year and branch are required" });
+  }
+
+  // Tables from which data will be deleted
+  const tables = [
+    "branches",
+    "examsofspecificyearandbranch",
+    "faculty_requests",
+    "pending_marks_updates",
+    "studentmarks",
+    "subjects"
+  ];
+
+  // Build delete queries
+  const queries = tables.map((table) => {
+    return new Promise((resolve, reject) => {
+      let sql = "";
+      if (table === "branches") {
+        sql = `DELETE FROM branches WHERE year = ? AND branch_name = ?`;
+      } else if (table === "examsofspecificyearandbranch") {
+        sql = `DELETE FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?`;
+      } else if (table === "faculty_requests") {
+        sql = `DELETE FROM faculty_requests WHERE year = ? AND branch = ?`;
+      } else if (table === "pending_marks_updates") {
+        sql = `DELETE FROM pending_marks_updates WHERE year = ? AND branch = ?`;
+      } else if (table === "studentmarks") {
+        sql = `DELETE FROM studentmarks WHERE year = ? AND branch = ?`;
+      } else if (table === "subjects") {
+        sql = `DELETE FROM subjects WHERE year = ? AND branch_name = ?`;
+      }
+
+      con.query(sql, [year, branch], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  });
+
+  Promise.all(queries)
+    .then(() => res.json({ message: `Data for year ${year}, branch ${branch} deleted successfully.` }))
+    .catch((err) => res.status(500).json({ error: err.message }));
+});
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -3046,68 +3171,7 @@ app.post("/api/reset/update-password", (req, res) => {
     );
 });
 
-app.post("/api/delete-semester-data", (req, res) => {
-  const { year, branch } = req.body;
 
-  if (!year || !branch) {
-    return res.status(400).json({ error: "Year and branch are required" });
-  }
-
-  // Tables from which data will be deleted
-  const tables = [
-    "branches",
-    "examsofspecificyearandbranch",
-    "faculty_requests",
-    "pending_marks_updates",
-    "studentmarks",
-    "subjects"
-  ];
-
-  // Build delete queries
-  const queries = tables.map((table) => {
-    return new Promise((resolve, reject) => {
-      let sql = "";
-      if (table === "branches") {
-        sql = `DELETE FROM branches WHERE year = ? AND branch_name = ?`;
-      } else if (table === "examsofspecificyearandbranch") {
-        sql = `DELETE FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?`;
-      } else if (table === "faculty_requests") {
-        sql = `DELETE FROM faculty_requests WHERE year = ? AND branch = ?`;
-      } else if (table === "pending_marks_updates") {
-        sql = `DELETE FROM pending_marks_updates WHERE year = ? AND branch = ?`;
-      } else if (table === "studentmarks") {
-        sql = `DELETE FROM studentmarks WHERE year = ? AND branch = ?`;
-      } else if (table === "subjects") {
-        sql = `DELETE FROM subjects WHERE year = ? AND branch_name = ?`;
-      }
-
-      con.query(sql, [year, branch], (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
-    });
-  });
-
-  Promise.all(queries)
-    .then(() => res.json({ message: `Data for year ${year}, branch ${branch} deleted successfully.` }))
-    .catch((err) => res.status(500).json({ error: err.message }));
-});
-
-// Fetch branches based on selected year
-app.get("/api/branches/:year", (req, res) => {
-    const year = req.params.year;
-
-    if (!year) {
-        return res.status(400).json({ error: "Year is required" });
-    }
-
-    const sql = "SELECT branch_name FROM branches WHERE year = ?";
-    con.query(sql, [year], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        const branches = results.map(row => row.branch_name);
-        res.json({ branches });
-    });
-});
 
 
 // Fetch table data for year/branch

@@ -3,6 +3,9 @@ const branchSelect = document.getElementById("branch");
 const actionButtons = document.getElementById("actionButtons");
 const message = document.getElementById("message");
 const dynamicContent = document.getElementById("dynamicContent");
+const role = localStorage.getItem("role");
+const adminId = localStorage.getItem("adminId");
+const sessionValue = localStorage.getItem("key");
 
 function showMessage(message, type = "info", autoHide = true) {
     const msgEl = document.getElementById("uiMessage");
@@ -34,7 +37,13 @@ yearSelect.addEventListener("change", async () => {
   if (!year) return;
 
   try {
-    const res = await fetch(`/api/branches/${year}`);
+    const res = await fetch(`/api/branches/${role}/${adminId}/${year}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+          }
+    );
     const data = await res.json();
 
     data.branches.forEach(branch => {
@@ -74,9 +83,9 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
   }
 
   try {
-    const res = await fetch("/api/delete-semester-data", {
+    const res = await fetch(`/api/delete-semester-data/${role}/${adminId}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",  "x-session-key": sessionValue },
       body: JSON.stringify({ year, branch })
     });
 
@@ -162,6 +171,7 @@ function downloadSelectedCSVs() {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -169,7 +179,7 @@ function downloadSelectedCSVs() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
