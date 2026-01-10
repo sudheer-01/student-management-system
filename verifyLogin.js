@@ -1132,6 +1132,272 @@ app.post("/getFacultyDetails/:role", (req, res) => {
         }
     });
 });
+//------------------------------------------------------
+//3. ENTER MARKS
+
+// Route to fetch student details 
+app.get("/getStudents/:role/:facultyId", (req, res) => {
+    const { year, branch } = req.query;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch ) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation in Get students in enterMarks:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    con.query("SELECT htno, full_name FROM student_profiles WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
+        if (err) {
+            console.error("Error fetching student data:", err);
+            res.status(500).json({ success: false, message: "Database error" });
+        } else {
+            res.json(results);
+        }
+    });
+});
+// Route to save student marks
+app.post("/saveMarks/:role/:facultyId", async (req, res) => {
+    const { exam, subject } = req.body;
+     const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !exam || !subject ) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation save marks in enterMarks:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const marksData = Object.keys(req.body)
+        .filter(k => k.startsWith("marks_"))
+        .map(k => ({
+            htno: k.split("_")[1],
+            marks: req.body[k]
+        }));
+
+    if (marksData.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: "No marks provided"
+        });
+    }
+
+    try {
+        for (const { htno, marks } of marksData) {
+
+            /* Get student info from student_profiles */
+            const [studentRows] = await con.promise().query(
+                `SELECT full_name, year, branch
+                 FROM student_profiles
+                 WHERE htno = ?`,
+                [htno]
+            );
+
+            if (studentRows.length === 0) {
+                throw new Error(`Student not found: ${htno}`);
+            }
+
+            const { full_name, year, branch } = studentRows[0];
+
+            /* Check if subject row exists */
+            const [existing] = await con.promise().query(
+                `SELECT 1 FROM studentmarks
+                 WHERE htno = ? AND year = ? AND branch = ? AND subject = ?
+                 LIMIT 1`,
+                [htno, year, branch, subject]
+            );
+
+            if (existing.length > 0) {
+                /* Update exam marks */
+                await con.promise().query(
+                    `UPDATE studentmarks
+                     SET \`${exam}\` = ?
+                     WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
+                    [marks, htno, year, branch, subject]
+                );
+            } else {
+                /* Insert new subject row */
+                await con.promise().query(
+                    `INSERT INTO studentmarks
+                     (year, branch, htno, name, subject, \`${exam}\`)
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [year, branch, htno, full_name, subject, marks]
+                );
+            }
+        }
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error("SAVE MARKS ERROR:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error saving marks"
+        });
+    }
+});
+//this is to retrive the exams based on the year and branch
+app.get("/getExams/:role/:facultyId", (req, res) => {
+
+    const { year, branch } = req.query;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch ) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation get exams in enterMarks:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+    con.query(query, [year, branch], (err, result) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (!result.length || !result[0].exams) return res.json([]);
+
+        try {
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            res.json(Object.keys(examsJSON)); // ✅ FIX
+        } catch (e) {
+            res.status(500).json({ error: "Invalid exam data" });
+        }
+    });
+});
+//to get max marks for all exams for a given year and branch
+app.get("/getExamMaxMarksAll/:role/:facultyId/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+    const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch ) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation get exam max marks all in enterMarks:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = `
+        SELECT exams
+        FROM examsofspecificyearandbranch
+        WHERE year = ? AND branch = ?
+    `;
+
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Error fetching exam max marks:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (!result.length || !result[0].exams) {
+            return res.json({});
+        }
+
+        try {
+            const exams =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            // exams = { MID1: 30, QUIZ1: 10 }
+            res.json(exams);
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).json({ error: "Invalid exams format" });
+        }
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -1194,102 +1460,10 @@ app.get("/getData", (req, res) => {
 });
 
 //homepageForFaculty:::enterMarks
-// Route to fetch student details (year and branch can be added as filters)
-app.get("/getStudents", (req, res) => {
-     const { year, branch } = req.query;
 
-    con.query("SELECT htno, full_name FROM student_profiles WHERE branch = ? AND year = ?", [branch, year], (err, results) => {
-        if (err) {
-            console.error("Error fetching student data:", err);
-            res.status(500).json({ success: false, message: "Database error" });
-        } else {
-            res.json(results);
-        }
-    });
-});
 
 //after getting the marks like year and branch we are entering the marks and saving them
 //for more information just uncomment tto understand more clearly
-// Route to save student marks
-app.post("/saveMarks", async (req, res) => {
-    const { exam, subject } = req.body;
-
-    if (!exam || !subject) {
-        return res.status(400).json({
-            success: false,
-            message: "Exam or subject missing"
-        });
-    }
-
-    const marksData = Object.keys(req.body)
-        .filter(k => k.startsWith("marks_"))
-        .map(k => ({
-            htno: k.split("_")[1],
-            marks: req.body[k]
-        }));
-
-    if (marksData.length === 0) {
-        return res.status(400).json({
-            success: false,
-            message: "No marks provided"
-        });
-    }
-
-    try {
-        for (const { htno, marks } of marksData) {
-
-            /* 1️⃣ Get student info from student_profiles */
-            const [studentRows] = await con.promise().query(
-                `SELECT full_name, year, branch
-                 FROM student_profiles
-                 WHERE htno = ?`,
-                [htno]
-            );
-
-            if (studentRows.length === 0) {
-                throw new Error(`Student not found: ${htno}`);
-            }
-
-            const { full_name, year, branch } = studentRows[0];
-
-            /* 2️⃣ Check if subject row exists */
-            const [existing] = await con.promise().query(
-                `SELECT 1 FROM studentmarks
-                 WHERE htno = ? AND year = ? AND branch = ? AND subject = ?
-                 LIMIT 1`,
-                [htno, year, branch, subject]
-            );
-
-            if (existing.length > 0) {
-                /* 3️⃣ Update exam marks */
-                await con.promise().query(
-                    `UPDATE studentmarks
-                     SET \`${exam}\` = ?
-                     WHERE htno = ? AND year = ? AND branch = ? AND subject = ?`,
-                    [marks, htno, year, branch, subject]
-                );
-            } else {
-                /* 4️⃣ Insert new subject row */
-                await con.promise().query(
-                    `INSERT INTO studentmarks
-                     (year, branch, htno, name, subject, \`${exam}\`)
-                     VALUES (?, ?, ?, ?, ?, ?)`,
-                    [year, branch, htno, full_name, subject, marks]
-                );
-            }
-        }
-
-        res.json({ success: true });
-
-    } catch (err) {
-        console.error("SAVE MARKS ERROR:", err);
-        res.status(500).json({
-            success: false,
-            message: "Error saving marks"
-        });
-    }
-});
-
 
 app.get("/getStudentMarks", (req, res) => {
    
@@ -1843,29 +2017,6 @@ app.post("/removeExamColumn", (req, res) => {
     });
 });
 
-//homepageForFaculty::: this is to retrive the exams based on the year and branch
-app.get("/getExams", (req, res) => {
-    const { year, branch } = req.query;
-
-    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
-    con.query(query, [year, branch], (err, result) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        if (!result.length || !result[0].exams) return res.json([]);
-
-        try {
-            const examsJSON =
-                typeof result[0].exams === "string"
-                    ? JSON.parse(result[0].exams)
-                    : result[0].exams;
-
-            res.json(Object.keys(examsJSON)); // ✅ FIX
-        } catch (e) {
-            res.status(500).json({ error: "Invalid exam data" });
-        }
-    });
-});
-
-
 //Authenticate based on role and userId
 app.post("/verify-session", (req, res) => {
     const { role, userId } = req.body;
@@ -2311,41 +2462,6 @@ app.get("/marks", (req, res) => {
       res.json(results);
     }
   });
-});
-
-// API to get max marks for all exams for a given year and branch
-app.get("/getExamMaxMarksAll/:year/:branch", (req, res) => {
-    const { year, branch } = req.params;
-
-    const query = `
-        SELECT exams
-        FROM examsofspecificyearandbranch
-        WHERE year = ? AND branch = ?
-    `;
-
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Error fetching exam max marks:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-
-        if (!result.length || !result[0].exams) {
-            return res.json({});
-        }
-
-        try {
-            const exams =
-                typeof result[0].exams === "string"
-                    ? JSON.parse(result[0].exams)
-                    : result[0].exams;
-
-            // exams = { MID1: 30, QUIZ1: 10 }
-            res.json(exams);
-        } catch (e) {
-            console.error("Error parsing exams JSON:", e);
-            res.status(500).json({ error: "Invalid exams format" });
-        }
-    });
 });
 
 // API to get marks for all subjects for a given year and branch

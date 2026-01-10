@@ -44,7 +44,15 @@ async function getStudentDetailsToEnterMarks() {
     try {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
-        const response = await fetch(`/getStudents?year=${selectedYear}&branch=${selectedBranch}`);
+        const role = localStorage.getItem("role");
+        const facultyId = localStorage.getItem("facultyId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/getStudents/${role}/${facultyId}?year=${selectedYear}&branch=${selectedBranch}`,
+            {
+            headers: {
+                "x-session-key": sessionValue
+            } }
+        );
         const students = await response.json();
         
         if (students.length === 0) {
@@ -111,9 +119,12 @@ document.getElementById("studentsForm").addEventListener("submit", async functio
 
     try {
         const selectedSubject = localStorage.getItem("selectedSubject");
-        const response = await fetch("/saveMarks", {
+        const role = localStorage.getItem("role");
+        const facultyId = localStorage.getItem("facultyId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/saveMarks/${role}/${facultyId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" }, 
+            headers: { "Content-Type": "application/json", "x-session-key": sessionValue }, 
               body: JSON.stringify({
                 ...formData,             
                 subject: selectedSubject 
@@ -136,10 +147,17 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
         const selectedYear = localStorage.getItem("selectedYear");
         const selectedBranch = localStorage.getItem("selectedBranch");
-        const examsRes = await fetch(`/getExams?year=${selectedYear}&branch=${selectedBranch}`);
+        const role = localStorage.getItem("role");
+        const facultyId = localStorage.getItem("facultyId");
+        const sessionValue = localStorage.getItem("key");
+        const examsRes = await fetch(`/getExams/${role}/${facultyId}?year=${selectedYear}&branch=${selectedBranch}`,
+            { headers: { "x-session-key": sessionValue } }
+        );
         const exams = await examsRes.json();
 
-        const maxRes = await fetch(`/getExamMaxMarksAll/${selectedYear}/${selectedBranch}`);
+        const maxRes = await fetch(`/getExamMaxMarksAll/${role}/${facultyId}/${selectedYear}/${selectedBranch}`,
+             { headers: { "x-session-key": sessionValue } }
+        );
         examMaxMarks = await maxRes.json();
 
         
@@ -164,14 +182,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("facultyId");
-
+        const sessionValue = localStorage.getItem("key");
         try {
             await fetch("/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
