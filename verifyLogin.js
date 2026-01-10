@@ -1999,10 +1999,6 @@ app.post("/api/delete-semester-data/:role/:adminId", (req, res) => {
         });
     }
 
-  if (!year || !branch) {
-    return res.status(400).json({ error: "Year and branch are required" });
-  }
-
   // Tables from which data will be deleted
   const tables = [
     "branches",
@@ -2043,6 +2039,121 @@ app.post("/api/delete-semester-data/:role/:adminId", (req, res) => {
     .catch((err) => res.status(500).json({ error: err.message }));
 });
 
+//4. RESET PASSWORD FOR FACULTY AND HOD'S
+// Fetch password reset requests from faculty and HODs
+app.get("/admin/reset-requests/:role/:adminId", async (req, res) => {
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- reset pwd requests :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    try {
+
+        const [faculty] = await con.promise().query(`
+            SELECT facultyId AS id, name, email, 'faculty' AS role
+            FROM faculty
+            WHERE reset_password = 'yes'
+        `);
+
+        const [hods] = await con.promise().query(`
+            SELECT hod_id AS id, name, email, 'hod' AS role
+            FROM hod_details
+            WHERE reset_password = 'yes'
+        `);
+
+        res.json([...faculty, ...hods]);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch reset requests" });
+    }
+});
+// Reset password for faculty or HOD
+app.post("/admin/reset-password/:roleOfUser/:adminId", async (req, res) => {
+
+    const { role, id, newPassword } = req.body;
+    const { roleOfUser, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !roleOfUser || !id || !newPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[roleOfUser]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(roleOfUser, adminId, sessionValue);
+    console.log("Session validation admin- reset pwd :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    try {
+
+        if (role === "faculty") {
+            await con.promise().query(`
+                UPDATE faculty
+                SET password = ?, reset_password = 'reset_password'
+                WHERE facultyId = ?
+            `, [newPassword, id]);
+        }
+
+        if (role === "hod") {
+            await con.promise().query(`
+                UPDATE hod_details
+                SET password = ?, reset_password = 'reset_password'
+                WHERE hod_id = ?
+            `, [newPassword, id]);
+        }
+
+        res.json({ message: "Password reset enabled successfully" });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Reset failed" });
+    }
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -2659,60 +2770,6 @@ app.get("/admin/student-profiles", async (req, res) => {
         res.status(500).json({
             error: "Failed to fetch student profiles"
         });
-    }
-});
-
-// Fetch password reset requests from faculty and HODs
-app.get("/admin/reset-requests", async (req, res) => {
-    try {
-
-        const [faculty] = await con.promise().query(`
-            SELECT facultyId AS id, name, email, 'faculty' AS role
-            FROM faculty
-            WHERE reset_password = 'yes'
-        `);
-
-        const [hods] = await con.promise().query(`
-            SELECT hod_id AS id, name, email, 'hod' AS role
-            FROM hod_details
-            WHERE reset_password = 'yes'
-        `);
-
-        res.json([...faculty, ...hods]);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to fetch reset requests" });
-    }
-});
-// Reset password for faculty or HOD
-app.post("/admin/reset-password", async (req, res) => {
-
-    const { role, id, newPassword } = req.body;
-
-    try {
-
-        if (role === "faculty") {
-            await con.promise().query(`
-                UPDATE faculty
-                SET password = ?, reset_password = 'reset_password'
-                WHERE facultyId = ?
-            `, [newPassword, id]);
-        }
-
-        if (role === "hod") {
-            await con.promise().query(`
-                UPDATE hod_details
-                SET password = ?, reset_password = 'reset_password'
-                WHERE hod_id = ?
-            `, [newPassword, id]);
-        }
-
-        res.json({ message: "Password reset enabled successfully" });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Reset failed" });
     }
 });
 

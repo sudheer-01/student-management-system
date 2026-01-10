@@ -16,8 +16,16 @@ function showMessage(message, type = "info", autoHide = true) {
 document.addEventListener("DOMContentLoaded", loadResetRequests);
 
 async function loadResetRequests() {
-
-    const res = await fetch("/admin/reset-requests");
+     const role = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
+    const sessionValue = localStorage.getItem("key");
+    const res = await fetch(`/admin/reset-requests/${role}/${adminId}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    );
     const data = await res.json();
 
     const tbody = document.querySelector("#resetTable tbody");
@@ -52,10 +60,12 @@ async function approveReset(role, id) {
         showMessage("Enter a temporary password", "error");
         return;
     }
-
-    const res = await fetch("/admin/reset-password", {
+     const roleOfUser = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
+    const sessionValue = localStorage.getItem("key");
+    const res = await fetch(`/admin/reset-password/${roleOfUser}/${adminId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-session-key": sessionValue },
         body: JSON.stringify({ role, id, newPassword })
     });
 
@@ -71,14 +81,14 @@ async function approveReset(role, id) {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
-
+        const sessionValue = localStorage.getItem("key");
         try {
             await fetch("/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
