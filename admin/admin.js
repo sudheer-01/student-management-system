@@ -21,12 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     const exportCsvBtn = document.getElementById("exportCsvBtn");
     let cachedData = [];
+    const role = localStorage.getItem("role");
+    const adminId = localStorage.getItem("adminId");
+    const sessionValue = localStorage.getItem("key");
 
     // Fetch HOD Requests
     function fetchHodRequests(status = "All") {
         if (spinner) spinner.classList.remove("hidden");
         if (statusMessage) { statusMessage.textContent = "Loading requests..."; statusMessage.classList.remove("hidden"); }
-        fetch("/getHodRequests")
+        fetch(`/getHodRequests/${role}/${adminId}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        )
             .then(response => response.json())
             .then(data => {
                 cachedData = Array.isArray(data) ? data : [];
@@ -68,9 +77,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.updateStatus = function (hod_id, newStatus) {
         // if (!confirm(`Are you sure you want to mark ${hod_id} as ${newStatus}?`)) return;
         if (spinner) spinner.classList.remove("hidden");
-        fetch("/updateHodStatus", {
+        fetch(`/updateHodStatus/${role}/${adminId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",  "x-session-key": sessionValue },
             body: JSON.stringify({ hod_id, newStatus })
         })
         .then(response => response.json())
@@ -139,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -146,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

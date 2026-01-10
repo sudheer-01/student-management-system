@@ -1662,6 +1662,100 @@ app.get("/getOverallMarks/:role/:facultyId", (req, res) => {
 });
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+//ADMIN TASKS
+
+//1. ADMIN HOME PAGE
+// Fetch All HOD Requests
+app.get("/getHodRequests/:role/:adminId", (req, res) => {
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- get hod requests :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    con.query("SELECT hod_id, name, email, year, branch, status FROM hod_details", (err, results) => {
+        if (err) {
+            console.error("Error fetching HOD requests:", err);
+            res.status(500).json({ error: "Database error" });
+        } else {
+            res.json(results);
+        }
+    });
+});
+// Update HOD Status (Approve/Reject)
+app.post("/updateHodStatus/:role/:adminId", (req, res) => {
+    const { hod_id, newStatus } = req.body;
+    const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !hod_id || !newStatus) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- update hod status :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    con.query("UPDATE hod_details SET status = ? WHERE hod_id = ?", [newStatus, hod_id], (err, result) => {
+        if (err) {
+            console.error("Error updating status:", err);
+            res.status(500).json({ error: "Database error" });
+        } else {
+            res.json({ message: `Status updated to ${newStatus}` });
+        }
+    });
+});
+
+//2. 
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //Pending...
 
 //Entering sutdent details such as htno and name by hod 
@@ -1721,16 +1815,6 @@ app.get("/getData", (req, res) => {
     );
 });
 
-//homepageForFaculty:::enterMarks
-
-
-//after getting the marks like year and branch we are entering the marks and saving them
-//for more information just uncomment tto understand more clearly
-
-//homepageForFaculty:::viewOverallMarks
-
-
-
 app.get("/getReportDetails", (req, res) => {
     res.json({
         branch: approvedBranch,
@@ -1738,10 +1822,6 @@ app.get("/getReportDetails", (req, res) => {
         subject: approvedSubject
     });
 });
-
-//homepageForFaculty:::editMarks
-
-// Faculty requests HOD approval for marks update
 
 
 //HodTask:::addBranchesAndSubjects
@@ -2182,32 +2262,6 @@ app.post("/verify-session", (req, res) => {
         }
         console.log("Session valid for:", { role, userId });
         return res.json({ valid: true });
-    });
-});
-
-// Fetch All HOD Requests
-app.get("/getHodRequests", (req, res) => {
-    con.query("SELECT hod_id, name, email, year, branch, status FROM hod_details", (err, results) => {
-        if (err) {
-            console.error("Error fetching HOD requests:", err);
-            res.status(500).json({ error: "Database error" });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Update HOD Status (Approve/Reject)
-app.post("/updateHodStatus", (req, res) => {
-    const { hod_id, newStatus } = req.body;
-
-    con.query("UPDATE hod_details SET status = ? WHERE hod_id = ?", [newStatus, hod_id], (err, result) => {
-        if (err) {
-            console.error("Error updating status:", err);
-            res.status(500).json({ error: "Database error" });
-        } else {
-            res.json({ message: `Status updated to ${newStatus}` });
-        }
     });
 });
 
