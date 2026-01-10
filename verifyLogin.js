@@ -2241,6 +2241,7 @@ app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
         });
     }
 });
+//to get students photos
 app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
     const { htno, role, adminId } = req.params;
     const sessionValue = req.query.sessionValue;
@@ -2289,6 +2290,91 @@ app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
         res.setHeader("Content-Type", "image/jpeg");
         res.setHeader("Cache-Control", "no-store");
         res.send(imageBuffer);
+    });
+});
+
+//6. STUDENT MARKS
+// Fetch student marks based on year and branch
+app.post("/admin/student-marks/:role/:adminId", async (req, res) => {
+    const { branch, year} = req.query;
+     const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- student marks :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(examQuery, [year, branch], (err, examResult) => {
+        if (err) {
+            console.error("Error fetching exams:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+
+        if (examResult.length === 0) {
+            return res.status(404).json({ success: false, message: "No exams found for this year and branch" });
+        }
+
+        // Handle both string and object cases
+        let examsData = examResult[0].exams;
+        let examsObj;
+
+        if (typeof examsData === "string") {
+            try {
+                examsObj = JSON.parse(examsData);
+            } catch (parseError) {
+                console.error("Error parsing exams JSON string:", parseError);
+                return res.status(500).json({ success: false, message: "Invalid exams JSON format" });
+            }
+        } else if (typeof examsData === "object" && examsData !== null) {
+            examsObj = examsData;
+        } else {
+            return res.status(500).json({ success: false, message: "Unexpected exams data format" });
+        }
+
+        const examColumns = Object.keys(examsObj);
+
+        if (examColumns.length === 0) {
+            return res.status(404).json({ success: false, message: "No exam columns found" });
+        }
+
+        // Build SQL dynamically
+        const selectedColumns = ["htno", "name","subject", ...examColumns].join(", ");
+        const sqlQuery = `SELECT ${selectedColumns} FROM studentmarks WHERE branch = ? AND year = ?`;
+
+        con.query(sqlQuery, [branch, year], (err, results) => {
+            if (err) {
+                console.error("Error fetching student marks:", err);
+                return res.status(500).json({ success: false, message: "Database error" });
+            }
+            // console.log(results);
+            res.json(results);
+        });
     });
 });
 //--------------------------------------------------------------
@@ -2802,59 +2888,6 @@ app.post("/verify-session", (req, res) => {
     });
 });
 
-// Fetch student marks based on year and branch
-app.post("/admin/student-marks", async (req, res) => {
-    const { branch, year} = req.query;
-
-    const examQuery = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
-
-    con.query(examQuery, [year, branch], (err, examResult) => {
-        if (err) {
-            console.error("Error fetching exams:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
-
-        if (examResult.length === 0) {
-            return res.status(404).json({ success: false, message: "No exams found for this year and branch" });
-        }
-
-        // ✅ Handle both string and object cases
-        let examsData = examResult[0].exams;
-        let examsObj;
-
-        if (typeof examsData === "string") {
-            try {
-                examsObj = JSON.parse(examsData);
-            } catch (parseError) {
-                console.error("Error parsing exams JSON string:", parseError);
-                return res.status(500).json({ success: false, message: "Invalid exams JSON format" });
-            }
-        } else if (typeof examsData === "object" && examsData !== null) {
-            examsObj = examsData;
-        } else {
-            return res.status(500).json({ success: false, message: "Unexpected exams data format" });
-        }
-
-        const examColumns = Object.keys(examsObj);
-
-        if (examColumns.length === 0) {
-            return res.status(404).json({ success: false, message: "No exam columns found" });
-        }
-
-        // Build SQL dynamically
-        const selectedColumns = ["htno", "name","subject", ...examColumns].join(", ");
-        const sqlQuery = `SELECT ${selectedColumns} FROM studentmarks WHERE branch = ? AND year = ?`;
-
-        con.query(sqlQuery, [branch, year], (err, results) => {
-            if (err) {
-                console.error("Error fetching student marks:", err);
-                return res.status(500).json({ success: false, message: "Database error" });
-            }
-            // console.log(results);
-            res.json(results);
-        });
-    });
-});
 
 //homepageForHod::: to get subjects based on year and branch
 app.get("/getSubjects/:year/:branch", (req, res) => {
