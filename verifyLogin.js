@@ -1398,6 +1398,63 @@ app.get("/getExamMaxMarksAll/:role/:facultyId/:year/:branch", (req, res) => {
         }
     });
 });
+//-------------------------------------------------------
+//4. VIEW MARKS
+
+//to view marks
+app.get("/getStudentMarks/:role/:facultyId", (req, res) => {
+   
+    const examColumn = req.query.exam;  // Get exam name from frontend
+    const year = req.query.year;  // Get year from frontend
+    const branch = req.query.branch;  // Get branch from frontend
+    const subject = req.query.subject;  // Get subject from frontend
+    // console.log("Exam Column:", examColumn);
+
+    if (!examColumn) {
+        return res.status(400).json({ success: false, message: "Exam type is required" });
+    }
+      const { role, facultyId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!facultyId ||  !role || !year || !branch || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, facultyId, sessionValue);
+    console.log("Session validation get student marks in viewmarks:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    let sqlQuery = `SELECT htno, name, ${examColumn} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
+
+    con.query(sqlQuery, [branch, year, subject], (err, results) => {
+        if (err) {
+            console.error("Error fetching student data:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
+        res.json(results);
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -1465,34 +1522,6 @@ app.get("/getData", (req, res) => {
 //after getting the marks like year and branch we are entering the marks and saving them
 //for more information just uncomment tto understand more clearly
 
-app.get("/getStudentMarks", (req, res) => {
-   
-    const examColumn = req.query.exam;  // Get exam name from frontend
-    const year = req.query.year;  // Get year from frontend
-    const branch = req.query.branch;  // Get branch from frontend
-    const subject = req.query.subject;  // Get subject from frontend
-    console.log("Exam Column:", examColumn);
-
-    if (!examColumn) {
-        return res.status(400).json({ success: false, message: "Exam type is required" });
-    }
-
-    // Prevent SQL Injection by validating exam name
-    // const validColumns = ["unitTest_1", "mid_1", "assignment_1", "unitTest_2", "mid_2", "assignment_2"];
-    // if (!validColumns.includes(examColumn)) {
-    //     return res.status(400).json({ success: false, message: "Invalid exam type" });
-    // }
-
-    let sqlQuery = `SELECT htno, name, ${examColumn} FROM studentmarks WHERE branch = ? AND year = ? AND subject = ?`;
-
-    con.query(sqlQuery, [branch, year, subject], (err, results) => {
-        if (err) {
-            console.error("Error fetching student data:", err);
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
-        res.json(results);
-    });
-});
 //homepageForFaculty:::viewOverallMarks
 // API to fetch all students with dynamic exam columns
 app.get("/getOverallMarks", (req, res) => {
