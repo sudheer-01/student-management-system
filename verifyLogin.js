@@ -1074,7 +1074,7 @@ app.post("/sendRequest/:role", (req, res) => {
 // Separate GET route to serve home.html (it is for above dashboardOfFaculty)
 app.get("/home/:role/:facultyId", (req, res) => {
     const { role, facultyId } = req.params;
-    const sessionValue = req.query;
+    const sessionValue = req.query.sessionValue;
     console.log("validation home", role, facultyId, sessionValue);
     if (!facultyId ||  !role || !sessionValue) {
         return res.status(400).json({
