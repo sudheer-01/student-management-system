@@ -1753,7 +1753,171 @@ app.post("/updateHodStatus/:role/:adminId", (req, res) => {
     });
 });
 
-//2. 
+//2. UPDATE DATABASE(FACULTY AND HOD MNGMNT)
+// Fetch all faculty or hod data (no year/branch filter)
+app.get("/api/get-table-data-simple/:role/:adminId", (req, res) => {
+    const { table } = req.query;
+     const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- get hod/faculty table data :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    if (!["faculty", "hod_details"].includes(table)) {
+        return res.status(400).json({ error: "Invalid table" });
+    }
+
+    let query = "";
+
+    if (table === "faculty") {
+        query = `
+            SELECT
+                facultyId,
+                name,
+                email
+            FROM faculty
+        `;
+    }
+
+    if (table === "hod_details") {
+        query = `
+            SELECT
+                hod_id,
+                name,
+                email,
+                year,
+                branch,
+                status
+            FROM hod_details
+        `;
+    }
+
+    con.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
+
+// Update specific record (faculty or HOD)
+app.post("/api/update/:role/:adminId/:table", (req, res) => {
+  const { table } = req.params;
+  const { row } = req.body;
+   const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !table) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- update hod/faculty data :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+  const idField = table === "faculty" ? "facultyId" : "hod_id";
+  const id = row[idField];
+  delete row[idField];
+
+  const setClause = Object.keys(row).map(k => `${k}=?`).join(", ");
+  const values = Object.values(row);
+
+  con.query(`UPDATE ${table} SET ${setClause} WHERE ${idField}=?`, [...values, id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, message: "Row updated successfully." });
+  });
+});
+
+// Delete specific record (faculty or HOD)
+app.delete("/api/delete-row/:table/:id/:role/:adminId", (req, res) => {
+  const { table, id } = req.params;
+   const { role, adminId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!adminId ||  !role || !table || !id) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, adminId, sessionValue);
+    console.log("Session validation admin- delete hod/faculty :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+  const idField = table === "faculty" ? "facultyId" : "hod_id";
+
+  con.query(`DELETE FROM ${table} WHERE ${idField}=?`, [id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, message: "Row deleted successfully." });
+  });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -3061,77 +3225,6 @@ app.post("/api/update-row", (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
     });
-});
-
-// ✅ Fetch all faculty or hod data (no year/branch filter)
-app.get("/api/get-table-data-simple", (req, res) => {
-    const { table } = req.query;
-
-    if (!["faculty", "hod_details"].includes(table)) {
-        return res.status(400).json({ error: "Invalid table" });
-    }
-
-    let query = "";
-
-    if (table === "faculty") {
-        query = `
-            SELECT
-                facultyId,
-                name,
-                email
-            FROM faculty
-        `;
-    }
-
-    if (table === "hod_details") {
-        query = `
-            SELECT
-                hod_id,
-                name,
-                email,
-                year,
-                branch,
-                status
-            FROM hod_details
-        `;
-    }
-
-    con.query(query, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: err.message });
-        }
-        res.json(results);
-    });
-});
-
-// ✅ Update specific record (faculty or HOD)
-app.post("/api/update/:table", (req, res) => {
-  const { table } = req.params;
-  const { row } = req.body;
-
-  const idField = table === "faculty" ? "facultyId" : "hod_id";
-  const id = row[idField];
-  delete row[idField];
-
-  const setClause = Object.keys(row).map(k => `${k}=?`).join(", ");
-  const values = Object.values(row);
-
-  con.query(`UPDATE ${table} SET ${setClause} WHERE ${idField}=?`, [...values, id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ success: true, message: "Row updated successfully." });
-  });
-});
-
-// ✅ Delete specific record (faculty or HOD)
-app.delete("/api/delete-row/:table/:id", (req, res) => {
-  const { table, id } = req.params;
-  const idField = table === "faculty" ? "facultyId" : "hod_id";
-
-  con.query(`DELETE FROM ${table} WHERE ${idField}=?`, [id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ success: true, message: "Row deleted successfully." });
-  });
 });
 
 app.get("/hod/branches", (req, res) => {

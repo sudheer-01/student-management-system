@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateBtn = document.getElementById("updateBtnAlways");
   const dynamicContent = document.getElementById("dynamicContent");
+  const role = localStorage.getItem("role");
+  const adminId = localStorage.getItem("adminId");
+  const sessionValue = localStorage.getItem("key");
 
   /* ============================
      LOAD TABLE SELECTION
@@ -43,7 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
   ============================ */
 
   async function loadTable(table) {
-    const res = await fetch(`/api/get-table-data-simple?table=${table}`);
+    const res = await fetch(`/api/get-table-data-simple/${role}/${adminId}?table=${table}`, 
+       {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+          }
+    );
     const data = await res.json();
     renderEditableTable(table, data);
   }
@@ -128,9 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const idKey = table === "faculty" ? "facultyId" : "hod_id";
     updated[idKey] = originalRow[idKey];
 
-    fetch(`/api/update/${table}`, {
+    fetch(`/api/update/${role}/${adminId}/${table}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",  "x-session-key": sessionValue },
       body: JSON.stringify({ row: updated })
     })
     .then(res => res.json())
@@ -145,7 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function deleteRow(table, row) {
     const idKey = table === "faculty" ? "facultyId" : "hod_id";
 
-    fetch(`/api/delete-row/${table}/${row[idKey]}`, {
+    fetch(`/api/delete-row/${table}/${row[idKey]}/${role}/${adminId}`, {
+       headers: {
+                "x-session-key": sessionValue
+            },
       method: "DELETE"
     })
     .then(res => res.json())
@@ -172,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("adminId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -179,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
