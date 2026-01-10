@@ -20,8 +20,16 @@ document.getElementById("getStudentMarks").addEventListener("click", () => {
     const selectedYear = localStorage.getItem("selectedYear");
     const selectedBranch = localStorage.getItem("selectedBranch");
     const selectedSubject = localStorage.getItem("selectedSubject");
+    const role = localStorage.getItem("role");
+    const facultyId = localStorage.getItem("facultyId");
+    const sessionValue = localStorage.getItem("key");
 
-    fetch(`/getOverallMarks?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`)
+    fetch(`/getOverallMarks/${role}/${facultyId}?year=${selectedYear}&branch=${selectedBranch}&subject=${selectedSubject}`,
+           {
+            headers: {
+                "x-session-key": sessionValue
+            } }
+    )
         .then(response => response.json())
         .then(data => {
             renderTable(data);
