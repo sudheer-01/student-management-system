@@ -2243,7 +2243,7 @@ app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
 });
 app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
     const { htno, role, adminId } = req.params;
-    const sessionValue = req.query.session;
+    const sessionValue = req.query.sessionValue;
     if(!htno || !role || !adminId) {
             return res.status(401).json({ success: false, message: "Invalid credentials"});
     }
@@ -2252,6 +2252,12 @@ app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
                 success: false,
                 message: "Invalid role"
             });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
     }
     const valid = validateSession(role, adminId, sessionValue);
     console.log("validation for admin- student photo retrival ", valid);
