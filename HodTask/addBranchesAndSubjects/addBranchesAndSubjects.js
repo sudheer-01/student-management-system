@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const saveBtn = document.getElementById("saveData");
     const newSubjectsContainer = document.getElementById("newSubjectsContainer");
     const deleteModeBtn = document.getElementById("deleteModeBtn");
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
     let deleteMode = false;
 
     let selectedYear = null;
@@ -30,7 +33,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     let hodYears = JSON.parse(localStorage.getItem("hodYears")).map(year => parseInt(year));
 async function loadExistingData() {
     const res = await fetch(
-        `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
+        `/hod/branches-subjects/${role}/${hodId}?year=${selectedYear}&hodBranch=${hodBranch}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
     const data = await res.json();
 
@@ -120,9 +128,9 @@ yearDropdown.addEventListener("change", async () => {
     const sec = document.getElementById("newSectionInput").value.trim();
     if (!sec) return showMessage("Enter section name", "error");
 
-    await fetch("/saveSubjects", {
+    await fetch(`/saveSubjects/${role}/${hodId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-session-key": sessionValue },
         body: JSON.stringify({
             year: selectedYear,
             newSections: [sec],
@@ -176,9 +184,9 @@ saveBtn.addEventListener("click", async () => {
         return showMessage("Select at least one section", "error");
     }
 
-    await fetch("/saveSubjects", {
+    await fetch(`/saveSubjects/${role}/${hodId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-session-key": sessionValue },
         body: JSON.stringify({
             year: selectedYear,
             newSections: [],
@@ -209,7 +217,12 @@ deleteModeBtn.addEventListener("click", async () => {
 
 async function loadDeleteUI() {
     const res = await fetch(
-        `/hod/branches-subjects?year=${selectedYear}&hodBranch=${hodBranch}`
+        `/hod/branches-subjects/${role}/${hodId}?year=${selectedYear}&hodBranch=${hodBranch}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
     const data = await res.json();
 
@@ -247,9 +260,9 @@ function addDeleteHandlers() {
         btn.onclick = async () => {
             const section = btn.dataset.sec;
 
-            await fetch("/deleteSection", {
+            await fetch(`/deleteSection/${role}/${hodId}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",     "x-session-key": sessionValue},
                 body: JSON.stringify({ year: selectedYear, section })
             });
 
@@ -278,9 +291,9 @@ function addDeleteHandlers() {
             subject: c.value
         }));
 
-        await fetch("/deleteSubjects", {
+        await fetch(`/deleteSubjects/${role}/${hodId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",     "x-session-key": sessionValue },
             body: JSON.stringify({ year: selectedYear, items: payload })
         });
 
@@ -321,6 +334,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -328,7 +342,7 @@ const logoutBtn = document.getElementById("logoutBtn");
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

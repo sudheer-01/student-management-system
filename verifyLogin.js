@@ -2523,7 +2523,265 @@ app.post("/api/reset/update-password", (req, res) => {
 //--------------------------------------------------------------
 //HOD TASKS
 
-//1. HOD DASHBOARD
+//1. HOD DASHBOARD - only logout
+
+//2. ADDING BRANCHES AND SUBJECTS
+//To get existing branches and subjects
+app.get("/hod/branches-subjects/:role/:hodId", async (req, res) => {
+    const { year, hodBranch } = req.query;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !hodBranch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get branches and subjects :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const db = con.promise();
+
+    try {
+        const [branches] = await db.query(
+            `SELECT branch_name
+             FROM branches
+             WHERE year = ? AND branch_name LIKE ?`,
+            [year, `${hodBranch}%`]
+        );
+
+        const [subjects] = await db.query(
+            `SELECT branch_name, subject_name
+             FROM subjects
+             WHERE year = ? AND branch_name LIKE ?
+             ORDER BY branch_name`,
+            [year, `${hodBranch}%`]
+        );
+
+        const subjectMap = {};
+        subjects.forEach(r => {
+            if (!subjectMap[r.branch_name]) {
+                subjectMap[r.branch_name] = [];
+            }
+            subjectMap[r.branch_name].push(r.subject_name);
+        });
+
+        res.json({
+            sections: branches.map(b => ({
+                name: b.branch_name,
+                subjects: subjectMap[b.branch_name] || []
+            }))
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to load data" });
+    }
+});
+//Save subjects and sections of a branch
+app.post("/saveSubjects/:role/:hodId", async (req, res) => {
+    const {
+        year,
+        newSections = [],
+        selectedSections = [],
+        newSubjects = []
+    } = req.body;
+    
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- save subjects :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    if (!year) {
+        return res.status(400).json({ error: "Year required" });
+    }
+
+    if (!selectedSections.length && newSubjects.length) {
+        return res.status(400).json({
+            error: "Select at least one section to add subjects"
+        });
+    }
+
+    const db = con.promise();
+
+    try {
+        /* Insert new sections safely */
+        for (const section of newSections) {
+            await db.query(
+                `INSERT IGNORE INTO branches (year, branch_name)
+                 VALUES (?, ?)`,
+                [year, section]
+            );
+        }
+
+        /* Insert new subjects ONLY into selected sections */
+        for (const section of selectedSections) {
+            for (const subject of newSubjects) {
+                await db.query(
+                    `INSERT IGNORE INTO subjects (year, branch_name, subject_name)
+                     VALUES (?, ?, ?)`,
+                    [year, section, subject]
+                );
+            }
+        }
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error("SAVE SUBJECTS ERROR:", err);
+        res.status(500).json({ error: "Failed to save data" });
+    }
+});
+//To delete a section and its subjects
+app.post("/deleteSection/:role/:hodId", async (req, res) => {
+    const { year, section } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- delete section and subjects :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const db = con.promise();
+
+    try {
+        await db.query(
+            "DELETE FROM subjects WHERE year = ? AND branch_name = ?",
+            [year, section]
+        );
+
+        await db.query(
+            "DELETE FROM branches WHERE year = ? AND branch_name = ?",
+            [year, section]
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("DELETE SECTION ERROR:", err);
+        res.status(500).json({ error: "Failed to delete section" });
+    }
+});
+//To delete subjects of a section
+app.post("/deleteSubjects/:role/:hodId", async (req, res) => {
+    const { year, items } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- delete subjects :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const db = con.promise();
+
+    try {
+        for (const { section, subject } of items) {
+            await db.query(
+                `DELETE FROM subjects
+                 WHERE year = ? AND branch_name = ? AND subject_name = ?`,
+                [year, section, subject]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("DELETE SUBJECT ERROR:", err);
+        res.status(500).json({ error: "Failed to delete subjects" });
+    }
+});
 
 //--------------------------------------------------------------
 //--------------------------------------------------------------
@@ -2592,141 +2850,6 @@ app.get("/getReportDetails", (req, res) => {
         year: approvedYear,
         subject: approvedSubject
     });
-});
-
-
-//HodTask:::addBranchesAndSubjects
-
-app.post("/saveSubjects", async (req, res) => {
-    const {
-        year,
-        newSections = [],
-        selectedSections = [],
-        newSubjects = []
-    } = req.body;
-
-    if (!year) {
-        return res.status(400).json({ error: "Year required" });
-    }
-
-    if (!selectedSections.length && newSubjects.length) {
-        return res.status(400).json({
-            error: "Select at least one section to add subjects"
-        });
-    }
-
-    const db = con.promise();
-
-    try {
-        /* 1️⃣ Insert new sections safely */
-        for (const section of newSections) {
-            await db.query(
-                `INSERT IGNORE INTO branches (year, branch_name)
-                 VALUES (?, ?)`,
-                [year, section]
-            );
-        }
-
-        /* 2️⃣ Insert new subjects ONLY into selected sections */
-        for (const section of selectedSections) {
-            for (const subject of newSubjects) {
-                await db.query(
-                    `INSERT IGNORE INTO subjects (year, branch_name, subject_name)
-                     VALUES (?, ?, ?)`,
-                    [year, section, subject]
-                );
-            }
-        }
-
-        res.json({ success: true });
-
-    } catch (err) {
-        console.error("SAVE SUBJECTS ERROR:", err);
-        res.status(500).json({ error: "Failed to save data" });
-    }
-});
-
-app.get("/hod/branches-subjects", async (req, res) => {
-    const { year, hodBranch } = req.query;
-    const db = con.promise();
-
-    try {
-        const [branches] = await db.query(
-            `SELECT branch_name
-             FROM branches
-             WHERE year = ? AND branch_name LIKE ?`,
-            [year, `${hodBranch}%`]
-        );
-
-        const [subjects] = await db.query(
-            `SELECT branch_name, subject_name
-             FROM subjects
-             WHERE year = ? AND branch_name LIKE ?
-             ORDER BY branch_name`,
-            [year, `${hodBranch}%`]
-        );
-
-        const subjectMap = {};
-        subjects.forEach(r => {
-            if (!subjectMap[r.branch_name]) {
-                subjectMap[r.branch_name] = [];
-            }
-            subjectMap[r.branch_name].push(r.subject_name);
-        });
-
-        res.json({
-            sections: branches.map(b => ({
-                name: b.branch_name,
-                subjects: subjectMap[b.branch_name] || []
-            }))
-        });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to load data" });
-    }
-});
-
-app.post("/deleteSection", async (req, res) => {
-    const { year, section } = req.body;
-    const db = con.promise();
-
-    try {
-        await db.query(
-            "DELETE FROM subjects WHERE year = ? AND branch_name = ?",
-            [year, section]
-        );
-
-        await db.query(
-            "DELETE FROM branches WHERE year = ? AND branch_name = ?",
-            [year, section]
-        );
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("DELETE SECTION ERROR:", err);
-        res.status(500).json({ error: "Failed to delete section" });
-    }
-});
-
-app.post("/deleteSubjects", async (req, res) => {
-    const { year, items } = req.body;
-    const db = con.promise();
-
-    try {
-        for (const { section, subject } of items) {
-            await db.query(
-                `DELETE FROM subjects
-                 WHERE year = ? AND branch_name = ? AND subject_name = ?`,
-                [year, section, subject]
-            );
-        }
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("DELETE SUBJECT ERROR:", err);
-        res.status(500).json({ error: "Failed to delete subjects" });
-    }
 });
 
 app.get("/getbranches/:year/:branch", (req, res) => {
