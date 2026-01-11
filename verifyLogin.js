@@ -3736,6 +3736,206 @@ app.get("/getUpdate/:role/:hodId/:faculty/:subject/:exam", (req, res) => {
     });
 });
 
+//8. STUDENTS DATA AND PWD
+app.get("/hod/student-profiles/:role/:hodId", (req, res) => {
+    const { year, branch } = req.query;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- student profiles :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const sql = `
+        SELECT
+            htno, full_name, year, branch, batch, dob, gender,
+            admission_type, current_status, student_mobile, email,
+            current_address, permanent_address, father_name, mother_name,
+            parent_mobile, guardian_name, guardian_relation,
+            guardian_mobile, blood_group, nationality, religion
+        FROM student_profiles
+        WHERE year = ? AND branch = ?
+    `;
+
+    con.query(sql, [year, branch], (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json([]);
+        }
+        res.json(rows);
+    });
+});
+app.get("/hod/reset-password-students/:role/:hodId", (req, res) => {
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- reset pwd stud :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    con.query(
+        `SELECT htno, full_name, year, branch
+         FROM student_profiles
+         WHERE reset_password='yes'`,
+        (err, rows) => {
+            if (err) return res.status(500).json([]);
+            res.json(rows);
+        }
+    );
+});
+app.get("/hod/branches/:role/:hodId", (req, res) => {
+    const { year, hodBranch } = req.query;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !hodBranch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- branches :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    con.query(
+        "SELECT DISTINCT branch_name FROM branches WHERE year=? AND branch_name LIKE ?",
+        [year, `${hodBranch}%`],
+        (err, rows) => {
+            if (err) return res.status(500).json([]);
+            res.json({ branches: rows.map(r => r.branch_name) });
+        }
+    );
+});
+app.post("/hod/update-student-password/:role/:hodId", (req, res) => {
+    const { htno, tempPassword } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- udate stud pwd :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    if (!htno || !tempPassword) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid input"
+        });
+    }
+
+    const sql = `
+        UPDATE student_profiles
+        SET password = ?,
+            reset_password = 'reset_password'
+        WHERE htno = ?
+    `;
+
+    con.query(sql, [tempPassword, htno], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                success: false,
+                message: "Database error"
+            });
+        }
+
+        res.json({ success: true });
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -4038,82 +4238,6 @@ app.post("/api/update-row", (req, res) => {
     });
 });
 
-app.get("/hod/branches", (req, res) => {
-    const { year, hodBranch } = req.query;
-
-    con.query(
-        "SELECT DISTINCT branch_name FROM branches WHERE year=? AND branch_name LIKE ?",
-        [year, `${hodBranch}%`],
-        (err, rows) => {
-            if (err) return res.status(500).json([]);
-            res.json({ branches: rows.map(r => r.branch_name) });
-        }
-    );
-});
-app.get("/hod/student-profiles", (req, res) => {
-    const { year, branch } = req.query;
-
-    const sql = `
-        SELECT
-            htno, full_name, year, branch, batch, dob, gender,
-            admission_type, current_status, student_mobile, email,
-            current_address, permanent_address, father_name, mother_name,
-            parent_mobile, guardian_name, guardian_relation,
-            guardian_mobile, blood_group, nationality, religion
-        FROM student_profiles
-        WHERE year = ? AND branch = ?
-    `;
-
-    con.query(sql, [year, branch], (err, rows) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json([]);
-        }
-        res.json(rows);
-    });
-});
-
-app.get("/hod/reset-password-students", (req, res) => {
-    con.query(
-        `SELECT htno, full_name, year, branch
-         FROM student_profiles
-         WHERE reset_password='yes'`,
-        (err, rows) => {
-            if (err) return res.status(500).json([]);
-            res.json(rows);
-        }
-    );
-});
-
-app.post("/hod/update-student-password", (req, res) => {
-    const { htno, tempPassword } = req.body;
-
-    if (!htno || !tempPassword) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid input"
-        });
-    }
-
-    const sql = `
-        UPDATE student_profiles
-        SET password = ?,
-            reset_password = 'reset_password'
-        WHERE htno = ?
-    `;
-
-    con.query(sql, [tempPassword, htno], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({
-                success: false,
-                message: "Database error"
-            });
-        }
-
-        res.json({ success: true });
-    });
-});
 //-----------------------------------------------------
 //-----------------------------------------------------
 //COMMON FOR ALL ROLES

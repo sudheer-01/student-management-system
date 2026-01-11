@@ -5,6 +5,9 @@ const yearSelect = document.getElementById("yearSelect");
 const branchSelect = document.getElementById("branchSelect");
 const table = document.getElementById("dataTable");
 const tableActions = document.getElementById("tableActions");
+const role = localStorage.getItem("role");
+const hodId = localStorage.getItem("hodId");
+const sessionValue = localStorage.getItem("key");
 
 function showMessage(message, type = "info", autoHide = true) {
     const msgEl = document.getElementById("uiMessage");
@@ -41,7 +44,12 @@ viewDataBtn.onclick = async () => {
     // THIS IS THE MISSING PART
     if (year && branch) {
         const res = await fetch(
-            `/hod/student-profiles?year=${year}&branch=${branch}`
+            `/hod/student-profiles/${role}/${hodId}?year=${year}&branch=${branch}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
         );
         const data = await res.json();
         renderStudentTable(data);
@@ -56,7 +64,13 @@ resetPwdBtn.onclick = async () => {
     currentMode = "reset";
     filters.classList.add("hidden");
 
-    const res = await fetch("/hod/reset-password-students");
+    const res = await fetch(`/hod/reset-password-students/${role}/${hodId}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    );
     const data = await res.json();
 
     renderResetTable(data);
@@ -71,7 +85,12 @@ yearSelect.addEventListener("change", async () => {
     if (!yearSelect.value) return;
 
     const res = await fetch(
-        `/hod/branches?year=${yearSelect.value}&hodBranch=${hodBranch}`
+        `/hod/branches/${role}/${hodId}?year=${yearSelect.value}&hodBranch=${hodBranch}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
     const data = await res.json();
 
@@ -87,7 +106,12 @@ branchSelect.addEventListener("change", async () => {
     if (!yearSelect.value || !branchSelect.value) return;
 
     const res = await fetch(
-        `/hod/student-profiles?year=${yearSelect.value}&branch=${branchSelect.value}`
+        `/hod/student-profiles/${role}/${hodId}?year=${yearSelect.value}&branch=${branchSelect.value}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
     const data = await res.json();
 
@@ -243,9 +267,9 @@ async function updateStudentPassword(htno) {
     }
 
 
-    const res = await fetch("/hod/update-student-password", {
+    const res = await fetch(`/hod/update-student-password/${role}/${hodId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-session-key": sessionValue },
         body: JSON.stringify({
             htno,
             tempPassword
@@ -318,14 +342,14 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
-
+        const sessionValue = localStorage.getItem("key");
         try {
             await fetch("/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
