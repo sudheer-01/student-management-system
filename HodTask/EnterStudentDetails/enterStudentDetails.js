@@ -56,7 +56,16 @@ async function fetchBranches() {
     if (!year || !branch) return;
 
     try {
-        const response = await fetch(`/getbranches/${year}/${branch}`);
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/getbranches/${role}/${hodId}/${year}/${branch}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        );
         const branches = await response.json();
         const branchSelect = document.getElementById("branchSelect");
 
@@ -115,11 +124,13 @@ document.getElementById("studentsForm").addEventListener("submit", function (eve
         let name = row.querySelector("td:nth-child(3) input").value;
         students.push({ htno, name, year, branch });
     });
-
-    fetch("/saveData", {
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
+    fetch(`/saveData/${role}/${hodId}`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json", "x-session-key": sessionValue
         },
         body: JSON.stringify({ students })
     })
@@ -143,8 +154,16 @@ function fetchStudentData() {
         showMessage("Please select Year and Branch.", "error");
         return;
     }
-
-    fetch(`/getData?branch=${branch}&year=${year}`)
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
+    fetch(`/getData/${role}/${hodId}?branch=${branch}&year=${year}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    )
         .then(response => {
             if (!response.ok) {
                 throw new Error("Failed to fetch student data");
@@ -240,14 +259,14 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
-
+        const sessionValue = localStorage.getItem("key");
         try {
             await fetch("/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

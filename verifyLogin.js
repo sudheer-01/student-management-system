@@ -2841,7 +2841,7 @@ app.get("/getbranches/:role/:hodId/:year/:branch", (req, res) => {
         res.json(result);
     });
 });
-//
+//load faculty requests
 app.get("/hodRequests/:role/:hodId/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
     const { role, hodId } = req.params;
@@ -2945,13 +2945,41 @@ app.post("/updateRequestStatus/:role/:hodId", (req, res) => {
     });
 });
 
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//Pending...
-
+//4. STUDENT DETAILS
 //Entering sutdent details such as htno and name by hod 
-app.post("/saveData", (req, res) => {
+app.post("/saveData/:role/:hodId", (req, res) => {
     const students = req.body.students;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- save data :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
 
     if (!students || students.length === 0) {
         return res.status(400).send("No student data received.");
@@ -2983,11 +3011,41 @@ app.post("/saveData", (req, res) => {
         res.send("Student profiles saved successfully.");
     });
 });
-
 //retriving student details such as htno and name by hod
-app.get("/getData", (req, res) => {
+app.get("/getData/:role/:hodId", (req, res) => {
     let branch = req.query.branch;
     let year = req.query.year;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get data :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
 
     if (!branch || !year) {
         return res.status(400).json({ error: "Please provide both branch and year." });
@@ -3005,6 +3063,10 @@ app.get("/getData", (req, res) => {
         }
     );
 });
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//Pending...
 
 app.get("/getReportDetails", (req, res) => {
     res.json({
