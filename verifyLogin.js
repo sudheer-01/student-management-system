@@ -3327,6 +3327,228 @@ app.post("/removeExamColumn/:role/:hodId", (req, res) => {
         );
     });
 });
+
+//6. GENERATE STUDENT REPORTS
+//to get subjects based on year and branch
+app.get("/getSubjects/:role/:hodId/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+    //console.log("Received:", year, branch);
+     const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get subjects :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = "SELECT subject_name FROM subjects WHERE year = ? AND branch_name = ?";
+    
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Database Error:", err);
+            return res.status(500).send(err);
+        }
+        
+        //console.log("Query Result:", result);
+        res.json(result); // Ensure this sends an array of objects [{subject_name: 'kk'}, {subject_name: 'r'}]
+    });
+});
+//to get existing exams
+app.get("/getExamsForHod/:role/:hodId/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+     const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get exams for HOD :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Error fetching exams:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (result.length === 0 || !result[0].exams) {
+            return res.json([]); // No exams found
+        }
+
+       // console.log("Raw exam data from DB:", result[0].exams);
+
+       try {
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            // RETURN EXAM NAMES, NOT MARKS
+            const examNames = Object.keys(examsJSON);
+
+            res.json(examNames);
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).send("Error processing exam data");
+        }
+    });
+});
+// Fetch student reports based on year, branch, subject, and exam
+app.get("/getStudentReports/:role/:hodId/:year/:branch/:subject/:exam", (req, res) => {
+    const { year, branch, subject, exam } = req.params;
+     const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch || !exam || !subject) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get student reports :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    // Corrected query: dynamically selecting the column
+    const query = `SELECT htno, name, ${exam} AS marks FROM studentmarks WHERE year = ? AND branch = ? AND subject = ?`;
+
+    con.query(query, [year, branch, subject], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json(result);
+    });
+});
+// Fetch max marks for a specific exam
+app.get("/getExamMaxMarks/:role/:hodId/:year/:branch/:exam", (req, res) => {
+    const { year, branch, exam } = req.params;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch || !exam) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get exam max marks :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query =
+        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
+
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Error fetching exam max marks:", err);
+            return res.status(500).send("Database error");
+        }
+
+        if (result.length === 0 || !result[0].exams) {
+            return res.json({ maxMarks: null });
+        }
+
+        try {
+            const examsJSON =
+                typeof result[0].exams === "string"
+                    ? JSON.parse(result[0].exams)
+                    : result[0].exams;
+
+            const maxMarks = examsJSON[exam] ?? null;
+
+            res.json({ maxMarks });
+        } catch (e) {
+            console.error("Error parsing exams JSON:", e);
+            res.status(500).send("Invalid exams data");
+        }
+    });
+});
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -3384,105 +3606,6 @@ app.post("/verify-session", (req, res) => {
         }
         console.log("Session valid for:", { role, userId });
         return res.json({ valid: true });
-    });
-});
-
-
-//homepageForHod::: to get subjects based on year and branch
-app.get("/getSubjects/:year/:branch", (req, res) => {
-    const { year, branch } = req.params;
-    //console.log("Received:", year, branch);
-
-    const query = "SELECT subject_name FROM subjects WHERE year = ? AND branch_name = ?";
-    
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Database Error:", err);
-            return res.status(500).send(err);
-        }
-        
-        //console.log("Query Result:", result);
-        res.json(result); // Ensure this sends an array of objects [{subject_name: 'kk'}, {subject_name: 'r'}]
-    });
-});
-
-// Fetch student reports based on year, branch, subject, and exam
-app.get("/getStudentReports/:year/:branch/:subject/:exam", (req, res) => {
-    const { year, branch, subject, exam } = req.params;
-
-    // Corrected query: dynamically selecting the column
-    const query = `SELECT htno, name, ${exam} AS marks FROM studentmarks WHERE year = ? AND branch = ? AND subject = ?`;
-
-    con.query(query, [year, branch, subject], (err, result) => {
-        if (err) return res.status(500).send(err);
-        res.json(result);
-    });
-});
-
-app.get("/getExamsForHod/:year/:branch", (req, res) => {
-    const { year, branch } = req.params;
-
-    const query = "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
-
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Error fetching exams:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-
-        if (result.length === 0 || !result[0].exams) {
-            return res.json([]); // No exams found
-        }
-
-       // console.log("Raw exam data from DB:", result[0].exams);
-
-       try {
-            const examsJSON =
-                typeof result[0].exams === "string"
-                    ? JSON.parse(result[0].exams)
-                    : result[0].exams;
-
-            // ✅ RETURN EXAM NAMES, NOT MARKS
-            const examNames = Object.keys(examsJSON);
-
-            res.json(examNames);
-        } catch (e) {
-            console.error("Error parsing exams JSON:", e);
-            res.status(500).send("Error processing exam data");
-        }
-    });
-});
-
-// Fetch max marks for a specific exam
-app.get("/getExamMaxMarks/:year/:branch/:exam", (req, res) => {
-    const { year, branch, exam } = req.params;
-
-    const query =
-        "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
-
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Error fetching exam max marks:", err);
-            return res.status(500).send("Database error");
-        }
-
-        if (result.length === 0 || !result[0].exams) {
-            return res.json({ maxMarks: null });
-        }
-
-        try {
-            const examsJSON =
-                typeof result[0].exams === "string"
-                    ? JSON.parse(result[0].exams)
-                    : result[0].exams;
-
-            const maxMarks = examsJSON[exam] ?? null;
-
-            res.json({ maxMarks });
-        } catch (e) {
-            console.error("Error parsing exams JSON:", e);
-            res.status(500).send("Invalid exams data");
-        }
     });
 });
 

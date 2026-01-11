@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyFilterBtn = document.getElementById("applyFilter");
     const printReportBtn = document.getElementById("printReport");
     let currentMaxMarks = null;
-
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
 
     let studentData = []; // To store all students for filtering
     
@@ -62,7 +64,13 @@ yearSelect.addEventListener("change", function () {
         branchSelect.disabled = false;
 
         // Call updated API with year + hodBranch
-        fetch(`/getbranches/${yearSelect.value}/${hodBranch}`)
+        fetch(`/getbranches/${role}/${hodId}/${yearSelect.value}/${hodBranch}`,
+             {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        )
             .then(response => response.json())
             .then(data => {
                 data.forEach(branch => {
@@ -88,7 +96,13 @@ yearSelect.addEventListener("change", function () {
 
         if (branchSelect.value) {
             subjectSelect.disabled = false;
-            fetch(`/getSubjects/${yearSelect.value}/${branchSelect.value}`)
+            fetch(`/getSubjects/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+                 {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+            )
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(subject => {
@@ -106,7 +120,13 @@ yearSelect.addEventListener("change", function () {
         examSelect.innerHTML = `<option value="">--Select Exam--</option>`;
         examSelect.disabled = true;
         if (yearSelect.value && branchSelect.value) {
-            fetch(`/getExamsForHod/${yearSelect.value}/${branchSelect.value}`)
+            fetch(`/getExamsForHod/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+                 {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+            )
                 .then(response => response.json())
                 .then(data => {
                     if (data.length > 0) {
@@ -130,13 +150,24 @@ yearSelect.addEventListener("change", function () {
 
     // Fetch student reports
     fetchReportsBtn.addEventListener("click", function () {
-        fetch(`/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subjectSelect.value}/${examSelect.value}`)
+        fetch(`/getStudentReports/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}/${subjectSelect.value}/${examSelect.value}`,
+             {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        )
         .then(response => response.json())
         .then(async data => {
             studentData = data;
 
             const maxMarksResponse = await fetch(
-                `/getExamMaxMarks/${yearSelect.value}/${branchSelect.value}/${examSelect.value}`
+                `/getExamMaxMarks/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}/${examSelect.value}`,
+                 {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
             );
             const maxMarksData = await maxMarksResponse.json();
 
@@ -387,6 +418,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -394,7 +426,7 @@ const logoutBtn = document.getElementById("logoutBtn");
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
