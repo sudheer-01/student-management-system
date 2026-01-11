@@ -2379,6 +2379,152 @@ app.post("/admin/student-marks/:role/:adminId", async (req, res) => {
 });
 //--------------------------------------------------------------
 //--------------------------------------------------------------
+//FORGOT PASSWORD AND RESET PASSWORD
+
+//1. Verify User
+app.post("/auth/verify-user", (req, res) => {
+    const { role, id } = req.body;
+
+    let sql, params;
+
+    if (role === "faculty") {
+        sql = "SELECT facultyId FROM faculty WHERE facultyId = ?";
+        params = [id];
+    }
+    else if (role === "hod") {
+        sql = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
+        params = [id];
+    }
+    else if (role === "student") {
+        sql = `
+            SELECT htno
+            FROM student_profiles
+            WHERE htno = ?
+        `;
+        params = [id];
+    }
+    else {
+        return res.json({ success: false });
+    }
+
+    con.query(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ success: false });
+        if (!rows.length) return res.json({ success: false });
+        res.json({ success: true });
+    });
+});
+//2. Send Reset Request
+app.post("/auth/request-reset", (req, res) => {
+    const { role, id } = req.body;
+
+    let sql, params;
+
+    if (role === "faculty") {
+        sql = `
+            UPDATE faculty
+            SET reset_password = 'yes'
+            WHERE facultyId = ?
+        `;
+        params = [id];
+    }
+    else if (role === "hod") {
+        sql = `
+            UPDATE hod_details
+            SET reset_password = 'yes'
+            WHERE hod_id = ?
+        `;
+        params = [id];
+    }
+    else if (role === "student") {
+        sql = `
+            UPDATE student_profiles
+            SET reset_password = 'yes'
+            WHERE htno = ?
+        `;
+        params = [id];
+    }
+    else {
+        return res.json({ success: false });
+    }
+
+    con.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false });
+        if (!result.affectedRows) return res.json({ success: false });
+        res.json({ success: true });
+    });
+});
+//3. Verify User for resetting pwd
+app.post("/api/reset/verify-user", (req, res) => {
+    const { role, userId } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else if (role === "student") { table = "student_profiles"; idCol = "htno"; }
+    else return res.json({ success: false });
+
+    con.query(
+        `SELECT reset_password FROM ${table} WHERE ${idCol}=?`,
+        [userId],
+        (err, r) => {
+            if (err || !r.length)
+                return res.json({ success: false, message: "Invalid user" });
+
+            if (r[0].reset_password !== "reset_password")
+                return res.json({ success: false, message: "Reset not allowed" });
+
+            res.json({ success: true });
+        }
+    );
+});
+//4. Verifying Temporary pwd
+app.post("/api/reset/verify-temp-password", (req, res) => {
+    const { role, userId, tempPassword } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else { table = "student_profiles"; idCol = "htno"; }
+
+    con.query(
+        `SELECT password FROM ${table} WHERE ${idCol}=?`,
+        [userId],
+        (err, r) => {
+            if (err || !r.length || r[0].password !== tempPassword)
+                return res.json({ success: false, message: "Invalid temporary password" });
+
+            res.json({ success: true });
+        }
+    );
+});
+//5. Update Pwd
+app.post("/api/reset/update-password", (req, res) => {
+    const { role, userId, newPassword } = req.body;
+
+    let table, idCol;
+    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
+    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
+    else { table = "student_profiles"; idCol = "htno"; }
+
+    con.query(
+        `UPDATE ${table}
+         SET password=?, reset_password='no'
+         WHERE ${idCol}=?`,
+        [newPassword, userId],
+        err => {
+            if (err)
+                return res.json({ success: false, message: "Update failed" });
+
+            res.json({ success: true, message: "Password updated successfully" });
+        }
+    );
+});
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//HOD TASKS
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //Pending...
 
 //Entering sutdent details such as htno and name by hod 
@@ -3205,147 +3351,6 @@ app.get("/getIndividualStudentData/:htno/:year/:branch", (req, res) => {
     });
   });
 });
-
-//forgot password
-app.post("/auth/verify-user", (req, res) => {
-    const { role, id } = req.body;
-
-    let sql, params;
-
-    if (role === "faculty") {
-        sql = "SELECT facultyId FROM faculty WHERE facultyId = ?";
-        params = [id];
-    }
-    else if (role === "hod") {
-        sql = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
-        params = [id];
-    }
-    else if (role === "student") {
-        sql = `
-            SELECT htno
-            FROM student_profiles
-            WHERE htno = ?
-        `;
-        params = [id];
-    }
-    else {
-        return res.json({ success: false });
-    }
-
-    con.query(sql, params, (err, rows) => {
-        if (err) return res.status(500).json({ success: false });
-        if (!rows.length) return res.json({ success: false });
-        res.json({ success: true });
-    });
-});
-
-app.post("/auth/request-reset", (req, res) => {
-    const { role, id } = req.body;
-
-    let sql, params;
-
-    if (role === "faculty") {
-        sql = `
-            UPDATE faculty
-            SET reset_password = 'yes'
-            WHERE facultyId = ?
-        `;
-        params = [id];
-    }
-    else if (role === "hod") {
-        sql = `
-            UPDATE hod_details
-            SET reset_password = 'yes'
-            WHERE hod_id = ?
-        `;
-        params = [id];
-    }
-    else if (role === "student") {
-        sql = `
-            UPDATE student_profiles
-            SET reset_password = 'yes'
-            WHERE htno = ?
-        `;
-        params = [id];
-    }
-    else {
-        return res.json({ success: false });
-    }
-
-    con.query(sql, params, (err, result) => {
-        if (err) return res.status(500).json({ success: false });
-        if (!result.affectedRows) return res.json({ success: false });
-        res.json({ success: true });
-    });
-});
-
-app.post("/api/reset/verify-user", (req, res) => {
-    const { role, userId } = req.body;
-
-    let table, idCol;
-    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
-    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
-    else if (role === "student") { table = "student_profiles"; idCol = "htno"; }
-    else return res.json({ success: false });
-
-    con.query(
-        `SELECT reset_password FROM ${table} WHERE ${idCol}=?`,
-        [userId],
-        (err, r) => {
-            if (err || !r.length)
-                return res.json({ success: false, message: "Invalid user" });
-
-            if (r[0].reset_password !== "reset_password")
-                return res.json({ success: false, message: "Reset not allowed" });
-
-            res.json({ success: true });
-        }
-    );
-});
-
-app.post("/api/reset/verify-temp-password", (req, res) => {
-    const { role, userId, tempPassword } = req.body;
-
-    let table, idCol;
-    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
-    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
-    else { table = "student_profiles"; idCol = "htno"; }
-
-    con.query(
-        `SELECT password FROM ${table} WHERE ${idCol}=?`,
-        [userId],
-        (err, r) => {
-            if (err || !r.length || r[0].password !== tempPassword)
-                return res.json({ success: false, message: "Invalid temporary password" });
-
-            res.json({ success: true });
-        }
-    );
-});
-app.post("/api/reset/update-password", (req, res) => {
-    const { role, userId, newPassword } = req.body;
-
-    let table, idCol;
-    if (role === "faculty") { table = "faculty"; idCol = "facultyId"; }
-    else if (role === "hod") { table = "hod_details"; idCol = "hod_id"; }
-    else { table = "student_profiles"; idCol = "htno"; }
-
-    con.query(
-        `UPDATE ${table}
-         SET password=?, reset_password='no'
-         WHERE ${idCol}=?`,
-        [newPassword, userId],
-        err => {
-            if (err)
-                return res.json({ success: false, message: "Update failed" });
-
-            res.json({ success: true, message: "Password updated successfully" });
-        }
-    );
-});
-
-
-
 
 // Fetch table data for year/branch
 app.get("/api/get-table-data", (req, res) => {
