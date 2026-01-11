@@ -3064,22 +3064,41 @@ app.get("/getData/:role/:hodId", (req, res) => {
     );
 });
 
-//--------------------------------------------------------------
-//--------------------------------------------------------------
-//Pending...
-
-app.get("/getReportDetails", (req, res) => {
-    res.json({
-        branch: approvedBranch,
-        year: approvedYear,
-        subject: approvedSubject
-    });
-});
-
+//5. ADD AND CHANGE EXAMS
 //to get exam columns from examsofspecificyearandbranch table
-app.get("/getExamColumns/:year/:branch", (req, res) => {
+app.get("/getExamColumns/:role/:hodId/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
 
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get exam cols:", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
     const query =
         "SELECT exams FROM examsofspecificyearandbranch WHERE year = ? AND branch = ?";
 
@@ -3099,7 +3118,7 @@ app.get("/getExamColumns/:year/:branch", (req, res) => {
                     ? JSON.parse(result[0].exams)
                     : result[0].exams;
 
-            // ✅ RETURN EXAM NAMES, NOT MARKS
+            //  RETURN EXAM NAMES, NOT MARKS
             const examNames = Object.keys(examsJSON);
 
             res.json(examNames);
@@ -3109,13 +3128,39 @@ app.get("/getExamColumns/:year/:branch", (req, res) => {
         }
     });
 });
-
 // Add a New Exam Column to studentMarks
-app.post("/addExamToDatabase", (req, res) => {
+app.post("/addExamToDatabase/:role/:hodId", (req, res) => {
     const { year, branch, examNameWithSpaces, maxMarks } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
 
-    if (!year || !branch || !examNameWithSpaces || !maxMarks) {
-        return res.status(400).send("Year, branch, exam name, and max marks are required");
+    if (!hodId ||  !role || !year || !branch || !examNameWithSpaces || !maxMarks) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- add exam to database :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
     }
 
     // CamelCase, no spaces, no underscores
@@ -3199,13 +3244,39 @@ app.post("/addExamToDatabase", (req, res) => {
         });
     });
 });
-
 // Remove an Exam Column from studentMarks and 
-app.post("/removeExamColumn", (req, res) => {
+app.post("/removeExamColumn/:role/:hodId", (req, res) => {
     const { year, branch, examName } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
 
-    if (!year || !branch || !examName) {
-        return res.status(400).send("Year, branch, and exam name are required");
+    if (!hodId ||  !role || !year || !branch || !examName) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- remove exam col :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
     }
 
     const getQuery =
@@ -3226,7 +3297,7 @@ app.post("/removeExamColumn", (req, res) => {
                 ? JSON.parse(result[0].exams)
                 : result[0].exams;
 
-        // ✅ REMOVE BY KEY (EXAM NAME)
+        // REMOVE BY KEY (EXAM NAME)
         if (!examsJSON[examName]) {
             return res.status(404).send("Exam not found");
         }
@@ -3254,6 +3325,17 @@ app.post("/removeExamColumn", (req, res) => {
                 });
             }
         );
+    });
+});
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//Pending...
+
+app.get("/getReportDetails", (req, res) => {
+    res.json({
+        branch: approvedBranch,
+        year: approvedYear,
+        subject: approvedSubject
     });
 });
 

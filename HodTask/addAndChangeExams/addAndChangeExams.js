@@ -79,11 +79,19 @@ async function fetchYears() {
 async function fetchBranches() {
     const year = document.getElementById("yearSelect").value;
     const branch = localStorage.getItem("hodBranch"); 
-    
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
     if (!year || !branch) return;
 
     try {
-        const response = await fetch(`/getbranches/${year}/${branch}`);
+        const response = await fetch(`/getbranches/${role}/${hodId}/${year}/${branch}`,
+              {
+                 headers: {
+                "x-session-key": sessionValue
+                }
+            }
+        );
         const branches = await response.json();
         const branchSelect = document.getElementById("branchSelect");
 
@@ -104,11 +112,19 @@ document.getElementById("branchSelect").addEventListener("change", loadExams);
 async function loadExams() {
     const year = document.getElementById("yearSelect").value;
     const branch = document.getElementById("branchSelect").value;
-    
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
     if (!year || !branch) return; // Ensure both are selected before fetching
 
     try {
-        const response = await fetch(`/getExamColumns/${year}/${branch}`);
+        const response = await fetch(`/getExamColumns/${role}/${hodId}/${year}/${branch}`,
+              {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        );
         const exams = await response.json();
         const tbody = document.querySelector("#examsTable tbody");
 
@@ -156,10 +172,12 @@ document.getElementById("addExam").addEventListener("click", async () => {
         } else {
             examName = `${examBase}${toRoman(Number(number))}`;
         }
-
-        await fetch("/addExamToDatabase", {
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        await fetch(`/addExamToDatabase/${role}/${hodId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",  "x-session-key": sessionValue },
             body: JSON.stringify({
                 year,
                 branch,
@@ -188,10 +206,13 @@ function addExamRow(examName) {
 async function removeExam(examName) {
     const year = document.getElementById("yearSelect").value;
     const branch = document.getElementById("branchSelect").value;
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
     try {
-        const response = await fetch("/removeExamColumn", {
+        const response = await fetch(`/removeExamColumn/${role}/${hodId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",  "x-session-key": sessionValue },
             body: JSON.stringify({ year, branch, examName })
         });
 
@@ -210,6 +231,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -217,7 +239,7 @@ const logoutBtn = document.getElementById("logoutBtn");
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
