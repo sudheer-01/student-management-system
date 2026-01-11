@@ -2999,9 +2999,9 @@ app.post("/saveData/:role/:hodId", (req, res) => {
         (htno, full_name, branch, year, password, reset_password)
         VALUES ?
         ON DUPLICATE KEY UPDATE
-            year = VALUES(year), branch = VALUES(branch)
+           year = VALUES(year)
     `;
-
+    //we can also update the branch like year as above
     con.query(query, [insertValues], (err) => {
         if (err) {
             console.error("Student profile save error:", err);
