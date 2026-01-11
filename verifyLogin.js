@@ -2999,7 +2999,7 @@ app.post("/saveData/:role/:hodId", (req, res) => {
         (htno, full_name, branch, year, password, reset_password)
         VALUES ?
         ON DUPLICATE KEY UPDATE
-            year = VALUES(year)
+            year = VALUES(year), branch = VALUES(branch)
     `;
 
     con.query(query, [insertValues], (err) => {
