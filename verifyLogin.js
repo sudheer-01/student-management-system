@@ -2523,6 +2523,8 @@ app.post("/api/reset/update-password", (req, res) => {
 //--------------------------------------------------------------
 //HOD TASKS
 
+//1. HOD DASHBOARD
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -2726,13 +2728,6 @@ app.post("/deleteSubjects", async (req, res) => {
         res.status(500).json({ error: "Failed to delete subjects" });
     }
 });
-
-
-//homePageForFaculty:::requestForSubject
-
-
-//homepageForFaculty:::requestForSubject
-
 
 app.get("/getbranches/:year/:branch", (req, res) => {
     const { year,branch } = req.params;
