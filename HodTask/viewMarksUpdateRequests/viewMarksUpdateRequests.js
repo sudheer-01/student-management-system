@@ -45,9 +45,17 @@ async function loadBranches() {
     if (!year) return;
 
     const hodBranch = localStorage.getItem("hodBranch") || "";
-
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
     try {
-        const response = await fetch(`/getbranches/${year}/${hodBranch}`);
+        const response = await fetch(`/getbranches//${role}/${hodId}/${year}/${hodBranch}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        );
         const branches = await response.json();
         const dropdown = document.getElementById("branchDropdown");
 
@@ -73,8 +81,16 @@ async function loadRequests() {
         showMessage("Please select both year and branch.", "error");
         return;
     }
-
-    const response = await fetch(`/getRequests/${year}/${branch}`);
+    const role = localStorage.getItem("role");
+    const hodId = localStorage.getItem("hodId");
+    const sessionValue = localStorage.getItem("key");
+    const response = await fetch(`/getRequests/${role}/${hodId}/${year}/${branch}`,
+        {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+        }
+    );
 
     if (!response.ok) {
         showMessage("Failed to load data. Please try again.", "error");
@@ -128,7 +144,14 @@ function populateTable(requests) {
 
 async function updateStatus(faculty, subject, exam, status) {
     try {
-        const response = await fetch(`/updateStatus/${faculty}/${subject}/${exam}/${status}`, { method: "POST" });
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/updateStatus/${role}/${hodId}/${faculty}/${subject}/${exam}/${status}`, { method: "POST",
+                 headers: {
+                "x-session-key": sessionValue
+            }
+         });
 
         if (!response.ok) {
             throw new Error("Failed to update request status.");
@@ -148,7 +171,16 @@ async function toggleStudentTable(button, faculty, subject, exam) {
     if (existingTable) existingTable.remove();
 
     try {
-        const response = await fetch(`/getUpdate/${faculty}/${subject}/${exam}`);
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/getUpdate/${role}/${hodId}/${faculty}/${subject}/${exam}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        );
         if (!response.ok) throw new Error("Failed to fetch data");
 
         const students = await response.json();
@@ -212,14 +244,14 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
-
+        const sessionValue = localStorage.getItem("key");
         try {
             await fetch("/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

@@ -3549,6 +3549,193 @@ app.get("/getExamMaxMarks/:role/:hodId/:year/:branch/:exam", (req, res) => {
     });
 });
 
+//7. VIEW MARKS UPDATE REQUESTS
+app.get("/getRequests/:role/:hodId/:year/:branch", (req, res) => {
+     const { role, hodId,year, branch } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get requests :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = `SELECT DISTINCT 
+        requested_by,
+        subject,
+        exam,
+        DATE(requested_at) AS requested_date,
+        request_status
+    FROM pending_marks_updates
+    WHERE year = ? AND branch = ? AND request_status = 'Pending'
+    `;
+    con.query(query, [req.params.year, req.params.branch], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+    });
+});
+app.post("/updateStatus/:role/:hodId/:faculty/:subject/:exam/:status", (req, res) => {
+    const { faculty, subject, exam, status } = req.params;
+     const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !faculty || !subject || !exam || !status) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- update status :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    // If Approved, update marks in studentMarks
+    if (status === "Approved") {
+        // Fetch marks from pending_marks_updates
+        const fetchQuery = `SELECT year, branch, htno, new_marks FROM pending_marks_updates WHERE requested_by = ? AND subject = ? AND exam = ?`;
+
+        con.query(fetchQuery, [faculty, subject, exam], (err, results) => {
+            if (err || results.length === 0) {
+                console.error("Error fetching marks:", err);
+                return res.status(500).json({ error: "Failed to fetch marks" });
+            }
+
+            // Determine column (Unit_test_1 or mid_1)
+            let column = exam;
+            console.log("Updating column:", column);
+            // Update marks for each student
+            let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
+                return new Promise((resolve, reject) => {
+                    const updateQuery = `UPDATE studentmarks SET ${column} = ? WHERE year = ? AND branch = ? AND htno = ? AND subject = ?`;
+                    con.query(updateQuery, [new_marks, year, branch, htno, subject], (err) => {
+                        if (err) reject(err);
+                        else resolve();
+                    });
+                });
+            });
+
+            // Execute updates
+            Promise.all(updatePromises)
+                .then(() => {
+                    // Update request status
+                    const statusQuery = `UPDATE pending_marks_updates SET request_status = ? WHERE requested_by = ? AND subject = ? AND exam = ?`;
+                    con.query(statusQuery, [status, faculty, subject, exam], (err) => {
+                        if (err) {
+                            console.error("Error updating status:", err);
+                            return res.status(500).json({ error: "Failed to update status" });
+                        }
+                        res.sendStatus(200);
+                    });
+                })
+                .catch((err) => {
+                    console.error("Error updating student marks:", err);
+                    res.status(500).json({ error: "Failed to update student marks" });
+                });
+        });
+    } else {
+        // Just update request status if Rejected
+        const statusQuery = `UPDATE pending_marks_updates SET request_status = ? WHERE requested_by = ? AND subject = ? AND exam = ?`;
+        con.query(statusQuery, [status, faculty, subject, exam], (err) => {
+            if (err) {
+                console.error("Error updating status:", err);
+                return res.status(500).json({ error: "Failed to update status" });
+            }
+            res.sendStatus(200);
+        });
+    }
+});
+app.get("/getUpdate/:role/:hodId/:faculty/:subject/:exam", (req, res) => {
+     const { role, hodId, faculty, subject, exam } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !faculty || !subject|| !exam) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get update :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    const query = `SELECT 
+        htno,
+        name,
+        old_marks,
+        new_marks,
+        reason
+    FROM pending_marks_updates
+    WHERE requested_by = ?
+    AND subject = ?
+    AND exam = ?
+    `;
+    con.query(query, [req.params.faculty, req.params.subject, req.params.exam], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+    });
+});
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -3607,100 +3794,6 @@ app.post("/verify-session", (req, res) => {
         console.log("Session valid for:", { role, userId });
         return res.json({ valid: true });
     });
-});
-
-//HodTask:::viewMarksUpdateRequests
-app.get("/getRequests/:year/:branch", (req, res) => {
-    const query = `SELECT DISTINCT 
-        requested_by,
-        subject,
-        exam,
-        DATE(requested_at) AS requested_date,
-        request_status
-    FROM pending_marks_updates
-    WHERE year = ? AND branch = ? AND request_status = 'Pending'
-    `;
-    con.query(query, [req.params.year, req.params.branch], (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        res.json(results);
-    });
-});
-
-app.get("/getUpdate/:faculty/:subject/:exam", (req, res) => {
-    const query = `SELECT 
-        htno,
-        name,
-        old_marks,
-        new_marks,
-        reason
-    FROM pending_marks_updates
-    WHERE requested_by = ?
-    AND subject = ?
-    AND exam = ?
-    `;
-    con.query(query, [req.params.faculty, req.params.subject, req.params.exam], (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        res.json(results);
-    });
-});
-
-app.post("/updateStatus/:faculty/:subject/:exam/:status", (req, res) => {
-    const { faculty, subject, exam, status } = req.params;
-
-    // If Approved, update marks in studentMarks
-    if (status === "Approved") {
-        // Fetch marks from pending_marks_updates
-        const fetchQuery = `SELECT year, branch, htno, new_marks FROM pending_marks_updates WHERE requested_by = ? AND subject = ? AND exam = ?`;
-
-        con.query(fetchQuery, [faculty, subject, exam], (err, results) => {
-            if (err || results.length === 0) {
-                console.error("Error fetching marks:", err);
-                return res.status(500).json({ error: "Failed to fetch marks" });
-            }
-
-            // Determine column (Unit_test_1 or mid_1)
-            let column = exam;
-            console.log("Updating column:", column);
-            // Update marks for each student
-            let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
-                return new Promise((resolve, reject) => {
-                    const updateQuery = `UPDATE studentmarks SET ${column} = ? WHERE year = ? AND branch = ? AND htno = ? AND subject = ?`;
-                    con.query(updateQuery, [new_marks, year, branch, htno, subject], (err) => {
-                        if (err) reject(err);
-                        else resolve();
-                    });
-                });
-            });
-
-            // Execute updates
-            Promise.all(updatePromises)
-                .then(() => {
-                    // Update request status
-                    const statusQuery = `UPDATE pending_marks_updates SET request_status = ? WHERE requested_by = ? AND subject = ? AND exam = ?`;
-                    con.query(statusQuery, [status, faculty, subject, exam], (err) => {
-                        if (err) {
-                            console.error("Error updating status:", err);
-                            return res.status(500).json({ error: "Failed to update status" });
-                        }
-                        res.sendStatus(200);
-                    });
-                })
-                .catch((err) => {
-                    console.error("Error updating student marks:", err);
-                    res.status(500).json({ error: "Failed to update student marks" });
-                });
-        });
-    } else {
-        // Just update request status if Rejected
-        const statusQuery = `UPDATE pending_marks_updates SET request_status = ? WHERE requested_by = ? AND subject = ? AND exam = ?`;
-        con.query(statusQuery, [status, faculty, subject, exam], (err) => {
-            if (err) {
-                console.error("Error updating status:", err);
-                return res.status(500).json({ error: "Failed to update status" });
-            }
-            res.sendStatus(200);
-        });
-    }
 });
 
 //generating charts
