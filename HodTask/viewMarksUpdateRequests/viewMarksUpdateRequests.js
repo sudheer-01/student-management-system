@@ -49,7 +49,7 @@ async function loadBranches() {
     const hodId = localStorage.getItem("hodId");
     const sessionValue = localStorage.getItem("key");
     try {
-        const response = await fetch(`/getbranches//${role}/${hodId}/${year}/${hodBranch}`,
+        const response = await fetch(`/getbranches/${role}/${hodId}/${year}/${hodBranch}`,
             {
                  headers: {
                 "x-session-key": sessionValue
