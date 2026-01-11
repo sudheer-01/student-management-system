@@ -55,7 +55,16 @@ document.getElementById("yearDropdown").addEventListener("change", async functio
 
     try {
         const branch = localStorage.getItem("hodBranch");
-        const response = await fetch(`/getbranches/${year}/${branch}`);
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/getbranches/${role}/${hodId}/${year}/${branch}`,
+            {
+                 headers: {
+                "x-session-key": sessionValue
+                }
+            }
+        );
         const branches = await response.json();
         const branchDropdown = document.getElementById("branchDropdown");
         branchDropdown.innerHTML = '<option value="">Select Branch</option>';
@@ -82,7 +91,16 @@ document.getElementById("loadRequests").addEventListener("click", async function
     }
 
     try {
-        const response = await fetch(`/hodRequests/${year}/${branch}`);
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/hodRequests/${role}/${hodId}/${year}/${branch}`,
+             {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+        );
         const requests = await response.json();
 
         const tableBody = document.getElementById("requestTable");
@@ -160,9 +178,12 @@ document.getElementById("loadRequests").addEventListener("click", async function
 async function updateStatus(facultyId, year, branch, subject, status) {
 
     try {
-        const response = await fetch(`/updateRequestStatus`, {
+        const role = localStorage.getItem("role");
+        const hodId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
+        const response = await fetch(`/updateRequestStatus/${role}/${hodId}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "x-session-key": sessionValue },
             body: JSON.stringify({ facultyId, status, year, branch, subject })
         });
         const result = await response.json();
@@ -196,6 +217,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -203,7 +225,7 @@ const logoutBtn = document.getElementById("logoutBtn");
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);

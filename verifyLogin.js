@@ -2783,6 +2783,168 @@ app.post("/deleteSubjects/:role/:hodId", async (req, res) => {
     }
 });
 
+//3. FACULTY REQUESTS 
+//retrive branches
+app.get("/getbranches/:role/:hodId/:year/:branch", (req, res) => {
+    const { year,branch } = req.params;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- get branches :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    let query;
+    let params;
+
+    if (year === "1") {
+        // Fetch only 1st-year branches
+        
+        query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
+        params = [1];
+    } else {
+        // Fetch only HOD-related branches for other years
+        
+        query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
+        params = [year, `%${branch}%`];
+    }
+
+    con.query(query, params, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+//
+app.get("/hodRequests/:role/:hodId/:year/:branch", (req, res) => {
+    const { year, branch } = req.params;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role || !year || !branch) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- hod requests :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+    const query = "SELECT * FROM faculty_requests WHERE year = ? AND branch = ?";
+    
+    con.query(query, [year, branch], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).send(err);
+        }
+        res.json(result);
+    });
+});
+//to update status by hod
+app.post("/updateRequestStatus/:role/:hodId", (req, res) => {
+    const { facultyId, status, year, branch, subject } = req.body;
+    const { role, hodId } = req.params;
+    const sessionValue = req.headers["x-session-key"];
+
+    if (!hodId ||  !role) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid request parameters"
+        });
+    }
+    if (!sessionStore[role]) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid role"
+        });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("Session validation hod- update request status :", valid);
+
+    if (!valid) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid session"
+        });
+    }
+
+    if (!facultyId || !status || !year || !branch || !subject) {
+        console.error("Missing required fields:", { facultyId, status, year, branch, subject });
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const query = `
+        UPDATE faculty_requests 
+        SET status = ? 
+        WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ?`;
+
+    con.query(query, [status, facultyId, year, branch, subject], (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ error: "Database error", details: err });
+        }
+
+        if (result.affectedRows === 0) {
+            console.warn("No matching record found for:", { facultyId, year, branch, subject });
+            return res.status(404).json({ error: "No matching record found" });
+        }
+
+        res.json({ message: `Request ${status} successfully!` });
+    });
+});
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -2849,77 +3011,6 @@ app.get("/getReportDetails", (req, res) => {
         branch: approvedBranch,
         year: approvedYear,
         subject: approvedSubject
-    });
-});
-
-app.get("/getbranches/:year/:branch", (req, res) => {
-    const { year,branch } = req.params;
-
-    let query;
-    let params;
-
-    if (year === "1") {
-        // Fetch only 1st-year branches
-        
-        query = "SELECT DISTINCT branch_name FROM branches WHERE year = ?";
-        params = [1];
-    } else {
-        // Fetch only HOD-related branches for other years
-        
-        query = "SELECT branch_name FROM branches WHERE year = ? AND branch_name LIKE ?";
-        params = [year, `%${branch}%`];
-    }
-
-    con.query(query, params, (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
-
-app.get("/hodRequests/:year/:branch", (req, res) => {
-    const { year, branch } = req.params;
-
-    const query = "SELECT * FROM faculty_requests WHERE year = ? AND branch = ?";
-    
-    con.query(query, [year, branch], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).send(err);
-        }
-        res.json(result);
-    });
-});
-//to update status by hod
-app.post("/updateRequestStatus", (req, res) => {
-    const { facultyId, status, year, branch, subject } = req.body;
-    
-    //console.log("Received Data:", { facultyId, status, year, branch, subject }); 
-
-    if (!facultyId || !status || !year || !branch || !subject) {
-        console.error("Missing required fields:", { facultyId, status, year, branch, subject });
-        return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const query = `
-        UPDATE faculty_requests 
-        SET status = ? 
-        WHERE faculty_Id = ? AND year = ? AND branch = ? AND subject = ?`;
-
-    con.query(query, [status, facultyId, year, branch, subject], (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).json({ error: "Database error", details: err });
-        }
-
-        if (result.affectedRows === 0) {
-            console.warn("No matching record found for:", { facultyId, year, branch, subject });
-            return res.status(404).json({ error: "No matching record found" });
-        }
-
-        res.json({ message: `Request ${status} successfully!` });
     });
 });
 
