@@ -12,7 +12,9 @@ function showMessage(message, type = "info", autoHide = true) {
         }, 4000); // hide after 4 seconds
     }
 }
-
+const role = localStorage.getItem("role");
+const hodId = localStorage.getItem("hodId");
+const sessionValue = localStorage.getItem("key");
 /*************************************************
  * CHART PLUGIN – VALUES ON BARS
  *************************************************/
@@ -172,7 +174,11 @@ function resetAnalysisUI() {
 
 
 async function populateDropdown(select, url, valueKey, textKey) {
-  const res = await fetch(url);
+  const res = await fetch(url,  {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            });
   const data = await res.json();
   select.innerHTML = `<option value="">Select</option>`;
   data.forEach(item => {
@@ -207,7 +213,7 @@ yearSelect.addEventListener("change", async () => {
   if (!year) return;
 
   const hodBranch = localStorage.getItem("hodBranch") || "";
-  await populateDropdown(branchSelect, `/getbranches/${year}/${hodBranch}`, "branch_name", "branch_name");
+  await populateDropdown(branchSelect, `/getbranches/${role}/${hodId}/${year}/${hodBranch}`, "branch_name", "branch_name");
 });
 
 /*************************************************
@@ -224,7 +230,7 @@ async function loadSubjectExamAnalysis() {
   subjectWrapper.style.display = "flex";
   await populateDropdown(
     subjectSelect,
-    `/getSubjects/${yearSelect.value}/${branchSelect.value}`,
+    `/getSubjects/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
     "subject_name",
     "subject_name"
   );
@@ -237,8 +243,20 @@ subjectSelect.addEventListener("change", async () => {
   performanceConfig.style.display = "block";
   performanceConfig.innerHTML = "<h3>Select Exams</h3>";
 
-  const exams = await (await fetch(`/getExams?year=${yearSelect.value}&branch=${branchSelect.value}`)).json();
-  const maxMap = await (await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`)).json();
+  const exams = await (await fetch(`/getExamsForHod/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+     {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+  )).json();
+  const maxMap = await (await fetch(`/hod/getExamMaxMarksAll/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+     {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+  )).json();
 
   performanceConfig.innerHTML += `
     <div class="exam-checkboxes">
@@ -388,7 +406,12 @@ generateBtn.onclick = async () => {
 
         // Fetch students
         const res = await fetch(
-            `/getStudentReports/${year}/${branch}/${subject}/${exam}`
+            `/getStudentReports/${role}/${hodId}/${year}/${branch}/${subject}/${exam}`,
+             {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
         );
         const students = await res.json();
 
@@ -608,9 +631,27 @@ async function loadComparativeInsightChart() {
     config.style.display = "block";
     config.innerHTML = "<h3>Comparative Insights</h3>";
 
-    const subjects = await (await fetch(`/getSubjects/${year}/${branch}`)).json();
-    const exams = await (await fetch(`/getExams?year=${year}&branch=${branch}`)).json();
-    const maxMap = await (await fetch(`/getExamMaxMarksAll/${year}/${branch}`)).json();
+    const subjects = await (await fetch(`/getSubjects/${role}/${hodId}/${year}/${branch}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+        }
+    )).json();
+    const exams = await (await fetch(`/getExamsForHod/${role}/${hodId}/${year}/${branch}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    )).json();
+    const maxMap = await (await fetch(`/hod/getExamMaxMarksAll/${role}/${hodId}/${year}/${branch}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    )).json();
 
     config.innerHTML += `
         <h4>Select Subjects</h4>
@@ -718,7 +759,12 @@ document.getElementById("generateComparativeBtn").onclick = async () => {
         const subjectData = {};
         for (const subject of subjects) {
             subjectData[subject] = await (await fetch(
-                `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject}/${exam}`
+                `/getStudentReports/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}/${subject}/${exam}`,
+                 {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
             )).json();
         }
 
@@ -969,7 +1015,13 @@ async function showStudentPerformanceControls() {
   studentControls.style.display = "flex";
 
   try {
-    const res = await fetch(`/getStudentsData/${yearSelect.value}/${branchSelect.value}`);
+    const res = await fetch(`/getStudentsData/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    );
     const students = await res.json();
 
     const studentSelect = document.getElementById("studentHtno");
@@ -1001,7 +1053,12 @@ async function loadStudentPerformanceChart() {
 
   try {
     const res = await fetch(
-      `/getIndividualStudentData/${htno}/${yearSelect.value}/${branchSelect.value}`
+      `/getIndividualStudentData/${role}/${hodId}/${htno}/${yearSelect.value}/${branchSelect.value}`,
+       {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     );
     const result = await res.json();
 
@@ -1025,7 +1082,13 @@ async function loadStudentPerformanceChart() {
     chartsContainer.innerHTML = `<div class="chart-container"><canvas id="studentChart"></canvas></div>`;
 
     const ctx = document.getElementById("studentChart").getContext("2d");
-    const maxMarksRes = await fetch(`/getExamMaxMarksAll/${yearSelect.value}/${branchSelect.value}`);
+    const maxMarksRes = await fetch(`/hod/getExamMaxMarksAll/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
+    );
     const maxMarksMap = await maxMarksRes.json();
 
     // Find highest max among selected exams
@@ -1226,7 +1289,12 @@ async function loadPotentialFailedStudents() {
     config.className = "analysis-block";
 
     const exams = await (await fetch(
-        `/getExams?year=${yearSelect.value}&branch=${branchSelect.value}`
+        `/getExamsForHod/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     )).json();
 
     config.innerHTML = `
@@ -1275,9 +1343,13 @@ async function generatePotentialFailedStudents() {
     }
 
     clearCharts();
-
     const subjects = await (await fetch(
-        `/getSubjects/${yearSelect.value}/${branchSelect.value}`
+        `/getSubjects/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}`,
+         {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
     )).json();
 
     const allSubjectStudents = {};
@@ -1289,7 +1361,12 @@ async function generatePotentialFailedStudents() {
 
     for (const { subject_name } of subjects) {
         const students = await (await fetch(
-            `/getStudentReports/${yearSelect.value}/${branchSelect.value}/${subject_name}/${exam}`
+            `/getStudentReports/${role}/${hodId}/${yearSelect.value}/${branchSelect.value}/${subject_name}/${exam}`,
+             {
+                 headers: {
+                "x-session-key": sessionValue
+            }
+            }
         )).json();
 
         const filtered = students.filter(s => conditionFn(s.marks));
@@ -1405,6 +1482,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 
         const role = localStorage.getItem("role");
         const userId = localStorage.getItem("hodId");
+        const sessionValue = localStorage.getItem("key");
 
         try {
             await fetch("/logout", {
@@ -1412,7 +1490,7 @@ const logoutBtn = document.getElementById("logoutBtn");
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ role, userId })
+                body: JSON.stringify({ role, userId, sessionValue })
             });
         } catch (err) {
             console.error("Logout API failed:", err);
