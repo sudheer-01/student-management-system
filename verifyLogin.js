@@ -3936,6 +3936,56 @@ app.post("/hod/update-student-password/:role/:hodId", (req, res) => {
         res.json({ success: true });
     });
 });
+app.get("/hod/studentProfile/photo/:htno/:role/:hodId", (req, res) => {
+    const { htno, role, hodId } = req.params;
+    const sessionValue = req.query.sessionValue;
+    if(!htno || !role || !hodId) {
+            return res.status(401).json({ success: false, message: "Invalid credentials"});
+    }
+    if (!sessionStore[role]) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid role"
+            });
+    }
+    if (!sessionValue) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid user"
+        });
+    }
+    const valid = validateSession(role, hodId, sessionValue);
+    console.log("validation for hod- student photo retrival ", valid);
+    if (!valid) {
+                return res.status(401).json({ success: false, message: "Invalid session" });
+    }
+    
+
+    const query = `
+        SELECT profile_photo
+        FROM student_profiles
+        WHERE htno = ?
+        LIMIT 1
+    `;
+
+    con.query(query, [htno], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).end();
+        }
+
+        if (!results.length || !results[0].profile_photo) {
+            // No image → return 404 so frontend can fallback
+            return res.status(404).end();
+        }
+
+        const imageBuffer = results[0].profile_photo;
+
+        res.setHeader("Content-Type", "image/jpeg");
+        res.setHeader("Cache-Control", "no-store");
+        res.send(imageBuffer);
+    });
+});
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...

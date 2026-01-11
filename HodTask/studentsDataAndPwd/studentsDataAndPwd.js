@@ -173,7 +173,7 @@ function renderStudentTable(rows) {
             <tr>
                 <td>
                     <img
-                        src="/studentProfile/photo/${r.htno}"
+                        src="/hod/studentProfile/photo/${r.htno}/${role}/${hodId}?sessionValue=${sessionValue}"
                         class="profile-img"
                         onerror="this.src='default-user.png'"
                     />
