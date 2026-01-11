@@ -3356,7 +3356,7 @@ app.get("/getSubjects/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation get subjects :", valid);
+    console.log("2  10 :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3403,7 +3403,7 @@ app.get("/getExamsForHod/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation  get exams for HOD :", valid);
+    console.log("3  9 13 :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3468,7 +3468,7 @@ app.get("/getStudentReports/:role/:hodId/:year/:branch/:subject/:exam", (req, re
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation get student reports :", valid);
+    console.log("1  7   11:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4013,7 +4013,7 @@ app.get("/hod/getExamMaxMarksAll/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("get exam marx marks all:", valid);
+    console.log("4  8  12 ", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4077,7 +4077,7 @@ app.get("/getIndividualStudentData/:role/:hodId/:htno/:year/:branch", (req, res)
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("get individual student data:", valid);
+    console.log("5 ", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4158,7 +4158,7 @@ app.get("/getStudentsData/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("get students data:", valid);
+    console.log("6 ", valid);
 
     if (!valid) {
         return res.status(401).json({
