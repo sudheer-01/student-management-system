@@ -139,9 +139,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password.'); window.location.href='/';</script>`
-                );
+                res.status(500).json({ success: false, message: "Server error. Try again later." });
             }
             if (result.length > 0) {
                 //Send HOD details to the client
@@ -162,9 +160,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
                 });
             } else {
-                return res.send(
-                    `<script>alert('Invalid HOD ID or Password. '); window.location.href='/';</script>`
-                );
+                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
             }
         }
     );
