@@ -160,7 +160,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
                 });
             } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+                return res.status(401).json({ success: false, message: "Invalid HOD ID or Password." });
             }
         }
     );
