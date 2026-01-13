@@ -113,7 +113,7 @@ app.post("/TeacherLogin", (req, res) => {
             if (result.length > 0) {
                 //Send facultyId to frontend
                 const { sessionValue } = createSession("faculty", facultyId);
-                console.log("Login successful for facultyId:", facultyId, "Session Key:", sessionValue);
+                console.log("Login successful for facultyId:", facultyId,"pwd:",passwordOfTeacher, "Session Key:", sessionValue);
                 return res.json({
                     success: true,
                     facultyId: facultyId,
@@ -151,7 +151,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                     hodYears: result[0].year.split(",")
                 };
                 const { sessionValue } = createSession("hod", hodId);
-                console.log("Hod successful login:", hodDetails, sessionValue);
+                console.log("Hod successful login:", hodDetails, passwordOfHod, sessionValue);
                 return res.json({
                     success: true,
                     hodDetails: hodDetails,
@@ -188,6 +188,7 @@ app.post("/adminLogin", (req, res) => {
 
             if (result.length > 0) {
                 const { sessionValue } = createSession("admin", adminId);
+                console.log("login successful for admin: ", adminId, password, sessionValue);
                 return res.json({
                     success: true,
                     isLoggedIn: "true",
@@ -224,6 +225,7 @@ app.post("/studentCheckin", (req, res) => {
 
             if (result.length > 0) {
                 const { sessionValue } = createSession("student", stuHtno);
+                console.log("login success for student: ", stuHtno, password, sessionValue);
                 return res.json({
                     success: true,
                     isLoggedIn: "true",
@@ -357,7 +359,6 @@ app.get("/api/studentyear/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for one", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -398,7 +399,6 @@ app.post("/studentDashboard/:year/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for two", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -503,7 +503,6 @@ app.get("/studentBasic/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for three", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -530,7 +529,6 @@ app.get("/studentProfile/:htno/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for four", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -579,7 +577,6 @@ app.post("/studentProfile/photo/:htno/:role",upload.single("profile_photo"),(req
             });
         }
         const valid = validateSession(role, htno, sessionValue);
-        console.log("validation for five a", valid);
         if (!valid) {
                 return res.status(401).json({ success: false, message: "Invalid session" });
         }
@@ -632,7 +629,6 @@ app.get("/studentProfile/photo/:htno/:role", (req, res) => {
             });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for five b", valid);
     if (!valid) {
                 return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -678,7 +674,6 @@ app.post("/studentProfile/save/:role", (req, res) => {
         });
     }
     const valid = validateSession(role, htno, sessionValue);
-    console.log("validation for six", valid);
     if (!valid) {
             return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -792,7 +787,6 @@ app.get("/branches/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in branches:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -835,7 +829,6 @@ app.get("/subjects/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Subjects:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -878,7 +871,6 @@ app.get("/getRequests/:role", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Get Requests:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -901,7 +893,6 @@ app.get("/branches/:year/:role/:facultyId", (req, res) => {
     const year = req.params.year;
     const { role, facultyId } = req.params;
     const sessionValue = req.headers["x-session-key"];
-    console.log("received data", year, role, facultyId, sessionValue);
     if (!facultyId ||  !role || !year) {
         return res.status(400).json({
             success: false,
@@ -922,7 +913,6 @@ app.get("/branches/:year/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in branches of specific year:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -966,7 +956,6 @@ app.get("/subjects/:year/:branch/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Subjects of a branch:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1011,7 +1000,6 @@ app.post("/sendRequest/:role", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Send Request:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1038,7 +1026,6 @@ app.post("/sendRequest/:role", (req, res) => {
 app.get("/home/:role/:facultyId", (req, res) => {
     const { role, facultyId } = req.params;
     const sessionValue = req.query.sessionValue;
-    console.log("validation home", role, facultyId, sessionValue);
     if (!facultyId ||  !role || !sessionValue) {
         return res.status(400).json({
             success: false,
@@ -1059,7 +1046,6 @@ app.get("/home/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Sending home page:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1068,7 +1054,6 @@ app.get("/home/:role/:facultyId", (req, res) => {
         });
     }
     const filePath = path.join(__dirname, "homepageForFaculty", "Dashboard", "home.html");
-    // console.log("Serving file:", filePath);
     res.sendFile(filePath);
 });
 //------------------------------------------------------
@@ -1076,7 +1061,6 @@ app.get("/home/:role/:facultyId", (req, res) => {
 //to display faculty details in the dashboard
 app.post("/getFacultyDetails/:role", (req, res) => {
     const {year, branch, subject, facultyId} = req.body;
-    //console.log(year, branch, subject, facultyId);
     const { role } = req.params;
     const sessionValue = req.headers["x-session-key"];
 
@@ -1100,7 +1084,6 @@ app.post("/getFacultyDetails/:role", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Get faculty details:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1159,7 +1142,6 @@ app.get("/getStudents/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation in Get students in enterMarks:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1202,7 +1184,6 @@ app.post("/saveMarks/:role/:facultyId", async (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation save marks in enterMarks:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1306,7 +1287,6 @@ app.get("/getExams/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation get exams in enterMarks:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1325,7 +1305,7 @@ app.get("/getExams/:role/:facultyId", (req, res) => {
                     ? JSON.parse(result[0].exams)
                     : result[0].exams;
 
-            res.json(Object.keys(examsJSON)); // ✅ FIX
+            res.json(Object.keys(examsJSON)); 
         } catch (e) {
             res.status(500).json({ error: "Invalid exam data" });
         }
@@ -1357,7 +1337,6 @@ app.get("/getExamMaxMarksAll/:role/:facultyId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation get exam max marks all in enterMarks:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1405,7 +1384,6 @@ app.get("/getStudentMarks/:role/:facultyId", (req, res) => {
     const year = req.query.year;  // Get year from frontend
     const branch = req.query.branch;  // Get branch from frontend
     const subject = req.query.subject;  // Get subject from frontend
-    // console.log("Exam Column:", examColumn);
 
     if (!examColumn) {
         return res.status(400).json({ success: false, message: "Exam type is required" });
@@ -1433,7 +1411,6 @@ app.get("/getStudentMarks/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation get student marks in viewmarks:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1480,7 +1457,6 @@ app.get("/getStudentMarksForEditing/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation edit student marks :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1496,7 +1472,6 @@ app.get("/getStudentMarksForEditing/:role/:facultyId", (req, res) => {
             console.error("Error fetching student marks:", err);
             res.status(500).json({ success: false, message: "Database error" });
         } else {
-            //console.log("Fetched Data:", results);
             res.json(results);
         }
     });
@@ -1531,7 +1506,6 @@ app.post("/requestHodToUpdateMarks/:role", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation request to hod for marks updation :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1602,7 +1576,6 @@ app.get("/getOverallMarks/:role/:facultyId", (req, res) => {
     }
 
     const valid = validateSession(role, facultyId, sessionValue);
-    console.log("Session validation of veiw overall marks :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1690,7 +1663,6 @@ app.get("/getHodRequests/:role/:adminId", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- get hod requests :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1734,7 +1706,6 @@ app.post("/updateHodStatus/:role/:adminId", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- update hod status :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1780,7 +1751,6 @@ app.get("/api/get-table-data-simple/:role/:adminId", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- get hod/faculty table data :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1853,7 +1823,6 @@ app.post("/api/update/:role/:adminId/:table", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- update hod/faculty data :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1900,7 +1869,6 @@ app.delete("/api/delete-row/:table/:id/:role/:adminId", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- delete hod/faculty :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1944,7 +1912,6 @@ app.get("/api/branches/:role/:adminId/:year", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- get branches :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -1990,7 +1957,6 @@ app.post("/api/delete-semester-data/:role/:adminId", (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- delete semester data :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2065,7 +2031,6 @@ app.get("/admin/reset-requests/:role/:adminId", async (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- reset pwd requests :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2121,7 +2086,6 @@ app.post("/admin/reset-password/:roleOfUser/:adminId", async (req, res) => {
     }
 
     const valid = validateSession(roleOfUser, adminId, sessionValue);
-    console.log("Session validation admin- reset pwd :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2181,7 +2145,6 @@ app.get("/admin/student-profiles/:role/:adminId", async (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- student profiels :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2261,7 +2224,6 @@ app.get("/admin/studentProfile/photo/:htno/:role/:adminId", (req, res) => {
         });
     }
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("validation for admin- student photo retrival ", valid);
     if (!valid) {
                 return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -2320,7 +2282,6 @@ app.post("/admin/student-marks/:role/:adminId", async (req, res) => {
     }
 
     const valid = validateSession(role, adminId, sessionValue);
-    console.log("Session validation admin- student marks :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2372,7 +2333,6 @@ app.post("/admin/student-marks/:role/:adminId", async (req, res) => {
                 console.error("Error fetching student marks:", err);
                 return res.status(500).json({ success: false, message: "Database error" });
             }
-            // console.log(results);
             res.json(results);
         });
     });
@@ -2552,7 +2512,6 @@ app.get("/hod/branches-subjects/:role/:hodId", async (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get branches and subjects :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2630,7 +2589,6 @@ app.post("/saveSubjects/:role/:hodId", async (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- save subjects :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2704,7 +2662,6 @@ app.post("/deleteSection/:role/:hodId", async (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- delete section and subjects :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2757,7 +2714,6 @@ app.post("/deleteSubjects/:role/:hodId", async (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- delete subjects :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2810,7 +2766,6 @@ app.get("/getbranches/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get branches :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2867,7 +2822,6 @@ app.get("/hodRequests/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- hod requests :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2911,7 +2865,6 @@ app.post("/updateRequestStatus/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- update request status :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -2972,7 +2925,6 @@ app.post("/saveData/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- save data :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3038,7 +2990,6 @@ app.get("/getData/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get data :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3091,7 +3042,6 @@ app.get("/getExamColumns/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get exam cols:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3154,7 +3104,6 @@ app.post("/addExamToDatabase/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- add exam to database :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3193,7 +3142,7 @@ app.post("/addExamToDatabase/:role/:hodId", (req, res) => {
             return res.status(409).send("Exam already exists for this section");
         }
 
-        // ✅ Store exam with max marks
+        //Store exam with max marks
         examsJSON[examName] = parseInt(maxMarks);
 
         const saveQuery =
@@ -3270,7 +3219,6 @@ app.post("/removeExamColumn/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- remove exam col :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3332,7 +3280,6 @@ app.post("/removeExamColumn/:role/:hodId", (req, res) => {
 //to get subjects based on year and branch
 app.get("/getSubjects/:role/:hodId/:year/:branch", (req, res) => {
     const { year, branch } = req.params;
-    //console.log("Received:", year, branch);
      const { role, hodId } = req.params;
     const sessionValue = req.headers["x-session-key"];
 
@@ -3356,7 +3303,6 @@ app.get("/getSubjects/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("2  10 :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3373,7 +3319,6 @@ app.get("/getSubjects/:role/:hodId/:year/:branch", (req, res) => {
             return res.status(500).send(err);
         }
         
-        //console.log("Query Result:", result);
         res.json(result); // Ensure this sends an array of objects [{subject_name: 'kk'}, {subject_name: 'r'}]
     });
 });
@@ -3403,7 +3348,6 @@ app.get("/getExamsForHod/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("3  9 13 :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3423,8 +3367,6 @@ app.get("/getExamsForHod/:role/:hodId/:year/:branch", (req, res) => {
         if (result.length === 0 || !result[0].exams) {
             return res.json([]); // No exams found
         }
-
-       // console.log("Raw exam data from DB:", result[0].exams);
 
        try {
             const examsJSON =
@@ -3468,7 +3410,6 @@ app.get("/getStudentReports/:role/:hodId/:year/:branch/:subject/:exam", (req, re
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("1  7   11:", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3511,7 +3452,6 @@ app.get("/getExamMaxMarks/:role/:hodId/:year/:branch/:exam", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get exam max marks :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3574,7 +3514,6 @@ app.get("/getRequests/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get requests :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3622,7 +3561,6 @@ app.post("/updateStatus/:role/:hodId/:faculty/:subject/:exam/:status", (req, res
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- update status :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3644,7 +3582,6 @@ app.post("/updateStatus/:role/:hodId/:faculty/:subject/:exam/:status", (req, res
 
             // Determine column (Unit_test_1 or mid_1)
             let column = exam;
-            console.log("Updating column:", column);
             // Update marks for each student
             let updatePromises = results.map(({ year, branch, htno, new_marks }) => {
                 return new Promise((resolve, reject) => {
@@ -3710,7 +3647,6 @@ app.get("/getUpdate/:role/:hodId/:faculty/:subject/:exam", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- get update :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3762,7 +3698,6 @@ app.get("/hod/student-profiles/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- student profiles :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3814,7 +3749,6 @@ app.get("/hod/reset-password-students/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- reset pwd stud :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3858,7 +3792,6 @@ app.get("/hod/branches/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- branches :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3901,7 +3834,6 @@ app.post("/hod/update-student-password/:role/:hodId", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("Session validation hod- udate stud pwd :", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -3955,7 +3887,6 @@ app.get("/hod/studentProfile/photo/:htno/:role/:hodId", (req, res) => {
         });
     }
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("validation for hod- student photo retrival ", valid);
     if (!valid) {
                 return res.status(401).json({ success: false, message: "Invalid session" });
     }
@@ -4013,7 +3944,6 @@ app.get("/hod/getExamMaxMarksAll/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("4  8  12 ", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4077,7 +4007,6 @@ app.get("/getIndividualStudentData/:role/:hodId/:htno/:year/:branch", (req, res)
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("5 ", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4106,7 +4035,7 @@ app.get("/getIndividualStudentData/:role/:hodId/:htno/:year/:branch", (req, res)
     let exams = [];
     try {
       const parsed = JSON.parse(examsData);
-      exams = Object.keys(parsed); // ✅ FIX
+      exams = Object.keys(parsed); 
     } catch (parseError) {
       console.error("Error parsing exams JSON:", parseError);
       return res.status(500).json({ error: "Invalid exams format in DB" });
@@ -4158,7 +4087,6 @@ app.get("/getStudentsData/:role/:hodId/:year/:branch", (req, res) => {
     }
 
     const valid = validateSession(role, hodId, sessionValue);
-    console.log("6 ", valid);
 
     if (!valid) {
         return res.status(401).json({
@@ -4176,7 +4104,6 @@ app.get("/getStudentsData/:role/:hodId/:year/:branch", (req, res) => {
         res.json(result);
     });
 });
-
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //Pending...
@@ -4186,54 +4113,6 @@ app.get("/getReportDetails", (req, res) => {
         branch: approvedBranch,
         year: approvedYear,
         subject: approvedSubject
-    });
-});
-
-//Authenticate based on role and userId
-app.post("/verify-session", (req, res) => {
-    const { role, userId } = req.body;
-
-    console.log("Verifying session for:", { role, userId });
-
-    if (!role || !userId) {
-        return res.status(401).json({ valid: false });
-    }
-
-    let query = "";
-    let params = [userId];
-
-    switch (role) {
-        case "admin":
-            query = "SELECT id FROM admin WHERE id = ?";
-            break;
-
-        case "hod":
-            query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
-            break;
-
-        case "faculty":
-            query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
-            break;
-
-        case "student":
-            query = "SELECT htno FROM student_profiles WHERE htno = ?";
-            break;
-
-        default:
-            return res.status(401).json({ valid: false });
-    }
-
-    con.query(query, params, (err, rows) => {
-        if (err) {
-            console.error("Session verification error:", err);
-            return res.status(500).json({ valid: false });
-        }
-
-        if (rows.length === 0) {
-            return res.status(401).json({ valid: false });
-        }
-        console.log("Session valid for:", { role, userId });
-        return res.json({ valid: true });
     });
 });
 
@@ -4279,7 +4158,7 @@ app.get("/comparativemarks", (req, res) => {
 
         let exams = examResult[0].exams;
         if (typeof exams === "string") exams = JSON.parse(exams);
-        const examColumns = Object.keys(exams); // ✅ FIX
+        const examColumns = Object.keys(exams); 
 
         // Step 2: Select only relevant columns from studentmarks
         const columns = ["htno", "name", "subject", ...examColumns].map(col => `\`${col}\``).join(", ");
@@ -4331,7 +4210,6 @@ app.delete("/api/delete-row", (req, res) => {
 });
 
 // Export CSV
-
 app.get("/api/export-csv", async (req, res) => {
     const { tables, year, branch } = req.query; // 'tables' can be comma-separated
     if (!tables || !year || !branch)
@@ -4390,7 +4268,6 @@ app.get("/api/export-csv", async (req, res) => {
         res.status(500).send("Error generating CSV");
     }
 });
-
 app.post("/api/update-row", (req, res) => {
     const { table, data } = req.body;
 
@@ -4416,11 +4293,54 @@ app.post("/api/update-row", (req, res) => {
 //-----------------------------------------------------
 //-----------------------------------------------------
 //COMMON FOR ALL ROLES
+//Authenticate based on role and userId
+app.post("/verify-session", (req, res) => {
+    const { role, userId } = req.body;
 
+    if (!role || !userId) {
+        return res.status(401).json({ valid: false });
+    }
+
+    let query = "";
+    let params = [userId];
+
+    switch (role) {
+        case "admin":
+            query = "SELECT id FROM admin WHERE id = ?";
+            break;
+
+        case "hod":
+            query = "SELECT hod_id FROM hod_details WHERE hod_id = ?";
+            break;
+
+        case "faculty":
+            query = "SELECT facultyId FROM faculty WHERE facultyId = ?";
+            break;
+
+        case "student":
+            query = "SELECT htno FROM student_profiles WHERE htno = ?";
+            break;
+
+        default:
+            return res.status(401).json({ valid: false });
+    }
+
+    con.query(query, params, (err, rows) => {
+        if (err) {
+            console.error("Session verification error:", err);
+            return res.status(500).json({ valid: false });
+        }
+
+        if (rows.length === 0) {
+            return res.status(401).json({ valid: false });
+        }
+        return res.json({ valid: true });
+    });
+});
 // LOGOUT API
 app.post("/logout", (req, res) => {
     const { role, userId, sessionValue } = req.body;
-    console.log("Logout request for:", role, userId, sessionValue);
+    // console.log("Logout request for:", role, userId, sessionValue);
     try {
          if (!sessionStore[role]) {
             return res.status(400).json({
@@ -4445,7 +4365,5 @@ app.post("/logout", (req, res) => {
 
 const PORT = process.env.PORT || 9812;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
-
-
