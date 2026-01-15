@@ -347,8 +347,19 @@ document.getElementById("printReport").addEventListener("click", function () {
         </html>
     `);
 
-    win.document.close();
-    win.print();
+     win.document.close();
+
+    // WAIT FOR IMAGE TO LOAD BEFORE PRINTING
+    const logo = win.document.getElementById("collegeLogo");
+    logo.onload = function () {
+        win.focus();
+        win.print();
+    };
+
+    // fallback (in case image is cached instantly)
+    logo.onerror = function () {
+        win.print();
+    };
 });
 
 // EXPORT TABLE 
