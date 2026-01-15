@@ -38,13 +38,34 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // function showMarksView() {
+    //     profileSection.classList.add("hidden");
+    //     marksWrapper.classList.remove("hidden");
+    // }
+
+    // function showProfileView() {
+    //     marksWrapper.classList.add("hidden");
+    //     profileSection.classList.remove("hidden");
+    // }
     function showMarksView() {
-        profileSection.classList.add("hidden");
+        // Show marks-related sections
+        studentInfo.classList.remove("hidden");
         marksWrapper.classList.remove("hidden");
+        marksTable.style.display = "table";
+        marksOps.classList.remove("hidden");
+
+        // Hide profile
+        profileSection.classList.add("hidden");
     }
 
     function showProfileView() {
+        // Hide ALL marks-related UI
+        studentInfo.classList.add("hidden");
         marksWrapper.classList.add("hidden");
+        marksOps.classList.add("hidden");
+        marksTable.style.display = "none";
+
+        // Show profile ONLY
         profileSection.classList.remove("hidden");
     }
 
