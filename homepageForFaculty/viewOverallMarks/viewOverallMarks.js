@@ -348,7 +348,7 @@ document.getElementById("printReport").addEventListener("click", function () {
     `);
 
     win.document.close();
-    win.print();
+    //win.print();
 });
 
 // EXPORT TABLE 
