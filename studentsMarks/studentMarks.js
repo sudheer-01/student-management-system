@@ -38,15 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // function showMarksView() {
-    //     profileSection.classList.add("hidden");
-    //     marksWrapper.classList.remove("hidden");
-    // }
-
-    // function showProfileView() {
-    //     marksWrapper.classList.add("hidden");
-    //     profileSection.classList.remove("hidden");
-    // }
     function showMarksView() {
         // Show marks-related sections
         studentInfo.classList.remove("hidden");

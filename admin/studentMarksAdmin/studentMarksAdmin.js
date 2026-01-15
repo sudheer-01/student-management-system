@@ -143,8 +143,16 @@ function renderTable(rows) {
 function exportCSV() {
 
     const table = document.getElementById("marksTable");
-    if (!table) {
+    if (!table || table.rows.length === 0) {
         showMessage("No data to export", "error");
+        return;
+    }
+
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+
+    if (!year || !branch) {
+        showMessage("Year and Branch not selected", "error");
         return;
     }
 
@@ -157,20 +165,17 @@ function exportCSV() {
         csv.push(cells.join(","));
     }
 
-    if (csv.length === 0) {
-        showMessage("No data to export", "error");
-        return;
-    }
-
-    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+    const blob = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "student_marks.csv";
+
+    // ✅ Dynamic filename
+    a.download = `student_marks_year_${year}_branch_${branch}.csv`;
+
     document.body.appendChild(a);
     a.click();
-
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
@@ -187,9 +192,19 @@ function printTable() {
         return;
     }
 
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+
+    if (!year || !branch) {
+        showMessage("Year and Branch not selected", "error");
+        return;
+    }
+
     const win = window.open("", "_blank");
 
+    win.document.open();
     win.document.write(`
+        <!DOCTYPE html>
         <html>
         <head>
             <title>Student Marks</title>
@@ -197,9 +212,19 @@ function printTable() {
                 body {
                     font-family: Arial, sans-serif;
                     margin: 20px;
+                    text-align: center;
+                }
+                img {
+                    width: 100%;
+                    max-height: 160px;
+                    object-fit: contain;
+                    margin-bottom: 10px;
                 }
                 h2 {
-                    text-align: center;
+                    margin: 10px 0;
+                }
+                .meta {
+                    font-weight: bold;
                     margin-bottom: 20px;
                 }
                 table {
@@ -216,9 +241,20 @@ function printTable() {
                 }
             </style>
         </head>
-        <body>
 
+        <body onload="window.print(); window.close();">
+
+            <!--  COLLEGE LOGO -->
+            <img src="/balaji.png" alt="Balaji Institute Logo">
+
+            <!--  HEADING -->
             <h2>Student Marks</h2>
+
+            <!--  YEAR & BRANCH -->
+            <div class="meta">
+                Year: ${year} &nbsp; | &nbsp; Branch: ${branch}
+            </div>
+
             ${table.outerHTML}
 
         </body>
@@ -226,9 +262,8 @@ function printTable() {
     `);
 
     win.document.close();
-    win.focus();
-    win.print();
 }
+
 
  const logoutBtn = document.getElementById("logoutBtn");
     // logout
