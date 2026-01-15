@@ -297,7 +297,8 @@ document.getElementById("printReport").addEventListener("click", function () {
 
     const tableHTML = document.getElementById("studentsInformationTable").outerHTML;
     const win = window.open("", "_blank");
-
+    
+    win.document.open();
     win.document.write(`
         <html>
         <head>
@@ -349,17 +350,7 @@ document.getElementById("printReport").addEventListener("click", function () {
 
      win.document.close();
 
-    // WAIT FOR IMAGE TO LOAD BEFORE PRINTING
-    const logo = win.document.getElementById("collegeLogo");
-    logo.onload = function () {
-        win.focus();
-        win.print();
-    };
-
-    // fallback (in case image is cached instantly)
-    logo.onerror = function () {
-        win.print();
-    };
+    
 });
 
 // EXPORT TABLE 
