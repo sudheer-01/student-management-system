@@ -124,17 +124,6 @@ function renderTable(rows) {
 }
 
 /* Export CSV */
-// function exportCSV() {
-//     let csv = [];
-//     for (let row of table.rows) {
-//         csv.push([...row.cells].map(c => `"${c.innerText}"`).join(","));
-//     }
-//     const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-//     const a = document.createElement("a");
-//     a.href = URL.createObjectURL(blob);
-//     a.download = "student_profiles.csv";
-//     a.click();
-// }
 function exportCSV() {
 
     if (!table || table.rows.length === 0) {
@@ -166,7 +155,7 @@ function exportCSV() {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
 
-    // ✅ Dynamic & meaningful filename
+    //  Dynamic & meaningful filename
     a.download = `student_personal_data_year_${year}_branch_${branch}.csv`;
 
     document.body.appendChild(a);
@@ -174,30 +163,91 @@ function exportCSV() {
     document.body.removeChild(a);
 }
 
-
 /* Print only table */
 // function printTable() {
+
+//     if (!table || table.rows.length === 0) {
+//         showMessage("No data to print", "error");
+//         return;
+//     }
+
+//     const year = yearSelect.value;
+//     const branch = branchSelect.value;
+
+//     if (!year || !branch) {
+//         showMessage("Year and Branch not selected", "error");
+//         return;
+//     }
+
 //     const win = window.open("", "_blank");
+
+//     win.document.open();
 //     win.document.write(`
+//         <!DOCTYPE html>
 //         <html>
 //         <head>
-//             <title>Student Profiles</title>
+//             <title>Student Personal Data</title>
 //             <style>
-//                 table { width:100%; border-collapse:collapse; }
-//                 th,td { border:1px solid #000; padding:6px; }
-//                 th { background:#eee; }
+//                 body {
+//                     font-family: Arial, sans-serif;
+//                     margin: 20px;
+//                     text-align: center;
+//                 }
+//                 img {
+//                     width: 100%;
+//                     max-height: 160px;
+//                     object-fit: contain;
+//                     margin-bottom: 10px;
+//                 }
+//                 h2 {
+//                     margin: 10px 0;
+//                 }
+//                 .meta {
+//                     font-weight: bold;
+//                     margin-bottom: 20px;
+//                 }
+//                 table {
+//                     width: 100%;
+//                     border-collapse: collapse;
+//                 }
+//                 th, td {
+//                     border: 1px solid #000;
+//                     padding: 6px;
+//                     text-align: center;
+//                 }
+//                 th {
+//                     background: #f0f0f0;
+//                 }
+//                 img.profile {
+//                     width: 60px;
+//                     height: 60px;
+//                     border-radius: 50%;
+//                     object-fit: cover;
+//                 }
 //             </style>
 //         </head>
-//         <body>
-//             <h2>Student Profiles</h2>
+
+//         <body onload="window.print(); window.close();">
+
+//             <!--  COLLEGE LOGO -->
+//             <img src="/balaji.png" alt="Balaji Institute Logo">
+
+//             <!--  TITLE -->
+//             <h2>Student Personal Data</h2>
+
+//             <!--  YEAR & BRANCH -->
+//             <div class="meta">
+//                 Year: ${year} &nbsp; | &nbsp; Branch: ${branch}
+//             </div>
+
 //             ${table.outerHTML}
+
 //         </body>
 //         </html>
 //     `);
-//     win.document.close();
-//     win.print();
-// }
 
+//     win.document.close();
+// }
 function printTable() {
 
     if (!table || table.rows.length === 0) {
@@ -222,54 +272,72 @@ function printTable() {
         <head>
             <title>Student Personal Data</title>
             <style>
+
+                /*  FORCE LANDSCAPE */
+                @page {
+                    size: A4 landscape;
+                    margin: 10mm;
+                }
+
                 body {
                     font-family: Arial, sans-serif;
-                    margin: 20px;
                     text-align: center;
+                    margin: 0;
                 }
+
                 img {
                     width: 100%;
-                    max-height: 160px;
+                    max-height: 120px;
                     object-fit: contain;
-                    margin-bottom: 10px;
+                    margin-bottom: 6px;
                 }
+
                 h2 {
-                    margin: 10px 0;
+                    margin: 6px 0;
+                    font-size: 18px;
                 }
+
                 .meta {
                     font-weight: bold;
-                    margin-bottom: 20px;
+                    margin-bottom: 10px;
+                    font-size: 13px;
                 }
+
                 table {
                     width: 100%;
                     border-collapse: collapse;
+                    table-layout: fixed; /*  FORCE COLUMN FIT */
                 }
+
                 th, td {
                     border: 1px solid #000;
-                    padding: 6px;
-                    text-align: center;
+                    padding: 4px;
+                    font-size: 9px;   /*  SMALL FONT */
+                    word-wrap: break-word;
                 }
+
                 th {
                     background: #f0f0f0;
+                    font-weight: 700;
                 }
-                img.profile {
-                    width: 60px;
-                    height: 60px;
-                    border-radius: 50%;
-                    object-fit: cover;
+
+                /*  PREVENT COLUMN CUT */
+                tr {
+                    page-break-inside: avoid;
                 }
+
             </style>
         </head>
 
         <body onload="window.print(); window.close();">
 
-            <!--  COLLEGE LOGO -->
+            <!-- COLLEGE LOGO -->
             <img src="/balaji.png" alt="Balaji Institute Logo">
 
-            <!--  TITLE -->
+            <!-- TITLE -->
             <h2>Student Personal Data</h2>
 
-            <!--  YEAR & BRANCH -->
+            <!-- META -->
             <div class="meta">
                 Year: ${year} &nbsp; | &nbsp; Branch: ${branch}
             </div>
@@ -282,6 +350,7 @@ function printTable() {
 
     win.document.close();
 }
+
 
  const logoutBtn = document.getElementById("logoutBtn");
     // logout
