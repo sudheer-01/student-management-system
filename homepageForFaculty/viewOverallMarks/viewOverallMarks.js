@@ -297,8 +297,7 @@ document.getElementById("printReport").addEventListener("click", function () {
 
     const tableHTML = document.getElementById("studentsInformationTable").outerHTML;
     const win = window.open("", "_blank");
-    
-    win.document.open();
+
     win.document.write(`
         <html>
         <head>
@@ -348,9 +347,8 @@ document.getElementById("printReport").addEventListener("click", function () {
         </html>
     `);
 
-     win.document.close();
-
-    
+    win.document.close();
+    win.print();
 });
 
 // EXPORT TABLE 
