@@ -108,8 +108,10 @@ function renderTable(rows) {
             }
 
             /*  DATE FIELDS (DOB etc.) */
-            else if (r[col] instanceof Date) {
-                rowHtml += `<td>${r[col].toISOString().split("T")[0]}</td>`;
+           /*  DOB FIELD – SHOW DATE ONLY */
+            else if (col.toLowerCase() === "dob" && r[col]) {
+                const dateOnly = new Date(r[col]).toISOString().split("T")[0];
+                rowHtml += `<td>${dateOnly}</td>`;
             }
 
             /*  NULL SAFE */
