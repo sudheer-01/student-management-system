@@ -164,90 +164,6 @@ function exportCSV() {
 }
 
 /* Print only table */
-// function printTable() {
-
-//     if (!table || table.rows.length === 0) {
-//         showMessage("No data to print", "error");
-//         return;
-//     }
-
-//     const year = yearSelect.value;
-//     const branch = branchSelect.value;
-
-//     if (!year || !branch) {
-//         showMessage("Year and Branch not selected", "error");
-//         return;
-//     }
-
-//     const win = window.open("", "_blank");
-
-//     win.document.open();
-//     win.document.write(`
-//         <!DOCTYPE html>
-//         <html>
-//         <head>
-//             <title>Student Personal Data</title>
-//             <style>
-//                 body {
-//                     font-family: Arial, sans-serif;
-//                     margin: 20px;
-//                     text-align: center;
-//                 }
-//                 img {
-//                     width: 100%;
-//                     max-height: 160px;
-//                     object-fit: contain;
-//                     margin-bottom: 10px;
-//                 }
-//                 h2 {
-//                     margin: 10px 0;
-//                 }
-//                 .meta {
-//                     font-weight: bold;
-//                     margin-bottom: 20px;
-//                 }
-//                 table {
-//                     width: 100%;
-//                     border-collapse: collapse;
-//                 }
-//                 th, td {
-//                     border: 1px solid #000;
-//                     padding: 6px;
-//                     text-align: center;
-//                 }
-//                 th {
-//                     background: #f0f0f0;
-//                 }
-//                 img.profile {
-//                     width: 60px;
-//                     height: 60px;
-//                     border-radius: 50%;
-//                     object-fit: cover;
-//                 }
-//             </style>
-//         </head>
-
-//         <body onload="window.print(); window.close();">
-
-//             <!--  COLLEGE LOGO -->
-//             <img src="/balaji.png" alt="Balaji Institute Logo">
-
-//             <!--  TITLE -->
-//             <h2>Student Personal Data</h2>
-
-//             <!--  YEAR & BRANCH -->
-//             <div class="meta">
-//                 Year: ${year} &nbsp; | &nbsp; Branch: ${branch}
-//             </div>
-
-//             ${table.outerHTML}
-
-//         </body>
-//         </html>
-//     `);
-
-//     win.document.close();
-// }
 function printTable() {
 
     if (!table || table.rows.length === 0) {
@@ -348,7 +264,7 @@ function printTable() {
         </html>
     `);
 
-    win.document.close();
+    //win.document.close();
 }
 
 
