@@ -261,7 +261,7 @@ function printTable() {
         </html>
     `);
 
-    win.document.close();
+    //win.document.close();
 }
 
 
