@@ -440,7 +440,7 @@ async function uploadProfilePhoto() {
     `);
 
     win.document.close();
-    win.print();
+    //win.print();
 });
 
 
