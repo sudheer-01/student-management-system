@@ -422,7 +422,7 @@ async function uploadProfilePhoto() {
 
         <body>
 
-            <img src="BalajiLogo.png" alt="College Logo">
+            <img src="balaji.png" alt="College Logo">
 
             <h2>Student Marks</h2>
 
