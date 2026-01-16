@@ -371,7 +371,7 @@ function printStudentTable() {
                     margin: 0;
                 }
 
-                /* ✅ BALAJI LOGO – FULL WIDTH */
+                /*  BALAJI LOGO – FULL WIDTH */
                 .logo {
                     display: block;
                     width: 100%;
@@ -410,7 +410,7 @@ function printStudentTable() {
                     page-break-inside: avoid;
                 }
 
-                /* ✅ PROFILE PHOTOS ONLY (NOT LOGO) */
+                /*  PROFILE PHOTOS ONLY (NOT LOGO) */
                 table img {
                     width: 35px;
                     height: 35px;
@@ -434,7 +434,7 @@ function printStudentTable() {
         </html>
     `);
 
-    win.document.close();
+    //win.document.close();
 }
 
 const logoutBtn = document.getElementById("logoutBtn");
