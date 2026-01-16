@@ -378,12 +378,17 @@ function printStudentTable() {
                     border-radius: 50%;
                     object-fit: cover;
                 }
-
+                 .logo {
+                    width: 100%;
+                    max-height: 120px;
+                    object-fit: contain;
+                    margin-bottom: 6px;
+                }
             </style>
         </head>
 
         <body onload="window.print(); window.close();">
-
+            <img src="/balaji.png" alt="Balaji Institute Logo" class="logo">
             <h2>Student Personal Data</h2>
 
             ${wrapper.innerHTML}
