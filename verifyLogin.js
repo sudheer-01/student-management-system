@@ -3723,11 +3723,11 @@ app.get("/hod/student-profiles/:role/:hodId", (req, res) => {
         res.json(rows);
     });
 });
-app.get("/hod/reset-password-students/:role/:hodId", (req, res) => {
-    const { role, hodId } = req.params;
+app.get("/hod/reset-password-students/:role/:hodId/:year/:branch", (req, res) => {
+    const { role, hodId, year, branch } = req.params;
     const sessionValue = req.headers["x-session-key"];
 
-    if (!hodId ||  !role) {
+    if (!hodId ||  !role || !year || !branch) {
         return res.status(400).json({
             success: false,
             message: "Invalid request parameters"
@@ -3758,7 +3758,7 @@ app.get("/hod/reset-password-students/:role/:hodId", (req, res) => {
     con.query(
         `SELECT htno, full_name, year, branch
          FROM student_profiles
-         WHERE reset_password='yes'`,
+         WHERE reset_password='yes' AND year = ? AND branch = ?`, [year, branch],
         (err, rows) => {
             if (err) return res.status(500).json([]);
             res.json(rows);

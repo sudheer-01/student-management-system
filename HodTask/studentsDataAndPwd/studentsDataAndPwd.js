@@ -109,7 +109,13 @@ resetPwdBtn.onclick = async () => {
     filters.classList.add("hidden");
     toggleTableActions(false);
     setTableActionButtons(false);
-    const res = await fetch(`/hod/reset-password-students/${role}/${hodId}`,
+    const year = yearSelect.value;
+    const branch = branchSelect.value;
+    if (!year || !branch) {
+        showMessage("Please select both year and branch.", "error");
+        return; 
+    }
+    const res = await fetch(`/hod/reset-password-students/${role}/${hodId}/${year}/${branch}`,
         {
                  headers: {
                 "x-session-key": sessionValue
