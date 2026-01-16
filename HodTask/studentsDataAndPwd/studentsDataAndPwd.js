@@ -10,7 +10,6 @@ const sessionValue = localStorage.getItem("key");
 const exportBtn = document.getElementById("exportCSVBtn"); 
 const printBtn  = document.getElementById("printBtn");   
 const tableActions = document.querySelector(".actions");
-
 function showMessage(message, type = "info", autoHide = true) {
     const msgEl = document.getElementById("uiMessage");
     if (!msgEl) return;
