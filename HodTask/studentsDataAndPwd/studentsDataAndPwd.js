@@ -314,25 +314,85 @@ function exportStudentCSV() {
 }
 
 function printStudentTable() {
-    const table = document.querySelector(".table-wrapper").innerHTML;
 
-    const printWindow = window.open("", "", "width=1200,height=700");
-    printWindow.document.write(`
+    const wrapper = document.querySelector(".table-wrapper");
+    if (!wrapper || !wrapper.innerHTML.trim()) {
+        showMessage("No data to print", "error");
+        return;
+    }
+
+    const win = window.open("", "_blank");
+
+    win.document.open();
+    win.document.write(`
+        <!DOCTYPE html>
         <html>
         <head>
             <title>Student Personal Data</title>
             <style>
-                table { width:100%; border-collapse: collapse; }
-                th, td { border:1px solid #ccc; padding:6px; font-size:12px; }
-                th { background:#f1f5f9; }
-                img { width:40px; height:40px; border-radius:50%; }
+
+                /*  FORCE LANDSCAPE MODE */
+                @page {
+                    size: A4 landscape;
+                    margin: 10mm;
+                }
+
+                body {
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    margin: 0;
+                }
+
+                h2 {
+                    margin: 6px 0 12px;
+                    font-size: 18px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: fixed; /*  FORCE ALL COLUMNS TO FIT */
+                }
+
+                th, td {
+                    border: 1px solid #000;
+                    padding: 4px;
+                    font-size: 9px; /*  SMALL FONT FOR MANY COLUMNS */
+                    word-wrap: break-word;
+                }
+
+                th {
+                    background: #f0f0f0;
+                    font-weight: 700;
+                }
+
+                /* PREVENT ROW BREAKS */
+                tr {
+                    page-break-inside: avoid;
+                }
+
+                /* Profile photo inside table */
+                img {
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+
             </style>
         </head>
-        <body>${table}</body>
+
+        <body onload="window.print(); window.close();">
+
+            <h2>Student Personal Data</h2>
+
+            ${wrapper.innerHTML}
+
+        </body>
         </html>
     `);
-    printWindow.document.close();
-    printWindow.print();
+
+    win.document.close();
 }
 
 const logoutBtn = document.getElementById("logoutBtn");
