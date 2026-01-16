@@ -29,6 +29,12 @@ function setTableActionButtons(enabled) {
     if (exportBtn) exportBtn.disabled = !enabled;
     if (printBtn)  printBtn.disabled  = !enabled;
 }
+function toggleTableActions(show) {
+    const actions = document.querySelector(".actions");
+    if (!actions) return;
+
+    actions.style.display = show ? "flex" : "none";
+}
 
 
 let currentMode = ""; // view | reset
@@ -40,6 +46,7 @@ const hodYears = JSON.parse(localStorage.getItem("hodYears"));
 viewDataBtn.onclick = async () => {
     currentMode = "view";
     filters.classList.remove("hidden");
+    toggleTableActions(true);
     setTableActionButtons(true);
     const year = yearSelect.value;
     const branch = branchSelect.value;
@@ -69,6 +76,7 @@ viewDataBtn.onclick = async () => {
 resetPwdBtn.onclick = async () => {
     currentMode = "reset";
     filters.classList.add("hidden");
+    toggleTableActions(false);
     setTableActionButtons(false);
     const res = await fetch(`/hod/reset-password-students/${role}/${hodId}`,
         {
