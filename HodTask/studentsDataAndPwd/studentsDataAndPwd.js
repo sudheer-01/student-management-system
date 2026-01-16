@@ -331,7 +331,7 @@ function printStudentTable() {
             <title>Student Personal Data</title>
             <style>
 
-                /*  FORCE LANDSCAPE MODE */
+                /* FORCE LANDSCAPE MODE */
                 @page {
                     size: A4 landscape;
                     margin: 10mm;
@@ -343,6 +343,17 @@ function printStudentTable() {
                     margin: 0;
                 }
 
+                /* ✅ BALAJI LOGO – FULL WIDTH */
+                .logo {
+                    display: block;
+                    width: 100%;
+                    max-width: 100%;
+                    height: auto;
+                    max-height: 140px;   /* adjust if needed */
+                    object-fit: contain;
+                    margin: 0 auto 8px;
+                }
+
                 h2 {
                     margin: 6px 0 12px;
                     font-size: 18px;
@@ -351,13 +362,13 @@ function printStudentTable() {
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    table-layout: fixed; /*  FORCE ALL COLUMNS TO FIT */
+                    table-layout: fixed;
                 }
 
                 th, td {
                     border: 1px solid #000;
                     padding: 4px;
-                    font-size: 9px; /*  SMALL FONT FOR MANY COLUMNS */
+                    font-size: 9px;
                     word-wrap: break-word;
                 }
 
@@ -371,24 +382,22 @@ function printStudentTable() {
                     page-break-inside: avoid;
                 }
 
-                /* Profile photo inside table */
-                img {
+                /* ✅ PROFILE PHOTOS ONLY (NOT LOGO) */
+                table img {
                     width: 35px;
                     height: 35px;
                     border-radius: 50%;
                     object-fit: cover;
                 }
-                 .logo {
-                    width: 100%;
-                    max-height: 120px;
-                    object-fit: contain;
-                    margin-bottom: 6px;
-                }
+
             </style>
         </head>
 
         <body onload="window.print(); window.close();">
+
+            <!-- BALAJI LOGO -->
             <img src="/balaji.png" alt="Balaji Institute Logo" class="logo">
+
             <h2>Student Personal Data</h2>
 
             ${wrapper.innerHTML}
