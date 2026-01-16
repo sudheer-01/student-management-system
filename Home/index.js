@@ -60,6 +60,11 @@ document.getElementById("teacherForm").addEventListener("submit", async function
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ facultyId: facultyId, passwordOfTeacher: password })
         });
+        if (!response.ok) {
+            const data = await response.json();
+            showMessage(data.message || "Invalid credentials", "error");
+            return;
+        }
         const data = await response.json();
 
         if (data.success) {
@@ -90,7 +95,11 @@ document.getElementById("hodForm").addEventListener("submit", async function (e)
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ HodId: HodId, passwordOfHod: passwordOfHod })
         });
-
+        if (!response.ok) {
+            const data = await response.json();
+            showMessage(data.message || "Invalid credentials", "error");
+            return;
+        }
         const data = await response.json();
 
         if (data.success) {
