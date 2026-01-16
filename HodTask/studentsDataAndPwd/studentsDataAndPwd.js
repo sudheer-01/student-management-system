@@ -69,7 +69,6 @@ async function fetchYears() {
         yearSelect.innerHTML += `<option value="${year}">${year} Year</option>`;
     });
 
-    yearSelect.addEventListener("change", fetchBranches);
 } catch (error) {
     showMessage("Error loading years.", "error");
 }
