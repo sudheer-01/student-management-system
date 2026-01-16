@@ -8,6 +8,8 @@ const tableActions = document.getElementById("tableActions");
 const role = localStorage.getItem("role");
 const hodId = localStorage.getItem("hodId");
 const sessionValue = localStorage.getItem("key");
+const exportBtn = document.getElementById("exportCSVBtn"); 
+const printBtn  = document.getElementById("printBtn");   
 
 function showMessage(message, type = "info", autoHide = true) {
     const msgEl = document.getElementById("uiMessage");
@@ -23,6 +25,10 @@ function showMessage(message, type = "info", autoHide = true) {
         }, 3000); 
     }
 }
+function setTableActionButtons(enabled) {
+    if (exportBtn) exportBtn.disabled = !enabled;
+    if (printBtn)  printBtn.disabled  = !enabled;
+}
 
 
 let currentMode = ""; // view | reset
@@ -34,7 +40,7 @@ const hodYears = JSON.parse(localStorage.getItem("hodYears"));
 viewDataBtn.onclick = async () => {
     currentMode = "view";
     filters.classList.remove("hidden");
-
+    setTableActionButtons(true);
     const year = yearSelect.value;
     const branch = branchSelect.value;
 
@@ -63,7 +69,7 @@ viewDataBtn.onclick = async () => {
 resetPwdBtn.onclick = async () => {
     currentMode = "reset";
     filters.classList.add("hidden");
-
+    setTableActionButtons(false);
     const res = await fetch(`/hod/reset-password-students/${role}/${hodId}`,
         {
                  headers: {
