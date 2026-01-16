@@ -3905,7 +3905,9 @@ app.get("/hod/studentProfile/photo/:htno/:role/:hodId", (req, res) => {
 
         if (!results.length || !results[0].profile_photo) {
             // No image → return 404 so frontend can fallback
-            return res.status(404).end();
+            // return res.status(404).end();
+            const defaultImagePath = path.join(__dirname, "HodTask", "studentsDataAndPwd", "default.png");
+            return res.sendFile(defaultImagePath);
         }
 
         const imageBuffer = results[0].profile_photo;
