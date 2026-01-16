@@ -152,11 +152,11 @@ document.getElementById("addExam").addEventListener("click", async () => {
     }
 
     const examRows = document.querySelectorAll("#examChecklist .exam-row");
-
+    let anySelected = false; 
     for (const row of examRows) {
         const checkbox = row.querySelector("input[type='checkbox']");
         if (!checkbox.checked) continue;
-
+        anySelected = true;  
         const examBase = checkbox.value;
         const number = row.querySelector(".exam-number").value || 0;
         const maxMarks = row.querySelector(".max-marks").value;
@@ -165,7 +165,6 @@ document.getElementById("addExam").addEventListener("click", async () => {
             showMessage(`Please enter max marks for ${examBase}.`, "info");
             return;
         }
-
         let examName;
         if (number == 0) {
             examName = examBase;
@@ -185,6 +184,10 @@ document.getElementById("addExam").addEventListener("click", async () => {
                 maxMarks
             })
         });
+    }
+    if (!anySelected) {
+        showMessage("Please select at least one exam.", "error");
+        return;
     }
     showMessage("Selected exams added successfully.", "success");
     loadExams();
