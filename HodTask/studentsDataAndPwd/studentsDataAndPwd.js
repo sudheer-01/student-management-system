@@ -48,25 +48,25 @@ viewDataBtn.onclick = async () => {
     filters.classList.remove("hidden");
     toggleTableActions(true);
     setTableActionButtons(true);
+
     const year = yearSelect.value;
     const branch = branchSelect.value;
 
     table.querySelector("thead").innerHTML = "";
     table.querySelector("tbody").innerHTML = "";
 
-    // THIS IS THE MISSING PART
-    if (year && branch) {
-        const res = await fetch(
-            `/hod/student-profiles/${role}/${hodId}?year=${year}&branch=${branch}`,
-            {
-                 headers: {
-                "x-session-key": sessionValue
-            }
-            }
-        );
-        const data = await res.json();
-        renderStudentTable(data);
+    if (!year || !branch) {
+        showMessage("Please select Year and Section", "info");
+        return;
     }
+
+    const res = await fetch(
+        `/hod/student-profiles/${role}/${hodId}?year=${year}&branch=${branch}`,
+        { headers: { "x-session-key": sessionValue } }
+    );
+
+    const data = await res.json();
+    renderStudentTable(data);
 };
 
 
@@ -113,24 +113,7 @@ yearSelect.addEventListener("change", async () => {
     });
 });
 
-/* ===========================
-   LOAD STUDENT DATA
-=========================== */
-branchSelect.addEventListener("change", async () => {
-    if (!yearSelect.value || !branchSelect.value) return;
 
-    const res = await fetch(
-        `/hod/student-profiles/${role}/${hodId}?year=${yearSelect.value}&branch=${branchSelect.value}`,
-        {
-                 headers: {
-                "x-session-key": sessionValue
-            }
-            }
-    );
-    const data = await res.json();
-
-    renderStudentTable(data);
-});
 
 /* ===========================
    RENDER STUDENT PROFILE TABLE
