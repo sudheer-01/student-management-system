@@ -410,7 +410,7 @@ body {
 /* =========================================================
    COLLEGE LOGO BACKGROUND WATERMARK
    ========================================================= */
-/* body {
+body {
   position: relative;
   background-color: #eef3fb;
   overflow-x: hidden;
@@ -437,7 +437,7 @@ body::before {
   border-radius: var(--radius);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-} */
+}
 /* =========================================================
    SINGLE FULL-PAGE COLLEGE LOGO BACKGROUND
    ========================================================= */
