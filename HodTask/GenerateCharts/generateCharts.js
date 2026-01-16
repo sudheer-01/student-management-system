@@ -67,32 +67,6 @@ function printTable(table, title) {
         <head>
             <title>${title}</title>
             <style>
-                body { font-family: Segoe UI; padding: 20px; }
-                h2 { text-align: center; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #000; padding: 8px; }
-                th { background: #f1f5ff; }
-            </style>
-        </head>
-        <body>
-            <h2>${title}</h2>
-            ${table.outerHTML}
-        </body>
-        </html>
-    `);
-
-    win.document.close();
-    win.focus();
-    win.print();
-}
-function printTable(table, title) {
-    const win = window.open("", "_blank");
-
-    win.document.write(`
-        <html>
-        <head>
-            <title>${title}</title>
-            <style>
                 body {
                     font-family: Segoe UI, Arial, sans-serif;
                     padding: 20px;
