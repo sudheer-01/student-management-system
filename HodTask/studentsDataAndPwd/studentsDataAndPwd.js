@@ -40,8 +40,41 @@ let currentMode = ""; // view | reset
 
 const hodBranch = localStorage.getItem("hodBranch"); 
 const hodYears = JSON.parse(localStorage.getItem("hodYears")); 
+document.addEventListener("DOMContentLoaded", function () {
+    fetchYears();
+});
 
+async function fetchYears() {
+    try {
+    const storedYears = localStorage.getItem("hodYears");
+    if (!storedYears) {
+        showMessage("No HOD years found.", "error");
+        return;
+    }
 
+    let parsedYears;
+    try {
+        parsedYears = JSON.parse(storedYears);
+    } catch (e) {
+        parsedYears = storedYears.split(",");
+    }
+
+    // Convert to numbers
+    const years = parsedYears.map(year => parseInt(year, 10));
+
+    const yearSelect = document.getElementById("yearSelect");
+    yearSelect.innerHTML = `<option value="">Select Year</option>`;
+
+    years.forEach(year => {
+        yearSelect.innerHTML += `<option value="${year}">${year} Year</option>`;
+    });
+
+    yearSelect.addEventListener("change", fetchBranches);
+} catch (error) {
+    showMessage("Error loading years.", "error");
+}
+
+}
 viewDataBtn.onclick = async () => {
     currentMode = "view";
     filters.classList.remove("hidden");
