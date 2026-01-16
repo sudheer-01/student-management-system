@@ -108,6 +108,14 @@ async function loadRequests() {
     noMsg.style.display = "none"; 
     populateTable(requests);
 }
+function formatDate(dateValue) {
+    if (!dateValue) return "";
+
+    const d = new Date(dateValue);
+    if (isNaN(d)) return dateValue; // fallback safety
+
+    return d.toISOString().split("T")[0];
+}
 
 function populateTable(requests) {
     const tableBody = document.getElementById("requestTable");
@@ -128,7 +136,7 @@ function populateTable(requests) {
             <td>${req.requested_by}</td>
             <td>${req.subject}</td>
             <td>${req.exam}</td>
-            <td>${req.requested_date}</td>
+            <td>${formatDate(req.requested_date)}</td>
             <td>${req.request_status}</td>
             <td>
                 <button class="approve-btn" onclick="updateStatus('${req.requested_by}', '${req.subject}', '${req.exam}', 'Approved')">Approve</button>
