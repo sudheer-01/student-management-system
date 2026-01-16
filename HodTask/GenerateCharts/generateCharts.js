@@ -85,6 +85,66 @@ function printTable(table, title) {
     win.focus();
     win.print();
 }
+function printTable(table, title) {
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body {
+                    font-family: Segoe UI, Arial, sans-serif;
+                    padding: 20px;
+                    text-align: center;
+                }
+
+                /* LOGO */
+                .logo {
+                    width: 100%;
+                    max-height: 130px;
+                    object-fit: contain;
+                    margin-bottom: 10px;
+                }
+
+                h2 {
+                    text-align: center;
+                    margin: 6px 0 16px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                }
+
+                th {
+                    background: #f1f5ff;
+                }
+            </style>
+        </head>
+
+        <body onload="window.print(); window.close();">
+
+            <!--  BALAJI LOGO -->
+            <img src="/balaji.png" alt="Balaji Institute Logo" class="logo">
+
+            <!-- TITLE -->
+            <h2>${title}</h2>
+
+            <!-- TABLE -->
+            ${table.outerHTML}
+
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+}
 function attachTableActions(wrapper, table, meta) {
     const actionDiv = document.createElement("div");
     actionDiv.style.marginTop = "10px";
@@ -171,7 +231,6 @@ function resetAnalysisUI() {
   // Charts
   clearCharts();
 }
-
 
 async function populateDropdown(select, url, valueKey, textKey) {
   const res = await fetch(url,  {
