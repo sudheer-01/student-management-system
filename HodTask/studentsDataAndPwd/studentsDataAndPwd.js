@@ -4,12 +4,12 @@ const filters = document.getElementById("filters");
 const yearSelect = document.getElementById("yearSelect");
 const branchSelect = document.getElementById("branchSelect");
 const table = document.getElementById("dataTable");
-const tableActions = document.getElementById("tableActions");
 const role = localStorage.getItem("role");
 const hodId = localStorage.getItem("hodId");
 const sessionValue = localStorage.getItem("key");
 const exportBtn = document.getElementById("exportCSVBtn"); 
 const printBtn  = document.getElementById("printBtn");   
+const tableActions = document.querySelector(".actions");
 
 function showMessage(message, type = "info", autoHide = true) {
     const msgEl = document.getElementById("uiMessage");
