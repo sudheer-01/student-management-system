@@ -123,7 +123,7 @@ app.post("/TeacherLogin", (req, res) => {
                     redirectUrl: "/homepageForFaculty/requestForSubject/requestForSubject.html"
                 });
             } else {
-                return res.status(401).json({ success: false, message: "Invalid Faculty ID or Password." });
+                return res.json({ success: false, message: "Invalid Faculty ID or Password." });
             }
         }
     );
@@ -160,7 +160,7 @@ app.post("/loginToHodDashBoard", (req, res) => {
                     redirectUrl: "/HodTask/HodDashboard/HodDashboard.html"
                 });
             } else {
-                return res.status(401).json({ success: false, message: "Invalid HOD ID or Password." });
+                return res.json({ success: false, message: "Invalid HOD ID or Password." });
             }
         }
     );
