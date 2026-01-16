@@ -117,7 +117,7 @@ function printTable(table, title) {
         </html>
     `);
 
-    win.document.close();
+    //win.document.close();
 }
 function attachTableActions(wrapper, table, meta) {
     const actionDiv = document.createElement("div");
