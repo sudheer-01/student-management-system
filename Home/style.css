@@ -465,3 +465,59 @@ body::after {
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 25px 50px rgba(0,0,0,0.18);
 } */
+/* ================= HEADER LAYOUT ================= */
+/* ================= HEADER STRUCTURE ================= */
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  flex-wrap: wrap;
+}
+
+/* LEFT SIDE */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.college-logo img {
+  height: 42px;
+  width: auto;
+}
+
+/* RIGHT SIDE */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acc-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+/* LOGO STYLING */
+.acc-logos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.acc-logos img {
+  height: 26px;          /* keep small */
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: 0.3s ease;
+}
+
+.acc-logos img:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
