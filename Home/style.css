@@ -325,7 +325,7 @@ body {
 }
 
 .login-page-wrapper::before {
-  content: "Student Information Management System";
+  content: "Department Internal Marks Management System";
   position: absolute;
   top: 50%;
   left: 50%;
