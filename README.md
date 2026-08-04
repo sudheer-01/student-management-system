@@ -12,12 +12,11 @@ A full-stack web application designed to automate and streamline the process of 
 📱 Responsive design for mobile and desktop devices
 
 🛠️ Tech Stack
-Layer	Technology
-Frontend	HTML, CSS, JavaScript
-Backend	Node.js, Express.js
-Database	MySQL
-API	RESTful APIs (Express Routing)
-Tools	Git, GitHub, VS Code
+Frontend:	HTML, CSS, JavaScript,
+Backend:	Node.js, Express.js,
+Database:	MySQL,
+API:	RESTful APIs (Express Routing),
+Tools:	Git, GitHub, VS Code.
 
 📄 License
 This project is licensed under the MIT License.
